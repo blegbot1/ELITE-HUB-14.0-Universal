@@ -1,9 +1,9 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
-local debugMode = true  -- поставить false, чтобы выключить логи
+local debugMode = true  --  false,   
 
 if getgenv().ELITE_HUB_HASKER_LOADED then
-    Rayfield:Notify({ Title = "⚠️ Уже запущен", Content = "ELITE HUB уже загружен", Duration = 3 })
+    Rayfield:Notify({ Title = "  ", Content = "ELITE HUB  ", Duration = 3 })
     return
 end
 getgenv().ELITE_HUB_HASKER_LOADED = true
@@ -38,7 +38,7 @@ task.spawn(function()
     sub.BackgroundTransparency = 1
     sub.Size = UDim2.new(1, 0, 0, 24)
     sub.Position = UDim2.new(0, 0, 0.3, 15)
-    sub.Text = "14.0 HASKER EDITION | ОБНОВЛЕНО"
+    sub.Text = "14.0 HASKER EDITION | "
     sub.TextColor3 = Color3.fromRGB(120, 80, 180)
     sub.TextSize = 16
     sub.Font = Enum.Font.GothamMedium
@@ -63,7 +63,7 @@ task.spawn(function()
     status.BackgroundTransparency = 1
     status.Size = UDim2.new(1, 0, 0, 20)
     status.Position = UDim2.new(0, 0, 0.3, 70)
-    status.Text = "Инициализация..."
+    status.Text = "..."
     status.TextColor3 = Color3.fromRGB(100, 70, 150)
     status.TextSize = 12
     status.Font = Enum.Font.Gotham
@@ -71,14 +71,14 @@ task.spawn(function()
 
     local TweenService = game:GetService("TweenService")
     local steps = {
-        {0.15, "Загрузка Rayfield..."},
-        {0.30, "Настройка ESP..."},
-        {0.45, "Настройка Aimbot..."},
-        {0.55, "Загрузка функций..."},
-        {0.70, "Создание интерфейса..."},
-        {0.85, "Применение настроек..."},
-        {0.95, "Финализация..."},
-        {1.0,  "Готово!"},
+        {0.15, " Rayfield..."},
+        {0.30, " ESP..."},
+        {0.45, " Aimbot..."},
+        {0.55, " ..."},
+        {0.70, " ..."},
+        {0.85, " ..."},
+        {0.95, "..."},
+        {1.0,  "!"},
     }
     for _, step in ipairs(steps) do
         TweenService:Create(bar, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(step[1], 0, 1, 0)}):Play()
@@ -114,14 +114,14 @@ end
 getgenv().ELITE_HUB_Log = Log
 
 getgenv().ELITE_HUB_RUN_COUNT = (getgenv().ELITE_HUB_RUN_COUNT or 0) + 1
-Log("SYSTEM", "Скрипт запущен. Общий запуск #" .. tostring(getgenv().ELITE_HUB_RUN_COUNT))
+Log("SYSTEM", " .   #" .. tostring(getgenv().ELITE_HUB_RUN_COUNT))
 
 local DrawingSupported = pcall(function()
     local d = Drawing.new("Line")
     d:Remove()
     return true
 end)
-Log("SYSTEM", "Поддержка Drawing: " .. tostring(DrawingSupported))
+Log("SYSTEM", " Drawing: " .. tostring(DrawingSupported))
 
 local ThemePurple = {
 	TextColor = Color3.fromRGB(245, 245, 255),
@@ -166,22 +166,22 @@ local ThemePurple = {
 }
 
 local Window = Rayfield:CreateWindow({
-    Name = "🌟💎 ELITE HUB 14.0 HASKER 💎🌟",
-    LoadingTitle = "⚡🔥 Hasker Edition загружается... 🔥⚡",
-    LoadingSubtitle = "💜👑 by gerkylesichakes | Версия 14.0 | Обновлено: +Mods, Chams, ESP, Aimbot, Spin Bot 👑💜",
+    Name = " ELITE HUB 14.0 HASKER ",
+    LoadingTitle = " Hasker Edition ... ",
+    LoadingSubtitle = " by gerkylesichakes |  14.0 | : +Mods, Chams, ESP, Aimbot, Spin Bot ",
     Theme = ThemePurple
 })
 
-local MainTab = Window:CreateTab("🏠 ОСНОВНОЕ", 11286187172)
-local ESPTab = Window:CreateTab("👁️ ESP", 6026568198)
-local CombatTab = Window:CreateTab("🎯 AIMBOT", 7733960981)
-local VisualTab = Window:CreateTab("🎨 ВИЗУАЛ", 6022668888)
-local TeleportTab = Window:CreateTab("🌀 ТЕЛЕПОРТ", 6023426915)
-local KillAllTab = Window:CreateTab("⚔️ УБИТЬ ВСЕХ", 0)
-local FEScriptsTab = Window:CreateTab("🎭 FE СКРИПТЫ", 7733960981)
-local HubsTab = Window:CreateTab("🚀 ХАБЫ", 6022668888)
-local GameScriptsTab = Window:CreateTab("🎯 СКРИПТЫ ДЛЯ ИГР", 7733960981)
-getgenv().ELITE_HUB_ModsTab = Window:CreateTab("⚡ МОДЫ", 6026568198)
+local MainTab = Window:CreateTab(" ", 11286187172)
+local ESPTab = Window:CreateTab(" ESP", 6026568198)
+local CombatTab = Window:CreateTab(" AIMBOT", 7733960981)
+local VisualTab = Window:CreateTab(" ", 6022668888)
+local TeleportTab = Window:CreateTab(" ", 6023426915)
+local KillAllTab = Window:CreateTab("  ", 0)
+local FEScriptsTab = Window:CreateTab(" FE ", 7733960981)
+local HubsTab = Window:CreateTab(" ", 6022668888)
+local GameScriptsTab = Window:CreateTab("   ", 7733960981)
+getgenv().ELITE_HUB_ModsTab = Window:CreateTab(" ", 6026568198)
 
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
@@ -323,10 +323,10 @@ local function NewOverlayCircle()
 end
 
 local function DestroyScript()
-    Log("SYSTEM", "Выключение скрипта")
+    Log("SYSTEM", " ")
     Rayfield:Notify({
-        Title = "🛑 Выключение...",
-        Content = "Скрипт выключается",
+        Title = " ...",
+        Content = " ",
         Duration = 2
     })
     task.wait(1)
@@ -337,8 +337,8 @@ end
 local function LoadScript(name, url)
     task.spawn(function()
         Rayfield:Notify({
-            Title = "⏳ Загрузка...",
-            Content = name .. " запускается",
+            Title = " ...",
+            Content = name .. " ",
             Duration = 2
         })
         
@@ -352,14 +352,14 @@ local function LoadScript(name, url)
         
         if success then
             Rayfield:Notify({
-                Title = "✅ Успешно!",
-                Content = name .. " загружен",
+                Title = " !",
+                Content = name .. " ",
                 Duration = 3
             })
         else
             Rayfield:Notify({
-                Title = "❌ Ошибка!",
-                Content = "Не удалось загрузить " .. name,
+                Title = " !",
+                Content = "   " .. name,
                 Duration = 5
             })
             warn("Script Load Error:", name, err)
@@ -369,162 +369,162 @@ end
 
 --[[
     ==============================
-    ВКЛАДКА ХАБОВ
+     
     ==============================
 ]]--
-local HubsSection = HubsTab:CreateSection("🎮 УНИВЕРСАЛЬНЫЕ ХАБЫ")
+local HubsSection = HubsTab:CreateSection("  ")
 
 HubsTab:CreateButton({
-    Name = "🎮 Ghub V15",
+    Name = " Ghub V15",
     Callback = function()
-        LoadScript("🎮 Ghub V15", "https://raw.githubusercontent.com/gclich/GHUBV15_X_ZENXOS-MAINLOADER/refs/heads/main/GHUB-X-ZENXOS-V15.txt")
-    end
-})
-
-HubsTab:CreateButton({
-    Name = "❄️ Blizzard Hub V2",
-    Callback = function()
-        LoadScript("❄️ Blizzard Hub V2", "https://raw.githubusercontent.com/uaahjajajqoqiqkqhwhwhw/Blizzard-Hub-Official/main/Blizzard%20Hub%20V2.lua")
-    end
-})
-HubsTab:CreateButton({
-    Name = "🐯 Tiger X",
-    Callback = function()
-        LoadScript("🐯 Tiger X", "https://raw.githubusercontent.com/balintTheDevX/Tiger-X-V3/main/Tiger%20X%20V3.5%20Fixed")
+        LoadScript(" Ghub V15", "https://raw.githubusercontent.com/gclich/GHUBV15_X_ZENXOS-MAINLOADER/refs/heads/main/GHUB-X-ZENXOS-V15.txt")
     end
 })
 
 HubsTab:CreateButton({
-    Name = "🎨 Bido Skins V1.8",
+    Name = " Blizzard Hub V2",
     Callback = function()
-        LoadScript("🎨 Bido Skins V1.8", "https://raw.githubusercontent.com/BidoSkinsYT/BidoSkinsYT/main/Bido%20Skins%20V1.8")
+        LoadScript(" Blizzard Hub V2", "https://raw.githubusercontent.com/uaahjajajqoqiqkqhwhwhw/Blizzard-Hub-Official/main/Blizzard%20Hub%20V2.lua")
+    end
+})
+HubsTab:CreateButton({
+    Name = " Tiger X",
+    Callback = function()
+        LoadScript(" Tiger X", "https://raw.githubusercontent.com/balintTheDevX/Tiger-X-V3/main/Tiger%20X%20V3.5%20Fixed")
     end
 })
 
 HubsTab:CreateButton({
-    Name = "🌀 Draught Hub V5",
+    Name = " Bido Skins V1.8",
     Callback = function()
-        LoadScript("🌀 Draught Hub V5", "https://raw.githubusercontent.com/SabrXH/Draught-Hub-V5/refs/heads/main/Script.lua")
+        LoadScript(" Bido Skins V1.8", "https://raw.githubusercontent.com/BidoSkinsYT/BidoSkinsYT/main/Bido%20Skins%20V1.8")
     end
 })
 
 HubsTab:CreateButton({
-    Name = "🍊 OrangeX Hub",
+    Name = " Draught Hub V5",
     Callback = function()
-        LoadScript("🍊 OrangeX Hub", "https://raw.githubusercontent.com/ImJosh66/Ab2rW/main/ORANGEX%20V5%20RELEASED%20ORANGEX%20ON%20TOP%20.txt")
-    end
-})
-HubsTab:CreateButton({
-    Name = "👻 Ghost Hub",
-    Callback = function()
-        LoadScript("👻 Ghost Hub", "https://raw.githubusercontent.com/GhostPlayer352/Test4/main/GhostHub")
+        LoadScript(" Draught Hub V5", "https://raw.githubusercontent.com/SabrXH/Draught-Hub-V5/refs/heads/main/Script.lua")
     end
 })
 
 HubsTab:CreateButton({
-    Name = "⚡ Nullware Hub V3",
+    Name = " OrangeX Hub",
+    Callback = function()
+        LoadScript(" OrangeX Hub", "https://raw.githubusercontent.com/ImJosh66/Ab2rW/main/ORANGEX%20V5%20RELEASED%20ORANGEX%20ON%20TOP%20.txt")
+    end
+})
+HubsTab:CreateButton({
+    Name = " Ghost Hub",
+    Callback = function()
+        LoadScript(" Ghost Hub", "https://raw.githubusercontent.com/GhostPlayer352/Test4/main/GhostHub")
+    end
+})
+
+HubsTab:CreateButton({
+    Name = " Nullware Hub V3",
     Callback = function()
         getgenv().Theme = "Blue"
-        LoadScript("⚡ Nullware Hub V3", "https://gist.githubusercontent.com/M6HqVBcddw2qaN4s/2d722888a388017c18028cd434c43a25/raw/dcccf1027fe4b90780e47767aaf584389c9d7771/EULma3fU90PUOKUn?identifier=".. (function()local a=""for b=1,256 do local c=math.random(1,3)a=a..string.char(c==1 and math.random(48,57)or c==2 and math.random(97,122)or c==3 and math.random(65,90))end;return a end)())
+        LoadScript(" Nullware Hub V3", "https://gist.githubusercontent.com/M6HqVBcddw2qaN4s/2d722888a388017c18028cd434c43a25/raw/dcccf1027fe4b90780e47767aaf584389c9d7771/EULma3fU90PUOKUn?identifier=".. (function()local a=""for b=1,256 do local c=math.random(1,3)a=a..string.char(c==1 and math.random(48,57)or c==2 and math.random(97,122)or c==3 and math.random(65,90))end;return a end)())
     end
 })
 
 HubsTab:CreateButton({
-    Name = "🔧 Haxker_6666666 Hub",
+    Name = " Haxker_6666666 Hub",
     Callback = function()
-        LoadScript("🔧 Haxker_6666666 Hub", "https://raw.githubusercontent.com/FreeRobloxScripts1/Haxker_6666666-Hub/main/loader")
+        LoadScript(" Haxker_6666666 Hub", "https://raw.githubusercontent.com/FreeRobloxScripts1/Haxker_6666666-Hub/main/loader")
     end
 })
 
 HubsTab:CreateButton({
-    Name = "🌙 Moon UI",
+    Name = " Moon UI",
     Callback = function()
-        LoadScript("🌙 Moon UI", "https://raw.githubusercontent.com/IlikeyocutgHAH12/MoonUI-v10-/main/MoonUI%20v10")
+        LoadScript(" Moon UI", "https://raw.githubusercontent.com/IlikeyocutgHAH12/MoonUI-v10-/main/MoonUI%20v10")
     end
 })
 
 HubsTab:CreateButton({
-    Name = "💪 GigaChad Hub v3.5",
+    Name = " GigaChad Hub v3.5",
     Callback = function()
-        LoadScript("💪 GigaChad Hub v3.5", "https://raw.githubusercontent.com/OWJBWKQLAISH/GigaChad-Hub/main/Version%20V3.5")
+        LoadScript(" GigaChad Hub v3.5", "https://raw.githubusercontent.com/OWJBWKQLAISH/GigaChad-Hub/main/Version%20V3.5")
     end
 })
 
 HubsTab:CreateButton({
-    Name = "🚀 Frixon Hub",
+    Name = " Frixon Hub",
     Callback = function()
-        LoadScript("🚀 Frixon Hub", "https://gist.githubusercontent.com/RedoGaming/459eb467f3df927b07ca398a68f3b053/raw/6d1f7a2c8fefd072dc53ebbbec38c6f93c7de1ad/Frixon%2520Hub!%2520New%2520OP%2520Exploit%2520Hub%2520for%2520Roblox!")
+        LoadScript(" Frixon Hub", "https://gist.githubusercontent.com/RedoGaming/459eb467f3df927b07ca398a68f3b053/raw/6d1f7a2c8fefd072dc53ebbbec38c6f93c7de1ad/Frixon%2520Hub!%2520New%2520OP%2520Exploit%2520Hub%2520for%2520Roblox!")
     end
 })
 
 HubsTab:CreateButton({
-    Name = "💎 Mega Hub",
+    Name = " Mega Hub",
     Callback = function()
-        LoadScript("💎 Mega Hub", "https://raw.githubusercontent.com/WholeF00ds/Mega/main/Obfuscated%20Loader")
+        LoadScript(" Mega Hub", "https://raw.githubusercontent.com/WholeF00ds/Mega/main/Obfuscated%20Loader")
     end
 })
 
 HubsTab:CreateButton({
-    Name = "🔰 Mini Hub",
+    Name = " Mini Hub",
     Callback = function()
-        LoadScript("🔰 Mini Hub", "https://raw.githubusercontent.com/MiniNoobie/MINI-HUB-V2/main/FINALLY%20UPDATED%20MINI%20HUB")
+        LoadScript(" Mini Hub", "https://raw.githubusercontent.com/MiniNoobie/MINI-HUB-V2/main/FINALLY%20UPDATED%20MINI%20HUB")
     end
 })
 
 HubsTab:CreateButton({
-    Name = "🎨 Davi GUI",
+    Name = " Davi GUI",
     Callback = function()
-        LoadScript("🎨 Davi GUI", "https://raw.githubusercontent.com/Davicoderliner/davigui/main/Daviguiv2loader.lua")
+        LoadScript(" Davi GUI", "https://raw.githubusercontent.com/Davicoderliner/davigui/main/Daviguiv2loader.lua")
     end
 })
 
 HubsTab:CreateButton({
-    Name = "🅱️ B Hub",
+    Name = " B Hub",
     Callback = function()
-        LoadScript("🅱️ B Hub", "https://raw.githubusercontent.com/YourLocalNzi/Ye/main/BHob6")
+        LoadScript(" B Hub", "https://raw.githubusercontent.com/YourLocalNzi/Ye/main/BHob6")
     end
 })
 
 HubsTab:CreateButton({
-    Name = "🎯 AirHub (Aimbot/ESP)",
+    Name = " AirHub (Aimbot/ESP)",
     Callback = function()
-        LoadScript("🎯 AirHub", "https://raw.githubusercontent.com/Exunys/AirHub/main/AirHub.lua")
+        LoadScript(" AirHub", "https://raw.githubusercontent.com/Exunys/AirHub/main/AirHub.lua")
     end
 })
 
 
 HubsTab:CreateButton({
-    Name = "🌟 Comet Hub",
+    Name = " Comet Hub",
     Callback = function()
-        LoadScript("🌟 Comet Hub", "https://raw.githubusercontent.com/AokijiFlame/Hubs/Squid/CometHub.lua")
+        LoadScript(" Comet Hub", "https://raw.githubusercontent.com/AokijiFlame/Hubs/Squid/CometHub.lua")
     end
 })
 
 HubsTab:CreateButton({
-    Name = "🏠 CarpetHack Hub",
+    Name = " CarpetHack Hub",
     Callback = function()
-        LoadScript("🏠 CarpetHack Hub", "https://raw.githubusercontent.com/RobloxHackingProject/CHHub/main/CHHub.lua")
+        LoadScript(" CarpetHack Hub", "https://raw.githubusercontent.com/RobloxHackingProject/CHHub/main/CHHub.lua")
     end
 })
 
 HubsTab:CreateButton({
-    Name = "⚡ Vynixu Hub",
+    Name = " Vynixu Hub",
     Callback = function()
-        LoadScript("⚡ Vynixu Hub", "https://raw.githubusercontent.com/RegularVynixu/Vynixius/main/Loader.lua")
+        LoadScript(" Vynixu Hub", "https://raw.githubusercontent.com/RegularVynixu/Vynixius/main/Loader.lua")
     end
 })
 
 HubsTab:CreateButton({
-    Name = "🎮 Hydroxide Hub",
+    Name = " Hydroxide Hub",
     Callback = function()
-        LoadScript("🎮 Hydroxide Hub", "https://raw.githubusercontent.com/Upbolt/Hydroxide/revision/init.lua")
+        LoadScript(" Hydroxide Hub", "https://raw.githubusercontent.com/Upbolt/Hydroxide/revision/init.lua")
     end
 })
 
 HubsTab:CreateButton({
-    Name = "🔥 Owl Hub",
+    Name = " Owl Hub",
     Callback = function()
-        LoadScript("🔥 Owl Hub", "https://raw.githubusercontent.com/CriShoux/OwlHub/master/OwlHub.txt")
+        LoadScript(" Owl Hub", "https://raw.githubusercontent.com/CriShoux/OwlHub/master/OwlHub.txt")
     end
 })
 
@@ -540,452 +540,408 @@ HubsTab:CreateButton({
 
 --[[
     ==============================
-    НОВАЯ ВКЛАДКА FE СКРИПТЫ
+      FE 
     ==============================
 ]]--
-local FEBasicSection = FEScriptsTab:CreateSection("🎭 ОСНОВНЫЕ FE СКРИПТЫ")
+local FEBasicSection = FEScriptsTab:CreateSection("  FE ")
 
 FEScriptsTab:CreateButton({
-    Name = "🥊 Fe Punch (R15/R6)",
+    Name = " Fe Punch (R15/R6)",
     Callback = function()
-        LoadScript("🥊 Fe Punch", "https://raw.githubusercontent.com/0Ben1/fe/main/obf_rf6iQURzu1fqrytcnLBAvW34C9N55kS9g9G3CKz086rC47M6632sEd4ZZYB0AYgV.lua.txt")
+        LoadScript(" Fe Punch", "https://raw.githubusercontent.com/0Ben1/fe/main/obf_rf6iQURzu1fqrytcnLBAvW34C9N55kS9g9G3CKz086rC47M6632sEd4ZZYB0AYgV.lua.txt")
     end
 })
 
 FEScriptsTab:CreateButton({
-    Name = "🐱 Fe Neko (R6 only)",
+    Name = " Fe Neko (R6 only)",
     Callback = function()
-        LoadScript("🐱 Fe Neko", "https://raw.githubusercontent.com/Gazer-Ha/Neko-v1/main/Extremely%20Broken")
+        LoadScript(" Fe Neko", "https://raw.githubusercontent.com/Gazer-Ha/Neko-v1/main/Extremely%20Broken")
     end
 })
 FEScriptsTab:CreateButton({
-    Name = "💨 Fe Gale Fighter (R6 only)",
+    Name = " Fe Gale Fighter (R6 only)",
     Callback = function()
-        LoadScript("💨 Fe Gale Fighter", "https://pastebin.com/raw/XPGSMEw9")
+        LoadScript(" Fe Gale Fighter", "https://pastebin.com/raw/XPGSMEw9")
     end
 })
 FEScriptsTab:CreateButton({
-    Name = "👊 Fe KJ (R6 only)",
+    Name = " Fe KJ (R6 only)",
     Callback = function()
-        LoadScript("👊 Fe KJ", "https://pastefy.app/sdAujywd/raw")
-    end
-})
-
-FEScriptsTab:CreateButton({
-    Name = "🔮 Fe Caducus (R6 only)",
-    Callback = function()
-        LoadScript("🔮 Fe Caducus", "https://pastebin.com/raw/LDL9AyQ4")
+        LoadScript(" Fe KJ", "https://pastefy.app/sdAujywd/raw")
     end
 })
 
 FEScriptsTab:CreateButton({
-    Name = "⚡ Fe Sonic (R6 only)",
+    Name = " Fe Caducus (R6 only)",
     Callback = function()
-        LoadScript("⚡ Fe Sonic", "https://pastebin.com/raw/uacVtsWe")
+        LoadScript(" Fe Caducus", "https://pastebin.com/raw/LDL9AyQ4")
     end
 })
 
 FEScriptsTab:CreateButton({
-    Name = "😢 Fe Sad Boy (R6 only)",
+    Name = " Fe Sonic (R6 only)",
     Callback = function()
-        LoadScript("😢 Fe Sad Boy", "https://pastebin.com/raw/hgPJbwF0")
+        LoadScript(" Fe Sonic", "https://pastebin.com/raw/uacVtsWe")
     end
 })
 
-local FEUtilitiesSection = FEScriptsTab:CreateSection("🛠️ FE УТИЛИТЫ")
+FEScriptsTab:CreateButton({
+    Name = " Fe Sad Boy (R6 only)",
+    Callback = function()
+        LoadScript(" Fe Sad Boy", "https://pastebin.com/raw/hgPJbwF0")
+    end
+})
+
+local FEUtilitiesSection = FEScriptsTab:CreateSection(" FE ")
 
 FEScriptsTab:CreateButton({
-    Name = "👨‍💼 Fe G-Man (R6 only)",
+    Name = " Fe G-Man (R6 only)",
     Callback = function()
         _G.clientsidedeffect = true
-        LoadScript("👨‍💼 Fe G-Man", "https://raw.githubusercontent.com/randomstring0/Qwerty/refs/heads/main/qwerty18.lua")
+        LoadScript(" Fe G-Man", "https://raw.githubusercontent.com/randomstring0/Qwerty/refs/heads/main/qwerty18.lua")
     end
 })
 
 FEScriptsTab:CreateButton({
-    Name = "🚗 Fe Car (R15/R6)",
+    Name = " Fe Car (R15/R6)",
     Callback = function()
-        LoadScript("🚗 Fe Car", "https://raw.githubusercontent.com/AlexCr4sh/FeScripts/main/FeCarScript.lua")
+        LoadScript(" Fe Car", "https://raw.githubusercontent.com/AlexCr4sh/FeScripts/main/FeCarScript.lua")
     end
 })
 
 FEScriptsTab:CreateButton({
-    Name = "🥊 Fe Fighter (R6 only)",
+    Name = " Fe Fighter (R6 only)",
     Callback = function()
-        LoadScript("🥊 Fe Fighter", "https://rawscripts.net/raw/Universal-Script-FE-Fighter-inspired-by-Gale-21557")
+        LoadScript(" Fe Fighter", "https://rawscripts.net/raw/Universal-Script-FE-Fighter-inspired-by-Gale-21557")
     end
 })
 
 FEScriptsTab:CreateButton({
-    Name = "🤗 Fe Hug (All Games)",
+    Name = " Fe Hug (All Games)",
     Callback = function()
-        LoadScript("🤗 Fe Hug", "https://rawscripts.net/raw/Universal-Script-Hug-Gui-R6-17818")
+        LoadScript(" Fe Hug", "https://rawscripts.net/raw/Universal-Script-Hug-Gui-R6-17818")
     end
 })
 
 FEScriptsTab:CreateButton({
-    Name = "👑 Fe Honored (R6 only)",
+    Name = " Fe Honored (R6 only)",
     Callback = function()
-        LoadScript("👑 Fe Honored", "https://raw.githubusercontent.com/Cortzalno666/NectoVerse-Industries-Data/master/Scripts%20Folder/Honored.lua")
+        LoadScript(" Fe Honored", "https://raw.githubusercontent.com/Cortzalno666/NectoVerse-Industries-Data/master/Scripts%20Folder/Honored.lua")
     end
 })
 
 FEScriptsTab:CreateButton({
-    Name = "👻 Fe Invisible (All Games)",
+    Name = " Fe Invisible (All Games)",
     Callback = function()
-        LoadScript("👻 Fe Invisible", "https://pastebin.com/raw/3Rnd9rHf")
+        LoadScript(" Fe Invisible", "https://pastebin.com/raw/3Rnd9rHf")
     end
 })
 
 FEScriptsTab:CreateButton({
-    Name = "🤖 Fe NPC Control (R6 only)",
+    Name = " Fe NPC Control (R6 only)",
     Callback = function()
-        LoadScript("🤖 Fe NPC Control", "https://raw.githubusercontent.com/randomstring0/Qwerty/refs/heads/main/qwerty13.lua")
+        LoadScript(" Fe NPC Control", "https://raw.githubusercontent.com/randomstring0/Qwerty/refs/heads/main/qwerty13.lua")
     end
 })
 
 FEScriptsTab:CreateButton({
-    Name = "🌀 Fe Telekinesis V5",
+    Name = " Fe Telekinesis V5",
     Callback = function()
-        LoadScript("🌀 Fe Telekinesis V5", "https://raw.githubusercontent.com/randomstring0/Qwerty/refs/heads/main/qwerty11.lua")
+        LoadScript(" Fe Telekinesis V5", "https://raw.githubusercontent.com/randomstring0/Qwerty/refs/heads/main/qwerty11.lua")
     end
 })
 
 FEScriptsTab:CreateButton({
-    Name = "🎨 Fe Tool Draw",
+    Name = " Fe Tool Draw",
     Callback = function()
-        LoadScript("🎨 Fe Tool Draw", "https://raw.githubusercontent.com/Affexter/Programs/refs/heads/main/scripts/tooldrawFE.lua")
+        LoadScript(" Fe Tool Draw", "https://raw.githubusercontent.com/Affexter/Programs/refs/heads/main/scripts/tooldrawFE.lua")
     end
 })
 
 FEScriptsTab:CreateButton({
-    Name = "🧟 Fe Zombie (R6/R15)",
+    Name = " Fe Zombie (R6/R15)",
     Callback = function()
-        LoadScript("🧟 Fe Zombie", "https://pastefy.app/w7KnPY70/raw")
+        LoadScript(" Fe Zombie", "https://pastefy.app/w7KnPY70/raw")
     end
 })
 
-local FEEffectsSection = FEScriptsTab:CreateSection("✨ FE ЭФФЕКТЫ")
+local FEEffectsSection = FEScriptsTab:CreateSection(" FE ")
 
 FEScriptsTab:CreateButton({
-    Name = "🕳️ Fe Blackhole",
+    Name = " Fe Blackhole",
     Callback = function()
-        LoadScript("🕳️ Fe Blackhole", "https://raw.githubusercontent.com/Bac0nHck/Scripts/main/BringFlingPlayers")
-    end
-})
-
-FEScriptsTab:CreateButton({
-    Name = "🌀 Fe Radius Blackhole",
-    Callback = function()
-        LoadScript("🌀 Fe Radius Blackhole", "https://pastebin.com/raw/RkWYLL5t")
+        LoadScript(" Fe Blackhole", "https://raw.githubusercontent.com/Bac0nHck/Scripts/main/BringFlingPlayers")
     end
 })
 
 FEScriptsTab:CreateButton({
-    Name = "💍 Fe Super Ring V4",
+    Name = " Fe Radius Blackhole",
     Callback = function()
-        LoadScript("💍 Fe Super Ring V4", "https://rawscripts.net/raw/Natural-Disaster-Survival-Super-ring-V4-24296")
+        LoadScript(" Fe Radius Blackhole", "https://pastebin.com/raw/RkWYLL5t")
     end
 })
 
 FEScriptsTab:CreateButton({
-    Name = "🔊 Fe Audio Spam",
+    Name = " Fe Super Ring V4",
     Callback = function()
-        LoadScript("🔊 Fe Audio Spam", "https://pastebin.com/raw/kmXCTkBt")
+        LoadScript(" Fe Super Ring V4", "https://rawscripts.net/raw/Natural-Disaster-Survival-Super-ring-V4-24296")
     end
 })
 
 FEScriptsTab:CreateButton({
-    Name = "⚔️ Fe Goner Divine Edge (R6 only)",
+    Name = " Fe Audio Spam",
     Callback = function()
-        LoadScript("⚔️ Fe Goner Divine Edge", "https://pastebin.com/raw/sFf9MeBE")
+        LoadScript(" Fe Audio Spam", "https://pastebin.com/raw/kmXCTkBt")
     end
 })
 
 FEScriptsTab:CreateButton({
-    Name = "💎 Fe Crystal Dance (R6 only)",
+    Name = " Fe Goner Divine Edge (R6 only)",
     Callback = function()
-        LoadScript("💎 Fe Crystal Dance", "https://pastebin.com/raw/vT1URaRJ")
+        LoadScript(" Fe Goner Divine Edge", "https://pastebin.com/raw/sFf9MeBE")
     end
 })
 
 FEScriptsTab:CreateButton({
-    Name = "💪 Fe Jerk (R15/R6)",
+    Name = " Fe Crystal Dance (R6 only)",
     Callback = function()
-        LoadScript("💪 Fe Jerk", "https://pastefy.app/YZoglOyJ/raw")
-    end
-})
-
-local GenesisFESection = FEScriptsTab:CreateSection("🌟 GENESIS FE СКРИПТЫ")
-
-FEScriptsTab:CreateButton({
-    Name = "🔨 Fe Ban Hammer",
-    Callback = function()
-        LoadScript("🔨 Fe Ban Hammer", "https://raw.githubusercontent.com/GenesisFE/Genesis/main/Obfuscations/Ban%20Hammer")
+        LoadScript(" Fe Crystal Dance", "https://pastebin.com/raw/vT1URaRJ")
     end
 })
 
 FEScriptsTab:CreateButton({
-    Name = "🌊 FE Neptunian V",
+    Name = " Fe Jerk (R15/R6)",
     Callback = function()
-        LoadScript("🌊 FE Neptunian V", "https://raw.githubusercontent.com/GenesisFE/Genesis/main/Obfuscations/Neptunian%20V")
+        LoadScript(" Fe Jerk", "https://pastefy.app/YZoglOyJ/raw")
+    end
+})
+
+local GenesisFESection = FEScriptsTab:CreateSection(" GENESIS FE ")
+
+FEScriptsTab:CreateButton({
+    Name = " Fe Ban Hammer",
+    Callback = function()
+        LoadScript(" Fe Ban Hammer", "https://raw.githubusercontent.com/GenesisFE/Genesis/main/Obfuscations/Ban%20Hammer")
     end
 })
 
 FEScriptsTab:CreateButton({
-    Name = "⚔️ Fe Linked Sword",
+    Name = " FE Neptunian V",
     Callback = function()
-        LoadScript("⚔️ Fe Linked Sword", "https://raw.githubusercontent.com/GenesisFE/Genesis/main/Obfuscations/Linked%20Sword")
+        LoadScript(" FE Neptunian V", "https://raw.githubusercontent.com/GenesisFE/Genesis/main/Obfuscations/Neptunian%20V")
     end
 })
 
 FEScriptsTab:CreateButton({
-    Name = "⭐ Fe Star Glicher",
+    Name = " Fe Linked Sword",
     Callback = function()
-        LoadScript("⭐ Fe Star Glicher", "https://raw.githubusercontent.com/GenesisFE/Genesis/main/Obfuscations/Star%20Glitcher")
+        LoadScript(" Fe Linked Sword", "https://raw.githubusercontent.com/GenesisFE/Genesis/main/Obfuscations/Linked%20Sword")
     end
 })
 
 FEScriptsTab:CreateButton({
-    Name = "🔫 FE AK-47 (Da Hood)",
+    Name = " Fe Star Glicher",
     Callback = function()
-        LoadScript("🔫 FE AK-47", "https://raw.githubusercontent.com/GenesisFE/Genesis/main/Obfuscations/AK-47")
+        LoadScript(" Fe Star Glicher", "https://raw.githubusercontent.com/GenesisFE/Genesis/main/Obfuscations/Star%20Glitcher")
     end
 })
 
 FEScriptsTab:CreateButton({
-    Name = "💎 Fe Krystal Dance",
+    Name = " FE AK-47 (Da Hood)",
     Callback = function()
-        LoadScript("💎 Fe Krystal Dance", "https://raw.githubusercontent.com/GenesisFE/Genesis/main/Obfuscations/Krystal%20Dance")
+        LoadScript(" FE AK-47", "https://raw.githubusercontent.com/GenesisFE/Genesis/main/Obfuscations/AK-47")
     end
 })
 
 FEScriptsTab:CreateButton({
-    Name = "👮 Fe Good Cop Bad Cop",
+    Name = " Fe Krystal Dance",
     Callback = function()
-        LoadScript("👮 Fe Good Cop Bad Cop", "https://raw.githubusercontent.com/GenesisFE/Genesis/main/Obfuscations/Good%20Cop%20Bad%20Cop")
+        LoadScript(" Fe Krystal Dance", "https://raw.githubusercontent.com/GenesisFE/Genesis/main/Obfuscations/Krystal%20Dance")
     end
 })
 
 FEScriptsTab:CreateButton({
-    Name = "💨 Fe Gale Fighter",
+    Name = " Fe Good Cop Bad Cop",
     Callback = function()
-        LoadScript("💨 Fe Gale Fighter", "https://raw.githubusercontent.com/GenesisFE/Genesis/main/Obfuscations/Gale%20Fighter")
+        LoadScript(" Fe Good Cop Bad Cop", "https://raw.githubusercontent.com/GenesisFE/Genesis/main/Obfuscations/Good%20Cop%20Bad%20Cop")
     end
 })
 
 FEScriptsTab:CreateButton({
-    Name = "🔫 FE Dearsister Pistol",
+    Name = " Fe Gale Fighter",
     Callback = function()
-        LoadScript("🔫 FE Dearsister Pistol", "https://raw.githubusercontent.com/GenesisFE/Genesis/main/Obfuscations/Dearsister")
-    end
-})
-
-local FEAnimationsSection = FEScriptsTab:CreateSection("💃 FE АНИМАЦИИ")
-
-FEScriptsTab:CreateButton({
-    Name = "👨 Fe Animation Man (R6 only)",
-    Callback = function()
-        LoadScript("👨 Fe Animation Man", "https://pastefy.app/ZWgckZdU/raw")
-    end
-})
-FEScriptsTab:CreateButton({
-    Name = "🚶 Fe Animation Walk (R15)",
-    Callback = function()
-        LoadScript("🚶 Fe Animation Walk", "https://pastebin.com/raw/T7kdfUmG")
+        LoadScript(" Fe Gale Fighter", "https://raw.githubusercontent.com/GenesisFE/Genesis/main/Obfuscations/Gale%20Fighter")
     end
 })
 
 FEScriptsTab:CreateButton({
-    Name = "🕺 Fe Get Sturdy (Baseplate)",
+    Name = " FE Dearsister Pistol",
     Callback = function()
-        LoadScript("🕺 Fe Get Sturdy", "https://pastebin.com/raw/xAHFn1hh")
-    end
-})
-FEScriptsTab:CreateButton({
-    Name = "🎭 Fe Emotes (R15 only)",
-    Callback = function()
-        LoadScript("🎭 Fe Emotes", "https://pastebin.com/raw/eCpipCTH")
+        LoadScript(" FE Dearsister Pistol", "https://raw.githubusercontent.com/GenesisFE/Genesis/main/Obfuscations/Dearsister")
     end
 })
 
-local AdditionalFESection = FEScriptsTab:CreateSection("✨ ДОПОЛНИТЕЛЬНЫЕ FE СКРИПТЫ")
-local FEUtilitiesSection2 = FEScriptsTab:CreateSection("🛠️ ПОПУЛЯРНЫЕ УТИЛИТЫ")
+local FEAnimationsSection = FEScriptsTab:CreateSection(" FE ")
 
 FEScriptsTab:CreateButton({
-    Name = "♾️ Infinite Yield",
+    Name = " Fe Animation Man (R6 only)",
     Callback = function()
-        LoadScript("♾️ Infinite Yield", "https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source")
+        LoadScript(" Fe Animation Man", "https://pastefy.app/ZWgckZdU/raw")
     end
 })
-
 FEScriptsTab:CreateButton({
-    Name = "🔍 Dark Dex V3",
+    Name = " Fe Animation Walk (R15)",
     Callback = function()
-        LoadScript("🔍 Dark Dex V3", "https://raw.githubusercontent.com/Babyhamsta/RBLX_Scripts/main/Universal/BypassedDarkDexV3.lua")
+        LoadScript(" Fe Animation Walk", "https://pastebin.com/raw/T7kdfUmG")
     end
 })
 
 FEScriptsTab:CreateButton({
-    Name = "📊 Remote Spy",
+    Name = " Fe Get Sturdy (Baseplate)",
     Callback = function()
-        LoadScript("📊 Remote Spy", "https://raw.githubusercontent.com/exxtremestuffs/SimpleSpySource/master/SimpleSpy.lua")
+        LoadScript(" Fe Get Sturdy", "https://pastebin.com/raw/xAHFn1hh")
+    end
+})
+FEScriptsTab:CreateButton({
+    Name = " Fe Emotes (R15 only)",
+    Callback = function()
+        LoadScript(" Fe Emotes", "https://pastebin.com/raw/eCpipCTH")
+    end
+})
+
+local AdditionalFESection = FEScriptsTab:CreateSection("  FE ")
+local FEUtilitiesSection2 = FEScriptsTab:CreateSection("  ")
+
+FEScriptsTab:CreateButton({
+    Name = " Infinite Yield",
+    Callback = function()
+        LoadScript(" Infinite Yield", "https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source")
     end
 })
 
 FEScriptsTab:CreateButton({
-    Name = "🎨 Unnamed ESP",
+    Name = " Dark Dex V3",
     Callback = function()
-        LoadScript("🎨 Unnamed ESP", "https://raw.githubusercontent.com/ic3w0lf22/Unnamed-ESP/master/UnnamedESP.lua")
+        LoadScript(" Dark Dex V3", "https://raw.githubusercontent.com/Babyhamsta/RBLX_Scripts/main/Universal/BypassedDarkDexV3.lua")
     end
 })
 
 FEScriptsTab:CreateButton({
-    Name = "🔧 CMD-X",
+    Name = " Remote Spy",
     Callback = function()
-        LoadScript("🔧 CMD-X", "https://raw.githubusercontent.com/CMD-X/CMD-X/master/Source")
+        LoadScript(" Remote Spy", "https://raw.githubusercontent.com/exxtremestuffs/SimpleSpySource/master/SimpleSpy.lua")
     end
 })
 
 FEScriptsTab:CreateButton({
-    Name = "💻 Hydroxide",
+    Name = " Unnamed ESP",
     Callback = function()
-        LoadScript("💻 Hydroxide", "https://raw.githubusercontent.com/Upbolt/Hydroxide/revision/init.lua")
+        LoadScript(" Unnamed ESP", "https://raw.githubusercontent.com/ic3w0lf22/Unnamed-ESP/master/UnnamedESP.lua")
+    end
+})
+
+FEScriptsTab:CreateButton({
+    Name = " CMD-X",
+    Callback = function()
+        LoadScript(" CMD-X", "https://raw.githubusercontent.com/CMD-X/CMD-X/master/Source")
+    end
+})
+
+FEScriptsTab:CreateButton({
+    Name = " Hydroxide",
+    Callback = function()
+        LoadScript(" Hydroxide", "https://raw.githubusercontent.com/Upbolt/Hydroxide/revision/init.lua")
     end
 })
 FEScriptsTab:CreateButton({
-    Name = "⚡ FPS Booster",
+    Name = " FPS Booster",
     Callback = function()
-        LoadScript("⚡ FPS Booster", "https://raw.githubusercontent.com/CasperFlyModz/discord.gg-rips/main/FPSBooster.lua")
+        LoadScript(" FPS Booster", "https://raw.githubusercontent.com/CasperFlyModz/discord.gg-rips/main/FPSBooster.lua")
     end
 })
 --[[
     ==============================
-    ВКЛАДКА СКРИПТОВ ДЛЯ ИГР
+       
     ==============================
 ]]--
 
-local PopularGamesSection = GameScriptsTab:CreateSection("🔥 ПОПУЛЯРНЫЕ ИГРЫ")
+local PopularGamesSection = GameScriptsTab:CreateSection("  ")
 GameScriptsTab:CreateButton({
-    Name = "🏝️ Islands",
+    Name = " Islands",
     Callback = function()
-        LoadScript("🏝️ Islands", "https://raw.githubusercontent.com/CriShoux/OwlHub/master/OwlHub.txt")
+        LoadScript(" Islands", "https://raw.githubusercontent.com/CriShoux/OwlHub/master/OwlHub.txt")
     end
 })
 
 GameScriptsTab:CreateButton({
-    Name = "🏭 Jailbreak",
+    Name = " Jailbreak",
     Callback = function()
-        LoadScript("🏭 Jailbreak", "https://raw.githubusercontent.com/RegularVynixu/Vynixius/main/Jailbreak/Script.lua")
+        LoadScript(" Jailbreak", "https://raw.githubusercontent.com/RegularVynixu/Vynixius/main/Jailbreak/Script.lua")
     end
 })
 GameScriptsTab:CreateButton({
-    Name = "🐝 Bee Swarm Simulator",
+    Name = " Bee Swarm Simulator",
     Callback = function()
-        LoadScript("🐝 Bee Swarm Simulator", "https://raw.githubusercontent.com/Historia00012/HISTORIAHUB/main/BSS%20FREE")
+        LoadScript(" Bee Swarm Simulator", "https://raw.githubusercontent.com/Historia00012/HISTORIAHUB/main/BSS%20FREE")
     end
 })
 
-local SimulatorsSection = GameScriptsTab:CreateSection("🎰 СИМУЛЯТОРЫ")
+local SimulatorsSection = GameScriptsTab:CreateSection(" ")
 
 GameScriptsTab:CreateButton({
-    Name = "💪 Muscle Legends",
+    Name = " Muscle Legends",
     Callback = function()
-        LoadScript("💪 Muscle Legends", "https://raw.githubusercontent.com/harisiskandar178/Roblox-Script/main/Muscle%20Legend")
+        LoadScript(" Muscle Legends", "https://raw.githubusercontent.com/harisiskandar178/Roblox-Script/main/Muscle%20Legend")
     end
 })
 
 GameScriptsTab:CreateButton({
-    Name = "🐾 Pet Simulator X",
+    Name = " Pet Simulator X",
     Callback = function()
-        LoadScript("🐾 Pet Simulator X", "https://raw.githubusercontent.com/Muhammad6196/Project-WD/main/Main.lua")
+        LoadScript(" Pet Simulator X", "https://raw.githubusercontent.com/Muhammad6196/Project-WD/main/Main.lua")
     end
 })
-local HorrorGamesSection = GameScriptsTab:CreateSection("👻 ХОРРОР ИГРЫ")
+local HorrorGamesSection = GameScriptsTab:CreateSection("  ")
 
 GameScriptsTab:CreateButton({
-    Name = "🚪 Doors",
+    Name = " Doors",
     Callback = function()
-        LoadScript("🚪 Doors", "https://raw.githubusercontent.com/RegularVynixu/Vynixius/main/Doors/Script.lua")
+        LoadScript(" Doors", "https://raw.githubusercontent.com/RegularVynixu/Vynixius/main/Doors/Script.lua")
     end
 })
-local FightingGamesSection = GameScriptsTab:CreateSection("🥊 ФАЙТИНГ ИГРЫ")
-local MoreGamesSection = GameScriptsTab:CreateSection("🎲 ДОПОЛНИТЕЛЬНЫЕ ИГРЫ")
+local FightingGamesSection = GameScriptsTab:CreateSection("  ")
+local MoreGamesSection = GameScriptsTab:CreateSection("  ")
 GameScriptsTab:CreateButton({
-    Name = "🎮 Funky Friday",
+    Name = " Funky Friday",
     Callback = function()
-        LoadScript("🎮 Funky Friday", "https://raw.githubusercontent.com/ShowerHead-FluxTeam/scripts/main/funky-friday-autoplay")
+        LoadScript(" Funky Friday", "https://raw.githubusercontent.com/ShowerHead-FluxTeam/scripts/main/funky-friday-autoplay")
     end
 })
-local AnimeGamesSection = GameScriptsTab:CreateSection("⚡ ANIME ИГРЫ")
-local TycoonGamesSection = GameScriptsTab:CreateSection("🏭 TYCOON ИГРЫ")
-local ObbyGamesSection = GameScriptsTab:CreateSection("🏃 OBBY ИГРЫ")
+local AnimeGamesSection = GameScriptsTab:CreateSection(" ANIME ")
+local TycoonGamesSection = GameScriptsTab:CreateSection(" TYCOON ")
+local ObbyGamesSection = GameScriptsTab:CreateSection(" OBBY ")
 --[[
     ==============================
-    РАЗДЕЛ ОСНОВНЫХ ФУНКЦИЙ
+      
     ==============================
 ]]--
-local AdventureSection = MainTab:CreateSection("🚀 ОСНОВНЫЕ ФУНКЦИИ")
+local AdventureSection = MainTab:CreateSection("  ")
 
 local noclipActive = false
 local noclipConnection = nil
 local BindConfig = {
     Fly = "F",
     Noclip = "N",
-    SpeedBoost = "V"
+    SpeedBoost = "V",
+    SpinBot = "B"
 }
-local antiAFKActive = true
-local wallhopActive = false
-local wallhopConnection = nil
-local wallhopBindKey = Enum.KeyCode.LeftControl -- Бинд по умолчанию
-
-local speeds = 1
-local nowe = false
-local tpwalking = false
-local flyBg = nil
-local flyBv = nil
-
-_G.flyCtrl = {f = 0, b = 0, l = 0, r = 0}
-local ctrl = _G.flyCtrl
-
-local noclipConnection = nil
-
-local antiAFKConnection
-local function ToggleAntiAFK()
-    antiAFKActive = not antiAFKActive
-    if antiAFKActive then
-        antiAFKConnection = game:GetService("Players").LocalPlayer.Idled:Connect(function()
-            game:GetService("VirtualInputManager"):Button2Down(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
-            task.wait()
-            game:GetService("VirtualInputManager"):Button2Up(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
-        end)
-        Rayfield:Notify({
-            Title = "✅ Анти-AFK",
-            Content = "Анти-AFK включён",
-            Duration = 3
-        })
-    else
-        if antiAFKConnection then
-            antiAFKConnection:Disconnect()
-            antiAFKConnection = nil
-        end
-        Rayfield:Notify({
-            Title = "❌ Анти-AFK",
-            Content = "Анти-AFK выключен",
-            Duration = 3
-        })
-    end
-end
-
-ToggleAntiAFK()
-
 local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 local RunService = game:GetService("RunService")
 
 local raycastParams = RaycastParams.new()
 raycastParams.FilterType = Enum.RaycastFilterType.Blacklist
-local InfiniteJumpEnabled = true -- Debounce для основного wallhop
+local InfiniteJumpEnabled = true -- Debounce   wallhop
 
 local function getWallRaycastResult()
     local player = Players.LocalPlayer
@@ -1112,8 +1068,8 @@ local function ToggleWallhop()
             performWallJump()
         end)
         Rayfield:Notify({
-            Title = "✅ WallHop",
-            Content = "WallHop включён (Бинд: " .. tostring(wallhopBindKey.Name) .. ")",
+            Title = " WallHop",
+            Content = "WallHop  (: " .. tostring(wallhopBindKey.Name) .. ")",
             Duration = 3
         })
     else
@@ -1122,8 +1078,8 @@ local function ToggleWallhop()
             wallhopConnection = nil
         end
         Rayfield:Notify({
-            Title = "❌ WallHop",
-            Content = "WallHop выключен",
+            Title = " WallHop",
+            Content = "WallHop ",
             Duration = 3
         })
     end
@@ -1146,6 +1102,27 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
     local success5, speedKey = pcall(function() return Enum.KeyCode[BindConfig.SpeedBoost] end)
     if success5 and speedKey and input.KeyCode == speedKey then
         ActivateSpeedBoost()
+    end
+    local success6, spinKey = pcall(function() return Enum.KeyCode[BindConfig.SpinBot] end)
+    if success6 and spinKey and input.KeyCode == spinKey then
+        getgenv().ELITE_HUB_SpinBot = not getgenv().ELITE_HUB_SpinBot
+        getgenv().ELITE_HUB_Log("MODS", "Spin Bot: " .. tostring(getgenv().ELITE_HUB_SpinBot))
+        if getgenv().ELITE_HUB_SpinBot then
+            task.spawn(function()
+                while getgenv().ELITE_HUB_SpinBot do
+                    task.wait(0.016)
+                    pcall(function()
+                        local ch = player.Character
+                        if ch then
+                            local hrp = ch:FindFirstChild("HumanoidRootPart")
+                            if hrp then
+                                hrp.CFrame = hrp.CFrame * CFrame.Angles(0, math.rad(getgenv().ELITE_HUB_SpinSpeed * 0.1), 0)
+                            end
+                        end
+                    end)
+                end
+            end)
+        end
     end
 end)
 
@@ -1231,49 +1208,82 @@ local function CreateMiniButton(name, text, order, callback)
     return btn
 end
 
-local wallhopBtn = CreateMiniButton("WallhopBtn", "🧱 WallHop", 0, function() ToggleWallhop() end)
-local flyBtn = CreateMiniButton("FlyBtn", "✈️ Fly", 1, function() ToggleFly() end)
-local noclipBtn = CreateMiniButton("NoclipBtn", "👻 Noclip", 2, function() ToggleNoclip() end)
+local wallhopBtn = CreateMiniButton("WallhopBtn", " WallHop", 0, function() ToggleWallhop() end)
+local flyBtn = CreateMiniButton("FlyBtn", " Fly", 1, function() ToggleFly() end)
+local noclipBtn = CreateMiniButton("NoclipBtn", " Noclip", 2, function() ToggleNoclip() end)
 
-getgenv().ELITE_HUB_SpeedBtn = CreateMiniButton("SpeedBoostBtn", "⚡ Speed Boost", 3, function()
+getgenv().ELITE_HUB_SpeedBtn = CreateMiniButton("SpeedBoostBtn", " Speed Boost", 3, function()
     ActivateSpeedBoost()
+end)
+
+getgenv().ELITE_HUB_SpinBtn = CreateMiniButton("SpinBotBtn", " Spin Bot", 4, function()
+    getgenv().ELITE_HUB_SpinBot = not getgenv().ELITE_HUB_SpinBot
+    getgenv().ELITE_HUB_Log("MODS", "Spin Bot: " .. tostring(getgenv().ELITE_HUB_SpinBot))
+    if getgenv().ELITE_HUB_SpinBot then
+        task.spawn(function()
+            while getgenv().ELITE_HUB_SpinBot do
+                task.wait(0.016)
+                pcall(function()
+                    local ch = player.Character
+                    if ch then
+                        local hrp = ch:FindFirstChild("HumanoidRootPart")
+                        if hrp then
+                            hrp.CFrame = hrp.CFrame * CFrame.Angles(0, math.rad(getgenv().ELITE_HUB_SpinSpeed * 0.1), 0)
+                        end
+                    end
+                end)
+            end
+        end)
+    end
 end)
 
 function updateMiniGuiButtons()
     if wallhopActive then
-        wallhopBtn.Text = "  🧱 WallHop: ON"
+        wallhopBtn.Text = "   WallHop: ON"
         wallhopBtn.BackgroundColor3 = Color3.fromRGB(30, 100, 50)
         wallhopBtn.TextColor3 = Color3.fromRGB(120, 255, 140)
         wallhopBtn.Indicator.BackgroundColor3 = Color3.fromRGB(0, 255, 80)
     else
-        wallhopBtn.Text = "  🧱 WallHop: OFF"
+        wallhopBtn.Text = "   WallHop: OFF"
         wallhopBtn.BackgroundColor3 = Color3.fromRGB(40, 28, 65)
         wallhopBtn.TextColor3 = Color3.fromRGB(170, 170, 170)
         wallhopBtn.Indicator.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
     end
 
     if nowe then
-        flyBtn.Text = "  ✈️ Fly: ON"
+        flyBtn.Text = "   Fly: ON"
         flyBtn.BackgroundColor3 = Color3.fromRGB(30, 60, 120)
         flyBtn.TextColor3 = Color3.fromRGB(120, 180, 255)
         flyBtn.Indicator.BackgroundColor3 = Color3.fromRGB(60, 140, 255)
     else
-        flyBtn.Text = "  ✈️ Fly: OFF"
+        flyBtn.Text = "   Fly: OFF"
         flyBtn.BackgroundColor3 = Color3.fromRGB(40, 28, 65)
         flyBtn.TextColor3 = Color3.fromRGB(170, 170, 170)
         flyBtn.Indicator.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
     end
 
     if noclipActive then
-        noclipBtn.Text = "  👻 Noclip: ON"
+        noclipBtn.Text = "   Noclip: ON"
         noclipBtn.BackgroundColor3 = Color3.fromRGB(100, 40, 100)
         noclipBtn.TextColor3 = Color3.fromRGB(255, 140, 255)
         noclipBtn.Indicator.BackgroundColor3 = Color3.fromRGB(200, 80, 255)
     else
-        noclipBtn.Text = "  👻 Noclip: OFF"
+        noclipBtn.Text = "   Noclip: OFF"
         noclipBtn.BackgroundColor3 = Color3.fromRGB(40, 28, 65)
         noclipBtn.TextColor3 = Color3.fromRGB(170, 170, 170)
         noclipBtn.Indicator.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+    end
+
+    if getgenv().ELITE_HUB_SpinBot then
+        getgenv().ELITE_HUB_SpinBtn.Text = "   Spin Bot: ON"
+        getgenv().ELITE_HUB_SpinBtn.BackgroundColor3 = Color3.fromRGB(120, 40, 40)
+        getgenv().ELITE_HUB_SpinBtn.TextColor3 = Color3.fromRGB(255, 140, 140)
+        getgenv().ELITE_HUB_SpinBtn.Indicator.BackgroundColor3 = Color3.fromRGB(255, 80, 80)
+    else
+        getgenv().ELITE_HUB_SpinBtn.Text = "   Spin Bot: OFF"
+        getgenv().ELITE_HUB_SpinBtn.BackgroundColor3 = Color3.fromRGB(40, 28, 65)
+        getgenv().ELITE_HUB_SpinBtn.TextColor3 = Color3.fromRGB(170, 170, 170)
+        getgenv().ELITE_HUB_SpinBtn.Indicator.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
     end
 end
 
@@ -1281,7 +1291,7 @@ local function ToggleMiniMenu()
     if miniFrame.Visible then
         miniFrame.Visible = false
     else
-        local btns = 4
+        local btns = 5
         local totalH = 56 + btns * 38
         miniFrame.Size = UDim2.new(0, 200, 0, totalH)
         miniFrame.Visible = true
@@ -1311,7 +1321,7 @@ function ActivateSpeedBoost()
 
     local sb = getgenv().ELITE_HUB_SpeedBtn
     if sb then
-        sb.Text = "  ⚡ Speed: ON"
+        sb.Text = "   Speed: ON"
         sb.BackgroundColor3 = Color3.fromRGB(120, 30, 150)
         sb.TextColor3 = Color3.fromRGB(255, 100, 255)
         sb.Indicator.BackgroundColor3 = Color3.fromRGB(200, 50, 255)
@@ -1383,7 +1393,7 @@ function DeactivateSpeedBoost()
 
     local sb = getgenv().ELITE_HUB_SpeedBtn
     if sb then
-        sb.Text = "  ⚡ Speed: OFF"
+        sb.Text = "   Speed: OFF"
         sb.BackgroundColor3 = Color3.fromRGB(40, 28, 65)
         sb.TextColor3 = Color3.fromRGB(170, 170, 170)
         sb.Indicator.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
@@ -1614,8 +1624,8 @@ function ToggleFly()
         end
 
         Rayfield:Notify({
-            Title = "✅ Fly",
-            Content = "Fly включён (Скорость: " .. speeds .. ")",
+            Title = " Fly",
+            Content = "Fly  (: " .. speeds .. ")",
             Duration = 3
         })
     else
@@ -1656,8 +1666,8 @@ function ToggleFly()
         end
 
         Rayfield:Notify({
-            Title = "❌ Fly",
-            Content = "Fly выключен",
+            Title = " Fly",
+            Content = "Fly ",
             Duration = 3
         })
     end
@@ -1737,8 +1747,8 @@ end)
             end
         end)
         Rayfield:Notify({
-            Title = "✅ Noclip",
-            Content = "Noclip включён",
+            Title = " Noclip",
+            Content = "Noclip ",
             Duration = 3
         })
     else
@@ -1756,8 +1766,8 @@ end)
             end
         end
         Rayfield:Notify({
-            Title = "❌ Noclip",
-            Content = "Noclip выключен",
+            Title = " Noclip",
+            Content = "Noclip ",
             Duration = 3
         })
     end
@@ -1766,59 +1776,59 @@ end
 updateMiniGuiButtons()
 
 MainTab:CreateButton({
-    Name = "🛑 ВЫКЛЮЧИТЬ СКРИПТ",
+    Name = "  ",
     Callback = function()
         DestroyScript()
     end
 })
 
 MainTab:CreateButton({
-    Name = "🧱 WALLHOP",
+    Name = " WALLHOP",
     Callback = function()
         ToggleWallhop()
     end
 })
 
 MainTab:CreateButton({
-    Name = "✈️ FLY",
+    Name = " FLY",
     Callback = function()
         ToggleFly()
     end
 })
 
 MainTab:CreateButton({
-    Name = "👻 NOCLIP",
+    Name = " NOCLIP",
     Callback = function()
         ToggleNoclip()
     end
 })
 
 MainTab:CreateButton({
-    Name = "➕ Увеличить скорость Fly",
+    Name = "   Fly",
     Callback = function()
         speeds = speeds + 1
         Rayfield:Notify({
-            Title = "✅ Скорость Fly",
-            Content = "Скорость: " .. speeds,
+            Title = "  Fly",
+            Content = ": " .. speeds,
             Duration = 2
         })
     end
 })
 
 MainTab:CreateButton({
-    Name = "➖ Уменьшить скорость Fly",
+    Name = "   Fly",
     Callback = function()
         if speeds > 1 then
             speeds = speeds - 1
             Rayfield:Notify({
-                Title = "✅ Скорость Fly",
-                Content = "Скорость: " .. speeds,
+                Title = "  Fly",
+                Content = ": " .. speeds,
                 Duration = 2
             })
         else
             Rayfield:Notify({
-                Title = "❌ Ошибка",
-                Content = "Минимальная скорость: 1",
+                Title = " ",
+                Content = " : 1",
                 Duration = 2
             })
         end
@@ -1826,7 +1836,7 @@ MainTab:CreateButton({
 })
 
 MainTab:CreateButton({
-    Name = "📱 ОТКРЫТЬ МИНИ-МЕНЮ",
+    Name = "  -",
     Callback = function()
         ToggleMiniMenu()
     end
@@ -1834,8 +1844,8 @@ MainTab:CreateButton({
 
 local currentBind = wallhopBindKey.Name
 MainTab:CreateInput({
-    Name = "🔑 Бинд WallHop",
-    PlaceholderText = "Текущий: " .. currentBind,
+    Name = "  WallHop",
+    PlaceholderText = ": " .. currentBind,
     RemoveTextAfterFocusLost = false,
     Callback = function(Text)
         local keyName = Text:upper()
@@ -1845,76 +1855,92 @@ MainTab:CreateInput({
         if success and keyEnum then
             wallhopBindKey = keyEnum
             Rayfield:Notify({
-                Title = "✅ Бинд изменён",
-                Content = "Новый бинд: " .. keyName,
+                Title = "  ",
+                Content = " : " .. keyName,
                 Duration = 3
             })
         else
             Rayfield:Notify({
-                Title = "❌ Ошибка",
-                Content = "Неверное название клавиши!",
+                Title = " ",
+                Content = "  !",
                 Duration = 3
             })
         end
     end
 })
 
-MainTab:CreateSection("⌨️ БИНДЫ FLY / NOCLIP / ESP / AIMBOT")
+MainTab:CreateSection("  FLY / NOCLIP / ESP / AIMBOT")
 
 MainTab:CreateInput({
-    Name = "✈️ Бинд Fly",
-    PlaceholderText = "Текущий: " .. BindConfig.Fly,
+    Name = "  Fly",
+    PlaceholderText = ": " .. BindConfig.Fly,
     RemoveTextAfterFocusLost = false,
     Callback = function(Text)
         local keyName = Text:upper()
         local success, keyEnum = pcall(function() return Enum.KeyCode[keyName] end)
         if success and keyEnum then
             BindConfig.Fly = keyName
-            Rayfield:Notify({ Title = "✅ Бинд Fly", Content = "Новый бинд: " .. keyName, Duration = 2 })
+            Rayfield:Notify({ Title = "  Fly", Content = " : " .. keyName, Duration = 2 })
         else
-            Rayfield:Notify({ Title = "❌ Ошибка", Content = "Неверное название клавиши!", Duration = 2 })
+            Rayfield:Notify({ Title = " ", Content = "  !", Duration = 2 })
         end
     end
 })
 
 MainTab:CreateInput({
-    Name = "👻 Бинд Noclip",
-    PlaceholderText = "Текущий: " .. BindConfig.Noclip,
+    Name = "  Noclip",
+    PlaceholderText = ": " .. BindConfig.Noclip,
     RemoveTextAfterFocusLost = false,
     Callback = function(Text)
         local keyName = Text:upper()
         local success, keyEnum = pcall(function() return Enum.KeyCode[keyName] end)
         if success and keyEnum then
             BindConfig.Noclip = keyName
-            Rayfield:Notify({ Title = "✅ Бинд Noclip", Content = "Новый бинд: " .. keyName, Duration = 2 })
+            Rayfield:Notify({ Title = "  Noclip", Content = " : " .. keyName, Duration = 2 })
         else
-            Rayfield:Notify({ Title = "❌ Ошибка", Content = "Неверное название клавиши!", Duration = 2 })
+            Rayfield:Notify({ Title = " ", Content = "  !", Duration = 2 })
         end
     end
 })
 
 MainTab:CreateInput({
-    Name = "⚡ Бинд Speed Boost",
-    PlaceholderText = "Текущий: " .. BindConfig.SpeedBoost,
+    Name = "  Speed Boost",
+    PlaceholderText = ": " .. BindConfig.SpeedBoost,
     RemoveTextAfterFocusLost = false,
     Callback = function(Text)
         local keyName = Text:upper()
         local success, keyEnum = pcall(function() return Enum.KeyCode[keyName] end)
         if success and keyEnum then
             BindConfig.SpeedBoost = keyName
-            Rayfield:Notify({ Title = "✅ Бинд Speed Boost", Content = "Новый бинд: " .. keyName, Duration = 2 })
+            Rayfield:Notify({ Title = "  Speed Boost", Content = " : " .. keyName, Duration = 2 })
         else
-            Rayfield:Notify({ Title = "❌ Ошибка", Content = "Неверное название клавиши!", Duration = 2 })
+            Rayfield:Notify({ Title = " ", Content = "  !", Duration = 2 })
+        end
+    end
+})
+
+MainTab:CreateInput({
+    Name = "  Spin Bot",
+    PlaceholderText = ": " .. BindConfig.SpinBot,
+    RemoveTextAfterFocusLost = false,
+    Callback = function(Text)
+        local keyName = Text:upper()
+        local success, keyEnum = pcall(function() return Enum.KeyCode[keyName] end)
+        if success and keyEnum then
+            BindConfig.SpinBot = keyName
+            Rayfield:Notify({ Title = "  Spin Bot", Content = " : " .. keyName, Duration = 2 })
+        else
+            Rayfield:Notify({ Title = " ", Content = "  !", Duration = 2 })
         end
     end
 })
 
 --[[
     ==============================
-    УЛУЧШЕННЫЙ AIMBOT С ПРИОРИТЕТОМ ПО ДИСТАНЦИИ
+     AIMBOT    
     ==============================
 ]]--
-local AimbotSection = CombatTab:CreateSection("🎯 УЛУЧШЕННЫЙ AIMBOT 3D FOV")
+local AimbotSection = CombatTab:CreateSection("  AIMBOT 3D FOV")
 local AimbotConfig = {
     Enabled = false,
     TeamCheck = true,
@@ -2289,7 +2315,7 @@ local function UpdateTargetIndicator()
     if AimbotConfig.ShowTargetIndicator then
         TargetNameLabel.Visible = true
         TargetNameLabel.Position = UDim2.new(0, indicatorPos.X, 0, indicatorPos.Y + 30)
-        TargetNameLabel.Text = "🔴 " .. name .. hpText .. distText
+        TargetNameLabel.Text = " " .. name .. hpText .. distText
         TargetNameLabel.TextColor3 = AimbotConfig.TargetCircleColor
     else
         TargetNameLabel.Visible = false
@@ -2297,7 +2323,7 @@ local function UpdateTargetIndicator()
 
     if AimbotConfig.ShowTargetNameBig then
         TargetBigNameLabel.Visible = true
-        TargetBigNameLabel.Text = "🎯 " .. name .. hpText .. distText
+        TargetBigNameLabel.Text = " " .. name .. hpText .. distText
         TargetBigNameLabel.TextColor3 = AimbotConfig.TargetCircleColor
     else
         TargetBigNameLabel.Visible = false
@@ -2554,7 +2580,7 @@ local function GetClosestPlayer()
         if ok and part then
             return part
         end
-        LockedTargetPlayer = nil -- цель умерла / ушла с экрана -> отпускаем
+        LockedTargetPlayer = nil --   /    -> 
     end
 
     local prioPlayer = GetTargetPlayer()
@@ -2631,7 +2657,7 @@ local function GetClosestPlayer()
 end
 
 task.spawn(function()
-    Log("AIMBOT", "Цикл аимбота запущен")
+    Log("AIMBOT", "  ")
     while task.wait() do
         pcall(function()
             local camera = workspace.CurrentCamera
@@ -2661,7 +2687,7 @@ task.spawn(function()
                 if target then
                     local isNewTarget = LockedTargetPlayer ~= nil and LockedTargetPlayer ~= LockedTargetPlayer
                     if LockedTarget == nil then
-                        SafeNotify("🎯 LOCK", LockedTargetPlayer.Name, 1.5, "Lock")
+                        SafeNotify(" LOCK", LockedTargetPlayer.Name, 1.5, "Lock")
                     end
                     LockedTarget = target
                     local targetPosition = target.Position + Vector3.new(0, AimbotConfig.AimOffset, 0)
@@ -2693,7 +2719,7 @@ task.spawn(function()
                             local toCamera = (camPos - hrp.Position).Unit
                             local dot = lookDir:Dot(toCamera)
                             if dot < -0.3 then
-                                SafeNotify("🧠 ANTI-AIM", LockedTargetPlayer.Name .. " повёрнут спиной!", 2, "AntiAim")
+                                SafeNotify(" ANTI-AIM", LockedTargetPlayer.Name .. "  !", 2, "AntiAim")
                             end
                         end
                     end
@@ -2702,7 +2728,7 @@ task.spawn(function()
                         local ch = LockedTargetPlayer.Character
                         local hum = ch and ch:FindFirstChildOfClass("Humanoid")
                         if hum and hum.Health > 0 and hum.Health < 30 then
-                            SafeNotify("💥 LOW HP", LockedTargetPlayer.Name .. " — " .. math.floor(hum.Health) .. " HP!", 1, "LowHP")
+                            SafeNotify(" LOW HP", LockedTargetPlayer.Name .. "  " .. math.floor(hum.Health) .. " HP!", 1, "LowHP")
                         end
                     end
 
@@ -2712,7 +2738,7 @@ task.spawn(function()
                         if hum then
                             local oldHP = PreviousTargetHP[LockedTargetPlayer]
                             if oldHP and oldHP > 0 and hum.Health <= 0 then
-                                SafeNotify("💀 KILL", LockedTargetPlayer.Name .. " убит!", 2, "Kill")
+                                SafeNotify(" KILL", LockedTargetPlayer.Name .. " !", 2, "Kill")
                             end
                             PreviousTargetHP[LockedTargetPlayer] = hum.Health
                         end
@@ -2724,7 +2750,7 @@ task.spawn(function()
                             local screenCenter = Vector2.new(camera.ViewportSize.X / 2, camera.ViewportSize.Y / 2)
                             local screenDist = (Vector2.new(screenPos2.X, screenPos2.Y) - screenCenter).Magnitude
                             if screenDist < 30 then
-                                SafeNotify("🔫 SHOT", LockedTargetPlayer.Name, 0.5, "Shot")
+                                SafeNotify(" SHOT", LockedTargetPlayer.Name, 0.5, "Shot")
                                 task.delay(AimbotConfig.AutoShootDelay, function()
                                     pcall(function()
                                         local vup = game:GetService("VirtualUser")
@@ -2738,7 +2764,7 @@ task.spawn(function()
                     end
                 else
                     if LockedTargetPlayer then
-                        SafeNotify("❌ UNLOCK", "Цель потеряна", 1.5, "Unlock")
+                        SafeNotify(" UNLOCK", " ", 1.5, "Unlock")
                         PredictionLastPos[LockedTargetPlayer] = nil
                         PredictionLastTime[LockedTargetPlayer] = nil
                         PreviousTargetHP[LockedTargetPlayer] = nil
@@ -2785,17 +2811,17 @@ game:GetService("UserInputService").InputEnded:Connect(function(input)
 end)
 
 CombatTab:CreateToggle({
-    Name = "🎯 Включить Aimbot",
+    Name = "  Aimbot",
     CurrentValue = AimbotConfig.Enabled,
     Flag = "AimbotEnabled",
     Callback = function(value)
         AimbotConfig.Enabled = value
-        Log("AIMBOT", "Aimbot включен: " .. tostring(value))
+        Log("AIMBOT", "Aimbot : " .. tostring(value))
         if value then
             if FOVCircle then FOVCircle.Visible = true end
             Rayfield:Notify({
-                Title = "🎯 Aimbot ВКЛЮЧЁН",
-                Content = "Зажмите ПКМ для прицеливания",
+                Title = " Aimbot ",
+                Content = "   ",
                 Duration = 3
             })
         else
@@ -2803,8 +2829,8 @@ CombatTab:CreateToggle({
             Running = false
             LockedTarget = nil
             Rayfield:Notify({
-                Title = "🎯 Aimbot ВЫКЛЮЧЕН",
-                Content = "Авто-прицеливание отключено",
+                Title = " Aimbot ",
+                Content = "- ",
                 Duration = 2
             })
         end
@@ -2812,7 +2838,7 @@ CombatTab:CreateToggle({
 })
 
 CombatTab:CreateToggle({
-    Name = "👥 Игнорировать команду",
+    Name = "  ",
     CurrentValue = AimbotConfig.TeamCheck,
     Callback = function(value)
         AimbotConfig.TeamCheck = value
@@ -2820,7 +2846,7 @@ CombatTab:CreateToggle({
 })
 
 CombatTab:CreateToggle({
-    Name = "💀 Не целить умерших",
+    Name = "   ",
     CurrentValue = AimbotConfig.AliveCheck,
     Callback = function(value)
         AimbotConfig.AliveCheck = value
@@ -2828,7 +2854,7 @@ CombatTab:CreateToggle({
 })
 
 CombatTab:CreateToggle({
-    Name = "🧱 Не целить сквозь стены",
+    Name = "    ",
     CurrentValue = AimbotConfig.WallCheck,
     Callback = function(value)
         AimbotConfig.WallCheck = value
@@ -2836,7 +2862,7 @@ CombatTab:CreateToggle({
 })
 
 CombatTab:CreateToggle({
-    Name = "👁️ Исправление 1-го лица",
+    Name = "  1- ",
     CurrentValue = AimbotConfig.ThirdPersonFix,
     Callback = function(value)
         AimbotConfig.ThirdPersonFix = value
@@ -2844,21 +2870,21 @@ CombatTab:CreateToggle({
 })
 
 CombatTab:CreateDropdown({
-    Name = "🎯 Приоритет цели",
+    Name = "  ",
     Options = {"Distance", "FOV", "Health"},
     CurrentOption = AimbotConfig.Priority,
     Callback = function(option)
         AimbotConfig.Priority = option
         if option == "Distance" then
             Rayfield:Notify({
-                Title = "🎯 Приоритет: ДИСТАНЦИЯ",
-                Content = "Целится в ближайшего игрока",
+                Title = " : ",
+                Content = "   ",
                 Duration = 3
             })
         else
             Rayfield:Notify({
-                Title = "🎯 Приоритет: FOV",
-                Content = "Целится в ближайшего к курсору",
+                Title = " : FOV",
+                Content = "    ",
                 Duration = 3
             })
         end
@@ -2866,7 +2892,7 @@ CombatTab:CreateDropdown({
 })
 
 CombatTab:CreateSlider({
-    Name = "🔘 Размер FOV",
+    Name = "  FOV",
     Range = {50, 300},
     Increment = 10,
     CurrentValue = AimbotConfig.FOV,
@@ -2876,7 +2902,7 @@ CombatTab:CreateSlider({
 })
 
 CombatTab:CreateColorPicker({
-    Name = "💜 Цвет FOV",
+    Name = "  FOV",
     Color = AimbotConfig.FOVColor,
     Callback = function(value)
         AimbotConfig.FOVColor = value
@@ -2884,17 +2910,17 @@ CombatTab:CreateColorPicker({
 })
 
 CombatTab:CreateColorPicker({
-    Name = "🔴 Цвет захвата",
+    Name = "  ",
     Color = AimbotConfig.LockedColor,
     Callback = function(value)
         AimbotConfig.LockedColor = value
     end
 })
 
-CombatTab:CreateSection("⚙️ ДОП. НАСТРОЙКИ AIMBOT")
+CombatTab:CreateSection(" .  AIMBOT")
 
 CombatTab:CreateToggle({
-    Name = "👁️ Показывать FOV круг",
+    Name = "  FOV ",
     CurrentValue = AimbotConfig.ShowFOV,
     Flag = "AimbotShowFOV",
     Callback = function(value)
@@ -2904,7 +2930,7 @@ CombatTab:CreateToggle({
 })
 
 CombatTab:CreateToggle({
-    Name = "🔁 Режим: Переключение / Удержание",
+    Name = " :  / ",
     CurrentValue = AimbotConfig.Toggle,
     Flag = "AimbotToggle",
     Callback = function(value)
@@ -2916,21 +2942,21 @@ CombatTab:CreateToggle({
 })
 
 CombatTab:CreateDropdown({
-    Name = "🖱️ Клавиша цели",
+    Name = "  ",
     Options = {"MouseButton2", "MouseButton1", "LeftControl", "X", "C", "F", "V", "Shift"},
     CurrentOption = AimbotConfig.TriggerKey,
     Callback = function(option)
         AimbotConfig.TriggerKey = option
         Rayfield:Notify({
-            Title = "🖱️ Клавиша цели",
-            Content = "Новая клавиша: " .. option,
+            Title = "  ",
+            Content = " : " .. option,
             Duration = 2
         })
     end
 })
 
 CombatTab:CreateSlider({
-    Name = "📏 Макс. дистанция цели (studs)",
+    Name = " .   (studs)",
     Range = {10, 1000},
     Increment = 10,
     Suffix = " studs",
@@ -2941,7 +2967,7 @@ CombatTab:CreateSlider({
 })
 
 CombatTab:CreateSlider({
-    Name = "📍 Мин. дистанция цели (studs)",
+    Name = " .   (studs)",
     Range = {0, 50},
     Increment = 1,
     Suffix = " studs",
@@ -2952,7 +2978,7 @@ CombatTab:CreateSlider({
 })
 
 CombatTab:CreateSlider({
-    Name = "⚖️ Оффсет прицела по Y",
+    Name = "    Y",
     Range = {-3, 3},
     Increment = 0.1,
     Suffix = " studs",
@@ -2963,7 +2989,7 @@ CombatTab:CreateSlider({
 })
 
 CombatTab:CreateSlider({
-    Name = "🪶 Толщина FOV круга",
+    Name = "  FOV ",
     Range = {1, 10},
     Increment = 1,
     Suffix = " px",
@@ -2974,7 +3000,7 @@ CombatTab:CreateSlider({
 })
 
 CombatTab:CreateSlider({
-    Name = "🎯 Точный размер FOV",
+    Name = "   FOV",
     Range = {1, 400},
     Increment = 1,
     Suffix = " px",
@@ -2985,7 +3011,7 @@ CombatTab:CreateSlider({
 })
 
 CombatTab:CreateDropdown({
-    Name = "🎯 Часть тела для наведения",
+    Name = "    ",
     Options = {"Head", "HumanoidRootPart", "UpperTorso"},
     CurrentOption = AimbotConfig.LockPart,
     Callback = function(option)
@@ -2993,10 +3019,10 @@ CombatTab:CreateDropdown({
     end
 })
 
-CombatTab:CreateSection("🎯 ИНДИКАТОР ЦЕЛИ")
+CombatTab:CreateSection("  ")
 
 CombatTab:CreateToggle({
-    Name = "🔴 Показывать имя и HP цели",
+    Name = "    HP ",
     CurrentValue = AimbotConfig.ShowTargetIndicator,
     Callback = function(value)
         AimbotConfig.ShowTargetIndicator = value
@@ -3004,7 +3030,7 @@ CombatTab:CreateToggle({
 })
 
 CombatTab:CreateToggle({
-    Name = "➡️ Показывать стрелку на цель",
+    Name = "    ",
     CurrentValue = AimbotConfig.ShowTargetArrow,
     Callback = function(value)
         AimbotConfig.ShowTargetArrow = value
@@ -3012,7 +3038,7 @@ CombatTab:CreateToggle({
 })
 
 CombatTab:CreateToggle({
-    Name = "❤️ Показывать HP цели",
+    Name = "  HP ",
     CurrentValue = AimbotConfig.ShowTargetHP,
     Callback = function(value)
         AimbotConfig.ShowTargetHP = value
@@ -3020,7 +3046,7 @@ CombatTab:CreateToggle({
 })
 
 CombatTab:CreateSlider({
-    Name = "🔤 Размер текста цели",
+    Name = "   ",
     Range = {10, 24},
     Increment = 1,
     Suffix = " pt",
@@ -3032,7 +3058,7 @@ CombatTab:CreateSlider({
 })
 
 CombatTab:CreateColorPicker({
-    Name = "🎨 Цвет индикатора цели",
+    Name = "   ",
     Color = AimbotConfig.TargetCircleColor,
     Callback = function(value)
         AimbotConfig.TargetCircleColor = value
@@ -3040,7 +3066,7 @@ CombatTab:CreateColorPicker({
 })
 
 CombatTab:CreateToggle({
-    Name = "🦴 Показывать скелетон цели",
+    Name = "   ",
     CurrentValue = AimbotConfig.ShowTargetSkeleton,
     Callback = function(value)
         AimbotConfig.ShowTargetSkeleton = value
@@ -3048,7 +3074,7 @@ CombatTab:CreateToggle({
 })
 
 CombatTab:CreateColorPicker({
-    Name = "🎨 Цвет скелетона цели",
+    Name = "   ",
     Color = AimbotConfig.TargetSkeletonColor,
     Callback = function(value)
         AimbotConfig.TargetSkeletonColor = value
@@ -3056,7 +3082,7 @@ CombatTab:CreateColorPicker({
 })
 
 CombatTab:CreateSlider({
-    Name = "📏 Толщина скелетона цели",
+    Name = "   ",
     Range = {1, 4},
     Increment = 1,
     CurrentValue = AimbotConfig.TargetSkeletonThickness,
@@ -3066,12 +3092,12 @@ CombatTab:CreateSlider({
 })
 
 CombatTab:CreateDropdown({
-    Name = "🦴 Тип скелетона цели",
-    Options = {"1 - Простой", "2 - Полный"},
-    CurrentOption = "1 - Простой",
+    Name = "   ",
+    Options = {"1 - ", "2 - "},
+    CurrentOption = "1 - ",
     Callback = function(value)
         local v = (typeof(value) == "table") and value[1] or value
-        if v == "2 - Полный" then
+        if v == "2 - " then
             AimbotConfig.TargetSkeletonType = 2
         else
             AimbotConfig.TargetSkeletonType = 1
@@ -3079,10 +3105,10 @@ CombatTab:CreateDropdown({
     end
 })
 
-CombatTab:CreateSection("🔫 АВТО-СТРЕЛЬБА")
+CombatTab:CreateSection(" -")
 
 CombatTab:CreateToggle({
-    Name = "🔫 Авто-стрельба",
+    Name = " -",
     CurrentValue = AimbotConfig.AutoShoot,
     Callback = function(value)
         AimbotConfig.AutoShoot = value
@@ -3090,7 +3116,7 @@ CombatTab:CreateToggle({
 })
 
 CombatTab:CreateSlider({
-    Name = "⏱️ Задержка выстрела (сек)",
+    Name = "   ()",
     Range = {0.05, 0.5},
     Increment = 0.05,
     Suffix = " sec",
@@ -3100,10 +3126,10 @@ CombatTab:CreateSlider({
     end
 })
 
-CombatTab:CreateSection("📊 ВИЗУАЛ ЦЕЛИ")
+CombatTab:CreateSection("  ")
 
 CombatTab:CreateToggle({
-    Name = "📐 Линия-прицел к цели",
+    Name = " -  ",
     CurrentValue = AimbotConfig.ShowAimLine,
     Callback = function(value)
         AimbotConfig.ShowAimLine = value
@@ -3111,7 +3137,7 @@ CombatTab:CreateToggle({
 })
 
 CombatTab:CreateColorPicker({
-    Name = "🎨 Цвет линии-прицела",
+    Name = "  -",
     Color = AimbotConfig.AimLineColor,
     Callback = function(value)
         AimbotConfig.AimLineColor = value
@@ -3119,17 +3145,17 @@ CombatTab:CreateColorPicker({
 })
 
 CombatTab:CreateToggle({
-    Name = "🏷️ Крупное имя цели (вверху экрана)",
+    Name = "    ( )",
     CurrentValue = AimbotConfig.ShowTargetNameBig,
     Callback = function(value)
         AimbotConfig.ShowTargetNameBig = value
     end
 })
 
-CombatTab:CreateSection("🎯 ПРИОРИТЕТ ЦЕЛИ")
+CombatTab:CreateSection("  ")
 
 CombatTab:CreateDropdown({
-    Name = "🎯 Приоритет выбора цели",
+    Name = "   ",
     Options = {"Distance", "Health"},
     CurrentOption = "Distance",
     Callback = function(value)
@@ -3137,10 +3163,10 @@ CombatTab:CreateDropdown({
     end
 })
 
-CombatTab:CreateSection("🔮 ПРЕДСКАЗАНИЕ")
+CombatTab:CreateSection(" ")
 
 CombatTab:CreateToggle({
-    Name = "🔮 Предсказание движения",
+    Name = "  ",
     CurrentValue = AimbotConfig.Prediction,
     Callback = function(value)
         AimbotConfig.Prediction = value
@@ -3148,7 +3174,7 @@ CombatTab:CreateToggle({
 })
 
 CombatTab:CreateSlider({
-    Name = "🔮 Сила предсказания",
+    Name = "  ",
     Range = {0.05, 0.5},
     Increment = 0.05,
     Suffix = "x",
@@ -3158,20 +3184,20 @@ CombatTab:CreateSlider({
     end
 })
 
-CombatTab:CreateSection("🧠 АНТИ-АИМ")
+CombatTab:CreateSection(" -")
 
 CombatTab:CreateToggle({
-    Name = "🧠 Anti-Aim Detection",
+    Name = " Anti-Aim Detection",
     CurrentValue = AimbotConfig.AntiAimDetect,
     Callback = function(value)
         AimbotConfig.AntiAimDetect = value
     end
 })
 
-CombatTab:CreateSection("📐 ДИСТАНЦИЯ FOV")
+CombatTab:CreateSection("  FOV")
 
 CombatTab:CreateToggle({
-    Name = "📐 Авто-FOV по дистанции",
+    Name = " -FOV  ",
     CurrentValue = AimbotConfig.DistanceFOV,
     Callback = function(value)
         AimbotConfig.DistanceFOV = value
@@ -3179,7 +3205,7 @@ CombatTab:CreateToggle({
 })
 
 CombatTab:CreateSlider({
-    Name = "📐 Мин. FOV (далеко)",
+    Name = " . FOV ()",
     Range = {30, 100},
     Increment = 5,
     Suffix = "",
@@ -3190,7 +3216,7 @@ CombatTab:CreateSlider({
 })
 
 CombatTab:CreateSlider({
-    Name = "📐 Макс. FOV (близко)",
+    Name = " . FOV ()",
     Range = {100, 400},
     Increment = 10,
     Suffix = "",
@@ -3200,10 +3226,10 @@ CombatTab:CreateSlider({
     end
 })
 
-CombatTab:CreateSection("💀 УВЕДОМЛЕНИЯ AIMBOT")
+CombatTab:CreateSection("  AIMBOT")
 
 CombatTab:CreateToggle({
-    Name = "💀 Kill Notify",
+    Name = " Kill Notify",
     CurrentValue = AimbotConfig.KillNotify,
     Callback = function(value)
         AimbotConfig.KillNotify = value
@@ -3211,7 +3237,7 @@ CombatTab:CreateToggle({
 })
 
 CombatTab:CreateToggle({
-    Name = "🎯 Lock Notify (захват цели)",
+    Name = " Lock Notify ( )",
     CurrentValue = AimbotConfig.NotifyLock,
     Callback = function(value)
         AimbotConfig.NotifyLock = value
@@ -3219,7 +3245,7 @@ CombatTab:CreateToggle({
 })
 
 CombatTab:CreateToggle({
-    Name = "❌ Unlock Notify (потеря цели)",
+    Name = " Unlock Notify ( )",
     CurrentValue = AimbotConfig.NotifyUnlock,
     Callback = function(value)
         AimbotConfig.NotifyUnlock = value
@@ -3227,7 +3253,7 @@ CombatTab:CreateToggle({
 })
 
 CombatTab:CreateToggle({
-    Name = "🧠 Anti-Aim Detect Notify",
+    Name = " Anti-Aim Detect Notify",
     CurrentValue = AimbotConfig.NotifyAntiAim,
     Callback = function(value)
         AimbotConfig.NotifyAntiAim = value
@@ -3235,7 +3261,7 @@ CombatTab:CreateToggle({
 })
 
 CombatTab:CreateToggle({
-    Name = "💥 Low HP Notify (цель < 30 HP)",
+    Name = " Low HP Notify ( < 30 HP)",
     CurrentValue = AimbotConfig.NotifyLowHP,
     Callback = function(value)
         AimbotConfig.NotifyLowHP = value
@@ -3243,7 +3269,7 @@ CombatTab:CreateToggle({
 })
 
 CombatTab:CreateToggle({
-    Name = "🔫 Auto-Shot Notify (выстрел)",
+    Name = " Auto-Shot Notify ()",
     CurrentValue = AimbotConfig.NotifyShot,
     Callback = function(value)
         AimbotConfig.NotifyShot = value
@@ -3251,7 +3277,7 @@ CombatTab:CreateToggle({
 })
 
 CombatTab:CreateToggle({
-    Name = "👋 Player Join Notify",
+    Name = " Player Join Notify",
     CurrentValue = AimbotConfig.NotifyPlayerJoin,
     Callback = function(value)
         AimbotConfig.NotifyPlayerJoin = value
@@ -3259,7 +3285,7 @@ CombatTab:CreateToggle({
 })
 
 CombatTab:CreateToggle({
-    Name = "👋 Player Leave Notify",
+    Name = " Player Leave Notify",
     CurrentValue = AimbotConfig.NotifyPlayerLeave,
     Callback = function(value)
         AimbotConfig.NotifyPlayerLeave = value
@@ -3267,30 +3293,30 @@ CombatTab:CreateToggle({
 })
 
 CombatTab:CreateToggle({
-    Name = "❌ Target Left Server Notify",
+    Name = " Target Left Server Notify",
     CurrentValue = AimbotConfig.NotifyTargetLost,
     Callback = function(value)
         AimbotConfig.NotifyTargetLost = value
     end
 })
 
-CombatTab:CreateSection("🔒 УДЕРЖАНИЕ ЦЕЛИ")
+CombatTab:CreateSection("  ")
 
 CombatTab:CreateToggle({
-    Name = "🔒 Persistent Lock (до смерти)",
+    Name = " Persistent Lock ( )",
     CurrentValue = AimbotConfig.PersistentLock,
     Callback = function(value)
         AimbotConfig.PersistentLock = value
     end
 })
 
-CombatTab:CreateSection("👥 КОМАНДЫ (друзья / враги)")
+CombatTab:CreateSection("  ( / )")
 
-local myTeamLabel = CombatTab:CreateLabel("🎖️ Ваша команда: —")
+local myTeamLabel = CombatTab:CreateLabel("  : ")
 local function UpdateMyTeamLabel()
     local tn = GetTeamName(player)
     pcall(function()
-        myTeamLabel:Set("🎖️ Ваша команда: " .. (tn or "нет"))
+        myTeamLabel:Set("  : " .. (tn or ""))
     end)
 end
 
@@ -3304,7 +3330,7 @@ local function RefreshTeamDD()
 end
 
 teamDD = CombatTab:CreateDropdown({
-    Name = "🎖️ Команда",
+    Name = " ",
     Options = GetAllTeamNames(),
     CurrentOption = "",
     Callback = function(option)
@@ -3332,7 +3358,7 @@ task.spawn(function()
 end)
 
 CombatTab:CreateToggle({
-    Name = "🎯 Не целиться в дружественные команды",
+    Name = "     ",
     CurrentValue = AimbotConfig.TeamFilter,
     Flag = "AimbotTeamFilter",
     Callback = function(value)
@@ -3341,18 +3367,18 @@ CombatTab:CreateToggle({
 })
 
 CombatTab:CreateButton({
-    Name = "✅ Сделать выбранную команду дружественной",
+    Name = "    ",
     Callback = function()
         local n = selectedTeam
         if not n or n == "" then
-            Rayfield:Notify({ Title = "👥 Команды", Content = "Сначала выберите команду в списке", Duration = 2 })
+            Rayfield:Notify({ Title = " ", Content = "    ", Duration = 2 })
             return
         end
         local res = ToggleFriendTeam(n)
         if res == "added" then
-            Rayfield:Notify({ Title = "🤝 Команда-друг", Content = n .. " теперь в дружественных", Duration = 2 })
+            Rayfield:Notify({ Title = " -", Content = n .. "   ", Duration = 2 })
         else
-            Rayfield:Notify({ Title = "👥 Команда", Content = n .. " убрана из дружественных (враг)", Duration = 2 })
+            Rayfield:Notify({ Title = " ", Content = n .. "    ()", Duration = 2 })
         end
         pcall(RefreshTeamDD)
         pcall(UpdateESP)
@@ -3360,11 +3386,11 @@ CombatTab:CreateButton({
 })
 
 CombatTab:CreateButton({
-    Name = "❌ Убрать выбранную команду из друзей (враг)",
+    Name = "      ()",
     Callback = function()
         local n = selectedTeam
         if not n or n == "" then
-            Rayfield:Notify({ Title = "👥 Команды", Content = "Сначала выберите команду в списке", Duration = 2 })
+            Rayfield:Notify({ Title = " ", Content = "    ", Duration = 2 })
             return
         end
         local list = getgenv().ELITE_HUB_FRIEND_TEAMS
@@ -3373,43 +3399,43 @@ CombatTab:CreateButton({
                 table.remove(list, i)
             end
         end
-        Rayfield:Notify({ Title = "⚔️ Команда-враг", Content = n .. " теперь вражеская", Duration = 2 })
+        Rayfield:Notify({ Title = " -", Content = n .. "  ", Duration = 2 })
         pcall(RefreshTeamDD)
         pcall(UpdateESP)
     end
 })
 
 CombatTab:CreateButton({
-    Name = "📜 Дружественные команды",
+    Name = "  ",
     Callback = function()
         local list = getgenv().ELITE_HUB_FRIEND_TEAMS
         if #list == 0 then
-            Rayfield:Notify({ Title = "👥 Команды", Content = "Нет дружественных команд (все враги)", Duration = 2 })
+            Rayfield:Notify({ Title = " ", Content = "   ( )", Duration = 2 })
         else
-            Rayfield:Notify({ Title = "🤝 Дружественные", Content = table.concat(list, ", "), Duration = 5 })
+            Rayfield:Notify({ Title = " ", Content = table.concat(list, ", "), Duration = 5 })
         end
     end
 })
 
 CombatTab:CreateButton({
-    Name = "🚫 Все команды — враги",
+    Name = "    ",
     Callback = function()
         getgenv().ELITE_HUB_FRIEND_TEAMS = {}
-        Rayfield:Notify({ Title = "⚔️ Готово", Content = "Все команды теперь враги", Duration = 2 })
+        Rayfield:Notify({ Title = " ", Content = "   ", Duration = 2 })
         pcall(RefreshTeamDD)
         pcall(UpdateESP)
     end
 })
 
 CombatTab:CreateButton({
-    Name = "🔄 Обновить список команд",
+    Name = "   ",
     Callback = function()
         pcall(RefreshTeamDD)
-        Rayfield:Notify({ Title = "👥 Команды", Content = "Список команд обновлён", Duration = 2 })
+        Rayfield:Notify({ Title = " ", Content = "  ", Duration = 2 })
     end
 })
 
-CombatTab:CreateSection("🤝 ДРУЗЬЯ И ЦЕЛЬ (выбор из списка)")
+CombatTab:CreateSection("    (  )")
 
 local friendAddDD = nil
 local friendRmDD = nil
@@ -3431,7 +3457,7 @@ local function RefreshAimbotDD()
         pcall(function() friendRmDD:Refresh(opts) end)
     end
     if friendTargetDD then
-        local opts = {"(Авто)"}
+        local opts = {"()"}
         local playersList = {}
         for _, p in ipairs(Players:GetPlayers()) do
             if p ~= player then table.insert(playersList, p.Name) end
@@ -3443,7 +3469,7 @@ local function RefreshAimbotDD()
 end
 
 CombatTab:CreateToggle({
-    Name = "🚫 Не целиться в друзей",
+    Name = "    ",
     CurrentValue = AimbotConfig.FriendCheck,
     Flag = "AimbotFriendCheck",
     Callback = function(value)
@@ -3452,7 +3478,7 @@ CombatTab:CreateToggle({
 })
 
 CombatTab:CreateToggle({
-    Name = "🛡️ Не целиться в заспавнившихся (щит)",
+    Name = "     ()",
     CurrentValue = AimbotConfig.SpawnCheck,
     Flag = "AimbotSpawnCheck",
     Callback = function(value)
@@ -3461,7 +3487,7 @@ CombatTab:CreateToggle({
 })
 
 friendAddDD = CombatTab:CreateDropdown({
-    Name = "➕ Выбрать игрока в друзья",
+    Name = "    ",
     Options = {},
     CurrentOption = "",
     Callback = function(option)
@@ -3469,10 +3495,10 @@ friendAddDD = CombatTab:CreateDropdown({
         if typeof(option) == "table" then n = option[1] end
         if not n or n == "" then return end
         if IsFriendName(n) then
-            Rayfield:Notify({ Title = "🤝 Друзья", Content = n .. " уже в списке", Duration = 2 })
+            Rayfield:Notify({ Title = " ", Content = n .. "   ", Duration = 2 })
         else
             table.insert(getgenv().ELITE_HUB_FRIENDS, n)
-            Rayfield:Notify({ Title = "✅ Друг добавлен", Content = n, Duration = 2 })
+            Rayfield:Notify({ Title = "  ", Content = n, Duration = 2 })
         end
         if friendAddDD then pcall(function() friendAddDD:Clear() end) end
         RefreshAimbotDD()
@@ -3480,7 +3506,7 @@ friendAddDD = CombatTab:CreateDropdown({
 })
 
 friendRmDD = CombatTab:CreateDropdown({
-    Name = "➖ Удалить друга (выбор)",
+    Name = "   ()",
     Options = {},
     CurrentOption = "",
     Callback = function(option)
@@ -3491,7 +3517,7 @@ friendRmDD = CombatTab:CreateDropdown({
         for i = #list, 1, -1 do
             if tostring(list[i]):lower() == n:lower() then
                 table.remove(list, i)
-                Rayfield:Notify({ Title = "🗑️ Друг удалён", Content = n, Duration = 2 })
+                Rayfield:Notify({ Title = "  ", Content = n, Duration = 2 })
                 break
             end
         end
@@ -3501,40 +3527,40 @@ friendRmDD = CombatTab:CreateDropdown({
 })
 
 CombatTab:CreateButton({
-    Name = "🧹 Очистить список друзей",
+    Name = "   ",
     Callback = function()
         local cnt = #getgenv().ELITE_HUB_FRIENDS
         getgenv().ELITE_HUB_FRIENDS = {}
-        Rayfield:Notify({ Title = "🧹 Готово", Content = "Удалено друзей: " .. cnt, Duration = 2 })
+        Rayfield:Notify({ Title = " ", Content = " : " .. cnt, Duration = 2 })
         RefreshAimbotDD()
     end
 })
 
 CombatTab:CreateButton({
-    Name = "📜 Показать список друзей",
+    Name = "   ",
     Callback = function()
         local list = getgenv().ELITE_HUB_FRIENDS
         if #list == 0 then
-            Rayfield:Notify({ Title = "🤝 Друзья", Content = "Список пуст", Duration = 2 })
+            Rayfield:Notify({ Title = " ", Content = " ", Duration = 2 })
             return
         end
-        Rayfield:Notify({ Title = "🤝 Список друзей", Content = table.concat(list, ", "), Duration = 6 })
+        Rayfield:Notify({ Title = "  ", Content = table.concat(list, ", "), Duration = 6 })
     end
 })
 
 friendTargetDD = CombatTab:CreateDropdown({
-    Name = "🎯 Основная цель (всегда первая)",
-    Options = {"(Авто)"},
+    Name = "   ( )",
+    Options = {"()"},
     CurrentOption = "",
     Callback = function(option)
         local n = option
         if typeof(option) == "table" then n = option[1] end
-        if n == "(Авто)" or n == nil or n == "" then
+        if n == "()" or n == nil or n == "" then
             getgenv().ELITE_HUB_TARGET_NAME = ""
-            Rayfield:Notify({ Title = "🎯 Цель", Content = "Авто (нет приоритета)", Duration = 2 })
+            Rayfield:Notify({ Title = " ", Content = " ( )", Duration = 2 })
         else
             getgenv().ELITE_HUB_TARGET_NAME = n
-            Rayfield:Notify({ Title = "🎯 Цель установлена", Content = n, Duration = 2 })
+            Rayfield:Notify({ Title = "  ", Content = n, Duration = 2 })
         end
     end
 })
@@ -3551,7 +3577,7 @@ task.delay(1, RefreshAimbotDD)
 
 --[[
     ==============================
-    ПОЛНЫЙ ESP С 3D BOX
+     ESP  3D BOX
     ==============================
 ]]--
 local ESPConfig = {
@@ -4117,19 +4143,19 @@ local function UpdateESPText()
                 local text = ""
 
                 if ESPConfig.Names then
-                    text = text .. targetPlayer.Name .. (isDead and " 💀" or "") .. "\n"
+                    text = text .. targetPlayer.Name .. (isDead and " " or "") .. "\n"
                 end
 
                 if not isDead or ESPConfig.ShowDead then
                     if ESPConfig.Health and humanoid then
-                        text = text .. (isDead and "💀 МЕРТВ\n" or "❤ " .. math.floor(humanoid.Health) .. "/" .. math.floor(humanoid.MaxHealth) .. "\n")
+                        text = text .. (isDead and " \n" or " " .. math.floor(humanoid.Health) .. "/" .. math.floor(humanoid.MaxHealth) .. "\n")
                     end
 
                     if ESPConfig.Distance and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
                         local localRoot = player.Character.HumanoidRootPart
                         if localRoot then
                             local distance = (localRoot.Position - rootPart.Position).Magnitude
-                            text = text .. "📏 " .. math.floor(distance) .. "m"
+                            text = text .. " " .. math.floor(distance) .. "m"
                         end
                     end
                 end
@@ -4263,9 +4289,9 @@ local function UpdateBox3DESP()
             end
 
             local connections = {
-                {1, 2}, {2, 3}, {3, 4}, {4, 1}, -- нижний квадрат
-                {5, 6}, {6, 7}, {7, 8}, {8, 5}, -- верхний квадрат
-                {1, 5}, {2, 6}, {3, 7}, {4, 8}  -- вертикальные линии
+                {1, 2}, {2, 3}, {3, 4}, {4, 1}, --  
+                {5, 6}, {6, 7}, {7, 8}, {8, 5}, --  
+                {1, 5}, {2, 6}, {3, 7}, {4, 8}  --  
             }
 
             for i, connection in ipairs(connections) do
@@ -4322,7 +4348,7 @@ end
 local function InitializeESPHandlers()
     local LK = getgenv().ELITE_HUB_LastChars
     game.Players.PlayerAdded:Connect(function(targetPlayer)
-        SafeNotify("👋 JOIN", targetPlayer.Name .. " зашёл на сервер", 2, "PlayerJoin")
+        SafeNotify(" JOIN", targetPlayer.Name .. "   ", 2, "PlayerJoin")
         LK[targetPlayer] = targetPlayer.Character
         if ESPConfig.Enabled then
             CreatePlayerESP(targetPlayer)
@@ -4336,9 +4362,9 @@ local function InitializeESPHandlers()
     end)
 
     game.Players.PlayerRemoving:Connect(function(targetPlayer)
-        SafeNotify("👋 LEFT", targetPlayer.Name .. " вышел с сервера", 2, "PlayerLeave")
+        SafeNotify(" LEFT", targetPlayer.Name .. "   ", 2, "PlayerLeave")
         if targetPlayer == LockedTargetPlayer then
-            SafeNotify("❌ UNLOCK", "Цель вышла с сервера", 2, "TargetLost")
+            SafeNotify(" UNLOCK", "   ", 2, "TargetLost")
             LockedTarget = nil
             LockedTargetPlayer = nil
         end
@@ -4481,7 +4507,7 @@ task.spawn(function()
 end)
 
 ESPTab:CreateToggle({
-    Name = "👁️ ВКЛ/ВЫКЛ ESP",
+    Name = " / ESP",
     CurrentValue = ESPConfig.Enabled,
     Callback = function(value)
         ESPConfig.Enabled = value
@@ -4494,8 +4520,8 @@ ESPTab:CreateToggle({
             
             UpdateESP()
             Rayfield:Notify({
-                Title = "👁️ ESP ВКЛЮЧЁН",
-                Content = "Все функции ESP активированы",
+                Title = " ESP ",
+                Content = "  ESP ",
                 Duration = 3
             })
         else
@@ -4503,8 +4529,8 @@ ESPTab:CreateToggle({
                 ClearPlayerESP(targetPlayer)
             end
             Rayfield:Notify({
-                Title = "👀 ESP ВЫКЛЮЧЕН",
-                Content = "ESP деактивирован",
+                Title = " ESP ",
+                Content = "ESP ",
                 Duration = 2
             })
         end
@@ -4512,7 +4538,7 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateToggle({
-    Name = "👥 Игнорировать команду",
+    Name = "  ",
     CurrentValue = ESPConfig.TeamCheck,
     Callback = function(value)
         ESPConfig.TeamCheck = value
@@ -4521,7 +4547,7 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateToggle({
-    Name = "💚 Показывать тиммейтов",
+    Name = "  ",
     CurrentValue = ESPConfig.ShowTeammates,
     Callback = function(value)
         ESPConfig.ShowTeammates = value
@@ -4530,7 +4556,7 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateToggle({
-    Name = "🟦 Рамки",
+    Name = " ",
     CurrentValue = ESPConfig.Boxes,
     Callback = function(value)
         ESPConfig.Boxes = value
@@ -4539,7 +4565,7 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateToggle({
-    Name = "📛 Имена",
+    Name = " ",
     CurrentValue = ESPConfig.Names,
     Callback = function(value)
         ESPConfig.Names = value
@@ -4548,7 +4574,7 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateToggle({
-    Name = "❤ Здоровье",
+    Name = " ",
     CurrentValue = ESPConfig.Health,
     Callback = function(value)
         ESPConfig.Health = value
@@ -4557,7 +4583,7 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateToggle({
-    Name = "📏 Расстояние",
+    Name = " ",
     CurrentValue = ESPConfig.Distance,
     Callback = function(value)
         ESPConfig.Distance = value
@@ -4566,7 +4592,7 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateToggle({
-    Name = "➖ Трассеры",
+    Name = " ",
     CurrentValue = ESPConfig.Tracers,
     Callback = function(value)
         ESPConfig.Tracers = value
@@ -4575,7 +4601,7 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateToggle({
-    Name = "🧵 Трассеры для тиммейтов",
+    Name = "   ",
     CurrentValue = ESPConfig.TracersForTeammates,
     Callback = function(value)
         ESPConfig.TracersForTeammates = value
@@ -4584,7 +4610,7 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateToggle({
-    Name = "💀 Показывать мертвых",
+    Name = "  ",
     CurrentValue = ESPConfig.ShowDead,
     Callback = function(value)
         ESPConfig.ShowDead = value
@@ -4593,7 +4619,7 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateToggle({
-    Name = "🎯 3D Box ESP",
+    Name = " 3D Box ESP",
     CurrentValue = ESPConfig.Box3DEnabled,
     Callback = function(value)
         ESPConfig.Box3DEnabled = value
@@ -4611,7 +4637,7 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateColorPicker({
-    Name = "🔴 Цвет врагов",
+    Name = "  ",
     Color = ESPConfig.EnemyColor,
     Callback = function(value)
         ESPConfig.EnemyColor = value
@@ -4620,7 +4646,7 @@ ESPTab:CreateColorPicker({
 })
 
 ESPTab:CreateColorPicker({
-    Name = "💚 Цвет тиммейтов",
+    Name = "  ",
     Color = ESPConfig.TeammateColor,
     Callback = function(value)
         ESPConfig.TeammateColor = value
@@ -4629,7 +4655,7 @@ ESPTab:CreateColorPicker({
 })
 
 ESPTab:CreateColorPicker({
-    Name = "💀 Цвет мертвых",
+    Name = "  ",
     Color = ESPConfig.DeadColor,
     Callback = function(value)
         ESPConfig.DeadColor = value
@@ -4638,7 +4664,7 @@ ESPTab:CreateColorPicker({
 })
 
 ESPTab:CreateColorPicker({
-    Name = "🎯 Цвет 3D Box",
+    Name = "  3D Box",
     Color = ESPConfig.Box3DColor,
     Callback = function(value)
         ESPConfig.Box3DColor = value
@@ -4651,7 +4677,7 @@ ESPTab:CreateColorPicker({
 })
 
 ESPTab:CreateSlider({
-    Name = "🔢 Размер текста",
+    Name = "  ",
     Range = {8, 24},
     Increment = 1,
     Suffix = "px",
@@ -4663,7 +4689,7 @@ ESPTab:CreateSlider({
 })
 
 ESPTab:CreateSlider({
-    Name = "🌫️ Прозрачность",
+    Name = " ",
     Range = {0, 1},
     Increment = 0.1,
     CurrentValue = ESPConfig.FillTransparency,
@@ -4674,7 +4700,7 @@ ESPTab:CreateSlider({
 })
 
 ESPTab:CreateSlider({
-    Name = "📏 Толщина линий",
+    Name = "  ",
     Range = {1, 5},
     Increment = 1,
     CurrentValue = ESPConfig.TracerThickness,
@@ -4685,7 +4711,7 @@ ESPTab:CreateSlider({
 })
 
 ESPTab:CreateSlider({
-    Name = "🎯 Толщина 3D Box",
+    Name = "  3D Box",
     Range = {1, 5},
     Increment = 1,
     CurrentValue = ESPConfig.Box3DThickness,
@@ -4700,7 +4726,7 @@ ESPTab:CreateSlider({
 })
 
 ESPTab:CreateSlider({
-    Name = "📐 Размер 3D Box",
+    Name = "  3D Box",
     Range = {0.5, 5.0},
     Increment = 0.1,
     Suffix = "x",
@@ -4710,10 +4736,10 @@ ESPTab:CreateSlider({
     end
 })
 
-ESPTab:CreateLabel("⚡ Частота: минимум (0.05 сек)")
+ESPTab:CreateLabel(" :  (0.05 )")
 
 ESPTab:CreateSlider({
-    Name = "🎭 Прозрачность заливки рамок",
+    Name = "   ",
     Range = {0, 1},
     Increment = 0.05,
     CurrentValue = ESPConfig.FillTransparency,
@@ -4724,7 +4750,7 @@ ESPTab:CreateSlider({
 })
 
 ESPTab:CreateSlider({
-    Name = "🟢 Размер 3D Box (множитель)",
+    Name = "  3D Box ()",
     Range = {0.5, 8.0},
     Increment = 0.1,
     Suffix = "x",
@@ -4734,10 +4760,10 @@ ESPTab:CreateSlider({
     end
 })
 
-ESPTab:CreateSection("🧭 СТРЕЛКИ (указатели вне экрана)")
+ESPTab:CreateSection("  (  )")
 
 ESPTab:CreateToggle({
-    Name = "🧭 Показывать стрелки к игрокам вне экрана",
+    Name = "      ",
     CurrentValue = ESPConfig.ShowArrows,
     Callback = function(value)
         ESPConfig.ShowArrows = value
@@ -4745,7 +4771,7 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateColorPicker({
-    Name = "🎨 Цвет стрелок",
+    Name = "  ",
     Color = ESPConfig.ArrowsColor,
     Callback = function(value)
         ESPConfig.ArrowsColor = value
@@ -4755,10 +4781,10 @@ ESPTab:CreateColorPicker({
     end
 })
 
-ESPTab:CreateSection("🎨 ЦВЕТА ТЕКСТА И ТРАССИРОВКИ")
+ESPTab:CreateSection("    ")
 
 ESPTab:CreateColorPicker({
-    Name = "🔤 Цвет имён",
+    Name = "  ",
     Color = ESPConfig.TextColor,
     Callback = function(value)
         ESPConfig.TextColor = value
@@ -4767,7 +4793,7 @@ ESPTab:CreateColorPicker({
 })
 
 ESPTab:CreateColorPicker({
-    Name = "📏 Цвет трассировки (игроки)",
+    Name = "   ()",
     Color = ESPConfig.TracerColor,
     Callback = function(value)
         ESPConfig.TracerColor = value
@@ -4777,10 +4803,10 @@ ESPTab:CreateColorPicker({
     end
 })
 
-ESPTab:CreateSection("📍 СНАП-ЛАЙНЫ (wallhack)")
+ESPTab:CreateSection(" - (wallhack)")
 
 ESPTab:CreateToggle({
-    Name = "📍 Включить снап-лайны к игрокам",
+    Name = "  -  ",
     CurrentValue = ESPConfig.SnapLines,
     Callback = function(value)
         ESPConfig.SnapLines = value
@@ -4788,7 +4814,7 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateColorPicker({
-    Name = "🎨 Цвет снап-лайнов",
+    Name = "  -",
     Color = ESPConfig.SnapLinesColor,
     Callback = function(value)
         ESPConfig.SnapLinesColor = value
@@ -4798,10 +4824,10 @@ ESPTab:CreateColorPicker({
     end
 })
 
-ESPTab:CreateSection("🎯 ПОДСВЕТКА ЦЕЛИ AIMBOT")
+ESPTab:CreateSection("   AIMBOT")
 
 ESPTab:CreateToggle({
-    Name = "🎯 Выделять текущую цель Aimbot",
+    Name = "    Aimbot",
     CurrentValue = ESPConfig.HighlightLockTarget,
     Callback = function(value)
         ESPConfig.HighlightLockTarget = value
@@ -4809,17 +4835,17 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateColorPicker({
-    Name = "🎨 Цвет подсветки цели Aimbot",
+    Name = "    Aimbot",
     Color = ESPConfig.LockTargetColor,
     Callback = function(value)
         ESPConfig.LockTargetColor = value
     end
 })
 
-ESPTab:CreateSection("🦴 СКЕЛЕТОН")
+ESPTab:CreateSection(" ")
 
 ESPTab:CreateToggle({
-    Name = "🦴 Показывать скелетон игроков",
+    Name = "   ",
     CurrentValue = ESPConfig.Skeletons,
     Callback = function(value)
         ESPConfig.Skeletons = value
@@ -4827,7 +4853,7 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateColorPicker({
-    Name = "🎨 Цвет скелетона",
+    Name = "  ",
     Color = ESPConfig.SkeletonColor,
     Callback = function(value)
         ESPConfig.SkeletonColor = value
@@ -4835,7 +4861,7 @@ ESPTab:CreateColorPicker({
 })
 
 ESPTab:CreateSlider({
-    Name = "📏 Толщина скелетона",
+    Name = "  ",
     Range = {1, 4},
     Increment = 1,
     CurrentValue = ESPConfig.SkeletonThickness,
@@ -4845,12 +4871,12 @@ ESPTab:CreateSlider({
 })
 
 ESPTab:CreateDropdown({
-    Name = "🦴 Тип скелетона",
-    Options = {"1 - Простой", "2 - Полный"},
-    CurrentOption = "1 - Простой",
+    Name = "  ",
+    Options = {"1 - ", "2 - "},
+    CurrentOption = "1 - ",
     Callback = function(value)
         local v = (typeof(value) == "table") and value[1] or value
-        if v == "2 - Полный" then
+        if v == "2 - " then
             ESPConfig.SkeletonType = 2
         else
             ESPConfig.SkeletonType = 1
@@ -4858,10 +4884,10 @@ ESPTab:CreateDropdown({
     end
 })
 
-ESPTab:CreateSection("🔴 ДОПОЛНИТЕЛЬНОЕ")
+ESPTab:CreateSection(" ")
 
 ESPTab:CreateToggle({
-    Name = "🔴 Точки на головах",
+    Name = "   ",
     CurrentValue = ESPConfig.HeadDots,
     Callback = function(value)
         ESPConfig.HeadDots = value
@@ -4869,7 +4895,7 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateColorPicker({
-    Name = "🎨 Цвет точек на головах",
+    Name = "    ",
     Color = ESPConfig.HeadDotColor,
     Callback = function(value)
         ESPConfig.HeadDotColor = value
@@ -4877,7 +4903,7 @@ ESPTab:CreateColorPicker({
 })
 
 ESPTab:CreateSlider({
-    Name = "📐 Размер точек на головах",
+    Name = "    ",
     Range = {3, 12},
     Increment = 1,
     Suffix = " px",
@@ -4888,7 +4914,7 @@ ESPTab:CreateSlider({
 })
 
 ESPTab:CreateToggle({
-    Name = "🏷️ Тег ELITE HUB над игроками",
+    Name = "  ELITE HUB  ",
     CurrentValue = ESPConfig.ShowScriptUserTag,
     Callback = function(value)
         ESPConfig.ShowScriptUserTag = value
@@ -4896,18 +4922,18 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateColorPicker({
-    Name = "🎨 Цвет тега скрипта",
+    Name = "   ",
     Color = ESPConfig.ScriptUserTagColor,
     Callback = function(value)
         ESPConfig.ScriptUserTagColor = value
     end
 })
 
-ESPTab:CreateSection("💎 CHAMS")
+ESPTab:CreateSection(" CHAMS")
 
 task.spawn(function()
 ESPTab:CreateToggle({
-    Name = "💎 Включить Chams",
+    Name = "  Chams",
     CurrentValue = ESPConfig.ChamsEnabled,
     Callback = function(value)
         ESPConfig.ChamsEnabled = value
@@ -4916,7 +4942,7 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateColorPicker({
-    Name = "🎨 Цвет заливки",
+    Name = "  ",
     Color = ESPConfig.ChamsFillColor,
     Callback = function(value)
         ESPConfig.ChamsFillColor = value
@@ -4924,7 +4950,7 @@ ESPTab:CreateColorPicker({
 })
 
 ESPTab:CreateSlider({
-    Name = "🔍 Прозрачность заливки",
+    Name = "  ",
     Range = {0, 1},
     Increment = 0.05,
     CurrentValue = ESPConfig.ChamsFillTransparency,
@@ -4934,7 +4960,7 @@ ESPTab:CreateSlider({
 })
 
 ESPTab:CreateColorPicker({
-    Name = "🎨 Цвет обводки",
+    Name = "  ",
     Color = ESPConfig.ChamsOutlineColor,
     Callback = function(value)
         ESPConfig.ChamsOutlineColor = value
@@ -4942,7 +4968,7 @@ ESPTab:CreateColorPicker({
 })
 
 ESPTab:CreateSlider({
-    Name = "🔍 Прозрачность обводки",
+    Name = "  ",
     Range = {0, 1},
     Increment = 0.05,
     CurrentValue = ESPConfig.ChamsOutlineTransparency,
@@ -4952,7 +4978,7 @@ ESPTab:CreateSlider({
 })
 
 ESPTab:CreateDropdown({
-    Name = "🧊 Материал Chams",
+    Name = "  Chams",
     Options = {"ForceField", "Neon", "Glass", "SmoothPlastic", "Plastic", "Wood", "DiamondPlate", "Foil", "Ice", "Brick", "Cobblestone", "CorrodedMetal", "Grass", "Sand", "Slate", "Marble", "Granite", "Limestone"},
     CurrentOption = "ForceField",
     Callback = function(value)
@@ -4962,7 +4988,7 @@ ESPTab:CreateDropdown({
 })
 
 ESPTab:CreateToggle({
-    Name = "👥 Проверка команды",
+    Name = "  ",
     CurrentValue = ESPConfig.ChamsTeamCheck,
     Callback = function(value)
         ESPConfig.ChamsTeamCheck = value
@@ -4970,7 +4996,7 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateToggle({
-    Name = "👤 Показать на себе",
+    Name = "   ",
     CurrentValue = ESPConfig.ChamsSelf,
     Callback = function(value)
         ESPConfig.ChamsSelf = value
@@ -4978,7 +5004,7 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateToggle({
-    Name = "🤝 Показать на тиммейтах",
+    Name = "   ",
     CurrentValue = ESPConfig.ChamsTeammates,
     Callback = function(value)
         ESPConfig.ChamsTeammates = value
@@ -4987,7 +5013,7 @@ ESPTab:CreateToggle({
 end)
 
 ESPTab:CreateToggle({
-    Name = "💚 Бар HP под игроком",
+    Name = "  HP  ",
     CurrentValue = ESPConfig.ShowHealthBar,
     Callback = function(value)
         ESPConfig.ShowHealthBar = value
@@ -4995,7 +5021,7 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateColorPicker({
-    Name = "🌈 Цвет бара HP",
+    Name = "   HP",
     Color = ESPConfig.HealthBarColor,
     Callback = function(v)
         ESPConfig.HealthBarColor = v
@@ -5003,7 +5029,7 @@ ESPTab:CreateColorPicker({
 })
 
 ESPTab:CreateToggle({
-    Name = "🎯 Подсветка ближайшего врага",
+    Name = "   ",
     CurrentValue = ESPConfig.HighlightClosest,
     Callback = function(value)
         ESPConfig.HighlightClosest = value
@@ -5011,20 +5037,20 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateColorPicker({
-    Name = "🎨 Цвет подсветки ближайшего",
+    Name = "   ",
     Color = ESPConfig.HighlightClosestColor,
     Callback = function(value)
         ESPConfig.HighlightClosestColor = value
     end
 })
 
-ESPTab:CreateSection("👥 КОМАНДЫ (друзья / враги)")
+ESPTab:CreateSection("  ( / )")
 
-local espMyTeamLabel = ESPTab:CreateLabel("🎖️ Ваша команда: —")
+local espMyTeamLabel = ESPTab:CreateLabel("  : ")
 local function UpdateEspMyTeamLabel()
     local tn = GetTeamName(player)
     pcall(function()
-        espMyTeamLabel:Set("🎖️ Ваша команда: " .. (tn or "нет"))
+        espMyTeamLabel:Set("  : " .. (tn or ""))
     end)
 end
 
@@ -5047,7 +5073,7 @@ local function RefreshEspTeamDD()
 end
 
 espTeamDD = ESPTab:CreateDropdown({
-    Name = "🎖️ Команда",
+    Name = " ",
     Options = GetAllTeamNames(),
     CurrentOption = "",
     Callback = function(option)
@@ -5057,21 +5083,21 @@ espTeamDD = ESPTab:CreateDropdown({
     end
 })
 
-ESPTab:CreateLabel("🤝 Дружественная команда = синий, вражеская = красный")
+ESPTab:CreateLabel("   = ,  = ")
 
 ESPTab:CreateButton({
-    Name = "✅ Сделать выбранную команду дружественной",
+    Name = "    ",
     Callback = function()
         local n = espSelectedTeam
         if not n or n == "" then
-            Rayfield:Notify({ Title = "👥 Команды", Content = "Сначала выберите команду в списке", Duration = 2 })
+            Rayfield:Notify({ Title = " ", Content = "    ", Duration = 2 })
             return
         end
         local res = ToggleFriendTeam(n)
         if res == "added" then
-            Rayfield:Notify({ Title = "🤝 Команда-друг", Content = n .. " теперь в дружественных", Duration = 2 })
+            Rayfield:Notify({ Title = " -", Content = n .. "   ", Duration = 2 })
         else
-            Rayfield:Notify({ Title = "👥 Команда", Content = n .. " убрана из дружественных (враг)", Duration = 2 })
+            Rayfield:Notify({ Title = " ", Content = n .. "    ()", Duration = 2 })
         end
         pcall(RefreshEspTeamDD)
         UpdateESP()
@@ -5079,11 +5105,11 @@ ESPTab:CreateButton({
 })
 
 ESPTab:CreateButton({
-    Name = "❌ Убрать выбранную команду из друзей (враг)",
+    Name = "      ()",
     Callback = function()
         local n = espSelectedTeam
         if not n or n == "" then
-            Rayfield:Notify({ Title = "👥 Команды", Content = "Сначала выберите команду в списке", Duration = 2 })
+            Rayfield:Notify({ Title = " ", Content = "    ", Duration = 2 })
             return
         end
         local list = getgenv().ELITE_HUB_FRIEND_TEAMS
@@ -5092,39 +5118,39 @@ ESPTab:CreateButton({
                 table.remove(list, i)
             end
         end
-        Rayfield:Notify({ Title = "⚔️ Команда-враг", Content = n .. " теперь вражеская", Duration = 2 })
+        Rayfield:Notify({ Title = " -", Content = n .. "  ", Duration = 2 })
         pcall(RefreshEspTeamDD)
         UpdateESP()
     end
 })
 
 ESPTab:CreateButton({
-    Name = "📜 Дружественные команды",
+    Name = "  ",
     Callback = function()
         local list = getgenv().ELITE_HUB_FRIEND_TEAMS
         if #list == 0 then
-            Rayfield:Notify({ Title = "👥 Команды", Content = "Нет дружественных команд (все враги)", Duration = 2 })
+            Rayfield:Notify({ Title = " ", Content = "   ( )", Duration = 2 })
         else
-            Rayfield:Notify({ Title = "🤝 Дружественные", Content = table.concat(list, ", "), Duration = 5 })
+            Rayfield:Notify({ Title = " ", Content = table.concat(list, ", "), Duration = 5 })
         end
     end
 })
 
 ESPTab:CreateButton({
-    Name = "🚫 Все команды — враги",
+    Name = "    ",
     Callback = function()
         getgenv().ELITE_HUB_FRIEND_TEAMS = {}
-        Rayfield:Notify({ Title = "⚔️ Готово", Content = "Все команды теперь враги", Duration = 2 })
+        Rayfield:Notify({ Title = " ", Content = "   ", Duration = 2 })
         pcall(RefreshEspTeamDD)
         UpdateESP()
     end
 })
 
 ESPTab:CreateButton({
-    Name = "🔄 Обновить список команд",
+    Name = "   ",
     Callback = function()
         pcall(RefreshEspTeamDD)
-        Rayfield:Notify({ Title = "👥 Команды", Content = "Список команд обновлён", Duration = 2 })
+        Rayfield:Notify({ Title = " ", Content = "  ", Duration = 2 })
     end
 })
 
@@ -5135,7 +5161,7 @@ task.spawn(function()
     end
 end)
 
-ESPTab:CreateSection("🤝 ДРУЗЬЯ И ЦЕЛЬ (выбор из списка)")
+ESPTab:CreateSection("    (  )")
 
 local espFriendAddDD = nil
 local espFriendRmDD = nil
@@ -5157,7 +5183,7 @@ local function RefreshESPDD()
         pcall(function() espFriendRmDD:Refresh(opts) end)
     end
     if espTargetDD then
-        local opts = {"(Авто)"}
+        local opts = {"()"}
         local playersList = {}
         for _, p in ipairs(Players:GetPlayers()) do
             if p ~= player then table.insert(playersList, p.Name) end
@@ -5169,7 +5195,7 @@ local function RefreshESPDD()
 end
 
 ESPTab:CreateToggle({
-    Name = "🚫 Скрывать друзей в ESP",
+    Name = "    ESP",
     CurrentValue = ESPConfig.FriendCheck,
     Flag = "ESPFriendCheck",
     Callback = function(value)
@@ -5179,7 +5205,7 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateToggle({
-    Name = "🎯 Подсвечивать основную цель",
+    Name = "   ",
     CurrentValue = ESPConfig.HighlightTarget,
     Flag = "ESPHighlightTarget",
     Callback = function(value)
@@ -5189,7 +5215,7 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateColorPicker({
-    Name = "🔵 Цвет друзей / цели",
+    Name = "   / ",
     Color = ESPConfig.FriendColor,
     Callback = function(value)
         ESPConfig.FriendColor = value
@@ -5198,7 +5224,7 @@ ESPTab:CreateColorPicker({
 })
 
 espFriendAddDD = ESPTab:CreateDropdown({
-    Name = "➕ Выбрать игрока в друзья",
+    Name = "    ",
     Options = {},
     CurrentOption = "",
     Callback = function(option)
@@ -5206,10 +5232,10 @@ espFriendAddDD = ESPTab:CreateDropdown({
         if typeof(option) == "table" then n = option[1] end
         if not n or n == "" then return end
         if IsFriendName(n) then
-            Rayfield:Notify({ Title = "🤝 Друзья", Content = n .. " уже в списке", Duration = 2 })
+            Rayfield:Notify({ Title = " ", Content = n .. "   ", Duration = 2 })
         else
             table.insert(getgenv().ELITE_HUB_FRIENDS, n)
-            Rayfield:Notify({ Title = "✅ Друг добавлен", Content = n, Duration = 2 })
+            Rayfield:Notify({ Title = "  ", Content = n, Duration = 2 })
         end
         if espFriendAddDD then pcall(function() espFriendAddDD:Clear() end) end
         RefreshESPDD()
@@ -5218,7 +5244,7 @@ espFriendAddDD = ESPTab:CreateDropdown({
 })
 
 espFriendRmDD = ESPTab:CreateDropdown({
-    Name = "➖ Удалить друга (выбор)",
+    Name = "   ()",
     Options = {},
     CurrentOption = "",
     Callback = function(option)
@@ -5229,7 +5255,7 @@ espFriendRmDD = ESPTab:CreateDropdown({
         for i = #list, 1, -1 do
             if tostring(list[i]):lower() == n:lower() then
                 table.remove(list, i)
-                Rayfield:Notify({ Title = "🗑️ Друг удалён", Content = n, Duration = 2 })
+                Rayfield:Notify({ Title = "  ", Content = n, Duration = 2 })
                 break
             end
         end
@@ -5240,41 +5266,41 @@ espFriendRmDD = ESPTab:CreateDropdown({
 })
 
 ESPTab:CreateButton({
-    Name = "🧹 Очистить список друзей",
+    Name = "   ",
     Callback = function()
         local cnt = #getgenv().ELITE_HUB_FRIENDS
         getgenv().ELITE_HUB_FRIENDS = {}
-        Rayfield:Notify({ Title = "🧹 Готово", Content = "Удалено друзей: " .. cnt, Duration = 2 })
+        Rayfield:Notify({ Title = " ", Content = " : " .. cnt, Duration = 2 })
         RefreshESPDD()
         UpdateESP()
     end
 })
 
 ESPTab:CreateButton({
-    Name = "📜 Показать список друзей",
+    Name = "   ",
     Callback = function()
         local list = getgenv().ELITE_HUB_FRIENDS
         if #list == 0 then
-            Rayfield:Notify({ Title = "🤝 Друзья", Content = "Список пуст", Duration = 2 })
+            Rayfield:Notify({ Title = " ", Content = " ", Duration = 2 })
             return
         end
-        Rayfield:Notify({ Title = "🤝 Список друзей", Content = table.concat(list, ", "), Duration = 6 })
+        Rayfield:Notify({ Title = "  ", Content = table.concat(list, ", "), Duration = 6 })
     end
 })
 
 espTargetDD = ESPTab:CreateDropdown({
-    Name = "🎯 Основная цель (подсветка)",
-    Options = {"(Авто)"},
+    Name = "   ()",
+    Options = {"()"},
     CurrentOption = "",
     Callback = function(option)
         local n = option
         if typeof(option) == "table" then n = option[1] end
-        if n == "(Авто)" or n == nil or n == "" then
+        if n == "()" or n == nil or n == "" then
             getgenv().ELITE_HUB_TARGET_NAME = ""
-            Rayfield:Notify({ Title = "🎯 Цель", Content = "Авто (нет приоритета)", Duration = 2 })
+            Rayfield:Notify({ Title = " ", Content = " ( )", Duration = 2 })
         else
             getgenv().ELITE_HUB_TARGET_NAME = n
-            Rayfield:Notify({ Title = "🎯 Цель установлена", Content = n, Duration = 2 })
+            Rayfield:Notify({ Title = "  ", Content = n, Duration = 2 })
         end
         UpdateESP()
     end
@@ -5290,10 +5316,10 @@ Players.PlayerAdded:Connect(RefreshESPDD)
 Players.PlayerRemoving:Connect(RefreshESPDD)
 task.delay(1, RefreshESPDD)
 
-ESPTab:CreateSection("🔔 УВЕДОМЛЕНИЯ ESP")
+ESPTab:CreateSection("  ESP")
 
 ESPTab:CreateToggle({
-    Name = "🔔 ESP: уведомления включены",
+    Name = " ESP:  ",
     CurrentValue = AimbotConfig.NotifyPlayerJoin,
     Callback = function(value)
         AimbotConfig.NotifyPlayerJoin = value
@@ -5302,7 +5328,7 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateToggle({
-    Name = "👋 Уведомлять о входе игроков",
+    Name = "    ",
     CurrentValue = AimbotConfig.NotifyPlayerJoin,
     Callback = function(value)
         AimbotConfig.NotifyPlayerJoin = value
@@ -5310,7 +5336,7 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateToggle({
-    Name = "👋 Уведомлять о выходе игроков",
+    Name = "    ",
     CurrentValue = AimbotConfig.NotifyPlayerLeave,
     Callback = function(value)
         AimbotConfig.NotifyPlayerLeave = value
@@ -5318,17 +5344,17 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateToggle({
-    Name = "❌ Уведомлять о выходе цели",
+    Name = "    ",
     CurrentValue = AimbotConfig.NotifyTargetLost,
     Callback = function(value)
         AimbotConfig.NotifyTargetLost = value
     end
 })
 
-ESPTab:CreateSection("🎨 ВИЗУАЛЬНЫЕ ФИЧИ")
+ESPTab:CreateSection("  ")
 
 ESPTab:CreateToggle({
-    Name = "💀 Предупреждение при низком HP",
+    Name = "    HP",
     CurrentValue = ESPConfig.LowHPWarning,
     Callback = function(value)
         ESPConfig.LowHPWarning = value
@@ -5336,7 +5362,7 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateSlider({
-    Name = "❤️ Порог низкого HP (%)",
+    Name = "   HP (%)",
     Range = {5, 60},
     Increment = 5,
     Suffix = "%",
@@ -5347,7 +5373,7 @@ ESPTab:CreateSlider({
 })
 
 ESPTab:CreateColorPicker({
-    Name = "🔴 Цвет Vignette",
+    Name = "  Vignette",
     Color = ESPConfig.LowHPColor,
     Callback = function(color)
         ESPConfig.LowHPColor = color
@@ -5355,7 +5381,7 @@ ESPTab:CreateColorPicker({
 })
 
 ESPTab:CreateToggle({
-    Name = "💫 Пульс-кольцо вокруг цели",
+    Name = " -  ",
     CurrentValue = AimbotConfig.PulseTarget,
     Callback = function(value)
         AimbotConfig.PulseTarget = value
@@ -5363,7 +5389,7 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateColorPicker({
-    Name = "🌈 Цвет пульс-кольца",
+    Name = "  -",
     Color = AimbotConfig.PulseColor,
     Callback = function(color)
         AimbotConfig.PulseColor = color
@@ -5371,7 +5397,7 @@ ESPTab:CreateColorPicker({
 })
 
 ESPTab:CreateSlider({
-    Name = "📐 Радиус пульса",
+    Name = "  ",
     Range = {20, 200},
     Increment = 5,
     Suffix = "px",
@@ -5382,7 +5408,7 @@ ESPTab:CreateSlider({
 })
 
 ESPTab:CreateSlider({
-    Name = "⚡ Скорость пульса",
+    Name = "  ",
     Range = {1, 20},
     Increment = 1,
     CurrentValue = AimbotConfig.PulseSpeed,
@@ -5392,7 +5418,7 @@ ESPTab:CreateSlider({
 })
 
 ESPTab:CreateToggle({
-    Name = "📊 HP-бар цели над головой",
+    Name = " HP-   ",
     CurrentValue = AimbotConfig.TargetHealthBarTop,
     Callback = function(value)
         AimbotConfig.TargetHealthBarTop = value
@@ -5400,18 +5426,19 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateToggle({
-    Name = "📌 Закрепить HP-бар у головы",
+    Name = "  HP-  ",
     CurrentValue = AimbotConfig.TargetHealthBarMounted,
     Callback = function(value)
         AimbotConfig.TargetHealthBarMounted = value
     end
 })
 
-ESPTab:CreateSection("⌨️ БИНДЫ (быстрые клавиши)")
+ESPTab:CreateSection("  ( )")
 
-ESPTab:CreateLabel("Текущий бинд Fly: " .. BindConfig.Fly)
-ESPTab:CreateLabel("Текущий бинд Noclip: " .. BindConfig.Noclip)
-ESPTab:CreateLabel("Текущий бинд SpeedBoost: " .. BindConfig.SpeedBoost)
+ESPTab:CreateLabel("  Fly: " .. BindConfig.Fly)
+ESPTab:CreateLabel("  Noclip: " .. BindConfig.Noclip)
+ESPTab:CreateLabel("  SpeedBoost: " .. BindConfig.SpeedBoost)
+ESPTab:CreateLabel("  SpinBot: " .. BindConfig.SpinBot)
 
 local VFX = {}
 pcall(function()
@@ -5540,7 +5567,7 @@ end)
 
 --[[
     ==============================
-    НОВЫЙ ТЕЛЕПОРТ-СКРИПТ
+     -
     ==============================
 ]]--
 local LocalPlayer = Players.LocalPlayer
@@ -5551,7 +5578,7 @@ local onlineLabel = nil
 
 local function TeleportToPlayer(targetPlayer)
     if not targetPlayer or not targetPlayer:IsA("Player") then
-        Rayfield:Notify({ Title = "❌ Ошибка", Content = "Неверный игрок", Duration = 2 })
+        Rayfield:Notify({ Title = " ", Content = " ", Duration = 2 })
         return
     end
     local myChar = LocalPlayer.Character
@@ -5561,14 +5588,14 @@ local function TeleportToPlayer(targetPlayer)
         local targetRoot = targetChar:FindFirstChild("HumanoidRootPart")
         if myRoot and targetRoot then
             myRoot.CFrame = targetRoot.CFrame
-            Rayfield:Notify({ Title = "✅ Успех", Content = "Телепортирован к " .. targetPlayer.Name, Duration = 2 })
+            Rayfield:Notify({ Title = " ", Content = "  " .. targetPlayer.Name, Duration = 2 })
         end
     end
 end
 
 local function UpdateOnlineCount()
     if onlineLabel then
-        onlineLabel:Set("👥 Игроков онлайн: " .. tostring(#Players:GetPlayers()))
+        onlineLabel:Set("  : " .. tostring(#Players:GetPlayers()))
     end
 end
 
@@ -5581,24 +5608,24 @@ local function UpdateDropdown()
         end
     end
     table.sort(opts)
-    dropdown:Refresh(opts) -- обновляем список без пересоздания
+    dropdown:Refresh(opts) --    
     UpdateOnlineCount()
     if selectedPlayer and not Players:FindFirstChild(selectedPlayer.Name) then
         selectedPlayer = nil
-        dropdown:Set("") -- сброс
+        dropdown:Set("") -- 
         autoTp = false
         Rayfield:Notify({
-            Title = "ℹ️ Игрок вышел",
-            Content = "Выбор сброшен",
+            Title = "  ",
+            Content = " ",
             Duration = 2
         })
     end
 end
 
-TeleportTab:CreateSection("Игроки")
-onlineLabel = TeleportTab:CreateLabel("👥 Игроков онлайн: 0")
+TeleportTab:CreateSection("")
+onlineLabel = TeleportTab:CreateLabel("  : 0")
 dropdown = TeleportTab:CreateDropdown({
-    Name = "Выберите игрока",
+    Name = " ",
     Options = {},
     CurrentOption = "",
     Callback = function(option)
@@ -5615,7 +5642,7 @@ dropdown = TeleportTab:CreateDropdown({
         end
         if selectedPlayer then
             Rayfield:Notify({
-                Title = "Выбран игрок",
+                Title = " ",
                 Content = selectedPlayer.Name,
                 Duration = 1.5
             })
@@ -5624,10 +5651,10 @@ dropdown = TeleportTab:CreateDropdown({
 })
 
 TeleportTab:CreateButton({
-    Name = "🚀 Телепорт к выбранному",
+    Name = "   ",
     Callback = function()
         if not selectedPlayer then
-            Rayfield:Notify({ Title = "❗ Внимание", Content = "Сначала выберите игрока", Duration = 2 })
+            Rayfield:Notify({ Title = " ", Content = "  ", Duration = 2 })
             return
         end
         TeleportToPlayer(selectedPlayer)
@@ -5635,14 +5662,14 @@ TeleportTab:CreateButton({
 })
 
 TeleportTab:CreateToggle({
-    Name = "⚡ Авто-телепорт",
+    Name = " -",
     CurrentValue = false,
     Callback = function(value)
         autoTp = value
         if value and selectedPlayer then
-            Rayfield:Notify({ Title = "⚡ Авто-ТП ВКЛ", Content = "Слежение за " .. selectedPlayer.Name, Duration = 2 })
+            Rayfield:Notify({ Title = " - ", Content = "  " .. selectedPlayer.Name, Duration = 2 })
         elseif not value then
-            Rayfield:Notify({ Title = "⚡ Авто-ТП ВЫКЛ", Content = "Остановлено", Duration = 2 })
+            Rayfield:Notify({ Title = " - ", Content = "", Duration = 2 })
         end
     end
 })
@@ -5676,17 +5703,17 @@ Players.PlayerRemoving:Connect(UpdateDropdown)
 
 task.delay(1, UpdateDropdown)
 Rayfield:Notify({
-    Title = "✅ Готово",
-    Content = "Скрипт телепорта запущен. Список игроков и счётчик обновляются автоматически.",
+    Title = " ",
+    Content = "  .      .",
     Duration = 4
 })
 
 --[[
     ==============================
-    РАЗДЕЛ УБИТЬ ВСЕХ (ОБНОВЛЕННЫЙ)
+       ()
     ==============================
 ]]--
-local KillAllSection = KillAllTab:CreateSection("⚔️ УБИТЬ ВСЕХ ВРАГОВ")
+local KillAllSection = KillAllTab:CreateSection("   ")
 local safeZoneRadius = 20
 local isActive = false
 local killAllEnabled = true
@@ -5702,7 +5729,7 @@ zonePart.Name = "SafeZone"
 zonePart.Parent = workspace
 
 KillAllTab:CreateToggle({
-   Name = "🛡️ Включить Safe Zone",
+   Name = "  Safe Zone",
    CurrentValue = isActive,
    Callback = function(Value)
       isActive = Value
@@ -5710,7 +5737,7 @@ KillAllTab:CreateToggle({
 })
 
 KillAllTab:CreateToggle({
-   Name = "⚔️ Режим Kill All",
+   Name = "  Kill All",
    CurrentValue = killAllEnabled,
    Callback = function(Value)
       killAllEnabled = Value
@@ -5718,7 +5745,7 @@ KillAllTab:CreateToggle({
 })
 
 KillAllTab:CreateToggle({
-   Name = "👥 Игнорировать команду",
+   Name = "  ",
    CurrentValue = ignoreTeam,
    Callback = function(Value)
       ignoreTeam = Value
@@ -5726,7 +5753,7 @@ KillAllTab:CreateToggle({
 })
 
 KillAllTab:CreateSlider({
-   Name = "📏 Радиус безопасной зоны",
+   Name = "   ",
    Range = {5, 100},
    Increment = 1,
    Suffix = "studs",
@@ -5737,7 +5764,7 @@ KillAllTab:CreateSlider({
 })
 
 task.spawn(function()
-    Log("KILLALL", "Цикл Kill All запущен")
+    Log("KILLALL", " Kill All ")
     while task.wait(0.1) do
         pcall(function()
             local myChar = player.Character
@@ -5783,13 +5810,28 @@ end)
 
 --[[
     ==============================
-    ОБНОВЛЕННЫЕ ДОПОЛНИТЕЛЬНЫЕ СКРИПТЫ
+      
     ==============================
 ]]--
-local ScriptsSection = MainTab:CreateSection("📜 ДОПОЛНИТЕЛЬНЫЕ СКРИПТЫ")
+local ScriptsSection = MainTab:CreateSection("  ")
 
 local function LoadImprovedFlight()
-    local UserInputService = game:GetService("UserInputService")
+local wallhopActive = false
+local wallhopConnection = nil
+local wallhopBindKey = Enum.KeyCode.LeftControl
+
+local speeds = 1
+local nowe = false
+local tpwalking = false
+local flyBg = nil
+local flyBv = nil
+
+_G.flyCtrl = {f = 0, b = 0, l = 0, r = 0}
+local ctrl = _G.flyCtrl
+
+local noclipConnection = nil
+
+local UserInputService = game:GetService("UserInputService")
     local isMobile = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
     
     if isMobile then
@@ -5863,23 +5905,23 @@ end
 
 local newScripts = {
     {
-        Name = "⚔️ FE Seraphic Blade",
+        Name = " FE Seraphic Blade",
         Url = "https://pastefy.app/59mJGQGe/raw"
     },
     {
-        Name = "💃 FE Анимации",
+        Name = " FE ",
         Url = "https://raw.githubusercontent.com/7yd7/Hub/refs/heads/Branch/GUIS/Emotes.lua"
     },
     {
-        Name = "🛫 Улучшенный полет",
+        Name = "  ",
         Callback = LoadImprovedFlight
     },
     {
-        Name = "👹 The Rake Анимация",
+        Name = " The Rake ",
         Callback = LoadRakeAnimation
     },
     {
-        Name = "🌀 Touch Fling",
+        Name = " Touch Fling",
         Url = "https://rawscripts.net/raw/Universal-Script-TOUCH-FLING-30401"
     }
 }
@@ -5890,8 +5932,8 @@ for i, scriptInfo in ipairs(newScripts) do
         Name = scriptInfo.Name,
         Callback = function()
             Rayfield:Notify({
-                Title = "⏳ Загрузка...",
-                Content = "📥 "..scriptInfo.Name.." запускается",
+                Title = " ...",
+                Content = " "..scriptInfo.Name.." ",
                 Duration = 3
             })
 
@@ -5905,14 +5947,14 @@ for i, scriptInfo in ipairs(newScripts) do
 
             if success then
                 Rayfield:Notify({
-                    Title = "✅ Успех!",
-                    Content = scriptInfo.Name.." успешно загружен",
+                    Title = " !",
+                    Content = scriptInfo.Name.."  ",
                     Duration = 4
                 })
             else
                 Rayfield:Notify({
-                    Title = "❌ Ошибка!",
-                    Content = "Не удалось загрузить "..scriptInfo.Name..":\n"..tostring(err),
+                    Title = " !",
+                    Content = "   "..scriptInfo.Name..":\n"..tostring(err),
                     Duration = 6
                 })
             end
@@ -5930,13 +5972,13 @@ local scriptUrls = {
     "https://raw.githubusercontent.com/GenesisFE/Genesis/main/Obfuscations/Neptunian%20V"
 }
 local scriptNames = {
-    "👹 SCP-096 Режим",
-    "👻 Невидимость PRO",
-    "🧟 Зомби хаки",
-    "🏎️ флинг+",
-    "🧟 Простой зомби-напарник",
-    "⚔️ FE GALE FIGHTER",
-    "🌊 FE Neptunian V"
+    " SCP-096 ",
+    "  PRO",
+    "  ",
+    " +",
+    "  -",
+    " FE GALE FIGHTER",
+    " FE Neptunian V"
 }
 
 for i = 1, #scriptNames do
@@ -5944,8 +5986,8 @@ for i = 1, #scriptNames do
         Name = scriptNames[i],
         Callback = function()
             Rayfield:Notify({
-                Title = "⏳ Загрузка...",
-                Content = "📥 "..scriptNames[i].." запускается",
+                Title = " ...",
+                Content = " "..scriptNames[i].." ",
                 Duration = 3
             })
 
@@ -5955,8 +5997,8 @@ for i = 1, #scriptNames do
 
             if not success then
                 Rayfield:Notify({
-                    Title = "❌ Ошибка!",
-                    Content = "⚠️ Не удалось загрузить:\n"..tostring(err),
+                    Title = " !",
+                    Content = "   :\n"..tostring(err),
                     Duration = 6
                 })
             end
@@ -5966,7 +6008,7 @@ end
 
 --[[
     ==============================
-    ОСНОВНЫЕ ОБРАБОТЧИКИ
+     
     ==============================
 ]]--
 game:GetService("RunService").Stepped:Connect(function()
@@ -6172,10 +6214,10 @@ local function SetupParticles(char)
     end)
 end
 
-VisualTab:CreateSection("✨ ПАРТИКЛЫ")
+VisualTab:CreateSection(" ")
 
 VisualTab:CreateToggle({
-    Name = "✨ Включить партиклы",
+    Name = "  ",
     CurrentValue = VisualConfig.ParticlesEnabled,
     Callback = function(value)
         VisualConfig.ParticlesEnabled = value
@@ -6189,7 +6231,7 @@ VisualTab:CreateToggle({
 })
 
 VisualTab:CreateDropdown({
-    Name = "🎯 Тип партиклов",
+    Name = "  ",
     Options = {"Aura", "Trail", "Fire", "Rain", "Snow", "Sparkles", "Confetti", "Smoke", "Blood", "Glow", "Dust", "Bubble", "Lightning", "Poison", "Hex", "Lava", "Ice", "Plasma", "Leaves", "Feathers", "Stars", "Hearts", "Neon", "Chaos", "Meteor", "Electric", "Wind", "Shadow", "Crystal", "Sakura", "Galaxy", "Nuclear", "Phoenix", "Void", "Dragon"},
     CurrentOption = VisualConfig.ParticleType,
     Callback = function(value)
@@ -6200,7 +6242,7 @@ VisualTab:CreateDropdown({
 })
 
 VisualTab:CreateColorPicker({
-    Name = "🎨 Цвет 1",
+    Name = "  1",
     Color = VisualConfig.ParticleColor,
     Callback = function(color)
         VisualConfig.ParticleColor = color
@@ -6211,7 +6253,7 @@ VisualTab:CreateColorPicker({
 })
 
 VisualTab:CreateColorPicker({
-    Name = "🎨 Цвет 2 (градиент)",
+    Name = "  2 ()",
     Color = VisualConfig.ParticleColor2,
     Callback = function(color)
         VisualConfig.ParticleColor2 = color
@@ -6222,7 +6264,7 @@ VisualTab:CreateColorPicker({
 })
 
 VisualTab:CreateToggle({
-    Name = "💡 Светящиеся частицы",
+    Name = "  ",
     CurrentValue = VisualConfig.ParticleGlow,
     Callback = function(value)
         VisualConfig.ParticleGlow = value
@@ -6233,7 +6275,7 @@ VisualTab:CreateToggle({
 })
 
 VisualTab:CreateSlider({
-    Name = "⚪ Размер частиц",
+    Name = "  ",
     Range = {0.05, 3},
     Increment = 0.05,
     CurrentValue = VisualConfig.ParticleSize,
@@ -6246,7 +6288,7 @@ VisualTab:CreateSlider({
 })
 
 VisualTab:CreateSlider({
-    Name = "⚡ Количество/сек",
+    Name = " /",
     Range = {10, 400},
     Increment = 10,
     CurrentValue = VisualConfig.ParticleRate,
@@ -6259,7 +6301,7 @@ VisualTab:CreateSlider({
 })
 
 VisualTab:CreateSlider({
-    Name = "🚀 Скорость частиц",
+    Name = "  ",
     Range = {0.5, 15},
     Increment = 0.5,
     CurrentValue = VisualConfig.ParticleSpeed,
@@ -6273,10 +6315,10 @@ VisualTab:CreateSlider({
 })
 
 VisualTab:CreateSlider({
-    Name = "⏳ Время жизни частиц",
+    Name = "   ",
     Range = {0.3, 5},
     Increment = 0.1,
-    Suffix = "с",
+    Suffix = "",
     CurrentValue = VisualConfig.ParticleLife,
     Callback = function(value)
         VisualConfig.ParticleLife = value
@@ -6297,13 +6339,13 @@ end)
 
 task.spawn(function()
 local MT = getgenv().ELITE_HUB_ModsTab
-getgenv().ELITE_HUB_Log("MODS", "Секция МОДЫ загружена")
+getgenv().ELITE_HUB_Log("MODS", "  ")
 
-MT:CreateSection("🏃 ДВИЖЕНИЕ")
+MT:CreateSection(" ")
 
 getgenv().ELITE_HUB_JumpBoost = false
 MT:CreateToggle({
-    Name = "🦘 Jump Boost (высокий прыжок)",
+    Name = " Jump Boost ( )",
     CurrentValue = false,
     Callback = function(value)
         getgenv().ELITE_HUB_JumpBoost = value
@@ -6326,9 +6368,9 @@ end)
 
 getgenv().ELITE_HUB_HitboxExpander = false
 getgenv().ELITE_HUB_HitboxSize = 10
-MT:CreateSection("🎯 КОМБАТ")
+MT:CreateSection(" ")
 MT:CreateToggle({
-    Name = "📦 Hitbox Expander",
+    Name = " Hitbox Expander",
     CurrentValue = false,
     Callback = function(value)
         getgenv().ELITE_HUB_HitboxExpander = value
@@ -6336,7 +6378,7 @@ MT:CreateToggle({
     end
 })
 MT:CreateSlider({
-    Name = "📦 Размер хитбокса",
+    Name = "  ",
     Range = {5, 50},
     Increment = 1,
     CurrentValue = 10,
@@ -6365,43 +6407,11 @@ task.spawn(function()
     end
 end)
 
-getgenv().ELITE_HUB_AutoParry = false
-MT:CreateToggle({
-    Name = "🛡️ Auto Parry",
-    CurrentValue = false,
-    Callback = function(value)
-        getgenv().ELITE_HUB_AutoParry = value
-        getgenv().ELITE_HUB_Log("MODS", "Auto Parry: " .. tostring(value))
-    end
-})
-task.spawn(function()
-    while task.wait(0.05) do
-        pcall(function()
-            if not getgenv().ELITE_HUB_AutoParry then return end
-            local ch = player.Character
-            local hum = ch and ch:FindFirstChildOfClass("Humanoid")
-            local hrp = ch and ch:FindFirstChild("HumanoidRootPart")
-            if not hum or not hrp then return end
-            for _, plr in ipairs(game:GetService("Players"):GetPlayers()) do
-                if plr ~= player and plr.Character then
-                    local ehrp = plr.Character:FindFirstChild("HumanoidRootPart")
-                    if ehrp and (ehrp.Position - hrp.Position).Magnitude < 8 then
-                        hum:ChangeState(Enum.HumanoidStateType.Blocking)
-                        task.delay(0.2, function()
-                            pcall(function() hum:ChangeState(Enum.HumanoidStateType.GettingUp) end)
-                        end)
-                    end
-                end
-            end
-        end)
-    end
-end)
-
-MT:CreateSection("📷 КАМЕРА & ТЕЛЕПОРТ")
+MT:CreateSection("  & ")
 
 getgenv().ELITE_HUB_FreeCam = false
 MT:CreateToggle({
-    Name = "📷 Free Cam (свободная камера)",
+    Name = " Free Cam ( )",
     CurrentValue = false,
     Callback = function(value)
         getgenv().ELITE_HUB_FreeCam = value
@@ -6457,9 +6467,9 @@ task.spawn(function()
 end)
 
 MT:CreateButton({
-    Name = "📍 Телепорт к курсору мыши",
+    Name = "    ",
     Callback = function()
-        getgenv().ELITE_HUB_Log("MODS", "Телепорт к курсору мыши")
+        getgenv().ELITE_HUB_Log("MODS", "   ")
         pcall(function()
             local mouse = player:GetMouse()
             local hit = mouse.Hit
@@ -6474,12 +6484,12 @@ MT:CreateButton({
     end
 })
 
-MT:CreateSection("🌙 ОКРУЖЕНИЕ")
+MT:CreateSection(" ")
 
 getgenv().ELITE_HUB_NightMode = false
 getgenv().ELITE_HUB_NightOrigClock = nil
 MT:CreateToggle({
-    Name = "🌙 Night Mode",
+    Name = " Night Mode",
     CurrentValue = false,
     Callback = function(value)
         getgenv().ELITE_HUB_NightMode = value
@@ -6502,11 +6512,11 @@ MT:CreateToggle({
     end
 })
 
-MT:CreateSection("👁️ ESP+")
+MT:CreateSection(" ESP+")
 
 getgenv().ELITE_HUB_ItemESP = false
 MT:CreateToggle({
-    Name = "🎒 Item ESP (предметы)",
+    Name = " Item ESP ()",
     CurrentValue = false,
     Callback = function(value)
         getgenv().ELITE_HUB_ItemESP = value
@@ -6551,11 +6561,11 @@ task.spawn(function()
     end
 end)
 
-MT:CreateSection("🎮 УТИЛИТЫ")
+MT:CreateSection(" ")
 
 
 MT:CreateToggle({
-    Name = "🛡️ Anti-AFK",
+    Name = " Anti-AFK",
     CurrentValue = true,
     Callback = function(value)
         getgenv().ELITE_HUB_Log("MODS", "Anti-AFK: " .. tostring(value))
@@ -6576,11 +6586,11 @@ MT:CreateToggle({
     end
 })
 
-MT:CreateSection("⚔️ КОМБАТ")
+MT:CreateSection(" ")
 
 getgenv().ELITE_HUB_AutoParry = false
 MT:CreateToggle({
-    Name = "🛡️ Auto Parry (Auto Block)",
+    Name = " Auto Parry (Auto Block)",
     CurrentValue = false,
     Callback = function(value)
         getgenv().ELITE_HUB_AutoParry = value
@@ -6624,7 +6634,7 @@ MT:CreateToggle({
 getgenv().ELITE_HUB_Reach = false
 getgenv().ELITE_HUB_ReachDist = 10
 MT:CreateToggle({
-    Name = "⚔️ Reach",
+    Name = " Reach",
     CurrentValue = false,
     Callback = function(value)
         getgenv().ELITE_HUB_Reach = value
@@ -6632,7 +6642,7 @@ MT:CreateToggle({
     end
 })
 MT:CreateSlider({
-    Name = "📏 Reach Distance",
+    Name = " Reach Distance",
     Range = {3, 50},
     Increment = 1,
     CurrentValue = 10,
@@ -6671,7 +6681,7 @@ end)
 getgenv().ELITE_HUB_SpinBot = false
 getgenv().ELITE_HUB_SpinSpeed = 50
 MT:CreateToggle({
-    Name = "🔄 Spin Bot",
+    Name = " Spin Bot",
     CurrentValue = false,
     Callback = function(value)
         getgenv().ELITE_HUB_SpinBot = value
@@ -6695,7 +6705,7 @@ MT:CreateToggle({
     end
 })
 MT:CreateSlider({
-    Name = "🔄 Spin Speed",
+    Name = " Spin Speed",
     Range = {10, 200},
     Increment = 5,
     CurrentValue = 50,
@@ -6704,39 +6714,11 @@ MT:CreateSlider({
     end
 })
 
-MT:CreateDropdown({
-    Name = "📍 Teleport к игроку",
-    Options = (function()
-        local names = {}
-        for _, plr in ipairs(game:GetService("Players"):GetPlayers()) do
-            if plr ~= player then
-                table.insert(names, plr.Name)
-            end
-        end
-        return names
-    end)(),
-    CurrentOption = "",
-    Callback = function(value)
-        local v = (typeof(value) == "table") and value[1] or value
-        pcall(function()
-            local target = game:GetService("Players"):FindFirstChild(v)
-            if target and target.Character then
-                local hrp = target.Character:FindFirstChild("HumanoidRootPart")
-                local myHrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
-                if hrp and myHrp then
-                    myHrp.CFrame = hrp.CFrame * CFrame.new(0, 0, -3)
-                    getgenv().ELITE_HUB_Log("MODS", "TP to " .. v)
-                end
-            end
-        end)
-    end
-})
-
-MT:CreateSection("🌈 ВИЗУАЛ+")
+MT:CreateSection(" +")
 
 getgenv().ELITE_HUB_RainbowChams = false
 MT:CreateToggle({
-    Name = "🌈 Rainbow Chams",
+    Name = " Rainbow Chams",
     CurrentValue = false,
     Callback = function(value)
         getgenv().ELITE_HUB_RainbowChams = value
@@ -6758,7 +6740,7 @@ end)
 
 getgenv().ELITE_HUB_XRay = false
 MT:CreateToggle({
-    Name = "👀 X-Ray (стены прозрачные)",
+    Name = " X-Ray ( )",
     CurrentValue = false,
     Callback = function(value)
         getgenv().ELITE_HUB_XRay = value
@@ -6790,7 +6772,7 @@ MT:CreateToggle({
 
 getgenv().ELITE_HUB_Wallhack = false
 MT:CreateToggle({
-    Name = "🧱 Wallhack (стены исчезают)",
+    Name = " Wallhack ( )",
     CurrentValue = false,
     Callback = function(value)
         getgenv().ELITE_HUB_Wallhack = value
@@ -6818,10 +6800,10 @@ MT:CreateToggle({
     end
 })
 
-MT:CreateSection("⚡ СЛАЙДЕРЫ")
+MT:CreateSection(" ")
 
 MT:CreateSlider({
-    Name = "🏃 WalkSpeed",
+    Name = " WalkSpeed",
     Range = {16, 300},
     Increment = 1,
     CurrentValue = 16,
@@ -6835,7 +6817,7 @@ MT:CreateSlider({
 })
 
 MT:CreateSlider({
-    Name = "🦘 JumpPower",
+    Name = " JumpPower",
     Range = {50, 500},
     Increment = 10,
     CurrentValue = 50,
@@ -6852,7 +6834,7 @@ MT:CreateSlider({
 })
 
 MT:CreateSlider({
-    Name = "🌍 Gravity",
+    Name = " Gravity",
     Range = {0, 300},
     Increment = 5,
     CurrentValue = 196,
@@ -6863,7 +6845,7 @@ MT:CreateSlider({
 })
 
 MT:CreateSlider({
-    Name = "🔭 FOV",
+    Name = " FOV",
     Range = {30, 120},
     Increment = 5,
     CurrentValue = 70,
@@ -6873,12 +6855,12 @@ MT:CreateSlider({
     end
 })
 
-MT:CreateSection("💬 ЧАТ")
+MT:CreateSection(" ")
 
 getgenv().ELITE_HUB_ChatSpammer = false
 getgenv().ELITE_HUB_ChatSpammerMsg = "ELITE HUB"
 MT:CreateToggle({
-    Name = "💬 Chat Spammer",
+    Name = " Chat Spammer",
     CurrentValue = false,
     Callback = function(value)
         getgenv().ELITE_HUB_ChatSpammer = value
@@ -6898,19 +6880,19 @@ MT:CreateToggle({
     end
 })
 MT:CreateInput({
-    Name = "📝 Сообщение",
-    PlaceholderText = "Введите сообщение...",
+    Name = " ",
+    PlaceholderText = " ...",
     RemoveTextAfterFocusLost = false,
     Callback = function(value)
         getgenv().ELITE_HUB_ChatSpammerMsg = value
     end
 })
 
-MT:CreateSection("🔄 СИСТЕМА")
+MT:CreateSection(" ")
 
 getgenv().ELITE_HUB_RejoinOnKick = false
 MT:CreateToggle({
-    Name = "🔄 Rejoin on Kick",
+    Name = " Rejoin on Kick",
     CurrentValue = false,
     Callback = function(value)
         getgenv().ELITE_HUB_RejoinOnKick = value
@@ -6929,7 +6911,7 @@ MT:CreateToggle({
 })
 
 MT:CreateButton({
-    Name = "🏠 Teleport to Spawn",
+    Name = " Teleport to Spawn",
     Callback = function()
         pcall(function()
             local ch = player.Character
@@ -6945,7 +6927,7 @@ MT:CreateButton({
 })
 
 MT:CreateToggle({
-    Name = "💡 Fullbright",
+    Name = " Fullbright",
     CurrentValue = false,
     Callback = function(value)
         getgenv().ELITE_HUB_Log("MODS", "Fullbright: " .. tostring(value))
@@ -6978,7 +6960,7 @@ MT:CreateToggle({
 
 getgenv().ELITE_HUB_InfiniteJump = false
 MT:CreateToggle({
-    Name = "🦘 Infinite Jump",
+    Name = " Infinite Jump",
     CurrentValue = false,
     Callback = function(value)
         getgenv().ELITE_HUB_InfiniteJump = value
@@ -6998,7 +6980,7 @@ end)
 
 getgenv().ELITE_HUB_ClickTP = false
 MT:CreateToggle({
-    Name = "📍 Click TP (ПКМ)",
+    Name = " Click TP ()",
     CurrentValue = false,
     Callback = function(value)
         getgenv().ELITE_HUB_ClickTP = value
@@ -7031,7 +7013,7 @@ end)
 
 getgenv().ELITE_HUB_AutoRespawn = false
 MT:CreateToggle({
-    Name = "♻️ Auto Respawn",
+    Name = " Auto Respawn",
     CurrentValue = false,
     Callback = function(value)
         getgenv().ELITE_HUB_AutoRespawn = value
@@ -7056,35 +7038,8 @@ MT:CreateToggle({
     end
 })
 
-getgenv().ELITE_HUB_NoclipActive = false
 MT:CreateToggle({
-    Name = "👻 Noclip (сквозь стены)",
-    CurrentValue = false,
-    Callback = function(value)
-        getgenv().ELITE_HUB_NoclipActive = value
-        getgenv().ELITE_HUB_Log("MODS", "Noclip: " .. tostring(value))
-        if value then
-            task.spawn(function()
-                while getgenv().ELITE_HUB_NoclipActive do
-                    task.wait(0.1)
-                    pcall(function()
-                        local ch = player.Character
-                        if ch then
-                            for _, part in ipairs(ch:GetDescendants()) do
-                                if part:IsA("BasePart") then
-                                    part.CanCollide = false
-                                end
-                            end
-                        end
-                    end)
-                end
-            end)
-        end
-    end
-})
-
-MT:CreateToggle({
-    Name = "🎥 Third Person",
+    Name = " Third Person",
     CurrentValue = false,
     Callback = function(value)
         getgenv().ELITE_HUB_Log("MODS", "Third Person: " .. tostring(value))
@@ -7099,7 +7054,7 @@ MT:CreateToggle({
 
 getgenv().ELITE_HUB_KillSound = false
 MT:CreateToggle({
-    Name = "🔊 Kill Sound",
+    Name = " Kill Sound",
     CurrentValue = false,
     Callback = function(value)
         getgenv().ELITE_HUB_KillSound = value
@@ -7135,7 +7090,7 @@ end)
 
 getgenv().ELITE_HUB_BunnyHop = false
 MT:CreateToggle({
-    Name = "🐰 Bunny Hop",
+    Name = " Bunny Hop",
     CurrentValue = false,
     Callback = function(value)
         getgenv().ELITE_HUB_BunnyHop = value
@@ -7161,7 +7116,7 @@ MT:CreateToggle({
 
 getgenv().ELITE_HUB_Waypoint = nil
 MT:CreateButton({
-    Name = "📌 Set Waypoint",
+    Name = " Set Waypoint",
     Callback = function()
         local ch = player.Character
         if ch then
@@ -7174,7 +7129,7 @@ MT:CreateButton({
     end
 })
 MT:CreateButton({
-    Name = "📍 Teleport to Waypoint",
+    Name = " Teleport to Waypoint",
     Callback = function()
         if getgenv().ELITE_HUB_Waypoint then
             local ch = player.Character
@@ -7190,7 +7145,7 @@ MT:CreateButton({
 })
 
 MT:CreateButton({
-    Name = "🔄 Rejoin Server",
+    Name = " Rejoin Server",
     Callback = function()
         getgenv().ELITE_HUB_Log("MODS", "Rejoin Server")
         game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, game.JobId, player)
@@ -7198,7 +7153,7 @@ MT:CreateButton({
 })
 
 MT:CreateButton({
-    Name = "🔀 Server Hop",
+    Name = " Server Hop",
     Callback = function()
         getgenv().ELITE_HUB_Log("MODS", "Server Hop")
         pcall(function()
@@ -7213,5 +7168,6 @@ MT:CreateButton({
     end
 })
 
-end) -- конец task.spawn(mods)
+end) --  task.spawn(mods)
+
 
