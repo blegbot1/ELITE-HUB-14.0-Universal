@@ -1896,7 +1896,7 @@ MainTab:CreateInput({
     end
 })
 
-MainTab:CreateSection("⌨️ БИНДЫ FLY / NOCLIP / ESP / AIMBOT")
+MainTab:CreateSection("⌨️ БИНДЫ")
 
 MainTab:CreateInput({
     Name = "✈️ Бинд Fly",
@@ -5459,12 +5459,6 @@ ESPTab:CreateToggle({
         AimbotConfig.TargetHealthBarMounted = value
     end
 })
-
-ESPTab:CreateSection("⌨️ БИНДЫ (быстрые клавиши)")
-
-ESPTab:CreateLabel("Текущий бинд Fly: " .. BindConfig.Fly)
-ESPTab:CreateLabel("Текущий бинд Noclip: " .. BindConfig.Noclip)
-ESPTab:CreateLabel("Текущий бинд SpeedBoost: " .. BindConfig.SpeedBoost)
 
 local VFX = {}
 pcall(function()
