@@ -250,6 +250,132 @@ function EliteHubUI:CreateWindow(config)
     newGradient(content, C.BG, Color3.fromRGB(14, 10, 26), 90)
     self._content = content
 
+    -- Loading screen
+    local loadGui = Instance.new("Frame")
+    loadGui.Name = "Loading"
+    loadGui.Parent = gui
+    loadGui.Size = UDim2.new(1, 0, 1, 0)
+    loadGui.Position = UDim2.new(0, 0, 0, 0)
+    loadGui.BackgroundColor3 = C.BG
+    loadGui.BorderSizePixel = 0
+    loadGui.ZIndex = 90
+    loadGui.Active = true
+    newGradient(loadGui, Color3.fromRGB(20, 14, 40), C.BG, 135)
+
+    local loadCard = Instance.new("Frame")
+    loadCard.Parent = loadGui
+    loadCard.AnchorPoint = Vector2.new(0.5, 0.5)
+    loadCard.Position = UDim2.new(0.5, -140, 0.5, -90)
+    loadCard.Size = UDim2.new(0, 280, 0, 180)
+    loadCard.BackgroundColor3 = C.BG3
+    loadCard.BorderSizePixel = 0
+    loadCard.ZIndex = 91
+    newCorner(loadCard, 16)
+    newStroke(loadCard, C.Accent, 2, 0.3)
+    newGradient(loadCard, C.BG2, C.BG3, 180)
+
+    local loadTitle = Instance.new("TextLabel")
+    loadTitle.Parent = loadCard
+    loadTitle.Size = UDim2.new(1, -20, 0, 30)
+    loadTitle.Position = UDim2.new(0, 10, 0, 12)
+    loadTitle.BackgroundTransparency = 1
+    loadTitle.Text = (config.LoadingTitle or config.Name) or "ELITE HUB"
+    loadTitle.TextColor3 = C.Title
+    loadTitle.TextSize = 15
+    loadTitle.Font = Enum.Font.GothamBlack
+    loadTitle.TextWrapped = true
+    loadTitle.ZIndex = 92
+
+    local loadSub = Instance.new("TextLabel")
+    loadSub.Parent = loadCard
+    loadSub.Size = UDim2.new(1, -20, 0, 30)
+    loadSub.Position = UDim2.new(0, 10, 0, 44)
+    loadSub.BackgroundTransparency = 1
+    loadSub.Text = config.LoadingSubtitle or ""
+    loadSub.TextColor3 = C.Text
+    loadSub.TextSize = 11
+    loadSub.Font = Enum.Font.GothamMedium
+    loadSub.TextWrapped = true
+    loadSub.ZIndex = 92
+
+    local loadBarBg = Instance.new("Frame")
+    loadBarBg.Parent = loadCard
+    loadBarBg.Size = UDim2.new(1, -40, 0, 8)
+    loadBarBg.Position = UDim2.new(0, 20, 0, 128)
+    loadBarBg.BackgroundColor3 = C.Field
+    loadBarBg.BorderSizePixel = 0
+    loadBarBg.ZIndex = 92
+    newCorner(loadBarBg, 4)
+
+    local loadBar = Instance.new("Frame")
+    loadBar.Parent = loadBarBg
+    loadBar.Size = UDim2.new(0, 0, 1, 0)
+    loadBar.BackgroundColor3 = C.Accent
+    loadBar.BorderSizePixel = 0
+    loadBar.ZIndex = 93
+    newCorner(loadBar, 4)
+    newGradient(loadBar, C.AccentLight, C.Accent, 90)
+
+    local loadStatus = Instance.new("TextLabel")
+    loadStatus.Parent = loadCard
+    loadStatus.Size = UDim2.new(1, -40, 0, 16)
+    loadStatus.Position = UDim2.new(0, 20, 0, 142)
+    loadStatus.BackgroundTransparency = 1
+    loadStatus.Text = "Загрузка..."
+    loadStatus.TextColor3 = C.AccentLight
+    loadStatus.TextSize = 10.5
+    loadStatus.Font = Enum.Font.GothamMedium
+    loadStatus.ZIndex = 92
+    loadStatus.TextXAlignment = Enum.TextXAlignment.Center
+
+    main.BackgroundTransparency = 1
+    titleBar.BackgroundTransparency = 1
+    sidebar.BackgroundTransparency = 1
+    content.BackgroundTransparency = 1
+    for _, f in ipairs(titleBar:GetChildren()) do
+        if f:IsA("Frame") then f.BackgroundTransparency = 1 end
+    end
+    for _, s in ipairs(sidebar:GetChildren()) do
+        if s:IsA("Frame") then s.BackgroundTransparency = 1 end
+    end
+    for _, c in ipairs(content:GetChildren()) do
+        if c:IsA("ScrollingFrame") then c.ScrollBarImageTransparency = 1 end
+    end
+    for _, b in ipairs(sideScroll:GetChildren()) do
+        if b:IsA("TextButton") then b.BackgroundTransparency = 1 end
+    end
+
+    -- Animate loading and reveal
+    local loadSteps = { "Загрузка интерфейса...", "Применение настроек...", "Почти готово..." }
+    local step = 0
+    for i = 0, 100 do
+        loadBar:TweenSize(UDim2.new(i / 100, 0, 1, 0), "Out", "Quad", 0.05)
+        if i % 33 == 0 and step <= #loadSteps then
+            step = step + 1
+            loadStatus.Text = loadSteps[step]
+        end
+        task.wait(0.02)
+    end
+    TweenService:Create(loadGui, TweenInfo.new(0.35, Enum.EasingStyle.Quad, Enum.EasingDirection.In), { BackgroundTransparency = 1 }):Play()
+    TweenService:Create(loadCard, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In), { BackgroundTransparency = 1 }):Play()
+    for _, c in ipairs(loadCard:GetChildren()) do
+        if c:IsA("TextLabel") or c:IsA("Frame") then
+            TweenService:Create(c, TweenInfo.new(0.25), { BackgroundTransparency = 1, TextTransparency = 1 }):Play()
+        end
+    end
+
+    TweenService:Create(main, TweenInfo.new(0.35, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { BackgroundTransparency = 0 }):Play()
+    TweenService:Create(titleBar, TweenInfo.new(0.35), { BackgroundTransparency = 0 }):Play()
+    TweenService:Create(sidebar, TweenInfo.new(0.35), { BackgroundTransparency = 0 }):Play()
+    TweenService:Create(content, TweenInfo.new(0.35), { BackgroundTransparency = 0 }):Play()
+    for _, b in ipairs(sideScroll:GetChildren()) do
+        if b:IsA("TextButton") then
+            TweenService:Create(b, TweenInfo.new(0.35), { BackgroundTransparency = 0 }):Play()
+        end
+    end
+    task.wait(0.4)
+    loadGui:Destroy()
+
     return self
 end
 
@@ -394,7 +520,7 @@ function EliteHubUI:CreateTab(name, icon)
         btn.Size = UDim2.new(1, 0, 0, 34)
         btn.BackgroundColor3 = C.BG3
         btn.Text = "  " .. config.Name
-        btn.TextColor3 = C.Text
+        btn.TextColor3 = C.TextBright
         btn.TextSize = 12
         btn.TextXAlignment = Enum.TextXAlignment.Left
         btn.Font = Enum.Font.GothamMedium
@@ -402,8 +528,8 @@ function EliteHubUI:CreateTab(name, icon)
         btn.AutoButtonColor = false
         btn.LayoutOrder = tab._order
         newCorner(btn, 8)
-        newStroke(btn, C.Stroke, 1, 0.5)
-        newGradient(btn, C.BG3, Color3.fromRGB(33, 23, 54), 90)
+        newStroke(btn, C.Stroke, 1.2, 0.3)
+        newGradient(btn, Color3.fromRGB(52, 38, 84), Color3.fromRGB(40, 29, 66), 90)
         tab._order = tab._order + 1
 
         btn.MouseEnter:Connect(function()
@@ -412,7 +538,7 @@ function EliteHubUI:CreateTab(name, icon)
         end)
         btn.MouseLeave:Connect(function()
             btn.BackgroundColor3 = C.BG3
-            btn.TextColor3 = C.Text
+            btn.TextColor3 = C.TextBright
         end)
         btn.MouseButton1Down:Connect(function()
             btn.BackgroundColor3 = C.AccentLight
@@ -428,7 +554,7 @@ function EliteHubUI:CreateTab(name, icon)
             btn.BackgroundColor3 = C.Accent
             task.delay(0.12, function()
                 btn.BackgroundColor3 = C.BG3
-                btn.TextColor3 = C.Text
+                btn.TextColor3 = C.TextBright
             end)
         end)
         return btn
@@ -698,29 +824,38 @@ function EliteHubUI:CreateTab(name, icon)
         dropBtn.Size = UDim2.new(0.5, -10, 0, 26)
         dropBtn.Position = UDim2.new(0.5, 0, 0.5, -13)
         dropBtn.BackgroundColor3 = C.Field
-        dropBtn.Text = "  " .. current
-        dropBtn.TextColor3 = C.TextBright
+        dropBtn.Text = current ~= "" and ("  " .. current) or "  Выберите..."
+        dropBtn.TextColor3 = current ~= "" and C.TextBright or C.Off
         dropBtn.TextSize = 11.5
         dropBtn.Font = Enum.Font.GothamMedium
         dropBtn.TextXAlignment = Enum.TextXAlignment.Left
+        dropBtn.TextTruncate = Enum.TextTruncate.AtEnd
         dropBtn.BorderSizePixel = 0
         dropBtn.AutoButtonColor = false
         newCorner(dropBtn, 6)
         newStroke(dropBtn, C.Stroke, 1, 0.6)
+        dropBtn.MouseEnter:Connect(function()
+            newStroke(dropBtn, C.Accent, 1.5, 0.2)
+            dropBtn.BackgroundColor3 = Color3.fromRGB(30, 21, 54)
+        end)
+        dropBtn.MouseLeave:Connect(function()
+            newStroke(dropBtn, C.Stroke, 1, 0.6)
+            dropBtn.BackgroundColor3 = C.Field
+        end)
 
         local arrow = Instance.new("TextLabel")
         arrow.Parent = dropBtn
-        arrow.Size = UDim2.new(0, 20, 1, 0)
-        arrow.Position = UDim2.new(1, -22, 0, 0)
+        arrow.Size = UDim2.new(0, 22, 1, 0)
+        arrow.Position = UDim2.new(1, -24, 0, 0)
         arrow.BackgroundTransparency = 1
-        arrow.Text = "▾"
+        arrow.Text = "▼"
         arrow.TextColor3 = C.AccentLight
-        arrow.TextSize = 13
+        arrow.TextSize = 12
         arrow.Font = Enum.Font.GothamBold
 
         -- Floating list, parented to main window so it is never clipped
         local listFrame = Instance.new("Frame")
-        listFrame.Parent = self._main
+        listFrame.Parent = self._gui
         listFrame.BackgroundColor3 = C.BG3
         listFrame.BorderSizePixel = 0
         listFrame.Visible = false
@@ -781,6 +916,7 @@ function EliteHubUI:CreateTab(name, icon)
                 item.MouseButton1Click:Connect(function()
                     current = opt
                     dropBtn.Text = "  " .. current
+                    dropBtn.TextColor3 = C.TextBright
                     listFrame.Visible = false
                     isOpen = false
                     if config.Callback then
@@ -795,15 +931,16 @@ function EliteHubUI:CreateTab(name, icon)
 
         local function positionList()
             local visible = math.min(#options, maxVisible)
-            listFrame.Size = UDim2.new(0, dropBtn.AbsoluteSize.X, 0, visible * 28 + 8)
+            listFrame.Size = UDim2.new(0, math.max(dropBtn.AbsoluteSize.X, 200), 0, visible * 28 + 12)
             local btnPos = dropBtn.AbsolutePosition
-            local winPos = self._main.AbsolutePosition
-            local winSize = self._main.AbsoluteSize
-            local x = btnPos.X - winPos.X
-            local y = btnPos.Y - winPos.Y + dropBtn.AbsoluteSize.Y + 2
-            if y + listFrame.AbsoluteSize.Y > winSize.Y - 6 then
-                y = btnPos.Y - winPos.Y - listFrame.AbsoluteSize.Y - 2
+            local btnSize = dropBtn.AbsoluteSize
+            local vp = workspace.CurrentCamera and workspace.CurrentCamera.ViewportSize or Vector2.new(1000, 600)
+            local x = math.clamp(btnPos.X, 4, vp.X - listFrame.AbsoluteSize.X - 4)
+            local y = btnPos.Y + btnSize.Y + 2
+            if y + listFrame.AbsoluteSize.Y > vp.Y - 4 then
+                y = btnPos.Y - listFrame.AbsoluteSize.Y - 2
             end
+            y = math.max(4, y)
             listFrame.Position = UDim2.fromOffset(x, y)
         end
 
@@ -829,11 +966,18 @@ function EliteHubUI:CreateTab(name, icon)
             Clear = function(_)
                 refresh({})
                 current = ""
-                dropBtn.Text = "  "
+                dropBtn.Text = "  Выберите..."
+                dropBtn.TextColor3 = C.Off
             end,
             Set = function(_, val)
-                current = val
-                dropBtn.Text = "  " .. current
+                current = val or ""
+                if current == "" then
+                    dropBtn.Text = "  Выберите..."
+                    dropBtn.TextColor3 = C.Off
+                else
+                    dropBtn.Text = "  " .. current
+                    dropBtn.TextColor3 = C.TextBright
+                end
                 if config.Callback then
                     config.Callback(current)
                 end
@@ -904,7 +1048,7 @@ function EliteHubUI:CreateTab(name, icon)
 
         -- Floating picker, parented to main window
         local pickerFrame = Instance.new("Frame")
-        pickerFrame.Parent = self._main
+        pickerFrame.Parent = self._gui
         pickerFrame.BackgroundColor3 = C.BG3
         pickerFrame.BorderSizePixel = 0
         pickerFrame.Visible = false
@@ -993,16 +1137,18 @@ function EliteHubUI:CreateTab(name, icon)
 
         local function positionPicker()
             local btnPos = colorBtn.AbsolutePosition
-            local winPos = self._main.AbsolutePosition
-            local winSize = self._main.AbsoluteSize
-            local x = btnPos.X - winPos.X + colorBtn.AbsoluteSize.X + 2
-            if x + pickerW > winSize.X - 6 then
-                x = btnPos.X - winPos.X - pickerW - 2
+            local btnSize = colorBtn.AbsoluteSize
+            local vp = workspace.CurrentCamera and workspace.CurrentCamera.ViewportSize or Vector2.new(1000, 600)
+            local x = btnPos.X + btnSize.X + 2
+            if x + pickerW > vp.X - 4 then
+                x = btnPos.X - pickerW - 2
             end
-            local y = btnPos.Y - winPos.Y
-            if y + pickerFrame.AbsoluteSize.Y > winSize.Y - 6 then
-                y = btnPos.Y - winPos.Y - pickerFrame.AbsoluteSize.Y + colorBtn.AbsoluteSize.Y
+            x = math.max(4, x)
+            local y = btnPos.Y
+            if y + pickerFrame.AbsoluteSize.Y > vp.Y - 4 then
+                y = btnPos.Y - pickerFrame.AbsoluteSize.Y + btnSize.Y
             end
+            y = math.max(4, y)
             pickerFrame.Position = UDim2.fromOffset(x, y)
         end
 
@@ -1048,18 +1194,26 @@ function EliteHubUI:Notify(config)
     local notifGui = Instance.new("ScreenGui")
     notifGui.Name = "EliteNotif"
     notifGui.ResetOnSpawn = false
+    notifGui.IgnoreGuiInset = true
     notifGui.DisplayOrder = 1000
     notifGui.Parent = gui
 
-    local W = 300
+    local safeArea = Instance.new("Frame")
+    safeArea.Parent = notifGui
+    safeArea.AnchorPoint = Vector2.new(1, 1)
+    safeArea.Position = UDim2.new(1, -12, 1, -12)
+    safeArea.Size = UDim2.new(0, 300, 0, 72)
+    safeArea.BackgroundTransparency = 1
+
     local notif = Instance.new("Frame")
-    notif.Parent = notifGui
-    notif.Size = UDim2.new(0, W, 0, 62)
-    notif.Position = UDim2.new(1, -W - 12, 1, -12 - notifStack * 72)
+    notif.Parent = safeArea
+    notif.Size = UDim2.new(1, 0, 1, 0)
+    notif.Position = UDim2.new(0, 0, 0, -notifStack * 76)
     notif.BackgroundColor3 = C.BG2
     notif.BorderSizePixel = 0
     newCorner(notif, 10)
     newStroke(notif, C.Accent, 1.5, 0.2)
+    notif.ClipsDescendants = true
 
     local accentBar = Instance.new("Frame")
     accentBar.Parent = notif
@@ -1093,6 +1247,9 @@ function EliteHubUI:Notify(config)
     contentLabel.TextWrapped = true
 
     notifStack = notifStack + 1
+
+    notif.Position = UDim2.new(0, 40, 0, -notifStack * 76)
+    TweenService:Create(notif, TweenInfo.new(0.2, Enum.EasingStyle.Out, Enum.EasingDirection.Quad), { Position = UDim2.new(0, 0, 0, -notifStack * 76) }):Play()
 
     task.delay(config.Duration or 3, function()
         notifGui:Destroy()
@@ -2233,6 +2390,7 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
     if success6 and spinKey and input.KeyCode == spinKey then
         getgenv().ELITE_HUB_SpinBot = not getgenv().ELITE_HUB_SpinBot
         getgenv().ELITE_HUB_Log("MODS", "Spin Bot: " .. tostring(getgenv().ELITE_HUB_SpinBot))
+        pcall(updateMiniGuiButtons)
         if getgenv().ELITE_HUB_SpinBot then
             task.spawn(function()
                 while getgenv().ELITE_HUB_SpinBot do
@@ -2347,6 +2505,7 @@ end)
 getgenv().ELITE_HUB_SpinBtn = CreateMiniButton("SpinBotBtn", "🔄 Spin Bot", 4, function()
     getgenv().ELITE_HUB_SpinBot = not getgenv().ELITE_HUB_SpinBot
     getgenv().ELITE_HUB_Log("MODS", "Spin Bot: " .. tostring(getgenv().ELITE_HUB_SpinBot))
+    updateMiniGuiButtons()
     if getgenv().ELITE_HUB_SpinBot then
         task.spawn(function()
             while getgenv().ELITE_HUB_SpinBot do
