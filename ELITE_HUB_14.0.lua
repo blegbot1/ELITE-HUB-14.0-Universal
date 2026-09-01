@@ -248,133 +248,36 @@ function EliteHubUI:CreateWindow(config)
     content.BackgroundColor3 = C.BG
     content.BorderSizePixel = 0
     newGradient(content, C.BG, Color3.fromRGB(14, 10, 26), 90)
-    self._content = content
+self._content = content
 
-    -- Loading screen
-    local loadGui = Instance.new("Frame")
-    loadGui.Name = "Loading"
-    loadGui.Parent = gui
-    loadGui.Size = UDim2.new(1, 0, 1, 0)
-    loadGui.Position = UDim2.new(0, 0, 0, 0)
-    loadGui.BackgroundColor3 = C.BG
-    loadGui.BorderSizePixel = 0
-    loadGui.ZIndex = 90
-    loadGui.Active = true
-    newGradient(loadGui, Color3.fromRGB(20, 14, 40), C.BG, 135)
+    gui.DisplayOrder = 998
 
-    local loadCard = Instance.new("Frame")
-    loadCard.Parent = loadGui
-    loadCard.AnchorPoint = Vector2.new(0.5, 0.5)
-    loadCard.Position = UDim2.new(0.5, -140, 0.5, -90)
-    loadCard.Size = UDim2.new(0, 280, 0, 180)
-    loadCard.BackgroundColor3 = C.BG3
-    loadCard.BorderSizePixel = 0
-    loadCard.ZIndex = 91
-    newCorner(loadCard, 16)
-    newStroke(loadCard, C.Accent, 2, 0.3)
-    newGradient(loadCard, C.BG2, C.BG3, 180)
+    -- Reveal overlay: hides window until the old loading screen is gone, then fades out smoothly
+    local reveal = Instance.new("Frame")
+    reveal.Name = "Reveal"
+    reveal.Parent = gui
+    reveal.Size = UDim2.new(1, 0, 1, 0)
+    reveal.Position = UDim2.new(0, 0, 0, 0)
+    reveal.BackgroundColor3 = C.BG
+    reveal.BorderSizePixel = 0
+    reveal.ZIndex = 900
 
-    local loadTitle = Instance.new("TextLabel")
-    loadTitle.Parent = loadCard
-    loadTitle.Size = UDim2.new(1, -20, 0, 30)
-    loadTitle.Position = UDim2.new(0, 10, 0, 12)
-    loadTitle.BackgroundTransparency = 1
-    loadTitle.Text = (config.LoadingTitle or config.Name) or "ELITE HUB"
-    loadTitle.TextColor3 = C.Title
-    loadTitle.TextSize = 15
-    loadTitle.Font = Enum.Font.GothamBlack
-    loadTitle.TextWrapped = true
-    loadTitle.ZIndex = 92
-
-    local loadSub = Instance.new("TextLabel")
-    loadSub.Parent = loadCard
-    loadSub.Size = UDim2.new(1, -20, 0, 30)
-    loadSub.Position = UDim2.new(0, 10, 0, 44)
-    loadSub.BackgroundTransparency = 1
-    loadSub.Text = config.LoadingSubtitle or ""
-    loadSub.TextColor3 = C.Text
-    loadSub.TextSize = 11
-    loadSub.Font = Enum.Font.GothamMedium
-    loadSub.TextWrapped = true
-    loadSub.ZIndex = 92
-
-    local loadBarBg = Instance.new("Frame")
-    loadBarBg.Parent = loadCard
-    loadBarBg.Size = UDim2.new(1, -40, 0, 8)
-    loadBarBg.Position = UDim2.new(0, 20, 0, 128)
-    loadBarBg.BackgroundColor3 = C.Field
-    loadBarBg.BorderSizePixel = 0
-    loadBarBg.ZIndex = 92
-    newCorner(loadBarBg, 4)
-
-    local loadBar = Instance.new("Frame")
-    loadBar.Parent = loadBarBg
-    loadBar.Size = UDim2.new(0, 0, 1, 0)
-    loadBar.BackgroundColor3 = C.Accent
-    loadBar.BorderSizePixel = 0
-    loadBar.ZIndex = 93
-    newCorner(loadBar, 4)
-    newGradient(loadBar, C.AccentLight, C.Accent, 90)
-
-    local loadStatus = Instance.new("TextLabel")
-    loadStatus.Parent = loadCard
-    loadStatus.Size = UDim2.new(1, -40, 0, 16)
-    loadStatus.Position = UDim2.new(0, 20, 0, 142)
-    loadStatus.BackgroundTransparency = 1
-    loadStatus.Text = "Загрузка..."
-    loadStatus.TextColor3 = C.AccentLight
-    loadStatus.TextSize = 10.5
-    loadStatus.Font = Enum.Font.GothamMedium
-    loadStatus.ZIndex = 92
-    loadStatus.TextXAlignment = Enum.TextXAlignment.Center
-
-    main.BackgroundTransparency = 1
-    titleBar.BackgroundTransparency = 1
-    sidebar.BackgroundTransparency = 1
-    content.BackgroundTransparency = 1
-    for _, f in ipairs(titleBar:GetChildren()) do
-        if f:IsA("Frame") then f.BackgroundTransparency = 1 end
-    end
-    for _, s in ipairs(sidebar:GetChildren()) do
-        if s:IsA("Frame") then s.BackgroundTransparency = 1 end
-    end
-    for _, c in ipairs(content:GetChildren()) do
-        if c:IsA("ScrollingFrame") then c.ScrollBarImageTransparency = 1 end
-    end
-    for _, b in ipairs(sideScroll:GetChildren()) do
-        if b:IsA("TextButton") then b.BackgroundTransparency = 1 end
-    end
-
-    -- Animate loading and reveal
-    local loadSteps = { "Загрузка интерфейса...", "Применение настроек...", "Почти готово..." }
-    local step = 0
-    for i = 0, 100 do
-        loadBar:TweenSize(UDim2.new(i / 100, 0, 1, 0), "Out", "Quad", 0.05)
-        if i % 33 == 0 and step <= #loadSteps then
-            step = step + 1
-            loadStatus.Text = loadSteps[step]
+    task.spawn(function()
+        local pg = player:WaitForChild("PlayerGui")
+        local waited = 0
+        while not pg:FindFirstChild("EliteHubLoader") and waited < 6 do
+            task.wait(0.1)
+            waited = waited + 0.1
         end
-        task.wait(0.02)
-    end
-    TweenService:Create(loadGui, TweenInfo.new(0.35, Enum.EasingStyle.Quad, Enum.EasingDirection.In), { BackgroundTransparency = 1 }):Play()
-    TweenService:Create(loadCard, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In), { BackgroundTransparency = 1 }):Play()
-    for _, c in ipairs(loadCard:GetChildren()) do
-        if c:IsA("TextLabel") or c:IsA("Frame") then
-            TweenService:Create(c, TweenInfo.new(0.25), { BackgroundTransparency = 1, TextTransparency = 1 }):Play()
+        while pg:FindFirstChild("EliteHubLoader") do
+            task.wait(0.1)
         end
-    end
-
-    TweenService:Create(main, TweenInfo.new(0.35, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { BackgroundTransparency = 0 }):Play()
-    TweenService:Create(titleBar, TweenInfo.new(0.35), { BackgroundTransparency = 0 }):Play()
-    TweenService:Create(sidebar, TweenInfo.new(0.35), { BackgroundTransparency = 0 }):Play()
-    TweenService:Create(content, TweenInfo.new(0.35), { BackgroundTransparency = 0 }):Play()
-    for _, b in ipairs(sideScroll:GetChildren()) do
-        if b:IsA("TextButton") then
-            TweenService:Create(b, TweenInfo.new(0.35), { BackgroundTransparency = 0 }):Play()
+        if reveal and reveal.Parent then
+            TweenService:Create(reveal, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { BackgroundTransparency = 1 }):Play()
+            task.wait(0.6)
+            reveal:Destroy()
         end
-    end
-    task.wait(0.4)
-    loadGui:Destroy()
+    end)
 
     return self
 end
