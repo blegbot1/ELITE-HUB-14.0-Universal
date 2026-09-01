@@ -87,6 +87,7 @@ function EliteHubUI:CreateWindow(config)
     self._tabs = {}
     self._tabButtons = {}
     self._tabFrames = {}
+    self._tabRegistry = {}
     self._currentTab = nil
     self._popups = {}
 
@@ -116,18 +117,16 @@ function EliteHubUI:CreateWindow(config)
     newGradient(main, Color3.fromRGB(22, 15, 42), C.BG, 90)
     main.Size = UDim2.new(0, W * 0.85, 0, H * 0.85)
     main.Position = UDim2.new(0.5, -(W * 0.85) / 2, 0.5, -(H * 0.85) / 2)
-    main.BackgroundTransparency = 0.4
+    main.BackgroundTransparency = 0
     self._main = main
 
     function self:_showWindow()
         main.Size = UDim2.new(0, 0, 0, 0)
         main.Position = UDim2.new(0.5, 0, 0.5, 0)
-        main.BackgroundTransparency = 0.6
         main.Visible = true
         TweenService:Create(main, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
             Size = UDim2.new(0, W, 0, H),
-            Position = UDim2.new(0.5, -W/2, 0.5, -H/2),
-            BackgroundTransparency = 0
+            Position = UDim2.new(0.5, -W/2, 0.5, -H/2)
         }):Play()
     end
 
@@ -255,8 +254,7 @@ function EliteHubUI:CreateWindow(config)
     closeBtn.MouseButton1Click:Connect(function()
         TweenService:Create(main, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
             Size = UDim2.new(0, 0, 0, 0),
-            Position = UDim2.new(0.5, 0, 0.5, 0),
-            BackgroundTransparency = 1
+            Position = UDim2.new(0.5, 0, 0.5, 0)
         }):Play()
         task.wait(0.25)
         main.Visible = false
@@ -350,11 +348,17 @@ self._content = content
         end
     end)
 
+    function self:_updateTabs()
+        for _, reg in ipairs(self._tabRegistry) do
+            reg.btn.Text = reg.emoji .. " " .. L(reg.langKey)
+        end
+    end
+
     return self
 end
 
 -- ==================== TAB ====================
-function EliteHubUI:CreateTab(name, icon)
+function EliteHubUI:CreateTab(name, icon, langKey)
     local tab = {}
     tab._order = 0
     tab._win = self
@@ -408,6 +412,10 @@ function EliteHubUI:CreateTab(name, icon)
     table.insert(self._tabs, tab)
     self._tabButtons[name] = btn
     self._tabFrames[name] = frame
+    if langKey then
+        local emoji = string.match(name, "^(.+) ")
+        table.insert(self._tabRegistry, {btn = btn, emoji = emoji or "", langKey = langKey})
+    end
 
     -- Click handler
     local function activate()
@@ -1260,8 +1268,6 @@ do
     ES = {
         Animations = true,
         Lang = "RU",
-        NotifDur = 3,
-        Accent = Color3.fromRGB(150, 70, 255),
     }
     getgenv().EliteHubSettings = ES
 
@@ -1270,18 +1276,12 @@ do
             Settings = "НАСТРОЙКИ",
             Language = "Язык",
             Animations = "Анимации",
-            NotifDuration = "Длительность уведомлений",
-            AccentColor = "Цвет акцента",
-            sec = " сек",
             ResetSettings = "Сбросить настройки",
         },
         EN = {
             Settings = "SETTINGS",
             Language = "Language",
             Animations = "Animations",
-            NotifDuration = "Notification Duration",
-            AccentColor = "Accent Color",
-            sec = " sec",
             ResetSettings = "Reset Settings",
         },
     }
@@ -1465,16 +1465,16 @@ local Window = Rayfield:CreateWindow({
     Theme = ThemePurple
 })
 
-local MainTab = Window:CreateTab("🏠 " .. L("Main"), 11286187172)
-local ESPTab = Window:CreateTab("👁️ " .. L("ESP"), 6026568198)
-local CombatTab = Window:CreateTab("🎯 " .. L("Aimbot"), 7733960981)
-local VisualTab = Window:CreateTab("🎨 " .. L("Visual"), 6022668888)
-local TeleportTab = Window:CreateTab("🌀 " .. L("Teleport"), 6023426915)
-local KillAllTab = Window:CreateTab("⚔️ " .. L("KillAll"), 0)
-local FEScriptsTab = Window:CreateTab("🎭 " .. L("FEScripts"), 7733960981)
-local HubsTab = Window:CreateTab("🚀 " .. L("Hubs"), 6022668888)
-local GameScriptsTab = Window:CreateTab("🎯 " .. L("GameScripts"), 7733960981)
-getgenv().ELITE_HUB_ModsTab = Window:CreateTab("⚡ " .. L("Mods"), 6026568198)
+local MainTab = Window:CreateTab("🏠 " .. L("Main"), 11286187172, "Main")
+local ESPTab = Window:CreateTab("👁️ " .. L("ESP"), 6026568198, "ESP")
+local CombatTab = Window:CreateTab("🎯 " .. L("Aimbot"), 7733960981, "Aimbot")
+local VisualTab = Window:CreateTab("🎨 " .. L("Visual"), 6022668888, "Visual")
+local TeleportTab = Window:CreateTab("🌀 " .. L("Teleport"), 6023426915, "Teleport")
+local KillAllTab = Window:CreateTab("⚔️ " .. L("KillAll"), 0, "KillAll")
+local FEScriptsTab = Window:CreateTab("🎭 " .. L("FEScripts"), 7733960981, "FEScripts")
+local HubsTab = Window:CreateTab("🚀 " .. L("Hubs"), 6022668888, "Hubs")
+local GameScriptsTab = Window:CreateTab("🎯 " .. L("GameScripts"), 7733960981, "GameScripts")
+getgenv().ELITE_HUB_ModsTab = Window:CreateTab("⚡ " .. L("Mods"), 6026568198, "Mods")
 local MT = getgenv().ELITE_HUB_ModsTab
 
 local Players = game:GetService("Players")
@@ -8481,6 +8481,7 @@ SettingsTab:CreateDropdown({
     CurrentOption = ES.Lang,
     Callback = function(opt)
         ES.Lang = opt
+        Window:_updateTabs()
         Rayfield:Notify({Title = L("Settings"), Content = L("Language") .. ": " .. opt, Duration = 2})
     end
 })
@@ -8494,23 +8495,36 @@ SettingsTab:CreateToggle({
     end
 })
 
-SettingsTab:CreateSlider({
-    Name = L("NotifDuration"),
-    Range = {1, 10},
-    Increment = 1,
-    CurrentValue = ES.NotifDur,
-    Suffix = L("sec"),
-    Callback = function(val)
-        ES.NotifDur = val
+SettingsTab:CreateSection("Configs")
+
+SettingsTab:CreateButton({
+    Name = "💾 Save Config",
+    Callback = function()
+        pcall(function()
+            local data = game:GetService("HttpService"):JSONEncode({
+                Animations = ES.Animations,
+                Lang = ES.Lang,
+            })
+            writefile("EliteHub_Config.json", data)
+            Rayfield:Notify({Title = "OK", Content = "Config saved!", Duration = 2})
+        end)
     end
 })
 
-SettingsTab:CreateColorPicker({
-    Name = L("AccentColor"),
-    Color = ES.Accent,
-    Callback = function(c)
-        ES.Accent = c
-        Rayfield:Notify({Title = L("Settings"), Content = L("AccentColor") .. " updated", Duration = 2})
+SettingsTab:CreateButton({
+    Name = "📂 Load Config",
+    Callback = function()
+        pcall(function()
+            if not isfile("EliteHub_Config.json") then
+                Rayfield:Notify({Title = "!", Content = "No config found", Duration = 2})
+                return
+            end
+            local data = game:GetService("HttpService"):JSONDecode(readfile("EliteHub_Config.json"))
+            if data.Animations ~= nil then ES.Animations = data.Animations end
+            if data.Lang then ES.Lang = data.Lang end
+            Window:_updateTabs()
+            Rayfield:Notify({Title = "OK", Content = "Config loaded!", Duration = 2})
+        end)
     end
 })
 
@@ -8519,8 +8533,7 @@ SettingsTab:CreateButton({
     Callback = function()
         ES.Animations = true
         ES.Lang = "RU"
-        ES.NotifDur = 3
-        ES.Accent = Color3.fromRGB(150, 70, 255)
+        Window:_updateTabs()
         Rayfield:Notify({Title = "OK", Content = "Settings reset", Duration = 2})
     end
 })
