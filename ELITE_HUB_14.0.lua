@@ -432,7 +432,6 @@ function EliteHubUI:CreateTab(name, icon)
         btn.LayoutOrder = tab._order
         newCorner(btn, 8)
         newStroke(btn, C.Stroke, 1.2, 0.3)
-        newGradient(btn, Color3.fromRGB(74, 56, 118), Color3.fromRGB(56, 42, 94), 90)
         tab._order = tab._order + 1
 
         btn.MouseEnter:Connect(function()
@@ -474,7 +473,6 @@ function EliteHubUI:CreateTab(name, icon)
         frame.LayoutOrder = tab._order
         newCorner(frame, 9)
         newStroke(frame, C.Stroke, 1, 0.5)
-        newGradient(frame, Color3.fromRGB(74, 56, 118), Color3.fromRGB(56, 42, 94), 90)
         tab._order = tab._order + 1
 
         local label = Instance.new("TextLabel")
@@ -545,7 +543,6 @@ function EliteHubUI:CreateTab(name, icon)
         frame.LayoutOrder = tab._order
         newCorner(frame, 9)
         newStroke(frame, C.Stroke, 1, 0.5)
-        newGradient(frame, Color3.fromRGB(74, 56, 118), Color3.fromRGB(56, 42, 94), 90)
         tab._order = tab._order + 1
 
         local label = Instance.new("TextLabel")
@@ -645,7 +642,6 @@ function EliteHubUI:CreateTab(name, icon)
         frame.LayoutOrder = tab._order
         newCorner(frame, 9)
         newStroke(frame, C.Stroke, 1, 0.5)
-        newGradient(frame, Color3.fromRGB(74, 56, 118), Color3.fromRGB(56, 42, 94), 90)
         tab._order = tab._order + 1
 
         local label = Instance.new("TextLabel")
@@ -707,7 +703,6 @@ function EliteHubUI:CreateTab(name, icon)
         frame.LayoutOrder = tab._order
         newCorner(frame, 9)
         newStroke(frame, C.Stroke, 1, 0.5)
-        newGradient(frame, Color3.fromRGB(74, 56, 118), Color3.fromRGB(56, 42, 94), 90)
         tab._order = tab._order + 1
 
         local label = Instance.new("TextLabel")
@@ -924,7 +919,6 @@ dropBtn.MouseButton1Click:Connect(function()
         frame.LayoutOrder = tab._order
         newCorner(frame, 9)
         newStroke(frame, C.Stroke, 1, 0.5)
-        newGradient(frame, Color3.fromRGB(74, 56, 118), Color3.fromRGB(56, 42, 94), 90)
         tab._order = tab._order + 1
 
         local label = Instance.new("TextLabel")
