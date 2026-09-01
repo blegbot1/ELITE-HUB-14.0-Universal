@@ -1108,15 +1108,19 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
         getgenv().ELITE_HUB_SpinBot = not getgenv().ELITE_HUB_SpinBot
         getgenv().ELITE_HUB_Log("MODS", "Spin Bot: " .. tostring(getgenv().ELITE_HUB_SpinBot))
         if getgenv().ELITE_HUB_SpinBot then
+            getgenv().ELITE_HUB_SpinAngle = 0
             task.spawn(function()
                 while getgenv().ELITE_HUB_SpinBot do
                     task.wait(0.016)
                     pcall(function()
-                        local ch = player.Character
-                        if ch then
-                            local hrp = ch:FindFirstChild("HumanoidRootPart")
-                            if hrp then
-                                hrp.CFrame = hrp.CFrame * CFrame.Angles(0, math.rad(getgenv().ELITE_HUB_SpinSpeed * 0.1), 0)
+                        getgenv().ELITE_HUB_SpinAngle = (getgenv().ELITE_HUB_SpinAngle + getgenv().ELITE_HUB_SpinSpeed) % 360
+                        if not flyBg then
+                            local ch = player.Character
+                            if ch then
+                                local hrp = ch:FindFirstChild("HumanoidRootPart")
+                                if hrp then
+                                    hrp.CFrame = hrp.CFrame * CFrame.Angles(0, math.rad(getgenv().ELITE_HUB_SpinSpeed * 0.1), 0)
+                                end
                             end
                         end
                     end)
@@ -1220,15 +1224,19 @@ getgenv().ELITE_HUB_SpinBtn = CreateMiniButton("SpinBotBtn", " Spin Bot", 4, fun
     getgenv().ELITE_HUB_SpinBot = not getgenv().ELITE_HUB_SpinBot
     getgenv().ELITE_HUB_Log("MODS", "Spin Bot: " .. tostring(getgenv().ELITE_HUB_SpinBot))
     if getgenv().ELITE_HUB_SpinBot then
+        getgenv().ELITE_HUB_SpinAngle = 0
         task.spawn(function()
             while getgenv().ELITE_HUB_SpinBot do
                 task.wait(0.016)
                 pcall(function()
-                    local ch = player.Character
-                    if ch then
-                        local hrp = ch:FindFirstChild("HumanoidRootPart")
-                        if hrp then
-                            hrp.CFrame = hrp.CFrame * CFrame.Angles(0, math.rad(getgenv().ELITE_HUB_SpinSpeed * 0.1), 0)
+                    getgenv().ELITE_HUB_SpinAngle = (getgenv().ELITE_HUB_SpinAngle + getgenv().ELITE_HUB_SpinSpeed) % 360
+                    if not flyBg then
+                        local ch = player.Character
+                        if ch then
+                            local hrp = ch:FindFirstChild("HumanoidRootPart")
+                            if hrp then
+                                hrp.CFrame = hrp.CFrame * CFrame.Angles(0, math.rad(getgenv().ELITE_HUB_SpinSpeed * 0.1), 0)
+                            end
                         end
                     end
                 end)
@@ -1515,7 +1523,11 @@ function ToggleFly()
                     end
 
                     if flyBg then
-                        flyBg.cframe = game.Workspace.CurrentCamera.CoordinateFrame * CFrame.Angles(-math.rad((_G.flyCtrl.f + _G.flyCtrl.b) * 50 * speed / maxspeed), 0, 0)
+                        local spinY = 0
+                        if getgenv().ELITE_HUB_SpinBot then
+                            spinY = math.rad(getgenv().ELITE_HUB_SpinSpeed * 0.1)
+                        end
+                        flyBg.cframe = game.Workspace.CurrentCamera.CoordinateFrame * CFrame.Angles(-math.rad((_G.flyCtrl.f + _G.flyCtrl.b) * 50 * speed / maxspeed), spinY, 0)
                     end
                 end
 
@@ -1593,7 +1605,11 @@ function ToggleFly()
                     end
 
                     if flyBg then
-                        flyBg.cframe = game.Workspace.CurrentCamera.CoordinateFrame * CFrame.Angles(-math.rad((_G.flyCtrl.f + _G.flyCtrl.b) * 50 * speed / maxspeed), 0, 0)
+                        local spinY = 0
+                        if getgenv().ELITE_HUB_SpinBot then
+                            spinY = math.rad(getgenv().ELITE_HUB_SpinSpeed * 0.1)
+                        end
+                        flyBg.cframe = game.Workspace.CurrentCamera.CoordinateFrame * CFrame.Angles(-math.rad((_G.flyCtrl.f + _G.flyCtrl.b) * 50 * speed / maxspeed), spinY, 0)
                     end
                 end
 
@@ -6680,6 +6696,7 @@ end)
 
 getgenv().ELITE_HUB_SpinBot = false
 getgenv().ELITE_HUB_SpinSpeed = 50
+getgenv().ELITE_HUB_SpinAngle = 0
 MT:CreateToggle({
     Name = " Spin Bot",
     CurrentValue = false,
@@ -6687,15 +6704,19 @@ MT:CreateToggle({
         getgenv().ELITE_HUB_SpinBot = value
         getgenv().ELITE_HUB_Log("MODS", "Spin Bot: " .. tostring(value))
         if value then
+            getgenv().ELITE_HUB_SpinAngle = 0
             task.spawn(function()
                 while getgenv().ELITE_HUB_SpinBot do
                     task.wait(0.016)
                     pcall(function()
-                        local ch = player.Character
-                        if ch then
-                            local hrp = ch:FindFirstChild("HumanoidRootPart")
-                            if hrp then
-                                hrp.CFrame = hrp.CFrame * CFrame.Angles(0, math.rad(getgenv().ELITE_HUB_SpinSpeed * 0.1), 0)
+                        getgenv().ELITE_HUB_SpinAngle = (getgenv().ELITE_HUB_SpinAngle + getgenv().ELITE_HUB_SpinSpeed) % 360
+                        if not flyBg then
+                            local ch = player.Character
+                            if ch then
+                                local hrp = ch:FindFirstChild("HumanoidRootPart")
+                                if hrp then
+                                    hrp.CFrame = hrp.CFrame * CFrame.Angles(0, math.rad(getgenv().ELITE_HUB_SpinSpeed * 0.1), 0)
+                                end
                             end
                         end
                     end)
@@ -7169,5 +7190,6 @@ MT:CreateButton({
 })
 
 end) --  task.spawn(mods)
+
 
 
