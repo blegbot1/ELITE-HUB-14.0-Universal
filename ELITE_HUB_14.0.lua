@@ -11,7 +11,7 @@ local TweenService = game:GetService("TweenService")
 local C = {
     BG = Color3.fromRGB(16, 11, 30),
     BG2 = Color3.fromRGB(25, 18, 45),
-    BG3 = Color3.fromRGB(38, 27, 62),
+    BG3 = Color3.fromRGB(60, 46, 94),
     Stroke = Color3.fromRGB(140, 60, 255),
     Title = Color3.fromRGB(205, 150, 255),
     Text = Color3.fromRGB(175, 175, 185),
@@ -24,7 +24,7 @@ local C = {
     TabActive = Color3.fromRGB(58, 42, 95),
     TabInactive = Color3.fromRGB(28, 20, 48),
     ScrollBar = Color3.fromRGB(95, 60, 165),
-    Field = Color3.fromRGB(22, 15, 40),
+    Field = Color3.fromRGB(46, 34, 76),
 }
 
 local function newCorner(parent, r)
@@ -432,7 +432,7 @@ function EliteHubUI:CreateTab(name, icon)
         btn.LayoutOrder = tab._order
         newCorner(btn, 8)
         newStroke(btn, C.Stroke, 1.2, 0.3)
-        newGradient(btn, Color3.fromRGB(70, 52, 112), Color3.fromRGB(52, 38, 86), 90)
+        newGradient(btn, Color3.fromRGB(92, 70, 140), Color3.fromRGB(66, 50, 106), 90)
         tab._order = tab._order + 1
 
         btn.MouseEnter:Connect(function()
@@ -474,7 +474,7 @@ function EliteHubUI:CreateTab(name, icon)
         frame.LayoutOrder = tab._order
         newCorner(frame, 9)
         newStroke(frame, C.Stroke, 1, 0.5)
-        newGradient(frame, Color3.fromRGB(52, 38, 84), Color3.fromRGB(40, 29, 66), 90)
+        newGradient(frame, Color3.fromRGB(74, 56, 118), Color3.fromRGB(56, 42, 94), 90)
         tab._order = tab._order + 1
 
         local label = Instance.new("TextLabel")
@@ -545,7 +545,7 @@ function EliteHubUI:CreateTab(name, icon)
         frame.LayoutOrder = tab._order
         newCorner(frame, 9)
         newStroke(frame, C.Stroke, 1, 0.5)
-        newGradient(frame, Color3.fromRGB(52, 38, 84), Color3.fromRGB(40, 29, 66), 90)
+        newGradient(frame, Color3.fromRGB(74, 56, 118), Color3.fromRGB(56, 42, 94), 90)
         tab._order = tab._order + 1
 
         local label = Instance.new("TextLabel")
@@ -645,7 +645,7 @@ function EliteHubUI:CreateTab(name, icon)
         frame.LayoutOrder = tab._order
         newCorner(frame, 9)
         newStroke(frame, C.Stroke, 1, 0.5)
-        newGradient(frame, Color3.fromRGB(52, 38, 84), Color3.fromRGB(40, 29, 66), 90)
+        newGradient(frame, Color3.fromRGB(74, 56, 118), Color3.fromRGB(56, 42, 94), 90)
         tab._order = tab._order + 1
 
         local label = Instance.new("TextLabel")
@@ -707,7 +707,7 @@ function EliteHubUI:CreateTab(name, icon)
         frame.LayoutOrder = tab._order
         newCorner(frame, 9)
         newStroke(frame, C.Stroke, 1, 0.5)
-        newGradient(frame, Color3.fromRGB(52, 38, 84), Color3.fromRGB(40, 29, 66), 90)
+        newGradient(frame, Color3.fromRGB(74, 56, 118), Color3.fromRGB(56, 42, 94), 90)
         tab._order = tab._order + 1
 
         local label = Instance.new("TextLabel")
@@ -924,7 +924,7 @@ dropBtn.MouseButton1Click:Connect(function()
         frame.LayoutOrder = tab._order
         newCorner(frame, 9)
         newStroke(frame, C.Stroke, 1, 0.5)
-        newGradient(frame, Color3.fromRGB(52, 38, 84), Color3.fromRGB(40, 29, 66), 90)
+        newGradient(frame, Color3.fromRGB(74, 56, 118), Color3.fromRGB(56, 42, 94), 90)
         tab._order = tab._order + 1
 
         local label = Instance.new("TextLabel")
@@ -1108,48 +1108,36 @@ function EliteHubUI:Notify(config)
 
     local safeArea = Instance.new("Frame")
     safeArea.Parent = notifGui
-    safeArea.AnchorPoint = Vector2.new(1, 1)
-    safeArea.Position = UDim2.new(1, -14, 1, -14)
-    safeArea.Size = UDim2.new(0, 310, 0, 64)
+    safeArea.AnchorPoint = Vector2.new(1, 0)
+    safeArea.Position = UDim2.new(1, -14, 0, 14)
+    safeArea.Size = UDim2.new(0, 250, 0, 40)
     safeArea.BackgroundTransparency = 1
 
+    local stackGap = 46
     local notif = Instance.new("Frame")
     notif.Parent = safeArea
     notif.Size = UDim2.new(1, 0, 1, 0)
-    notif.Position = UDim2.new(1, 0, 0, -notifStack * 70)
+    notif.Position = UDim2.new(1, 0, 0, (notifStack - 1) * stackGap)
     notif.BackgroundColor3 = C.BG2
     notif.BorderSizePixel = 0
     notif.BackgroundTransparency = 0
     notif.ClipsDescendants = true
-    newCorner(notif, 10)
-    newStroke(notif, C.Accent, 1.5, 0.2)
-    newGradient(notif, Color3.fromRGB(34, 25, 58), Color3.fromRGB(24, 18, 44), 90)
+    newCorner(notif, 8)
+    newStroke(notif, C.Accent, 1, 0.15)
+    newGradient(notif, Color3.fromRGB(44, 32, 72), Color3.fromRGB(30, 22, 50), 90)
 
-    local titleBaseline = (config.Content or "") == ""
     local titleLabel = Instance.new("TextLabel")
     titleLabel.Parent = notif
-    titleLabel.Size = UDim2.new(1, -34, 0, 22)
-    titleLabel.Position = UDim2.new(0, 16, titleBaseline and 0.5 or 0, titleBaseline and -11 or 6)
+    titleLabel.Size = UDim2.new(1, -18, 1, 0)
+    titleLabel.Position = UDim2.new(0, 10, 0, 0)
     titleLabel.BackgroundTransparency = 1
-    titleLabel.Text = config.Title or ""
-    titleLabel.TextColor3 = C.Title
-    titleLabel.TextSize = 14
+    titleLabel.Text = (config.Content or "") == "" and (config.Title or "") or ((config.Title or "") .. "  •  " .. (config.Content or ""))
+    titleLabel.TextColor3 = C.TextBright
+    titleLabel.TextSize = 11
     titleLabel.Font = Enum.Font.GothamBold
     titleLabel.TextXAlignment = Enum.TextXAlignment.Left
     titleLabel.TextTruncate = Enum.TextTruncate.AtEnd
-
-    local contentLabel = Instance.new("TextLabel")
-    contentLabel.Parent = notif
-    contentLabel.Size = UDim2.new(1, -34, 0, 20)
-    contentLabel.Position = UDim2.new(0, 16, 0, 30)
-    contentLabel.BackgroundTransparency = 1
-    contentLabel.Text = config.Content or ""
-    contentLabel.TextColor3 = C.Text
-    contentLabel.TextSize = 11
-    contentLabel.Font = Enum.Font.GothamMedium
-    contentLabel.TextXAlignment = Enum.TextXAlignment.Left
-    contentLabel.TextWrapped = true
-    contentLabel.Visible = not titleBaseline
+    titleLabel.ZIndex = 2
 
     local progress = Instance.new("Frame")
     progress.Parent = notif
@@ -1162,8 +1150,8 @@ function EliteHubUI:Notify(config)
     notifStack = notifStack + 1
     local stackIndex = notifStack
 
-    local slideIn = TweenService:Create(notif, TweenInfo.new(0.25, Enum.EasingStyle.Out, Enum.EasingDirection.Quad), { Position = UDim2.new(1, -320, 0, -stackIndex * 70) })
-    notif.Position = UDim2.new(1, 40, 0, -stackIndex * 70)
+    local slideIn = TweenService:Create(notif, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { Position = UDim2.new(1, -250, 0, (stackIndex - 1) * stackGap) })
+    notif.Position = UDim2.new(1, 40, 0, (stackIndex - 1) * stackGap)
     slideIn:Play()
 
     local barTween = TweenService:Create(progress, TweenInfo.new(dur, Enum.EasingStyle.Linear), { Size = UDim2.new(0, 0, 0, 3) })
@@ -1174,12 +1162,10 @@ function EliteHubUI:Notify(config)
 
     task.spawn(function()
         task.wait(dur + 0.4)
-        local fade = TweenService:Create(notif, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In), { Position = UDim2.new(1, 0, 0, -stackIndex * 70), BackgroundTransparency = 1 })
+        local fade = TweenService:Create(notif, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In), { Position = UDim2.new(1, 0, 0, (stackIndex - 1) * stackGap), BackgroundTransparency = 1 })
         local fadeTitle = TweenService:Create(titleLabel, TweenInfo.new(0.3), { TextTransparency = 1 })
-        local fadeContent = TweenService:Create(contentLabel, TweenInfo.new(0.3), { TextTransparency = 1 })
         fade:Play()
         fadeTitle:Play()
-        fadeContent:Play()
         task.wait(0.35)
         notifGui:Destroy()
         notifStack = math.max(0, notifStack - 1)
