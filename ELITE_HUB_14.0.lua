@@ -114,7 +114,6 @@ function EliteHubUI:CreateWindow(config)
     main.ClipsDescendants = true
     newCorner(main, 14)
     newStroke(main, C.Stroke, 2, 0.25)
-    newGradient(main, Color3.fromRGB(22, 15, 42), C.BG, 90)
     main.Size = UDim2.new(0, W * 0.85, 0, H * 0.85)
     main.Position = UDim2.new(0.5, -(W * 0.85) / 2, 0.5, -(H * 0.85) / 2)
     main.BackgroundTransparency = 0
@@ -310,7 +309,6 @@ function EliteHubUI:CreateWindow(config)
     content.Position = UDim2.new(0, 158, 0, 40)
     content.BackgroundColor3 = C.BG
     content.BorderSizePixel = 0
-    newGradient(content, C.BG, Color3.fromRGB(14, 10, 26), 90)
 self._content = content
 
     gui.DisplayOrder = 998
@@ -1277,12 +1275,32 @@ do
             Language = "Язык",
             Animations = "Анимации",
             ResetSettings = "Сбросить настройки",
+            Main = "ОСНОВНОЕ",
+            ESP = "ESP",
+            Aimbot = "AIMBOT",
+            Visual = "ВИЗУАЛ",
+            Teleport = "ТЕЛЕПОРТ",
+            KillAll = "УБИТЬ ВСЕХ",
+            FEScripts = "FE СКРИПТЫ",
+            Hubs = "ХАБЫ",
+            GameScripts = "СКРИПТЫ ДЛЯ ИГР",
+            Mods = "МОДЫ",
         },
         EN = {
             Settings = "SETTINGS",
             Language = "Language",
             Animations = "Animations",
             ResetSettings = "Reset Settings",
+            Main = "MAIN",
+            ESP = "ESP",
+            Aimbot = "AIMBOT",
+            Visual = "VISUAL",
+            Teleport = "TELEPORT",
+            KillAll = "KILL ALL",
+            FEScripts = "FE SCRIPTS",
+            Hubs = "HUBS",
+            GameScripts = "GAME SCRIPTS",
+            Mods = "MODS",
         },
     }
 
@@ -8471,7 +8489,7 @@ MT:CreateButton({
     end
 })
 
-local SettingsTab = Window:CreateTab("⚙️ " .. L("Settings"), 0)
+local SettingsTab = Window:CreateTab("⚙️ " .. L("Settings"), 0, "Settings")
 
 SettingsTab:CreateSection(L("Settings"))
 
@@ -8495,7 +8513,7 @@ SettingsTab:CreateToggle({
     end
 })
 
-SettingsTab:CreateSection("Configs")
+SettingsTab:CreateSection("Config")
 
 SettingsTab:CreateButton({
     Name = "💾 Save Config",
