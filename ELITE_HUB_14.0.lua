@@ -932,12 +932,12 @@ local noclipConnection = nil
 local BindConfig = {
     Fly = "F",
     Noclip = "N",
-    SpeedBoost = "V"
+    SpeedBoost = "V",
+    SpinBot = "B"
 }
-local antiAFKActive = true
 local wallhopActive = false
 local wallhopConnection = nil
-local wallhopBindKey = Enum.KeyCode.LeftControl -- Бинд по умолчанию
+local wallhopBindKey = Enum.KeyCode.LeftControl
 
 local speeds = 1
 local nowe = false
@@ -949,35 +949,6 @@ _G.flyCtrl = {f = 0, b = 0, l = 0, r = 0}
 local ctrl = _G.flyCtrl
 
 local noclipConnection = nil
-
-local antiAFKConnection
-local function ToggleAntiAFK()
-    antiAFKActive = not antiAFKActive
-    if antiAFKActive then
-        antiAFKConnection = game:GetService("Players").LocalPlayer.Idled:Connect(function()
-            game:GetService("VirtualInputManager"):Button2Down(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
-            task.wait()
-            game:GetService("VirtualInputManager"):Button2Up(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
-        end)
-        Rayfield:Notify({
-            Title = "✅ Анти-AFK",
-            Content = "Анти-AFK включён",
-            Duration = 3
-        })
-    else
-        if antiAFKConnection then
-            antiAFKConnection:Disconnect()
-            antiAFKConnection = nil
-        end
-        Rayfield:Notify({
-            Title = "❌ Анти-AFK",
-            Content = "Анти-AFK выключен",
-            Duration = 3
-        })
-    end
-end
-
-ToggleAntiAFK()
 
 local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
@@ -1147,6 +1118,29 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
     if success5 and speedKey and input.KeyCode == speedKey then
         ActivateSpeedBoost()
     end
+    local success6, spinKey = pcall(function() return Enum.KeyCode[BindConfig.SpinBot] end)
+    if success6 and spinKey and input.KeyCode == spinKey then
+        getgenv().ELITE_HUB_SpinBot = not getgenv().ELITE_HUB_SpinBot
+        getgenv().ELITE_HUB_Log("MODS", "Spin Bot: " .. tostring(getgenv().ELITE_HUB_SpinBot))
+        if getgenv().ELITE_HUB_SpinBot then
+            task.spawn(function()
+                while getgenv().ELITE_HUB_SpinBot do
+                    task.wait(0.016)
+                    pcall(function()
+                        if not flyBg then
+                            local ch = player.Character
+                            if ch then
+                                local hrp = ch:FindFirstChild("HumanoidRootPart")
+                                if hrp then
+                                    hrp.CFrame = hrp.CFrame * CFrame.Angles(0, math.rad(getgenv().ELITE_HUB_SpinSpeed * 0.1), 0)
+                                end
+                            end
+                        end
+                    end)
+                end
+            end)
+        end
+    end
 end)
 
 local miniGui = Instance.new("ScreenGui")
@@ -1239,6 +1233,29 @@ getgenv().ELITE_HUB_SpeedBtn = CreateMiniButton("SpeedBoostBtn", "⚡ Speed Boos
     ActivateSpeedBoost()
 end)
 
+getgenv().ELITE_HUB_SpinBtn = CreateMiniButton("SpinBotBtn", "🔄 Spin Bot", 4, function()
+    getgenv().ELITE_HUB_SpinBot = not getgenv().ELITE_HUB_SpinBot
+    getgenv().ELITE_HUB_Log("MODS", "Spin Bot: " .. tostring(getgenv().ELITE_HUB_SpinBot))
+    if getgenv().ELITE_HUB_SpinBot then
+        task.spawn(function()
+            while getgenv().ELITE_HUB_SpinBot do
+                task.wait(0.016)
+                pcall(function()
+                    if not flyBg then
+                        local ch = player.Character
+                        if ch then
+                            local hrp = ch:FindFirstChild("HumanoidRootPart")
+                            if hrp then
+                                hrp.CFrame = hrp.CFrame * CFrame.Angles(0, math.rad(getgenv().ELITE_HUB_SpinSpeed * 0.1), 0)
+                            end
+                        end
+                    end
+                end)
+            end
+        end)
+    end
+end)
+
 function updateMiniGuiButtons()
     if wallhopActive then
         wallhopBtn.Text = "  🧱 WallHop: ON"
@@ -1275,13 +1292,25 @@ function updateMiniGuiButtons()
         noclipBtn.TextColor3 = Color3.fromRGB(170, 170, 170)
         noclipBtn.Indicator.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
     end
+
+    if getgenv().ELITE_HUB_SpinBot then
+        getgenv().ELITE_HUB_SpinBtn.Text = "  🔄 Spin Bot: ON"
+        getgenv().ELITE_HUB_SpinBtn.BackgroundColor3 = Color3.fromRGB(120, 40, 40)
+        getgenv().ELITE_HUB_SpinBtn.TextColor3 = Color3.fromRGB(255, 140, 140)
+        getgenv().ELITE_HUB_SpinBtn.Indicator.BackgroundColor3 = Color3.fromRGB(255, 80, 80)
+    else
+        getgenv().ELITE_HUB_SpinBtn.Text = "  🔄 Spin Bot: OFF"
+        getgenv().ELITE_HUB_SpinBtn.BackgroundColor3 = Color3.fromRGB(40, 28, 65)
+        getgenv().ELITE_HUB_SpinBtn.TextColor3 = Color3.fromRGB(170, 170, 170)
+        getgenv().ELITE_HUB_SpinBtn.Indicator.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+    end
 end
 
 local function ToggleMiniMenu()
     if miniFrame.Visible then
         miniFrame.Visible = false
     else
-        local btns = 4
+        local btns = 5
         local totalH = 56 + btns * 38
         miniFrame.Size = UDim2.new(0, 200, 0, totalH)
         miniFrame.Visible = true
@@ -1505,7 +1534,11 @@ function ToggleFly()
                     end
 
                     if flyBg then
-                        flyBg.cframe = game.Workspace.CurrentCamera.CoordinateFrame * CFrame.Angles(-math.rad((_G.flyCtrl.f + _G.flyCtrl.b) * 50 * speed / maxspeed), 0, 0)
+                        local spinY = 0
+                        if getgenv().ELITE_HUB_SpinBot then
+                            spinY = math.rad(getgenv().ELITE_HUB_SpinSpeed * 0.1)
+                        end
+                        flyBg.cframe = game.Workspace.CurrentCamera.CoordinateFrame * CFrame.Angles(-math.rad((_G.flyCtrl.f + _G.flyCtrl.b) * 50 * speed / maxspeed), spinY, 0)
                     end
                 end
 
@@ -1583,7 +1616,11 @@ function ToggleFly()
                     end
 
                     if flyBg then
-                        flyBg.cframe = game.Workspace.CurrentCamera.CoordinateFrame * CFrame.Angles(-math.rad((_G.flyCtrl.f + _G.flyCtrl.b) * 50 * speed / maxspeed), 0, 0)
+                        local spinY = 0
+                        if getgenv().ELITE_HUB_SpinBot then
+                            spinY = math.rad(getgenv().ELITE_HUB_SpinSpeed * 0.1)
+                        end
+                        flyBg.cframe = game.Workspace.CurrentCamera.CoordinateFrame * CFrame.Angles(-math.rad((_G.flyCtrl.f + _G.flyCtrl.b) * 50 * speed / maxspeed), spinY, 0)
                     end
                 end
 
@@ -1903,6 +1940,22 @@ MainTab:CreateInput({
         if success and keyEnum then
             BindConfig.SpeedBoost = keyName
             Rayfield:Notify({ Title = "✅ Бинд Speed Boost", Content = "Новый бинд: " .. keyName, Duration = 2 })
+        else
+            Rayfield:Notify({ Title = "❌ Ошибка", Content = "Неверное название клавиши!", Duration = 2 })
+        end
+    end
+})
+
+MainTab:CreateInput({
+    Name = "🔄 Бинд Spin Bot",
+    PlaceholderText = "Текущий: " .. BindConfig.SpinBot,
+    RemoveTextAfterFocusLost = false,
+    Callback = function(Text)
+        local keyName = Text:upper()
+        local success, keyEnum = pcall(function() return Enum.KeyCode[keyName] end)
+        if success and keyEnum then
+            BindConfig.SpinBot = keyName
+            Rayfield:Notify({ Title = "✅ Бинд Spin Bot", Content = "Новый бинд: " .. keyName, Duration = 2 })
         else
             Rayfield:Notify({ Title = "❌ Ошибка", Content = "Неверное название клавиши!", Duration = 2 })
         end
@@ -6299,36 +6352,7 @@ task.spawn(function()
 local MT = getgenv().ELITE_HUB_ModsTab
 getgenv().ELITE_HUB_Log("MODS", "Секция МОДЫ загружена")
 
-getgenv().ELITE_HUB_Sprinting = false
-local UIS = game:GetService("UserInputService")
-UIS.InputBegan:Connect(function(input, gp)
-    if gp then return end
-    if input.KeyCode == Enum.KeyCode.LeftShift then
-        local ch = player.Character
-        local hum = ch and ch:FindFirstChildOfClass("Humanoid")
-        if hum then
-            getgenv().ELITE_HUB_Sprinting = true
-            hum.WalkSpeed = hum.WalkSpeed * 1.6
-            getgenv().ELITE_HUB_Log("SPRINT", "Sprint ON - WalkSpeed: " .. tostring(hum.WalkSpeed))
-        end
-    end
-end)
-UIS.InputEnded:Connect(function(input, gp)
-    if gp then return end
-    if input.KeyCode == Enum.KeyCode.LeftShift then
-        local ch = player.Character
-        local hum = ch and ch:FindFirstChildOfClass("Humanoid")
-        if hum and getgenv().ELITE_HUB_Sprinting then
-            getgenv().ELITE_HUB_Sprinting = false
-            hum.WalkSpeed = hum.WalkSpeed / 1.6
-            getgenv().ELITE_HUB_Log("SPRINT", "Sprint OFF - WalkSpeed: " .. tostring(hum.WalkSpeed))
-        end
-    end
-end)
-
 MT:CreateSection("🏃 ДВИЖЕНИЕ")
-
-MT:CreateLabel("🏃 Sprint: зажми Shift для бега")
 
 getgenv().ELITE_HUB_JumpBoost = false
 MT:CreateToggle({
@@ -6387,38 +6411,6 @@ task.spawn(function()
                         hrp.BrickColor = BrickColor.new("Really red")
                         hrp.Material = Enum.Material.ForceField
                         hrp.CanCollide = false
-                    end
-                end
-            end
-        end)
-    end
-end)
-
-getgenv().ELITE_HUB_AutoParry = false
-MT:CreateToggle({
-    Name = "🛡️ Auto Parry",
-    CurrentValue = false,
-    Callback = function(value)
-        getgenv().ELITE_HUB_AutoParry = value
-        getgenv().ELITE_HUB_Log("MODS", "Auto Parry: " .. tostring(value))
-    end
-})
-task.spawn(function()
-    while task.wait(0.05) do
-        pcall(function()
-            if not getgenv().ELITE_HUB_AutoParry then return end
-            local ch = player.Character
-            local hum = ch and ch:FindFirstChildOfClass("Humanoid")
-            local hrp = ch and ch:FindFirstChild("HumanoidRootPart")
-            if not hum or not hrp then return end
-            for _, plr in ipairs(game:GetService("Players"):GetPlayers()) do
-                if plr ~= player and plr.Character then
-                    local ehrp = plr.Character:FindFirstChild("HumanoidRootPart")
-                    if ehrp and (ehrp.Position - hrp.Position).Magnitude < 8 then
-                        hum:ChangeState(Enum.HumanoidStateType.Blocking)
-                        task.delay(0.2, function()
-                            pcall(function() hum:ChangeState(Enum.HumanoidStateType.GettingUp) end)
-                        end)
                     end
                 end
             end
@@ -6710,11 +6702,13 @@ MT:CreateToggle({
                 while getgenv().ELITE_HUB_SpinBot do
                     task.wait(0.016)
                     pcall(function()
-                        local ch = player.Character
-                        if ch then
-                            local hrp = ch:FindFirstChild("HumanoidRootPart")
-                            if hrp then
-                                hrp.CFrame = hrp.CFrame * CFrame.Angles(0, math.rad(getgenv().ELITE_HUB_SpinSpeed * 0.1), 0)
+                        if not flyBg then
+                            local ch = player.Character
+                            if ch then
+                                local hrp = ch:FindFirstChild("HumanoidRootPart")
+                                if hrp then
+                                    hrp.CFrame = hrp.CFrame * CFrame.Angles(0, math.rad(getgenv().ELITE_HUB_SpinSpeed * 0.1), 0)
+                                end
                             end
                         end
                     end)
@@ -6730,34 +6724,6 @@ MT:CreateSlider({
     CurrentValue = 50,
     Callback = function(value)
         getgenv().ELITE_HUB_SpinSpeed = value
-    end
-})
-
-MT:CreateDropdown({
-    Name = "📍 Teleport к игроку",
-    Options = (function()
-        local names = {}
-        for _, plr in ipairs(game:GetService("Players"):GetPlayers()) do
-            if plr ~= player then
-                table.insert(names, plr.Name)
-            end
-        end
-        return names
-    end)(),
-    CurrentOption = "",
-    Callback = function(value)
-        local v = (typeof(value) == "table") and value[1] or value
-        pcall(function()
-            local target = game:GetService("Players"):FindFirstChild(v)
-            if target and target.Character then
-                local hrp = target.Character:FindFirstChild("HumanoidRootPart")
-                local myHrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
-                if hrp and myHrp then
-                    myHrp.CFrame = hrp.CFrame * CFrame.new(0, 0, -3)
-                    getgenv().ELITE_HUB_Log("MODS", "TP to " .. v)
-                end
-            end
-        end)
     end
 })
 
@@ -7076,33 +7042,6 @@ MT:CreateToggle({
                             if hum and hum.Health <= 0 then
                                 task.wait(1)
                                 player:LoadCharacter()
-                            end
-                        end
-                    end)
-                end
-            end)
-        end
-    end
-})
-
-getgenv().ELITE_HUB_NoclipActive = false
-MT:CreateToggle({
-    Name = "👻 Noclip (сквозь стены)",
-    CurrentValue = false,
-    Callback = function(value)
-        getgenv().ELITE_HUB_NoclipActive = value
-        getgenv().ELITE_HUB_Log("MODS", "Noclip: " .. tostring(value))
-        if value then
-            task.spawn(function()
-                while getgenv().ELITE_HUB_NoclipActive do
-                    task.wait(0.1)
-                    pcall(function()
-                        local ch = player.Character
-                        if ch then
-                            for _, part in ipairs(ch:GetDescendants()) do
-                                if part:IsA("BasePart") then
-                                    part.CanCollide = false
-                                end
                             end
                         end
                     end)
