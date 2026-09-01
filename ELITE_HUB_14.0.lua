@@ -6299,36 +6299,7 @@ task.spawn(function()
 local MT = getgenv().ELITE_HUB_ModsTab
 getgenv().ELITE_HUB_Log("MODS", "Секция МОДЫ загружена")
 
-getgenv().ELITE_HUB_Sprinting = false
-local UIS = game:GetService("UserInputService")
-UIS.InputBegan:Connect(function(input, gp)
-    if gp then return end
-    if input.KeyCode == Enum.KeyCode.LeftShift then
-        local ch = player.Character
-        local hum = ch and ch:FindFirstChildOfClass("Humanoid")
-        if hum then
-            getgenv().ELITE_HUB_Sprinting = true
-            hum.WalkSpeed = hum.WalkSpeed * 1.6
-            getgenv().ELITE_HUB_Log("SPRINT", "Sprint ON - WalkSpeed: " .. tostring(hum.WalkSpeed))
-        end
-    end
-end)
-UIS.InputEnded:Connect(function(input, gp)
-    if gp then return end
-    if input.KeyCode == Enum.KeyCode.LeftShift then
-        local ch = player.Character
-        local hum = ch and ch:FindFirstChildOfClass("Humanoid")
-        if hum and getgenv().ELITE_HUB_Sprinting then
-            getgenv().ELITE_HUB_Sprinting = false
-            hum.WalkSpeed = hum.WalkSpeed / 1.6
-            getgenv().ELITE_HUB_Log("SPRINT", "Sprint OFF - WalkSpeed: " .. tostring(hum.WalkSpeed))
-        end
-    end
-end)
-
 MT:CreateSection("🏃 ДВИЖЕНИЕ")
-
-MT:CreateLabel("🏃 Sprint: зажми Shift для бега")
 
 getgenv().ELITE_HUB_JumpBoost = false
 MT:CreateToggle({
