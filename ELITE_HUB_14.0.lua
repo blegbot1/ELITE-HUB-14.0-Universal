@@ -432,7 +432,7 @@ function EliteHubUI:CreateTab(name, icon)
         btn.LayoutOrder = tab._order
         newCorner(btn, 8)
         newStroke(btn, C.Stroke, 1.2, 0.3)
-        newGradient(btn, Color3.fromRGB(92, 70, 140), Color3.fromRGB(66, 50, 106), 90)
+        newGradient(btn, Color3.fromRGB(74, 56, 118), Color3.fromRGB(56, 42, 94), 90)
         tab._order = tab._order + 1
 
         btn.MouseEnter:Connect(function()
