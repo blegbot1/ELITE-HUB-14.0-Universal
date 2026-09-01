@@ -114,7 +114,65 @@ function EliteHubUI:CreateWindow(config)
     newCorner(main, 14)
     newStroke(main, C.Stroke, 2, 0.25)
     newGradient(main, Color3.fromRGB(22, 15, 42), C.BG, 90)
+    main.Size = UDim2.new(0, W * 0.85, 0, H * 0.85)
+    main.Position = UDim2.new(0.5, -(W * 0.85) / 2, 0.5, -(H * 0.85) / 2)
+    main.BackgroundTransparency = 0.4
     self._main = main
+
+    function self:_showWindow()
+        main.Size = UDim2.new(0, 0, 0, 0)
+        main.Position = UDim2.new(0.5, 0, 0.5, 0)
+        main.BackgroundTransparency = 0.6
+        main.Visible = true
+        TweenService:Create(main, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+            Size = UDim2.new(0, W, 0, H),
+            Position = UDim2.new(0.5, -W/2, 0.5, -H/2),
+            BackgroundTransparency = 0
+        }):Play()
+    end
+
+    local fab = Instance.new("TextButton")
+    fab.Name = "FAB"
+    fab.Parent = gui
+    fab.Size = UDim2.new(0, 50, 0, 50)
+    fab.Position = UDim2.new(1, -70, 1, -70)
+    fab.BackgroundColor3 = C.Accent
+    fab.Text = "EH"
+    fab.TextColor3 = C.TextBright
+    fab.TextSize = 16
+    fab.Font = Enum.Font.GothamBold
+    fab.BorderSizePixel = 0
+    fab.Visible = false
+    fab.ZIndex = 50
+    newCorner(fab, 25)
+    newStroke(fab, C.TextBright, 1.5, 0.3)
+    local fabGlow = Instance.new("UIStroke")
+    fabGlow.Color = C.AccentLight
+    fabGlow.Thickness = 2
+    fabGlow.Transparency = 0.5
+    fabGlow.Parent = fab
+    fab.MouseButton1Click:Connect(function()
+        fab.Visible = false
+        self:_showWindow()
+    end)
+    fab.MouseEnter:Connect(function()
+        TweenService:Create(fab, TweenInfo.new(0.15, Enum.EasingStyle.Quad), {Size = UDim2.new(0, 56, 0, 56), Position = UDim2.new(1, -73, 1, -73)}):Play()
+    end)
+    fab.MouseLeave:Connect(function()
+        TweenService:Create(fab, TweenInfo.new(0.15, Enum.EasingStyle.Quad), {Size = UDim2.new(0, 50, 0, 50), Position = UDim2.new(1, -70, 1, -70)}):Play()
+    end)
+    self._fab = fab
+    self._onHide = function() fab.Visible = true end
+
+    -- Pulse FAB glow
+    task.spawn(function()
+        while fab and fab.Parent do
+            TweenService:Create(fabGlow, TweenInfo.new(1.2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {Transparency = 0.1}):Play()
+            task.wait(1.2)
+            TweenService:Create(fabGlow, TweenInfo.new(1.2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {Transparency = 0.6}):Play()
+            task.wait(1.2)
+        end
+    end)
 
     -- Title bar
     local titleBar = Instance.new("Frame")
@@ -195,7 +253,14 @@ function EliteHubUI:CreateWindow(config)
     end)
 
     closeBtn.MouseButton1Click:Connect(function()
-        gui:Destroy()
+        TweenService:Create(main, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+            Size = UDim2.new(0, 0, 0, 0),
+            Position = UDim2.new(0.5, 0, 0.5, 0),
+            BackgroundTransparency = 1
+        }):Play()
+        task.wait(0.25)
+        main.Visible = false
+        if self._onHide then self._onHide() end
     end)
     closeBtn.MouseEnter:Connect(function()
         closeBtn.BackgroundColor3 = Color3.fromRGB(255, 95, 105)
@@ -274,7 +339,13 @@ self._content = content
         end
         if reveal and reveal.Parent then
             TweenService:Create(reveal, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { BackgroundTransparency = 1 }):Play()
-            task.wait(0.6)
+            task.wait(0.3)
+            TweenService:Create(main, TweenInfo.new(0.35, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+                Size = UDim2.new(0, W, 0, H),
+                Position = UDim2.new(0.5, -W/2, 0.5, -H/2),
+                BackgroundTransparency = 0
+            }):Play()
+            task.wait(0.3)
             reveal:Destroy()
         end
     end)
@@ -341,7 +412,12 @@ function EliteHubUI:CreateTab(name, icon)
     -- Click handler
     local function activate()
         for _, f in pairs(self._tabFrames) do
-            f.Visible = false
+            if f.Visible then
+                TweenService:Create(f, TweenInfo.new(0.12, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {BackgroundTransparency = 1}):Play()
+                task.delay(0.12, function() f.Visible = false end)
+            else
+                f.Visible = false
+            end
         end
         for _, b in pairs(self._tabButtons) do
             b.BackgroundColor3 = C.TabInactive
@@ -350,7 +426,10 @@ function EliteHubUI:CreateTab(name, icon)
             b.Bar.BackgroundTransparency = 1
             b.TextColor3 = C.Text
         end
+        frame.Position = UDim2.new(0, 8, 0, 0)
+        frame.BackgroundTransparency = 0.5
         frame.Visible = true
+        TweenService:Create(frame, TweenInfo.new(0.18, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Position = UDim2.new(0, 0, 0, 0), BackgroundTransparency = 0}):Play()
         btn.BackgroundColor3 = C.TabActive
         btn.Indicator.BackgroundColor3 = C.Accent
         btn.Indicator.BackgroundTransparency = 0
@@ -435,27 +514,27 @@ function EliteHubUI:CreateTab(name, icon)
         tab._order = tab._order + 1
 
         btn.MouseEnter:Connect(function()
-            btn.BackgroundColor3 = C.Accent
+            TweenService:Create(btn, TweenInfo.new(0.18, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundColor3 = C.Accent, Size = UDim2.new(1, -3, 0, 36)}):Play()
             btn.TextColor3 = C.TextBright
         end)
         btn.MouseLeave:Connect(function()
-            btn.BackgroundColor3 = C.BG3
+            TweenService:Create(btn, TweenInfo.new(0.18, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundColor3 = C.BG3, Size = UDim2.new(1, 0, 0, 34)}):Play()
             btn.TextColor3 = C.TextBright
         end)
         btn.MouseButton1Down:Connect(function()
-            btn.BackgroundColor3 = C.AccentLight
+            TweenService:Create(btn, TweenInfo.new(0.08, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundColor3 = C.AccentLight, Size = UDim2.new(1, 2, 0, 33)}):Play()
         end)
         btn.MouseButton1Up:Connect(function()
-            btn.BackgroundColor3 = C.Accent
+            TweenService:Create(btn, TweenInfo.new(0.12, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundColor3 = C.Accent, Size = UDim2.new(1, -3, 0, 36)}):Play()
         end)
 
         btn.MouseButton1Click:Connect(function()
             if config.Callback then
                 config.Callback()
             end
-            btn.BackgroundColor3 = C.Accent
+            TweenService:Create(btn, TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundColor3 = C.AccentLight, Size = UDim2.new(1, 2, 0, 33)}):Play()
             task.delay(0.12, function()
-                btn.BackgroundColor3 = C.BG3
+                TweenService:Create(btn, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundColor3 = C.BG3, Size = UDim2.new(1, 0, 0, 34)}):Play()
                 btn.TextColor3 = C.TextBright
             end)
         end)
@@ -508,8 +587,8 @@ function EliteHubUI:CreateTab(name, icon)
         Instance.new("UICorner", knob).CornerRadius = UDim.new(1, 0)
 
         local function update()
-            toggleBtn.BackgroundColor3 = enabled and C.Green or C.Off
-            knob:TweenPosition(enabled and UDim2.new(1, -20, 0.5, -9) or UDim2.new(0, 2, 0.5, -9), "Out", "Quad", 0.12, true)
+            TweenService:Create(toggleBtn, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundColor3 = enabled and C.Green or C.Off}):Play()
+            knob:TweenPosition(enabled and UDim2.new(1, -20, 0.5, -9) or UDim2.new(0, 2, 0.5, -9), "Out", "Quad", 0.18, true)
         end
 
         toggleBtn.MouseButton1Click:Connect(function()
@@ -1176,6 +1255,43 @@ end
 return EliteHubUI
 end)()
 
+local ES, L
+do
+    ES = {
+        Animations = true,
+        Lang = "RU",
+        NotifDur = 3,
+        Accent = Color3.fromRGB(150, 70, 255),
+    }
+    getgenv().EliteHubSettings = ES
+
+    local LangData = {
+        RU = {
+            Settings = "НАСТРОЙКИ",
+            Language = "Язык",
+            Animations = "Анимации",
+            NotifDuration = "Длительность уведомлений",
+            AccentColor = "Цвет акцента",
+            sec = " сек",
+            ResetSettings = "Сбросить настройки",
+        },
+        EN = {
+            Settings = "SETTINGS",
+            Language = "Language",
+            Animations = "Animations",
+            NotifDuration = "Notification Duration",
+            AccentColor = "Accent Color",
+            sec = " sec",
+            ResetSettings = "Reset Settings",
+        },
+    }
+
+    function L(key)
+        local t = LangData[ES.Lang] or LangData.RU
+        return t[key] or key
+    end
+end
+
 
 local debugMode = true  -- поставить false, чтобы выключить логи
 
@@ -1349,16 +1465,17 @@ local Window = Rayfield:CreateWindow({
     Theme = ThemePurple
 })
 
-local MainTab = Window:CreateTab("🏠 ОСНОВНОЕ", 11286187172)
-local ESPTab = Window:CreateTab("👁️ ESP", 6026568198)
-local CombatTab = Window:CreateTab("🎯 AIMBOT", 7733960981)
-local VisualTab = Window:CreateTab("🎨 ВИЗУАЛ", 6022668888)
-local TeleportTab = Window:CreateTab("🌀 ТЕЛЕПОРТ", 6023426915)
-local KillAllTab = Window:CreateTab("⚔️ УБИТЬ ВСЕХ", 0)
-local FEScriptsTab = Window:CreateTab("🎭 FE СКРИПТЫ", 7733960981)
-local HubsTab = Window:CreateTab("🚀 ХАБЫ", 6022668888)
-local GameScriptsTab = Window:CreateTab("🎯 СКРИПТЫ ДЛЯ ИГР", 7733960981)
-getgenv().ELITE_HUB_ModsTab = Window:CreateTab("⚡ МОДЫ", 6026568198)
+local MainTab = Window:CreateTab("🏠 " .. L("Main"), 11286187172)
+local ESPTab = Window:CreateTab("👁️ " .. L("ESP"), 6026568198)
+local CombatTab = Window:CreateTab("🎯 " .. L("Aimbot"), 7733960981)
+local VisualTab = Window:CreateTab("🎨 " .. L("Visual"), 6022668888)
+local TeleportTab = Window:CreateTab("🌀 " .. L("Teleport"), 6023426915)
+local KillAllTab = Window:CreateTab("⚔️ " .. L("KillAll"), 0)
+local FEScriptsTab = Window:CreateTab("🎭 " .. L("FEScripts"), 7733960981)
+local HubsTab = Window:CreateTab("🚀 " .. L("Hubs"), 6022668888)
+local GameScriptsTab = Window:CreateTab("🎯 " .. L("GameScripts"), 7733960981)
+getgenv().ELITE_HUB_ModsTab = Window:CreateTab("⚡ " .. L("Mods"), 6026568198)
+local MT = getgenv().ELITE_HUB_ModsTab
 
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
@@ -8353,5 +8470,61 @@ MT:CreateButton({
         end)
     end
 })
+
+local SettingsTab = Window:CreateTab("⚙️ " .. L("Settings"), 0)
+
+SettingsTab:CreateSection(L("Settings"))
+
+SettingsTab:CreateDropdown({
+    Name = L("Language"),
+    Options = {"RU", "EN"},
+    CurrentOption = ES.Lang,
+    Callback = function(opt)
+        ES.Lang = opt
+        Rayfield:Notify({Title = L("Settings"), Content = L("Language") .. ": " .. opt, Duration = 2})
+    end
+})
+
+SettingsTab:CreateToggle({
+    Name = L("Animations"),
+    CurrentValue = ES.Animations,
+    Callback = function(val)
+        ES.Animations = val
+        Rayfield:Notify({Title = L("Settings"), Content = L("Animations") .. ": " .. (val and "ON" or "OFF"), Duration = 2})
+    end
+})
+
+SettingsTab:CreateSlider({
+    Name = L("NotifDuration"),
+    Range = {1, 10},
+    Increment = 1,
+    CurrentValue = ES.NotifDur,
+    Suffix = L("sec"),
+    Callback = function(val)
+        ES.NotifDur = val
+    end
+})
+
+SettingsTab:CreateColorPicker({
+    Name = L("AccentColor"),
+    Color = ES.Accent,
+    Callback = function(c)
+        ES.Accent = c
+        Rayfield:Notify({Title = L("Settings"), Content = L("AccentColor") .. " updated", Duration = 2})
+    end
+})
+
+SettingsTab:CreateButton({
+    Name = "🗑️ " .. L("ResetSettings"),
+    Callback = function()
+        ES.Animations = true
+        ES.Lang = "RU"
+        ES.NotifDur = 3
+        ES.Accent = Color3.fromRGB(150, 70, 255)
+        Rayfield:Notify({Title = "OK", Content = "Settings reset", Duration = 2})
+    end
+})
+
+SettingsTab:CreateLabel("ELITE HUB 14.0 HASKER | v14.0")
 
 end) -- конец task.spawn(mods)
