@@ -62,12 +62,22 @@ local function newGradient(parent, colorA, colorB, rotation)
 end
 
 local function addScroll(frame)
+    local bg = Instance.new("Frame")
+    bg.Name = "ScrollBg"
+    bg.Parent = frame
+    bg.Size = UDim2.new(1, 0, 1, 0)
+    bg.BackgroundColor3 = C.BG
+    bg.BackgroundTransparency = 0
+    bg.BorderSizePixel = 0
+    bg.ZIndex = 0
+
     local sg = Instance.new("ScrollingFrame")
     sg.Name = "Scroll"
     sg.Parent = frame
     sg.Size = UDim2.new(1, 0, 1, 0)
     sg.Position = UDim2.new(0, 0, 0, 0)
-    sg.BackgroundTransparency = 1
+    sg.BackgroundColor3 = C.BG
+    sg.BackgroundTransparency = 0
     sg.ScrollBarThickness = 4
     sg.ScrollBarImageColor3 = C.ScrollBar
     sg.BorderSizePixel = 0
@@ -307,8 +317,10 @@ function EliteHubUI:CreateWindow(config)
     content.Parent = main
     content.Size = UDim2.new(1, -158, 1, -40)
     content.Position = UDim2.new(0, 158, 0, 40)
-    content.BackgroundColor3 = C.BG
+    content.BackgroundColor3 = Color3.fromRGB(16, 11, 30)
+    content.BackgroundTransparency = 0
     content.BorderSizePixel = 0
+    content.ZIndex = 1
 self._content = content
 
     gui.DisplayOrder = 998
@@ -348,7 +360,7 @@ self._content = content
 
     function self:_updateTabs()
         for _, reg in ipairs(self._tabRegistry) do
-            reg.btn.Text = reg.emoji .. " " .. L(reg.langKey)
+            reg.btn.Text = reg.emoji .. " " .. (self._L and self._L(reg.langKey) or reg.langKey)
         end
     end
 
@@ -1482,6 +1494,7 @@ local Window = Rayfield:CreateWindow({
     LoadingSubtitle = "💜👑 by gerkylesichakes | Версия 14.0 | Обновлено: +Mods, Chams, ESP, Aimbot, Spin Bot 👑💜",
     Theme = ThemePurple
 })
+Window._L = L
 
 local MainTab = Window:CreateTab("🏠 " .. L("Main"), 11286187172, "Main")
 local ESPTab = Window:CreateTab("👁️ " .. L("ESP"), 6026568198, "ESP")
