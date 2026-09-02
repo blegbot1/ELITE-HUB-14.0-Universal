@@ -100,6 +100,7 @@ function EliteHubUI:CreateWindow(config)
     self._tabRegistry = {}
     self._currentTab = nil
     self._popups = {}
+    self._translatables = {}
 
     local player = game:GetService("Players").LocalPlayer
     local gui = Instance.new("ScreenGui")
@@ -364,6 +365,24 @@ self._content = content
         for _, reg in ipairs(self._tabRegistry) do
             reg.btn.Text = reg.emoji .. " " .. lang(reg.langKey)
         end
+        for _, t in ipairs(self._translatables) do
+            if t.element and t.element.Parent then
+                if t.type == "section" then
+                    local txt = t.element:FindFirstChildOfClass("TextLabel")
+                    if txt then txt.Text = t.prefix .. lang(t.key) end
+                elseif t.type == "button" then
+                    t.element.Text = "  " .. lang(t.key)
+                elseif t.type == "toggle" then
+                    local lbl = t.element:FindFirstChildOfClass("TextLabel")
+                    if lbl then lbl.Text = lang(t.key) end
+                elseif t.type == "label" then
+                    t.element.Text = "  " .. lang(t.key)
+                elseif t.type == "dropdown" then
+                    local lbl = t.element:FindFirstChildOfClass("TextLabel")
+                    if lbl then lbl.Text = lang(t.key) end
+                end
+            end
+        end
     end
 
     function self:_updateTabs()
@@ -624,6 +643,7 @@ function EliteHubUI:CreateTab(name, icon, langKey)
         end)
 
         return {
+            Frame = frame,
             Set = function(_, val)
                 enabled = val
                 update()
@@ -962,6 +982,7 @@ dropBtn.MouseButton1Click:Connect(function()
         end)
 
         return {
+            Frame = frame,
             Refresh = function(_, opts)
                 refresh(opts)
             end,
@@ -1004,6 +1025,7 @@ dropBtn.MouseButton1Click:Connect(function()
         tab._order = tab._order + 1
 
         return {
+            Frame = label,
             Set = function(_, newText)
                 label.Text = "  " .. newText
             end
@@ -8530,9 +8552,10 @@ MT:CreateButton({
 
 local SettingsTab = Window:CreateTab("⚙️ " .. L("Settings"), 0, "Settings")
 
-SettingsTab:CreateSection(L("Settings"))
+local s1 = SettingsTab:CreateSection(L("Settings"))
+table.insert(Window._translatables, {element = s1, key = "Settings", type = "section", prefix = ""})
 
-SettingsTab:CreateDropdown({
+local langDrop = SettingsTab:CreateDropdown({
     Name = L("Language"),
     Options = {"RU", "EN"},
     CurrentOption = ES.Lang,
@@ -8541,18 +8564,21 @@ SettingsTab:CreateDropdown({
         Window:_updateAll()
     end
 })
+table.insert(Window._translatables, {element = langDrop.Frame, key = "Language", type = "dropdown"})
 
-SettingsTab:CreateToggle({
+local animToggle = SettingsTab:CreateToggle({
     Name = L("Animations"),
     CurrentValue = ES.Animations,
     Callback = function(val)
         ES.Animations = val
     end
 })
+table.insert(Window._translatables, {element = animToggle.Frame, key = "Animations", type = "toggle"})
 
-SettingsTab:CreateSection(L("Config"))
+local s2 = SettingsTab:CreateSection(L("Config"))
+table.insert(Window._translatables, {element = s2, key = "Config", type = "section", prefix = ""})
 
-SettingsTab:CreateButton({
+local saveBtn = SettingsTab:CreateButton({
     Name = L("SaveConfig"),
     Callback = function()
         pcall(function()
@@ -8565,8 +8591,9 @@ SettingsTab:CreateButton({
         end)
     end
 })
+table.insert(Window._translatables, {element = saveBtn, key = "SaveConfig", type = "button"})
 
-SettingsTab:CreateButton({
+local loadBtn = SettingsTab:CreateButton({
     Name = L("LoadConfig"),
     Callback = function()
         pcall(function()
@@ -8582,8 +8609,9 @@ SettingsTab:CreateButton({
         end)
     end
 })
+table.insert(Window._translatables, {element = loadBtn, key = "LoadConfig", type = "button"})
 
-SettingsTab:CreateButton({
+local resetBtn = SettingsTab:CreateButton({
     Name = L("ResetSettings"),
     Callback = function()
         ES.Animations = true
@@ -8592,7 +8620,9 @@ SettingsTab:CreateButton({
         Rayfield:Notify({Title = "OK", Content = L("SettingsReset"), Duration = 2})
     end
 })
+table.insert(Window._translatables, {element = resetBtn, key = "ResetSettings", type = "button"})
 
-SettingsTab:CreateLabel(L("Version"))
+local verLabel = SettingsTab:CreateLabel(L("Version"))
+table.insert(Window._translatables, {element = verLabel.Frame, key = "Version", type = "label"})
 
 end) -- конец task.spawn(mods)
