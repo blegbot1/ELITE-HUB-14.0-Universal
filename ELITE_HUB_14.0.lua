@@ -358,10 +358,29 @@ self._content = content
         end
     end)
 
-    function self:_updateTabs()
+    function self:_updateAll()
+        local lang = self._L
+        if not lang then return end
         for _, reg in ipairs(self._tabRegistry) do
-            reg.btn.Text = reg.emoji .. " " .. (self._L and self._L(reg.langKey) or reg.langKey)
+            reg.btn.Text = reg.emoji .. " " .. lang(reg.langKey)
         end
+        if self._sElements then
+            local se = self._sElements
+            for _, sec in ipairs(se.sections or {}) do
+                local tl = sec:FindFirstChildOfClass("TextLabel")
+                if tl then tl.Text = "  " .. lang(sec._langKey) end
+            end
+            for _, item in ipairs(se.buttons or {}) do
+                item.btn.Text = "  " .. lang(item.langKey)
+            end
+            for _, item in ipairs(se.labels or {}) do
+                item.Set(nil, lang(item.langKey))
+            end
+        end
+    end
+
+    function self:_updateTabs()
+        self:_updateAll()
     end
 
     return self
@@ -1297,6 +1316,16 @@ do
             Hubs = "ХАБЫ",
             GameScripts = "СКРИПТЫ ДЛЯ ИГР",
             Mods = "МОДЫ",
+            Config = "КОНФИГИ",
+            SaveConfig = "💾 Сохранить конфиг",
+            LoadConfig = "📂 Загрузить конфиг",
+            ConfigSaved = "Конфиг сохранён!",
+            ConfigLoaded = "Конфиг загружен!",
+            NoConfig = "Конфиг не найден",
+            SettingsReset = "Настройки сброшены",
+            Version = "ELITE HUB 14.0 HASKER | v14.0",
+            ON = "ВКЛ",
+            OFF = "ВЫКЛ",
         },
         EN = {
             Settings = "SETTINGS",
@@ -1313,6 +1342,16 @@ do
             Hubs = "HUBS",
             GameScripts = "GAME SCRIPTS",
             Mods = "MODS",
+            Config = "CONFIG",
+            SaveConfig = "💾 Save Config",
+            LoadConfig = "📂 Load Config",
+            ConfigSaved = "Config saved!",
+            ConfigLoaded = "Config loaded!",
+            NoConfig = "No config found",
+            SettingsReset = "Settings reset",
+            Version = "ELITE HUB 14.0 HASKER | v14.0",
+            ON = "ON",
+            OFF = "OFF",
         },
     }
 
@@ -8504,7 +8543,24 @@ MT:CreateButton({
 
 local SettingsTab = Window:CreateTab("⚙️ " .. L("Settings"), 0, "Settings")
 
-SettingsTab:CreateSection(L("Settings"))
+Window._sElements = {sections = {}, buttons = {}, labels = {}}
+local se = Window._sElements
+
+local function regSec(frame, key)
+    frame._langKey = key
+    table.insert(se.sections, frame)
+end
+
+local function regBtn(btn, key)
+    table.insert(se.buttons, {btn = btn, langKey = key})
+end
+
+local function regLabel(wrapper, key)
+    table.insert(se.labels, {Set = wrapper.Set, langKey = key})
+end
+
+local s1 = SettingsTab:CreateSection(L("Settings"))
+regSec(s1, "Settings")
 
 SettingsTab:CreateDropdown({
     Name = L("Language"),
@@ -8512,8 +8568,7 @@ SettingsTab:CreateDropdown({
     CurrentOption = ES.Lang,
     Callback = function(opt)
         ES.Lang = opt
-        Window:_updateTabs()
-        Rayfield:Notify({Title = L("Settings"), Content = L("Language") .. ": " .. opt, Duration = 2})
+        Window:_updateAll()
     end
 })
 
@@ -8522,14 +8577,14 @@ SettingsTab:CreateToggle({
     CurrentValue = ES.Animations,
     Callback = function(val)
         ES.Animations = val
-        Rayfield:Notify({Title = L("Settings"), Content = L("Animations") .. ": " .. (val and "ON" or "OFF"), Duration = 2})
     end
 })
 
-SettingsTab:CreateSection("Config")
+local s2 = SettingsTab:CreateSection(L("Config"))
+regSec(s2, "Config")
 
-SettingsTab:CreateButton({
-    Name = "💾 Save Config",
+regBtn(SettingsTab:CreateButton({
+    Name = L("SaveConfig"),
     Callback = function()
         pcall(function()
             local data = game:GetService("HttpService"):JSONEncode({
@@ -8537,38 +8592,38 @@ SettingsTab:CreateButton({
                 Lang = ES.Lang,
             })
             writefile("EliteHub_Config.json", data)
-            Rayfield:Notify({Title = "OK", Content = "Config saved!", Duration = 2})
+            Rayfield:Notify({Title = "OK", Content = L("ConfigSaved"), Duration = 2})
         end)
     end
-})
+}), "SaveConfig")
 
-SettingsTab:CreateButton({
-    Name = "📂 Load Config",
+regBtn(SettingsTab:CreateButton({
+    Name = L("LoadConfig"),
     Callback = function()
         pcall(function()
             if not isfile("EliteHub_Config.json") then
-                Rayfield:Notify({Title = "!", Content = "No config found", Duration = 2})
+                Rayfield:Notify({Title = "!", Content = L("NoConfig"), Duration = 2})
                 return
             end
             local data = game:GetService("HttpService"):JSONDecode(readfile("EliteHub_Config.json"))
             if data.Animations ~= nil then ES.Animations = data.Animations end
             if data.Lang then ES.Lang = data.Lang end
-            Window:_updateTabs()
-            Rayfield:Notify({Title = "OK", Content = "Config loaded!", Duration = 2})
+            Window:_updateAll()
+            Rayfield:Notify({Title = "OK", Content = L("ConfigLoaded"), Duration = 2})
         end)
     end
-})
+}), "LoadConfig")
 
-SettingsTab:CreateButton({
-    Name = "🗑️ " .. L("ResetSettings"),
+regBtn(SettingsTab:CreateButton({
+    Name = L("ResetSettings"),
     Callback = function()
         ES.Animations = true
         ES.Lang = "RU"
-        Window:_updateTabs()
-        Rayfield:Notify({Title = "OK", Content = "Settings reset", Duration = 2})
+        Window:_updateAll()
+        Rayfield:Notify({Title = "OK", Content = L("SettingsReset"), Duration = 2})
     end
-})
+}), "ResetSettings")
 
-SettingsTab:CreateLabel("ELITE HUB 14.0 HASKER | v14.0")
+regLabel(SettingsTab:CreateLabel(L("Version")), "Version")
 
 end) -- конец task.spawn(mods)
