@@ -1785,22 +1785,37 @@ local function NewOverlayCircle()
 end
 
 local function DestroyScript()
-    Log("SYSTEM", "Выключение скрипта")
     Rayfield:Notify({
-        Title = "🛑 Выключение...",
-        Content = "Скрипт выключается",
-        Duration = 2
+        Title = "🛑 Shutting down...",
+        Content = "ELITE HUB is being unloaded",
+        Duration = 1.5
     })
-    task.wait(1)
-    getgenv().ELITE_HUB_HASKER_LOADED = false
-    Rayfield:Destroy()
+
+    task.wait(0.5)
+
+    for name, _ in pairs(getgenv()) do
+        if string.sub(name, 1, 11) == "ELITE_HUB_" then
+            pcall(function() getgenv()[name] = nil end)
+        end
+    end
+
+    local pg = game:GetService("Players").LocalPlayer:FindFirstChild("PlayerGui")
+    if pg then
+        for _, gui in ipairs(pg:GetChildren()) do
+            if gui:IsA("ScreenGui") and (gui.Name == "EliteHubUI" or gui.Name == "ELITE_HUB_Overlay" or gui.Name == "EliteNotif") then
+                gui:Destroy()
+            end
+        end
+    end
+
+    task.wait(0.5)
 end
 
 local function LoadScript(name, url)
     task.spawn(function()
         Rayfield:Notify({
-            Title = "⏳ Загрузка...",
-            Content = name .. " запускается",
+            Title = "⏳ Loading...",
+            Content = name .. " is launching",
             Duration = 2
         })
         
