@@ -383,6 +383,7 @@ self._content = content
                 end
             end
         end
+        pcall(function() _translateUI(ES.Lang) end)
     end
 
     function self:_updateTabs()
@@ -1368,6 +1369,105 @@ do
         local t = LangData[ES.Lang] or LangData.RU
         return t[key] or key
     end
+end
+
+do
+local RU_TO_EN = {
+    ["🎮 УНИВЕРСАЛЬНЫЕ ХАБЫ"] = "🎮 UNIVERSAL HUBS",
+    ["🎭 ОСНОВНЫЕ FE СКРИПТЫ"] = "🎭 CORE FE SCRIPTS",
+    ["🛠️ FE УТИЛИТЫ"] = "🛠️ FE UTILITIES",
+    ["✨ FE ЭФФЕКТЫ"] = "✨ FE EFFECTS",
+    ["🌟 GENESIS FE СКРИПТЫ"] = "🌟 GENESIS FE SCRIPTS",
+    ["💃 FE АНИМАЦИИ"] = "💃 FE ANIMATIONS",
+    ["✨ ДОПОЛНИТЕЛЬНЫЕ FE СКРИПТЫ"] = "✨ ADDITIONAL FE SCRIPTS",
+    ["🛠️ ПОПУЛЯРНЫЕ УТИЛИТЫ"] = "🛠️ POPULAR UTILITIES",
+    ["🔥 ПОПУЛЯРНЫЕ ИГРЫ"] = "🔥 POPULAR GAMES",
+    ["🎰 СИМУЛЯТОРЫ"] = "🎰 SIMULATORS",
+    ["👻 ХОРРОР ИГРЫ"] = "👻 HORROR GAMES",
+    ["🥊 ФАЙТИНГ ИГРЫ"] = "🥊 FIGHTING GAMES",
+    ["🎲 ДОПОЛНИТЕЛЬНЫЕ ИГРЫ"] = "🎲 ADDITIONAL GAMES",
+    ["⚡ ANIME ИГРЫ"] = "⚡ ANIME GAMES",
+    ["🏭 TYCOON ИГРЫ"] = "🏭 TYCOON GAMES",
+    ["🏃 OBBY ИГРЫ"] = "🏃 OBBY GAMES",
+    ["🚀 ОСНОВНЫЕ ФУНКЦИИ"] = "🚀 CORE FUNCTIONS",
+    ["⌨️ БИНДЫ"] = "⌨️ BINDS",
+    ["📜 ДОПОЛНИТЕЛЬНЫЕ СКРИПТЫ"] = "📜 ADDITIONAL SCRIPTS",
+    ["🎯 УЛУЧШЕННЫЙ AIMBOT 3D FOV"] = "🎯 IMPROVED AIMBOT 3D FOV",
+    ["⚙️ ДОП. НАСТРОЙКИ AIMBOT"] = "⚙️ EXTRA AIMBOT SETTINGS",
+    ["🎯 ИНДИКАТОР ЦЕЛИ"] = "🎯 TARGET INDICATOR",
+    ["🔫 АВТО-СТРЕЛЬБА"] = "🔫 AUTO-SHOOT",
+    ["📊 ВИЗУАЛ ЦЕЛИ"] = "📊 TARGET VISUALS",
+    ["🎯 ПРИОРИТЕТ ЦЕЛИ"] = "🎯 TARGET PRIORITY",
+    ["🔮 ПРЕДСКАЗАНИЕ"] = "🔮 PREDICTION",
+    ["🧠 АНТИ-АИМ"] = "🧠 ANTI-AIM",
+    ["📐 ДИСТАНЦИЯ FOV"] = "📐 FOV DISTANCE",
+    ["💀 УВЕДОМЛЕНИЯ AIMBOT"] = "💀 AIMBOT NOTIFICATIONS",
+    ["🔒 УДЕРЖАНИЕ ЦЕЛИ"] = "🔒 TARGET LOCK",
+    ["👥 КОМАНДЫ (друзья / враги)"] = "👥 TEAMS (friends / enemies)",
+    ["🤝 ДРУЗЬЯ И ЦЕЛЬ (выбор из списка)"] = "🤝 FRIENDS & TARGET (select from list)",
+    ["🧭 СТРЕЛКИ (указатели вне экрана)"] = "🧭 ARROWS (off-screen pointers)",
+    ["🎨 ЦВЕТА ТЕКСТА И ТРАССИРОВКИ"] = "🎨 TEXT & TRACER COLORS",
+    ["📍 СНАП-ЛАЙНЫ (wallhack)"] = "📍 SNAP LINES (wallhack)",
+    ["🎯 ПОДСВЕТКА ЦЕЛИ AIMBOT"] = "🎯 AIMBOT TARGET HIGHLIGHT",
+    ["🦴 СКЕЛЕТОН"] = "🦴 SKELETON",
+    ["🔴 ДОПОЛНИТЕЛЬНОЕ"] = "🔴 EXTRA",
+    ["💎 CHAMS"] = "💎 CHAMS",
+    ["🔔 УВЕДОМЛЕНИЯ ESP"] = "🔔 ESP NOTIFICATIONS",
+    ["🎨 ВИЗУАЛЬНЫЕ ФИЧИ"] = "🎨 VISUAL FEATURES",
+    ["Игроки"] = "Players",
+    ["⚔️ УБИТЬ ВСЕХ ВРАГОВ"] = "⚔️ KILL ALL ENEMIES",
+    ["✨ ПАРТИКЛЫ"] = "✨ PARTICLES",
+    ["🏃 ДВИЖЕНИЕ"] = "🏃 MOVEMENT",
+    ["🎯 КОМБАТ"] = "🎯 COMBAT",
+    ["📷 КАМЕРА & ТЕЛЕПОРТ"] = "📷 CAMERA & TELEPORT",
+    ["🌙 ОКРУЖЕНИЕ"] = "🌙 ENVIRONMENT",
+    ["👁️ ESP+"] = "👁️ ESP+",
+    ["🎮 УТИЛИТЫ"] = "🎮 UTILITIES",
+    ["⚔️ КОМБАТ"] = "⚔️ COMBAT",
+    ["🌈 ВИЗУАЛ+"] = "🌈 VISUAL+",
+    ["⚡ СЛАЙДЕРЫ"] = "⚡ SLIDERS",
+    ["💬 ЧАТ"] = "💬 CHAT",
+    ["🔄 СИСТЕМА"] = "🔄 SYSTEM",
+}
+
+function _translateUI(lang)
+    local gui = game:GetService("Players").LocalPlayer:FindFirstChild("PlayerGui")
+    if not gui then return end
+    local main = gui:FindFirstChild("EliteHubUI")
+    if not main then return end
+    local mw = main:FindFirstChild("Main")
+    if not mw then return end
+    local contentFrame = mw:FindFirstChild("Content")
+    if not contentFrame then return end
+    local map = (lang == "EN") and RU_TO_EN or nil
+    local function walk(obj)
+        for _, child in ipairs(obj:GetChildren()) do
+            if child:IsA("TextLabel") or child:IsA("TextButton") then
+                if lang == "EN" then
+                    local orig = child:FindFirstChild("_origRu")
+                    if not orig then
+                        local sv = Instance.new("StringValue")
+                        sv.Name = "_origRu"
+                        sv.Value = child.Text
+                        sv.Parent = child
+                    elseif orig.Value == "" then
+                        orig.Value = child.Text
+                    end
+                    if map and map[child.Text] then
+                        child.Text = map[child.Text]
+                    end
+                else
+                    local orig = child:FindFirstChild("_origRu")
+                    if orig and orig.Value ~= "" then
+                        child.Text = orig.Value
+                    end
+                end
+            end
+            walk(child)
+        end
+    end
+    walk(contentFrame)
+end
 end
 
 
@@ -8624,5 +8724,7 @@ table.insert(Window._translatables, {element = resetBtn, key = "ResetSettings", 
 
 local verLabel = SettingsTab:CreateLabel(L("Version"))
 table.insert(Window._translatables, {element = verLabel.Frame, key = "Version", type = "label"})
+
+pcall(function() _translateUI(ES.Lang) end)
 
 end) -- конец task.spawn(mods)
