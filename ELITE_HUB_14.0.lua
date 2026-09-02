@@ -186,6 +186,14 @@ function EliteHubUI:CreateWindow(config)
     local dragging, dragStart, startPos, didDrag
     local UIS = game:GetService("UserInputService")
 
+    local fabLastPos = UDim2.new(1, -74, 1, -74)
+    local fabLastShadowPos = UDim2.new(1, -77, 1, -71)
+
+    local function updateFabShadow()
+        local p = fab.Position
+        fabShadow.Position = UDim2.new(p.X.Scale, p.X.Offset - 3, p.Y.Scale, p.Y.Offset + 3)
+    end
+
     fab.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
             dragging = true
@@ -205,7 +213,8 @@ function EliteHubUI:CreateWindow(config)
             local px = math.clamp(newPos.X.Offset, 8, vp.X - 62)
             local py = math.clamp(newPos.Y.Offset, 40, vp.Y - 62)
             fab.Position = UDim2.new(0, px, 0, py)
-            fabShadow.Position = UDim2.new(0, px - 3, 0, py + 3)
+            fabLastPos = fab.Position
+            updateFabShadow()
         end
     end)
     UIS.InputEnded:Connect(function(input)
@@ -243,11 +252,8 @@ function EliteHubUI:CreateWindow(config)
     self._fab = fab
     self._fabShadow = fabShadow
     self._onHide = function()
-        local vp = workspace.CurrentCamera and workspace.CurrentCamera.ViewportSize or Vector2.new(1000, 600)
-        local safeX = math.clamp(vp.X - 74, 8, vp.X - 62)
-        local safeY = math.clamp(vp.Y - 74, 40, vp.Y - 62)
-        fab.Position = UDim2.new(0, safeX, 0, safeY)
-        fabShadow.Position = UDim2.new(0, safeX - 3, 0, safeY + 3)
+        fab.Position = fabLastPos
+        updateFabShadow()
         fab.Visible = true
         fabShadow.Visible = true
         fab.Size = UDim2.new(0, 0, 0, 0)
