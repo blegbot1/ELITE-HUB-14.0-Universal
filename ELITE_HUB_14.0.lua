@@ -252,12 +252,12 @@ function EliteHubUI:CreateWindow(config)
     self._fab = fab
     self._fabShadow = fabShadow
     self._onHide = function()
-        fab.Position = fabLastPos
-        updateFabShadow()
-        fab.Visible = true
-        fabShadow.Visible = true
         fab.Size = UDim2.new(0, 0, 0, 0)
         fabShadow.Size = UDim2.new(0, 0, 0, 0)
+        fab.Visible = true
+        fabShadow.Visible = true
+        fab.Position = fabLastPos
+        updateFabShadow()
         fabShadow.BackgroundTransparency = 0.6
         TweenService:Create(fab, TweenInfo.new(0.35, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Size = UDim2.new(0, 54, 0, 54)}):Play()
         TweenService:Create(fabShadow, TweenInfo.new(0.35, Enum.EasingStyle.Quad), {Size = UDim2.new(0, 60, 0, 60)}):Play()
@@ -413,7 +413,7 @@ function EliteHubUI:CreateWindow(config)
     content.ZIndex = 1
 self._content = content
 
-    gui.DisplayOrder = 1000
+    gui.DisplayOrder = 998
 
     -- Reveal overlay: hides window until the old loading screen is gone, then fades out smoothly
     local reveal = Instance.new("Frame")
@@ -1463,7 +1463,7 @@ end
 local debugMode = true  -- поставить false, чтобы выключить логи
 
 if getgenv().ELITE_HUB_HASKER_LOADED then
-    Rayfield:Notify({ Title = "⚠️ Уже запущен", Content = "ELITE HUB уже загружен", Duration = 3 })
+    Rayfield:Notify({ Title = "⚠️ Already running", Content = "ELITE HUB is already loaded", Duration = 3 })
     return
 end
 getgenv().ELITE_HUB_HASKER_LOADED = true
@@ -1498,7 +1498,7 @@ task.spawn(function()
     sub.BackgroundTransparency = 1
     sub.Size = UDim2.new(1, 0, 0, 24)
     sub.Position = UDim2.new(0, 0, 0.3, 15)
-    sub.Text = "14.0 HASKER EDITION | ОБНОВЛЕНО"
+    sub.Text = "14.0 HASKER EDITION | UPDATED"
     sub.TextColor3 = Color3.fromRGB(120, 80, 180)
     sub.TextSize = 16
     sub.Font = Enum.Font.GothamMedium
@@ -1523,7 +1523,7 @@ task.spawn(function()
     status.BackgroundTransparency = 1
     status.Size = UDim2.new(1, 0, 0, 20)
     status.Position = UDim2.new(0, 0, 0.3, 70)
-    status.Text = "Инициализация..."
+    status.Text = "Initializing..."
     status.TextColor3 = Color3.fromRGB(100, 70, 150)
     status.TextSize = 12
     status.Font = Enum.Font.Gotham
@@ -1531,14 +1531,14 @@ task.spawn(function()
 
     local TweenService = game:GetService("TweenService")
     local steps = {
-        {0.15, "Загрузка Rayfield..."},
-        {0.30, "Настройка ESP..."},
-        {0.45, "Настройка Aimbot..."},
-        {0.55, "Загрузка функций..."},
-        {0.70, "Создание интерфейса..."},
-        {0.85, "Применение настроек..."},
-        {0.95, "Финализация..."},
-        {1.0,  "Готово!"},
+        {0.15, "Loading Rayfield..."},
+        {0.30, "Setting up ESP..."},
+        {0.45, "Setting up Aimbot..."},
+        {0.55, "Loading functions..."},
+        {0.70, "Creating interface..."},
+        {0.85, "Applying settings..."},
+        {0.95, "Finalizing..."},
+        {1.0,  "Done!"},
     }
     for _, step in ipairs(steps) do
         TweenService:Create(bar, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(step[1], 0, 1, 0)}):Play()
