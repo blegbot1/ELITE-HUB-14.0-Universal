@@ -183,12 +183,13 @@ function EliteHubUI:CreateWindow(config)
     fabShadow.Visible = false
     newCorner(fabShadow, 30)
 
-    local dragging, dragStart, startPos
+    local dragging, dragStart, startPos, didDrag
     local UIS = game:GetService("UserInputService")
 
     fab.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
             dragging = true
+            didDrag = false
             dragStart = input.Position
             startPos = fab.Position
         end
@@ -196,10 +197,13 @@ function EliteHubUI:CreateWindow(config)
     UIS.InputChanged:Connect(function(input)
         if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
             local delta = input.Position - dragStart
+            if math.abs(delta.X) > 5 or math.abs(delta.Y) > 5 then
+                didDrag = true
+            end
             local newPos = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
             local vp = workspace.CurrentCamera and workspace.CurrentCamera.ViewportSize or Vector2.new(1000, 600)
-            local px = math.clamp(newPos.X.Offset, 0, vp.X - 54)
-            local py = math.clamp(newPos.Y.Offset, 0, vp.Y - 54)
+            local px = math.clamp(newPos.X.Offset, 4, vp.X - 58)
+            local py = math.clamp(newPos.Y.Offset, 4, vp.Y - 58)
             fab.Position = UDim2.new(0, px, 0, py)
             fabShadow.Position = UDim2.new(0, px - 3, 0, py + 3)
         end
@@ -211,7 +215,7 @@ function EliteHubUI:CreateWindow(config)
     end)
 
     fab.MouseButton1Click:Connect(function()
-        if dragging then return end
+        if didDrag then return end
         TweenService:Create(fab, TweenInfo.new(0.2, Enum.EasingStyle.Back, Enum.EasingDirection.In), {Size = UDim2.new(0, 0, 0, 0)}):Play()
         TweenService:Create(fabShadow, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {Size = UDim2.new(0, 0, 0, 0), BackgroundTransparency = 1}):Play()
         task.wait(0.2)
