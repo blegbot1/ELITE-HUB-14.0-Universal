@@ -364,19 +364,6 @@ self._content = content
         for _, reg in ipairs(self._tabRegistry) do
             reg.btn.Text = reg.emoji .. " " .. lang(reg.langKey)
         end
-        if self._sElements then
-            local se = self._sElements
-            for _, sec in ipairs(se.sections or {}) do
-                local tl = sec:FindFirstChildOfClass("TextLabel")
-                if tl then tl.Text = "  " .. lang(sec._langKey) end
-            end
-            for _, item in ipairs(se.buttons or {}) do
-                item.btn.Text = "  " .. lang(item.langKey)
-            end
-            for _, item in ipairs(se.labels or {}) do
-                item.Set(nil, lang(item.langKey))
-            end
-        end
     end
 
     function self:_updateTabs()
@@ -8543,24 +8530,7 @@ MT:CreateButton({
 
 local SettingsTab = Window:CreateTab("⚙️ " .. L("Settings"), 0, "Settings")
 
-Window._sElements = {sections = {}, buttons = {}, labels = {}}
-local se = Window._sElements
-
-local function regSec(frame, key)
-    frame._langKey = key
-    table.insert(se.sections, frame)
-end
-
-local function regBtn(btn, key)
-    table.insert(se.buttons, {btn = btn, langKey = key})
-end
-
-local function regLabel(wrapper, key)
-    table.insert(se.labels, {Set = wrapper.Set, langKey = key})
-end
-
-local s1 = SettingsTab:CreateSection(L("Settings"))
-regSec(s1, "Settings")
+SettingsTab:CreateSection(L("Settings"))
 
 SettingsTab:CreateDropdown({
     Name = L("Language"),
@@ -8580,10 +8550,9 @@ SettingsTab:CreateToggle({
     end
 })
 
-local s2 = SettingsTab:CreateSection(L("Config"))
-regSec(s2, "Config")
+SettingsTab:CreateSection(L("Config"))
 
-regBtn(SettingsTab:CreateButton({
+SettingsTab:CreateButton({
     Name = L("SaveConfig"),
     Callback = function()
         pcall(function()
@@ -8595,9 +8564,9 @@ regBtn(SettingsTab:CreateButton({
             Rayfield:Notify({Title = "OK", Content = L("ConfigSaved"), Duration = 2})
         end)
     end
-}), "SaveConfig")
+})
 
-regBtn(SettingsTab:CreateButton({
+SettingsTab:CreateButton({
     Name = L("LoadConfig"),
     Callback = function()
         pcall(function()
@@ -8612,9 +8581,9 @@ regBtn(SettingsTab:CreateButton({
             Rayfield:Notify({Title = "OK", Content = L("ConfigLoaded"), Duration = 2})
         end)
     end
-}), "LoadConfig")
+})
 
-regBtn(SettingsTab:CreateButton({
+SettingsTab:CreateButton({
     Name = L("ResetSettings"),
     Callback = function()
         ES.Animations = true
@@ -8622,8 +8591,8 @@ regBtn(SettingsTab:CreateButton({
         Window:_updateAll()
         Rayfield:Notify({Title = "OK", Content = L("SettingsReset"), Duration = 2})
     end
-}), "ResetSettings")
+})
 
-regLabel(SettingsTab:CreateLabel(L("Version")), "Version")
+SettingsTab:CreateLabel(L("Version"))
 
 end) -- конец task.spawn(mods)
