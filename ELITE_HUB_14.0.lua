@@ -845,7 +845,7 @@ function EliteHubUI:CreateTab(name, icon, langKey)
         dropBtn.Size = UDim2.new(0.5, -10, 0, 26)
         dropBtn.Position = UDim2.new(0.5, 0, 0.5, -13)
         dropBtn.BackgroundColor3 = C.Field
-        dropBtn.Text = current ~= "" and ("  " .. current) or "  Выберите..."
+        dropBtn.Text = current ~= "" and ("  " .. current) or "  Select..."
         dropBtn.TextColor3 = current ~= "" and C.TextBright or C.Off
         dropBtn.TextSize = 11.5
         dropBtn.Font = Enum.Font.GothamMedium
@@ -989,13 +989,13 @@ dropBtn.MouseButton1Click:Connect(function()
             Clear = function(_)
                 refresh({})
                 current = ""
-                dropBtn.Text = "  Выберите..."
+                dropBtn.Text = "  Select..."
                 dropBtn.TextColor3 = C.Off
             end,
             Set = function(_, val)
                 current = val or ""
                 if current == "" then
-                    dropBtn.Text = "  Выберите..."
+                    dropBtn.Text = "  Select..."
                     dropBtn.TextColor3 = C.Off
                 else
                     dropBtn.Text = "  " .. current
@@ -1305,7 +1305,7 @@ local ES, L
 do
     ES = {
         Animations = true,
-        Lang = "RU",
+        Lang = "EN",
     }
     getgenv().EliteHubSettings = ES
 
@@ -1745,7 +1745,7 @@ end
     ВКЛАДКА ХАБОВ
     ==============================
 ]]--
-local HubsSection = HubsTab:CreateSection("🎮 УНИВЕРСАЛЬНЫЕ ХАБЫ")
+local HubsSection = HubsTab:CreateSection("🎮 UNIVERSAL HUBS")
 
 HubsTab:CreateButton({
     Name = "🎮 Ghub V15",
@@ -1916,7 +1916,7 @@ HubsTab:CreateButton({
     НОВАЯ ВКЛАДКА FE СКРИПТЫ
     ==============================
 ]]--
-local FEBasicSection = FEScriptsTab:CreateSection("🎭 ОСНОВНЫЕ FE СКРИПТЫ")
+local FEBasicSection = FEScriptsTab:CreateSection("🎭 CORE FE SCRIPTS")
 
 FEScriptsTab:CreateButton({
     Name = "🥊 Fe Punch (R15/R6)",
@@ -1965,7 +1965,7 @@ FEScriptsTab:CreateButton({
     end
 })
 
-local FEUtilitiesSection = FEScriptsTab:CreateSection("🛠️ FE УТИЛИТЫ")
+local FEUtilitiesSection = FEScriptsTab:CreateSection("🛠️ FE UTILITIES")
 
 FEScriptsTab:CreateButton({
     Name = "👨‍💼 Fe G-Man (R6 only)",
@@ -2038,7 +2038,7 @@ FEScriptsTab:CreateButton({
     end
 })
 
-local FEEffectsSection = FEScriptsTab:CreateSection("✨ FE ЭФФЕКТЫ")
+local FEEffectsSection = FEScriptsTab:CreateSection("✨ FE EFFECTS")
 
 FEScriptsTab:CreateButton({
     Name = "🕳️ Fe Blackhole",
@@ -2089,7 +2089,7 @@ FEScriptsTab:CreateButton({
     end
 })
 
-local GenesisFESection = FEScriptsTab:CreateSection("🌟 GENESIS FE СКРИПТЫ")
+local GenesisFESection = FEScriptsTab:CreateSection("🌟 GENESIS FE SCRIPTS")
 
 FEScriptsTab:CreateButton({
     Name = "🔨 Fe Ban Hammer",
@@ -2154,7 +2154,7 @@ FEScriptsTab:CreateButton({
     end
 })
 
-local FEAnimationsSection = FEScriptsTab:CreateSection("💃 FE АНИМАЦИИ")
+local FEAnimationsSection = FEScriptsTab:CreateSection("💃 FE ANIMATIONS")
 
 FEScriptsTab:CreateButton({
     Name = "👨 Fe Animation Man (R6 only)",
@@ -2182,8 +2182,8 @@ FEScriptsTab:CreateButton({
     end
 })
 
-local AdditionalFESection = FEScriptsTab:CreateSection("✨ ДОПОЛНИТЕЛЬНЫЕ FE СКРИПТЫ")
-local FEUtilitiesSection2 = FEScriptsTab:CreateSection("🛠️ ПОПУЛЯРНЫЕ УТИЛИТЫ")
+local AdditionalFESection = FEScriptsTab:CreateSection("✨ EXTRA FE SCRIPTS")
+local FEUtilitiesSection2 = FEScriptsTab:CreateSection("🛠️ POPULAR UTILITIES")
 
 FEScriptsTab:CreateButton({
     Name = "♾️ Infinite Yield",
@@ -2238,7 +2238,7 @@ FEScriptsTab:CreateButton({
     ==============================
 ]]--
 
-local PopularGamesSection = GameScriptsTab:CreateSection("🔥 ПОПУЛЯРНЫЕ ИГРЫ")
+local PopularGamesSection = GameScriptsTab:CreateSection("🔥 POPULAR GAMES")
 GameScriptsTab:CreateButton({
     Name = "🏝️ Islands",
     Callback = function()
@@ -2259,7 +2259,7 @@ GameScriptsTab:CreateButton({
     end
 })
 
-local SimulatorsSection = GameScriptsTab:CreateSection("🎰 СИМУЛЯТОРЫ")
+local SimulatorsSection = GameScriptsTab:CreateSection("🎰 SIMULATORS")
 
 GameScriptsTab:CreateButton({
     Name = "💪 Muscle Legends",
@@ -2274,7 +2274,7 @@ GameScriptsTab:CreateButton({
         LoadScript("🐾 Pet Simulator X", "https://raw.githubusercontent.com/Muhammad6196/Project-WD/main/Main.lua")
     end
 })
-local HorrorGamesSection = GameScriptsTab:CreateSection("👻 ХОРРОР ИГРЫ")
+local HorrorGamesSection = GameScriptsTab:CreateSection("👻 HORROR GAMES")
 
 GameScriptsTab:CreateButton({
     Name = "🚪 Doors",
@@ -2282,23 +2282,23 @@ GameScriptsTab:CreateButton({
         LoadScript("🚪 Doors", "https://raw.githubusercontent.com/RegularVynixu/Vynixius/main/Doors/Script.lua")
     end
 })
-local FightingGamesSection = GameScriptsTab:CreateSection("🥊 ФАЙТИНГ ИГРЫ")
-local MoreGamesSection = GameScriptsTab:CreateSection("🎲 ДОПОЛНИТЕЛЬНЫЕ ИГРЫ")
+local FightingGamesSection = GameScriptsTab:CreateSection("🥊 FIGHTING GAMES")
+local MoreGamesSection = GameScriptsTab:CreateSection("🎲 EXTRA GAMES")
 GameScriptsTab:CreateButton({
     Name = "🎮 Funky Friday",
     Callback = function()
         LoadScript("🎮 Funky Friday", "https://raw.githubusercontent.com/ShowerHead-FluxTeam/scripts/main/funky-friday-autoplay")
     end
 })
-local AnimeGamesSection = GameScriptsTab:CreateSection("⚡ ANIME ИГРЫ")
-local TycoonGamesSection = GameScriptsTab:CreateSection("🏭 TYCOON ИГРЫ")
-local ObbyGamesSection = GameScriptsTab:CreateSection("🏃 OBBY ИГРЫ")
+local AnimeGamesSection = GameScriptsTab:CreateSection("⚡ ANIME GAMES")
+local TycoonGamesSection = GameScriptsTab:CreateSection("🏭 TYCOON GAMES")
+local ObbyGamesSection = GameScriptsTab:CreateSection("🏃 OBBY GAMES")
 --[[
     ==============================
     РАЗДЕЛ ОСНОВНЫХ ФУНКЦИЙ
     ==============================
 ]]--
-local AdventureSection = MainTab:CreateSection("🚀 ОСНОВНЫЕ ФУНКЦИИ")
+local AdventureSection = MainTab:CreateSection("🚀 CORE FUNCTIONS")
 
 local noclipActive = false
 local noclipConnection = nil
@@ -3178,7 +3178,7 @@ end
 updateMiniGuiButtons()
 
 MainTab:CreateButton({
-    Name = "🛑 ВЫКЛЮЧИТЬ СКРИПТ",
+    Name = "🛑 SHUTDOWN SCRIPT",
     Callback = function()
         DestroyScript()
     end
@@ -3206,7 +3206,7 @@ MainTab:CreateButton({
 })
 
 MainTab:CreateButton({
-    Name = "➕ Увеличить скорость Fly",
+    Name = "➕ Increase Fly Speed",
     Callback = function()
         speeds = speeds + 1
         Rayfield:Notify({
@@ -3218,7 +3218,7 @@ MainTab:CreateButton({
 })
 
 MainTab:CreateButton({
-    Name = "➖ Уменьшить скорость Fly",
+    Name = "➖ Decrease Fly Speed",
     Callback = function()
         if speeds > 1 then
             speeds = speeds - 1
@@ -3238,7 +3238,7 @@ MainTab:CreateButton({
 })
 
 MainTab:CreateButton({
-    Name = "📱 ОТКРЫТЬ МИНИ-МЕНЮ",
+    Name = "📱 OPEN MINI-MENU",
     Callback = function()
         ToggleMiniMenu()
     end
@@ -3246,7 +3246,7 @@ MainTab:CreateButton({
 
 local currentBind = wallhopBindKey.Name
 MainTab:CreateInput({
-    Name = "🔑 Бинд WallHop",
+    Name = "🔑 WallHop Bind",
     PlaceholderText = "Текущий: " .. currentBind,
     RemoveTextAfterFocusLost = false,
     Callback = function(Text)
@@ -3271,10 +3271,10 @@ MainTab:CreateInput({
     end
 })
 
-MainTab:CreateSection("⌨️ БИНДЫ")
+MainTab:CreateSection("⌨️ BINDS")
 
 MainTab:CreateInput({
-    Name = "✈️ Бинд Fly",
+    Name = "✈️ Fly Bind",
     PlaceholderText = "Текущий: " .. BindConfig.Fly,
     RemoveTextAfterFocusLost = false,
     Callback = function(Text)
@@ -3290,7 +3290,7 @@ MainTab:CreateInput({
 })
 
 MainTab:CreateInput({
-    Name = "👻 Бинд Noclip",
+    Name = "👻 Noclip Bind",
     PlaceholderText = "Текущий: " .. BindConfig.Noclip,
     RemoveTextAfterFocusLost = false,
     Callback = function(Text)
@@ -3306,7 +3306,7 @@ MainTab:CreateInput({
 })
 
 MainTab:CreateInput({
-    Name = "⚡ Бинд Speed Boost",
+    Name = "⚡ Speed Boost Bind",
     PlaceholderText = "Текущий: " .. BindConfig.SpeedBoost,
     RemoveTextAfterFocusLost = false,
     Callback = function(Text)
@@ -3322,7 +3322,7 @@ MainTab:CreateInput({
 })
 
 MainTab:CreateInput({
-    Name = "🔄 Бинд Spin Bot",
+    Name = "🔄 Spin Bot Bind",
     PlaceholderText = "Текущий: " .. BindConfig.SpinBot,
     RemoveTextAfterFocusLost = false,
     Callback = function(Text)
@@ -3342,7 +3342,7 @@ MainTab:CreateInput({
     УЛУЧШЕННЫЙ AIMBOT С ПРИОРИТЕТОМ ПО ДИСТАНЦИИ
     ==============================
 ]]--
-local AimbotSection = CombatTab:CreateSection("🎯 УЛУЧШЕННЫЙ AIMBOT 3D FOV")
+local AimbotSection = CombatTab:CreateSection("🎯 IMPROVED AIMBOT 3D FOV")
 local AimbotConfig = {
     Enabled = false,
     TeamCheck = true,
@@ -4213,7 +4213,7 @@ game:GetService("UserInputService").InputEnded:Connect(function(input)
 end)
 
 CombatTab:CreateToggle({
-    Name = "🎯 Включить Aimbot",
+    Name = "🎯 Enable Aimbot",
     CurrentValue = AimbotConfig.Enabled,
     Flag = "AimbotEnabled",
     Callback = function(value)
@@ -4240,7 +4240,7 @@ CombatTab:CreateToggle({
 })
 
 CombatTab:CreateToggle({
-    Name = "👥 Игнорировать команду",
+    Name = "👥 Ignore team",
     CurrentValue = AimbotConfig.TeamCheck,
     Callback = function(value)
         AimbotConfig.TeamCheck = value
@@ -4248,7 +4248,7 @@ CombatTab:CreateToggle({
 })
 
 CombatTab:CreateToggle({
-    Name = "💀 Не целить умерших",
+    Name = "💀 Don't aim at dead",
     CurrentValue = AimbotConfig.AliveCheck,
     Callback = function(value)
         AimbotConfig.AliveCheck = value
@@ -4256,7 +4256,7 @@ CombatTab:CreateToggle({
 })
 
 CombatTab:CreateToggle({
-    Name = "🧱 Не целить сквозь стены",
+    Name = "🧱 Don't aim through walls",
     CurrentValue = AimbotConfig.WallCheck,
     Callback = function(value)
         AimbotConfig.WallCheck = value
@@ -4264,7 +4264,7 @@ CombatTab:CreateToggle({
 })
 
 CombatTab:CreateToggle({
-    Name = "👁️ Исправление 1-го лица",
+    Name = "👁️ First-person fix",
     CurrentValue = AimbotConfig.ThirdPersonFix,
     Callback = function(value)
         AimbotConfig.ThirdPersonFix = value
@@ -4272,7 +4272,7 @@ CombatTab:CreateToggle({
 })
 
 CombatTab:CreateDropdown({
-    Name = "🎯 Приоритет цели",
+    Name = "🎯 Target priority",
     Options = {"Distance", "FOV", "Health"},
     CurrentOption = AimbotConfig.Priority,
     Callback = function(option)
@@ -4294,7 +4294,7 @@ CombatTab:CreateDropdown({
 })
 
 CombatTab:CreateSlider({
-    Name = "🔘 Размер FOV",
+    Name = "🔘 FOV Size",
     Range = {50, 300},
     Increment = 10,
     CurrentValue = AimbotConfig.FOV,
@@ -4304,7 +4304,7 @@ CombatTab:CreateSlider({
 })
 
 CombatTab:CreateColorPicker({
-    Name = "💜 Цвет FOV",
+    Name = "💜 FOV Color",
     Color = AimbotConfig.FOVColor,
     Callback = function(value)
         AimbotConfig.FOVColor = value
@@ -4312,17 +4312,17 @@ CombatTab:CreateColorPicker({
 })
 
 CombatTab:CreateColorPicker({
-    Name = "🔴 Цвет захвата",
+    Name = "🔴 Lock Color",
     Color = AimbotConfig.LockedColor,
     Callback = function(value)
         AimbotConfig.LockedColor = value
     end
 })
 
-CombatTab:CreateSection("⚙️ ДОП. НАСТРОЙКИ AIMBOT")
+CombatTab:CreateSection("⚙️ EXTRA AIMBOT SETTINGS")
 
 CombatTab:CreateToggle({
-    Name = "👁️ Показывать FOV круг",
+    Name = "👁️ Show FOV circle",
     CurrentValue = AimbotConfig.ShowFOV,
     Flag = "AimbotShowFOV",
     Callback = function(value)
@@ -4332,7 +4332,7 @@ CombatTab:CreateToggle({
 })
 
 CombatTab:CreateToggle({
-    Name = "🔁 Режим: Переключение / Удержание",
+    Name = "🔁 Mode: Toggle / Hold",
     CurrentValue = AimbotConfig.Toggle,
     Flag = "AimbotToggle",
     Callback = function(value)
@@ -4344,13 +4344,13 @@ CombatTab:CreateToggle({
 })
 
 CombatTab:CreateDropdown({
-    Name = "🖱️ Клавиша цели",
+    Name = "🖱️ Target key",
     Options = {"MouseButton2", "MouseButton1", "LeftControl", "X", "C", "F", "V", "Shift"},
     CurrentOption = AimbotConfig.TriggerKey,
     Callback = function(option)
         AimbotConfig.TriggerKey = option
         Rayfield:Notify({
-            Title = "🖱️ Клавиша цели",
+            Title = "🖱️ Target key",
             Content = "Новая клавиша: " .. option,
             Duration = 2
         })
@@ -4358,7 +4358,7 @@ CombatTab:CreateDropdown({
 })
 
 CombatTab:CreateSlider({
-    Name = "📏 Макс. дистанция цели (studs)",
+    Name = "📏 Max target distance (studs)",
     Range = {10, 1000},
     Increment = 10,
     Suffix = " studs",
@@ -4369,7 +4369,7 @@ CombatTab:CreateSlider({
 })
 
 CombatTab:CreateSlider({
-    Name = "📍 Мин. дистанция цели (studs)",
+    Name = "📍 Min target distance (studs)",
     Range = {0, 50},
     Increment = 1,
     Suffix = " studs",
@@ -4380,7 +4380,7 @@ CombatTab:CreateSlider({
 })
 
 CombatTab:CreateSlider({
-    Name = "⚖️ Оффсет прицела по Y",
+    Name = "⚖️ Aim offset Y",
     Range = {-3, 3},
     Increment = 0.1,
     Suffix = " studs",
@@ -4391,7 +4391,7 @@ CombatTab:CreateSlider({
 })
 
 CombatTab:CreateSlider({
-    Name = "🪶 Толщина FOV круга",
+    Name = "🪶 FOV circle thickness",
     Range = {1, 10},
     Increment = 1,
     Suffix = " px",
@@ -4402,7 +4402,7 @@ CombatTab:CreateSlider({
 })
 
 CombatTab:CreateSlider({
-    Name = "🎯 Точный размер FOV",
+    Name = "🎯 Precise FOV size",
     Range = {1, 400},
     Increment = 1,
     Suffix = " px",
@@ -4413,7 +4413,7 @@ CombatTab:CreateSlider({
 })
 
 CombatTab:CreateDropdown({
-    Name = "🎯 Часть тела для наведения",
+    Name = "🎯 Body part to aim at",
     Options = {"Head", "HumanoidRootPart", "UpperTorso"},
     CurrentOption = AimbotConfig.LockPart,
     Callback = function(option)
@@ -4421,10 +4421,10 @@ CombatTab:CreateDropdown({
     end
 })
 
-CombatTab:CreateSection("🎯 ИНДИКАТОР ЦЕЛИ")
+CombatTab:CreateSection("🎯 TARGET INDICATOR")
 
 CombatTab:CreateToggle({
-    Name = "🔴 Показывать имя и HP цели",
+    Name = "🔴 Show target name & HP",
     CurrentValue = AimbotConfig.ShowTargetIndicator,
     Callback = function(value)
         AimbotConfig.ShowTargetIndicator = value
@@ -4432,7 +4432,7 @@ CombatTab:CreateToggle({
 })
 
 CombatTab:CreateToggle({
-    Name = "➡️ Показывать стрелку на цель",
+    Name = "➡️ Show arrow to target",
     CurrentValue = AimbotConfig.ShowTargetArrow,
     Callback = function(value)
         AimbotConfig.ShowTargetArrow = value
@@ -4440,7 +4440,7 @@ CombatTab:CreateToggle({
 })
 
 CombatTab:CreateToggle({
-    Name = "❤️ Показывать HP цели",
+    Name = "❤️ Show target HP",
     CurrentValue = AimbotConfig.ShowTargetHP,
     Callback = function(value)
         AimbotConfig.ShowTargetHP = value
@@ -4448,7 +4448,7 @@ CombatTab:CreateToggle({
 })
 
 CombatTab:CreateSlider({
-    Name = "🔤 Размер текста цели",
+    Name = "🔤 Target text size",
     Range = {10, 24},
     Increment = 1,
     Suffix = " pt",
@@ -4460,7 +4460,7 @@ CombatTab:CreateSlider({
 })
 
 CombatTab:CreateColorPicker({
-    Name = "🎨 Цвет индикатора цели",
+    Name = "🎨 Target indicator color",
     Color = AimbotConfig.TargetCircleColor,
     Callback = function(value)
         AimbotConfig.TargetCircleColor = value
@@ -4468,7 +4468,7 @@ CombatTab:CreateColorPicker({
 })
 
 CombatTab:CreateToggle({
-    Name = "🦴 Показывать скелетон цели",
+    Name = "🦴 Show target skeleton",
     CurrentValue = AimbotConfig.ShowTargetSkeleton,
     Callback = function(value)
         AimbotConfig.ShowTargetSkeleton = value
@@ -4476,7 +4476,7 @@ CombatTab:CreateToggle({
 })
 
 CombatTab:CreateColorPicker({
-    Name = "🎨 Цвет скелетона цели",
+    Name = "🎨 Target skeleton color",
     Color = AimbotConfig.TargetSkeletonColor,
     Callback = function(value)
         AimbotConfig.TargetSkeletonColor = value
@@ -4484,7 +4484,7 @@ CombatTab:CreateColorPicker({
 })
 
 CombatTab:CreateSlider({
-    Name = "📏 Толщина скелетона цели",
+    Name = "📏 Target skeleton thickness",
     Range = {1, 4},
     Increment = 1,
     CurrentValue = AimbotConfig.TargetSkeletonThickness,
@@ -4494,12 +4494,12 @@ CombatTab:CreateSlider({
 })
 
 CombatTab:CreateDropdown({
-    Name = "🦴 Тип скелетона цели",
-    Options = {"1 - Простой", "2 - Полный"},
-    CurrentOption = "1 - Простой",
+    Name = "🦴 Target skeleton type",
+    Options = {"1 - Simple", "2 - Full"},
+    CurrentOption = "1 - Simple",
     Callback = function(value)
         local v = (typeof(value) == "table") and value[1] or value
-        if v == "2 - Полный" then
+        if v == "2 - Full" then
             AimbotConfig.TargetSkeletonType = 2
         else
             AimbotConfig.TargetSkeletonType = 1
@@ -4507,10 +4507,10 @@ CombatTab:CreateDropdown({
     end
 })
 
-CombatTab:CreateSection("🔫 АВТО-СТРЕЛЬБА")
+CombatTab:CreateSection("🔫 AUTO-SHOOT")
 
 CombatTab:CreateToggle({
-    Name = "🔫 Авто-стрельба",
+    Name = "🔫 Auto-shoot",
     CurrentValue = AimbotConfig.AutoShoot,
     Callback = function(value)
         AimbotConfig.AutoShoot = value
@@ -4518,7 +4518,7 @@ CombatTab:CreateToggle({
 })
 
 CombatTab:CreateSlider({
-    Name = "⏱️ Задержка выстрела (сек)",
+    Name = "⏱️ Shot delay (sec)",
     Range = {0.05, 0.5},
     Increment = 0.05,
     Suffix = " sec",
@@ -4528,10 +4528,10 @@ CombatTab:CreateSlider({
     end
 })
 
-CombatTab:CreateSection("📊 ВИЗУАЛ ЦЕЛИ")
+CombatTab:CreateSection("📊 TARGET VISUALS")
 
 CombatTab:CreateToggle({
-    Name = "📐 Линия-прицел к цели",
+    Name = "📐 Aim line to target",
     CurrentValue = AimbotConfig.ShowAimLine,
     Callback = function(value)
         AimbotConfig.ShowAimLine = value
@@ -4539,7 +4539,7 @@ CombatTab:CreateToggle({
 })
 
 CombatTab:CreateColorPicker({
-    Name = "🎨 Цвет линии-прицела",
+    Name = "🎨 Aim line color",
     Color = AimbotConfig.AimLineColor,
     Callback = function(value)
         AimbotConfig.AimLineColor = value
@@ -4547,17 +4547,17 @@ CombatTab:CreateColorPicker({
 })
 
 CombatTab:CreateToggle({
-    Name = "🏷️ Крупное имя цели (вверху экрана)",
+    Name = "🏷️ Large target name (top of screen)",
     CurrentValue = AimbotConfig.ShowTargetNameBig,
     Callback = function(value)
         AimbotConfig.ShowTargetNameBig = value
     end
 })
 
-CombatTab:CreateSection("🎯 ПРИОРИТЕТ ЦЕЛИ")
+CombatTab:CreateSection("🎯 TARGET PRIORITY")
 
 CombatTab:CreateDropdown({
-    Name = "🎯 Приоритет выбора цели",
+    Name = "🎯 Target selection priority",
     Options = {"Distance", "Health"},
     CurrentOption = "Distance",
     Callback = function(value)
@@ -4565,10 +4565,10 @@ CombatTab:CreateDropdown({
     end
 })
 
-CombatTab:CreateSection("🔮 ПРЕДСКАЗАНИЕ")
+CombatTab:CreateSection("🔮 PREDICTION")
 
 CombatTab:CreateToggle({
-    Name = "🔮 Предсказание движения",
+    Name = "🔮 Motion prediction",
     CurrentValue = AimbotConfig.Prediction,
     Callback = function(value)
         AimbotConfig.Prediction = value
@@ -4586,7 +4586,7 @@ CombatTab:CreateSlider({
     end
 })
 
-CombatTab:CreateSection("🧠 АНТИ-АИМ")
+CombatTab:CreateSection("🧠 ANTI-AIM")
 
 CombatTab:CreateToggle({
     Name = "🧠 Anti-Aim Detection",
@@ -4596,10 +4596,10 @@ CombatTab:CreateToggle({
     end
 })
 
-CombatTab:CreateSection("📐 ДИСТАНЦИЯ FOV")
+CombatTab:CreateSection("📐 FOV DISTANCE")
 
 CombatTab:CreateToggle({
-    Name = "📐 Авто-FOV по дистанции",
+    Name = "📐 Auto-FOV by distance",
     CurrentValue = AimbotConfig.DistanceFOV,
     Callback = function(value)
         AimbotConfig.DistanceFOV = value
@@ -4628,7 +4628,7 @@ CombatTab:CreateSlider({
     end
 })
 
-CombatTab:CreateSection("💀 УВЕДОМЛЕНИЯ AIMBOT")
+CombatTab:CreateSection("💀 AIMBOT NOTIFICATIONS")
 
 CombatTab:CreateToggle({
     Name = "💀 Kill Notify",
@@ -4702,7 +4702,7 @@ CombatTab:CreateToggle({
     end
 })
 
-CombatTab:CreateSection("🔒 УДЕРЖАНИЕ ЦЕЛИ")
+CombatTab:CreateSection("🔒 TARGET LOCK")
 
 CombatTab:CreateToggle({
     Name = "🔒 Persistent Lock (до смерти)",
@@ -4712,9 +4712,9 @@ CombatTab:CreateToggle({
     end
 })
 
-CombatTab:CreateSection("👥 КОМАНДЫ (друзья / враги)")
+CombatTab:CreateSection("👥 TEAMS (friends / enemies)")
 
-local myTeamLabel = CombatTab:CreateLabel("🎖️ Ваша команда: —")
+local myTeamLabel = CombatTab:CreateLabel("🎖️ Your team: —")
 local function UpdateMyTeamLabel()
     local tn = GetTeamName(player)
     pcall(function()
@@ -4732,7 +4732,7 @@ local function RefreshTeamDD()
 end
 
 teamDD = CombatTab:CreateDropdown({
-    Name = "🎖️ Команда",
+    Name = "🎖️ Team",
     Options = GetAllTeamNames(),
     CurrentOption = "",
     Callback = function(option)
@@ -4760,7 +4760,7 @@ task.spawn(function()
 end)
 
 CombatTab:CreateToggle({
-    Name = "🎯 Не целиться в дружественные команды",
+    Name = "🎯 Don't aim at friendlies",
     CurrentValue = AimbotConfig.TeamFilter,
     Flag = "AimbotTeamFilter",
     Callback = function(value)
@@ -4769,7 +4769,7 @@ CombatTab:CreateToggle({
 })
 
 CombatTab:CreateButton({
-    Name = "✅ Сделать выбранную команду дружественной",
+    Name = "✅ Make team friendly",
     Callback = function()
         local n = selectedTeam
         if not n or n == "" then
@@ -4788,7 +4788,7 @@ CombatTab:CreateButton({
 })
 
 CombatTab:CreateButton({
-    Name = "❌ Убрать выбранную команду из друзей (враг)",
+    Name = "❌ Remove team from friends (enemy)",
     Callback = function()
         local n = selectedTeam
         if not n or n == "" then
@@ -4808,7 +4808,7 @@ CombatTab:CreateButton({
 })
 
 CombatTab:CreateButton({
-    Name = "📜 Дружественные команды",
+    Name = "📜 Friendly teams",
     Callback = function()
         local list = getgenv().ELITE_HUB_FRIEND_TEAMS
         if #list == 0 then
@@ -4820,7 +4820,7 @@ CombatTab:CreateButton({
 })
 
 CombatTab:CreateButton({
-    Name = "🚫 Все команды — враги",
+    Name = "🚫 All teams — enemies",
     Callback = function()
         getgenv().ELITE_HUB_FRIEND_TEAMS = {}
         Rayfield:Notify({ Title = "⚔️ Готово", Content = "Все команды теперь враги", Duration = 2 })
@@ -4830,14 +4830,14 @@ CombatTab:CreateButton({
 })
 
 CombatTab:CreateButton({
-    Name = "🔄 Обновить список команд",
+    Name = "🔄 Refresh team list",
     Callback = function()
         pcall(RefreshTeamDD)
         Rayfield:Notify({ Title = "👥 Команды", Content = "Список команд обновлён", Duration = 2 })
     end
 })
 
-CombatTab:CreateSection("🤝 ДРУЗЬЯ И ЦЕЛЬ (выбор из списка)")
+CombatTab:CreateSection("🤝 FRIENDS & TARGET (select from list)")
 
 local friendAddDD = nil
 local friendRmDD = nil
@@ -4871,7 +4871,7 @@ local function RefreshAimbotDD()
 end
 
 CombatTab:CreateToggle({
-    Name = "🚫 Не целиться в друзей",
+    Name = "🚫 Don't aim at friends",
     CurrentValue = AimbotConfig.FriendCheck,
     Flag = "AimbotFriendCheck",
     Callback = function(value)
@@ -4880,7 +4880,7 @@ CombatTab:CreateToggle({
 })
 
 CombatTab:CreateToggle({
-    Name = "🛡️ Не целиться в заспавнившихся (щит)",
+    Name = "🛡️ Don't aim at spawning (shield)",
     CurrentValue = AimbotConfig.SpawnCheck,
     Flag = "AimbotSpawnCheck",
     Callback = function(value)
@@ -4889,7 +4889,7 @@ CombatTab:CreateToggle({
 })
 
 friendAddDD = CombatTab:CreateDropdown({
-    Name = "➕ Выбрать игрока в друзья",
+    Name = "➕ Add player to friends",
     Options = {},
     CurrentOption = "",
     Callback = function(option)
@@ -4908,7 +4908,7 @@ friendAddDD = CombatTab:CreateDropdown({
 })
 
 friendRmDD = CombatTab:CreateDropdown({
-    Name = "➖ Удалить друга (выбор)",
+    Name = "➖ Remove friend (select)",
     Options = {},
     CurrentOption = "",
     Callback = function(option)
@@ -4929,7 +4929,7 @@ friendRmDD = CombatTab:CreateDropdown({
 })
 
 CombatTab:CreateButton({
-    Name = "🧹 Очистить список друзей",
+    Name = "🧹 Clear friends list",
     Callback = function()
         local cnt = #getgenv().ELITE_HUB_FRIENDS
         getgenv().ELITE_HUB_FRIENDS = {}
@@ -4939,7 +4939,7 @@ CombatTab:CreateButton({
 })
 
 CombatTab:CreateButton({
-    Name = "📜 Показать список друзей",
+    Name = "📜 Show friends list",
     Callback = function()
         local list = getgenv().ELITE_HUB_FRIENDS
         if #list == 0 then
@@ -4951,7 +4951,7 @@ CombatTab:CreateButton({
 })
 
 friendTargetDD = CombatTab:CreateDropdown({
-    Name = "🎯 Основная цель (всегда первая)",
+    Name = "🎯 Main target (always first)",
     Options = {"(Авто)"},
     CurrentOption = "",
     Callback = function(option)
@@ -5909,7 +5909,7 @@ task.spawn(function()
 end)
 
 ESPTab:CreateToggle({
-    Name = "👁️ ВКЛ/ВЫКЛ ESP",
+    Name = "👁️ ESP ON/OFF",
     CurrentValue = ESPConfig.Enabled,
     Callback = function(value)
         ESPConfig.Enabled = value
@@ -5940,7 +5940,7 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateToggle({
-    Name = "👥 Игнорировать команду",
+    Name = "👥 Ignore team",
     CurrentValue = ESPConfig.TeamCheck,
     Callback = function(value)
         ESPConfig.TeamCheck = value
@@ -5949,7 +5949,7 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateToggle({
-    Name = "💚 Показывать тиммейтов",
+    Name = "💚 Show teammates",
     CurrentValue = ESPConfig.ShowTeammates,
     Callback = function(value)
         ESPConfig.ShowTeammates = value
@@ -5958,7 +5958,7 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateToggle({
-    Name = "🟦 Рамки",
+    Name = "🟦 Boxes",
     CurrentValue = ESPConfig.Boxes,
     Callback = function(value)
         ESPConfig.Boxes = value
@@ -5967,7 +5967,7 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateToggle({
-    Name = "📛 Имена",
+    Name = "📛 Names",
     CurrentValue = ESPConfig.Names,
     Callback = function(value)
         ESPConfig.Names = value
@@ -5976,7 +5976,7 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateToggle({
-    Name = "❤ Здоровье",
+    Name = "❤ Health",
     CurrentValue = ESPConfig.Health,
     Callback = function(value)
         ESPConfig.Health = value
@@ -5985,7 +5985,7 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateToggle({
-    Name = "📏 Расстояние",
+    Name = "📏 Distance",
     CurrentValue = ESPConfig.Distance,
     Callback = function(value)
         ESPConfig.Distance = value
@@ -5994,7 +5994,7 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateToggle({
-    Name = "➖ Трассеры",
+    Name = "➖ Tracers",
     CurrentValue = ESPConfig.Tracers,
     Callback = function(value)
         ESPConfig.Tracers = value
@@ -6003,7 +6003,7 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateToggle({
-    Name = "🧵 Трассеры для тиммейтов",
+    Name = "🧵 Teammate tracers",
     CurrentValue = ESPConfig.TracersForTeammates,
     Callback = function(value)
         ESPConfig.TracersForTeammates = value
@@ -6012,7 +6012,7 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateToggle({
-    Name = "💀 Показывать мертвых",
+    Name = "💀 Show dead",
     CurrentValue = ESPConfig.ShowDead,
     Callback = function(value)
         ESPConfig.ShowDead = value
@@ -6039,7 +6039,7 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateColorPicker({
-    Name = "🔴 Цвет врагов",
+    Name = "🔴 Enemy color",
     Color = ESPConfig.EnemyColor,
     Callback = function(value)
         ESPConfig.EnemyColor = value
@@ -6048,7 +6048,7 @@ ESPTab:CreateColorPicker({
 })
 
 ESPTab:CreateColorPicker({
-    Name = "💚 Цвет тиммейтов",
+    Name = "💚 Teammate color",
     Color = ESPConfig.TeammateColor,
     Callback = function(value)
         ESPConfig.TeammateColor = value
@@ -6057,7 +6057,7 @@ ESPTab:CreateColorPicker({
 })
 
 ESPTab:CreateColorPicker({
-    Name = "💀 Цвет мертвых",
+    Name = "💀 Dead color",
     Color = ESPConfig.DeadColor,
     Callback = function(value)
         ESPConfig.DeadColor = value
@@ -6066,7 +6066,7 @@ ESPTab:CreateColorPicker({
 })
 
 ESPTab:CreateColorPicker({
-    Name = "🎯 Цвет 3D Box",
+    Name = "🎯 3D Box color",
     Color = ESPConfig.Box3DColor,
     Callback = function(value)
         ESPConfig.Box3DColor = value
@@ -6079,7 +6079,7 @@ ESPTab:CreateColorPicker({
 })
 
 ESPTab:CreateSlider({
-    Name = "🔢 Размер текста",
+    Name = "🔢 Text size",
     Range = {8, 24},
     Increment = 1,
     Suffix = "px",
@@ -6091,7 +6091,7 @@ ESPTab:CreateSlider({
 })
 
 ESPTab:CreateSlider({
-    Name = "🌫️ Прозрачность",
+    Name = "🌫️ Transparency",
     Range = {0, 1},
     Increment = 0.1,
     CurrentValue = ESPConfig.FillTransparency,
@@ -6102,7 +6102,7 @@ ESPTab:CreateSlider({
 })
 
 ESPTab:CreateSlider({
-    Name = "📏 Толщина линий",
+    Name = "📏 Line thickness",
     Range = {1, 5},
     Increment = 1,
     CurrentValue = ESPConfig.TracerThickness,
@@ -6113,7 +6113,7 @@ ESPTab:CreateSlider({
 })
 
 ESPTab:CreateSlider({
-    Name = "🎯 Толщина 3D Box",
+    Name = "🎯 3D Box thickness",
     Range = {1, 5},
     Increment = 1,
     CurrentValue = ESPConfig.Box3DThickness,
@@ -6128,7 +6128,7 @@ ESPTab:CreateSlider({
 })
 
 ESPTab:CreateSlider({
-    Name = "📐 Размер 3D Box",
+    Name = "📐 3D Box size",
     Range = {0.5, 5.0},
     Increment = 0.1,
     Suffix = "x",
@@ -6138,10 +6138,10 @@ ESPTab:CreateSlider({
     end
 })
 
-ESPTab:CreateLabel("⚡ Частота: минимум (0.05 сек)")
+ESPTab:CreateLabel("⚡ Frequency: min (0.05 sec)")
 
 ESPTab:CreateSlider({
-    Name = "🎭 Прозрачность заливки рамок",
+    Name = "🎭 Box fill transparency",
     Range = {0, 1},
     Increment = 0.05,
     CurrentValue = ESPConfig.FillTransparency,
@@ -6152,7 +6152,7 @@ ESPTab:CreateSlider({
 })
 
 ESPTab:CreateSlider({
-    Name = "🟢 Размер 3D Box (множитель)",
+    Name = "🟢 3D Box size (multiplier)",
     Range = {0.5, 8.0},
     Increment = 0.1,
     Suffix = "x",
@@ -6162,10 +6162,10 @@ ESPTab:CreateSlider({
     end
 })
 
-ESPTab:CreateSection("🧭 СТРЕЛКИ (указатели вне экрана)")
+ESPTab:CreateSection("🧭 ARROWS (off-screen pointers)")
 
 ESPTab:CreateToggle({
-    Name = "🧭 Показывать стрелки к игрокам вне экрана",
+    Name = "🧭 Show arrows off-screen",
     CurrentValue = ESPConfig.ShowArrows,
     Callback = function(value)
         ESPConfig.ShowArrows = value
@@ -6173,7 +6173,7 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateColorPicker({
-    Name = "🎨 Цвет стрелок",
+    Name = "🎨 Arrow color",
     Color = ESPConfig.ArrowsColor,
     Callback = function(value)
         ESPConfig.ArrowsColor = value
@@ -6183,10 +6183,10 @@ ESPTab:CreateColorPicker({
     end
 })
 
-ESPTab:CreateSection("🎨 ЦВЕТА ТЕКСТА И ТРАССИРОВКИ")
+ESPTab:CreateSection("🎨 TEXT & TRACER COLORS")
 
 ESPTab:CreateColorPicker({
-    Name = "🔤 Цвет имён",
+    Name = "🔤 Name color",
     Color = ESPConfig.TextColor,
     Callback = function(value)
         ESPConfig.TextColor = value
@@ -6195,7 +6195,7 @@ ESPTab:CreateColorPicker({
 })
 
 ESPTab:CreateColorPicker({
-    Name = "📏 Цвет трассировки (игроки)",
+    Name = "📏 Tracer color (players)",
     Color = ESPConfig.TracerColor,
     Callback = function(value)
         ESPConfig.TracerColor = value
@@ -6205,10 +6205,10 @@ ESPTab:CreateColorPicker({
     end
 })
 
-ESPTab:CreateSection("📍 СНАП-ЛАЙНЫ (wallhack)")
+ESPTab:CreateSection("📍 SNAP LINES (wallhack)")
 
 ESPTab:CreateToggle({
-    Name = "📍 Включить снап-лайны к игрокам",
+    Name = "📍 Enable snap lines",
     CurrentValue = ESPConfig.SnapLines,
     Callback = function(value)
         ESPConfig.SnapLines = value
@@ -6216,7 +6216,7 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateColorPicker({
-    Name = "🎨 Цвет снап-лайнов",
+    Name = "🎨 Snap line color",
     Color = ESPConfig.SnapLinesColor,
     Callback = function(value)
         ESPConfig.SnapLinesColor = value
@@ -6226,10 +6226,10 @@ ESPTab:CreateColorPicker({
     end
 })
 
-ESPTab:CreateSection("🎯 ПОДСВЕТКА ЦЕЛИ AIMBOT")
+ESPTab:CreateSection("🎯 AIMBOT TARGET HIGHLIGHT")
 
 ESPTab:CreateToggle({
-    Name = "🎯 Выделять текущую цель Aimbot",
+    Name = "🎯 Highlight Aimbot target",
     CurrentValue = ESPConfig.HighlightLockTarget,
     Callback = function(value)
         ESPConfig.HighlightLockTarget = value
@@ -6237,17 +6237,17 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateColorPicker({
-    Name = "🎨 Цвет подсветки цели Aimbot",
+    Name = "🎨 Aimbot target highlight color",
     Color = ESPConfig.LockTargetColor,
     Callback = function(value)
         ESPConfig.LockTargetColor = value
     end
 })
 
-ESPTab:CreateSection("🦴 СКЕЛЕТОН")
+ESPTab:CreateSection("🦴 SKELETON")
 
 ESPTab:CreateToggle({
-    Name = "🦴 Показывать скелетон игроков",
+    Name = "🦴 Show skeletons",
     CurrentValue = ESPConfig.Skeletons,
     Callback = function(value)
         ESPConfig.Skeletons = value
@@ -6255,7 +6255,7 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateColorPicker({
-    Name = "🎨 Цвет скелетона",
+    Name = "🎨 Skeleton color",
     Color = ESPConfig.SkeletonColor,
     Callback = function(value)
         ESPConfig.SkeletonColor = value
@@ -6263,7 +6263,7 @@ ESPTab:CreateColorPicker({
 })
 
 ESPTab:CreateSlider({
-    Name = "📏 Толщина скелетона",
+    Name = "📏 Skeleton thickness",
     Range = {1, 4},
     Increment = 1,
     CurrentValue = ESPConfig.SkeletonThickness,
@@ -6273,12 +6273,12 @@ ESPTab:CreateSlider({
 })
 
 ESPTab:CreateDropdown({
-    Name = "🦴 Тип скелетона",
-    Options = {"1 - Простой", "2 - Полный"},
-    CurrentOption = "1 - Простой",
+    Name = "🦴 Skeleton type",
+    Options = {"1 - Simple", "2 - Full"},
+    CurrentOption = "1 - Simple",
     Callback = function(value)
         local v = (typeof(value) == "table") and value[1] or value
-        if v == "2 - Полный" then
+        if v == "2 - Full" then
             ESPConfig.SkeletonType = 2
         else
             ESPConfig.SkeletonType = 1
@@ -6286,10 +6286,10 @@ ESPTab:CreateDropdown({
     end
 })
 
-ESPTab:CreateSection("🔴 ДОПОЛНИТЕЛЬНОЕ")
+ESPTab:CreateSection("🔴 EXTRA")
 
 ESPTab:CreateToggle({
-    Name = "🔴 Точки на головах",
+    Name = "🔴 Dots on heads",
     CurrentValue = ESPConfig.HeadDots,
     Callback = function(value)
         ESPConfig.HeadDots = value
@@ -6297,7 +6297,7 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateColorPicker({
-    Name = "🎨 Цвет точек на головах",
+    Name = "🎨 Head dots color",
     Color = ESPConfig.HeadDotColor,
     Callback = function(value)
         ESPConfig.HeadDotColor = value
@@ -6305,7 +6305,7 @@ ESPTab:CreateColorPicker({
 })
 
 ESPTab:CreateSlider({
-    Name = "📐 Размер точек на головах",
+    Name = "📐 Head dots size",
     Range = {3, 12},
     Increment = 1,
     Suffix = " px",
@@ -6316,7 +6316,7 @@ ESPTab:CreateSlider({
 })
 
 ESPTab:CreateToggle({
-    Name = "🏷️ Тег ELITE HUB над игроками",
+    Name = "🏷️ ELITE HUB tag over players",
     CurrentValue = ESPConfig.ShowScriptUserTag,
     Callback = function(value)
         ESPConfig.ShowScriptUserTag = value
@@ -6324,7 +6324,7 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateColorPicker({
-    Name = "🎨 Цвет тега скрипта",
+    Name = "🎨 Script tag color",
     Color = ESPConfig.ScriptUserTagColor,
     Callback = function(value)
         ESPConfig.ScriptUserTagColor = value
@@ -6335,7 +6335,7 @@ ESPTab:CreateSection("💎 CHAMS")
 
 task.spawn(function()
 ESPTab:CreateToggle({
-    Name = "💎 Включить Chams",
+    Name = "💎 Enable Chams",
     CurrentValue = ESPConfig.ChamsEnabled,
     Callback = function(value)
         ESPConfig.ChamsEnabled = value
@@ -6344,7 +6344,7 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateColorPicker({
-    Name = "🎨 Цвет заливки",
+    Name = "🎨 Fill color",
     Color = ESPConfig.ChamsFillColor,
     Callback = function(value)
         ESPConfig.ChamsFillColor = value
@@ -6352,7 +6352,7 @@ ESPTab:CreateColorPicker({
 })
 
 ESPTab:CreateSlider({
-    Name = "🔍 Прозрачность заливки",
+    Name = "🔍 Fill transparency",
     Range = {0, 1},
     Increment = 0.05,
     CurrentValue = ESPConfig.ChamsFillTransparency,
@@ -6362,7 +6362,7 @@ ESPTab:CreateSlider({
 })
 
 ESPTab:CreateColorPicker({
-    Name = "🎨 Цвет обводки",
+    Name = "🎨 Outline color",
     Color = ESPConfig.ChamsOutlineColor,
     Callback = function(value)
         ESPConfig.ChamsOutlineColor = value
@@ -6370,7 +6370,7 @@ ESPTab:CreateColorPicker({
 })
 
 ESPTab:CreateSlider({
-    Name = "🔍 Прозрачность обводки",
+    Name = "🔍 Outline transparency",
     Range = {0, 1},
     Increment = 0.05,
     CurrentValue = ESPConfig.ChamsOutlineTransparency,
@@ -6380,7 +6380,7 @@ ESPTab:CreateSlider({
 })
 
 ESPTab:CreateDropdown({
-    Name = "🧊 Материал Chams",
+    Name = "🧊 Chams material",
     Options = {"ForceField", "Neon", "Glass", "SmoothPlastic", "Plastic", "Wood", "DiamondPlate", "Foil", "Ice", "Brick", "Cobblestone", "CorrodedMetal", "Grass", "Sand", "Slate", "Marble", "Granite", "Limestone"},
     CurrentOption = "ForceField",
     Callback = function(value)
@@ -6390,7 +6390,7 @@ ESPTab:CreateDropdown({
 })
 
 ESPTab:CreateToggle({
-    Name = "👥 Проверка команды",
+    Name = "👥 Team check",
     CurrentValue = ESPConfig.ChamsTeamCheck,
     Callback = function(value)
         ESPConfig.ChamsTeamCheck = value
@@ -6398,7 +6398,7 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateToggle({
-    Name = "👤 Показать на себе",
+    Name = "👤 Show on self",
     CurrentValue = ESPConfig.ChamsSelf,
     Callback = function(value)
         ESPConfig.ChamsSelf = value
@@ -6406,7 +6406,7 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateToggle({
-    Name = "🤝 Показать на тиммейтах",
+    Name = "🤝 Show on teammates",
     CurrentValue = ESPConfig.ChamsTeammates,
     Callback = function(value)
         ESPConfig.ChamsTeammates = value
@@ -6415,7 +6415,7 @@ ESPTab:CreateToggle({
 end)
 
 ESPTab:CreateToggle({
-    Name = "💚 Бар HP под игроком",
+    Name = "💚 HP bar under player",
     CurrentValue = ESPConfig.ShowHealthBar,
     Callback = function(value)
         ESPConfig.ShowHealthBar = value
@@ -6423,7 +6423,7 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateColorPicker({
-    Name = "🌈 Цвет бара HP",
+    Name = "🌈 HP bar color",
     Color = ESPConfig.HealthBarColor,
     Callback = function(v)
         ESPConfig.HealthBarColor = v
@@ -6431,7 +6431,7 @@ ESPTab:CreateColorPicker({
 })
 
 ESPTab:CreateToggle({
-    Name = "🎯 Подсветка ближайшего врага",
+    Name = "🎯 Highlight closest enemy",
     CurrentValue = ESPConfig.HighlightClosest,
     Callback = function(value)
         ESPConfig.HighlightClosest = value
@@ -6439,16 +6439,16 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateColorPicker({
-    Name = "🎨 Цвет подсветки ближайшего",
+    Name = "🎨 Closest highlight color",
     Color = ESPConfig.HighlightClosestColor,
     Callback = function(value)
         ESPConfig.HighlightClosestColor = value
     end
 })
 
-ESPTab:CreateSection("👥 КОМАНДЫ (друзья / враги)")
+ESPTab:CreateSection("👥 TEAMS (friends / enemies)")
 
-local espMyTeamLabel = ESPTab:CreateLabel("🎖️ Ваша команда: —")
+local espMyTeamLabel = ESPTab:CreateLabel("🎖️ Your team: —")
 local function UpdateEspMyTeamLabel()
     local tn = GetTeamName(player)
     pcall(function()
@@ -6475,7 +6475,7 @@ local function RefreshEspTeamDD()
 end
 
 espTeamDD = ESPTab:CreateDropdown({
-    Name = "🎖️ Команда",
+    Name = "🎖️ Team",
     Options = GetAllTeamNames(),
     CurrentOption = "",
     Callback = function(option)
@@ -6485,10 +6485,10 @@ espTeamDD = ESPTab:CreateDropdown({
     end
 })
 
-ESPTab:CreateLabel("🤝 Дружественная команда = синий, вражеская = красный")
+ESPTab:CreateLabel("🤝 Friendly = blue, enemy = red")
 
 ESPTab:CreateButton({
-    Name = "✅ Сделать выбранную команду дружественной",
+    Name = "✅ Make team friendly",
     Callback = function()
         local n = espSelectedTeam
         if not n or n == "" then
@@ -6507,7 +6507,7 @@ ESPTab:CreateButton({
 })
 
 ESPTab:CreateButton({
-    Name = "❌ Убрать выбранную команду из друзей (враг)",
+    Name = "❌ Remove team from friends (enemy)",
     Callback = function()
         local n = espSelectedTeam
         if not n or n == "" then
@@ -6527,7 +6527,7 @@ ESPTab:CreateButton({
 })
 
 ESPTab:CreateButton({
-    Name = "📜 Дружественные команды",
+    Name = "📜 Friendly teams",
     Callback = function()
         local list = getgenv().ELITE_HUB_FRIEND_TEAMS
         if #list == 0 then
@@ -6539,7 +6539,7 @@ ESPTab:CreateButton({
 })
 
 ESPTab:CreateButton({
-    Name = "🚫 Все команды — враги",
+    Name = "🚫 All teams — enemies",
     Callback = function()
         getgenv().ELITE_HUB_FRIEND_TEAMS = {}
         Rayfield:Notify({ Title = "⚔️ Готово", Content = "Все команды теперь враги", Duration = 2 })
@@ -6549,7 +6549,7 @@ ESPTab:CreateButton({
 })
 
 ESPTab:CreateButton({
-    Name = "🔄 Обновить список команд",
+    Name = "🔄 Refresh team list",
     Callback = function()
         pcall(RefreshEspTeamDD)
         Rayfield:Notify({ Title = "👥 Команды", Content = "Список команд обновлён", Duration = 2 })
@@ -6563,7 +6563,7 @@ task.spawn(function()
     end
 end)
 
-ESPTab:CreateSection("🤝 ДРУЗЬЯ И ЦЕЛЬ (выбор из списка)")
+ESPTab:CreateSection("🤝 FRIENDS & TARGET (select from list)")
 
 local espFriendAddDD = nil
 local espFriendRmDD = nil
@@ -6597,7 +6597,7 @@ local function RefreshESPDD()
 end
 
 ESPTab:CreateToggle({
-    Name = "🚫 Скрывать друзей в ESP",
+    Name = "🚫 Hide friends in ESP",
     CurrentValue = ESPConfig.FriendCheck,
     Flag = "ESPFriendCheck",
     Callback = function(value)
@@ -6607,7 +6607,7 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateToggle({
-    Name = "🎯 Подсвечивать основную цель",
+    Name = "🎯 Highlight main target",
     CurrentValue = ESPConfig.HighlightTarget,
     Flag = "ESPHighlightTarget",
     Callback = function(value)
@@ -6617,7 +6617,7 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateColorPicker({
-    Name = "🔵 Цвет друзей / цели",
+    Name = "🔵 Friends / target color",
     Color = ESPConfig.FriendColor,
     Callback = function(value)
         ESPConfig.FriendColor = value
@@ -6626,7 +6626,7 @@ ESPTab:CreateColorPicker({
 })
 
 espFriendAddDD = ESPTab:CreateDropdown({
-    Name = "➕ Выбрать игрока в друзья",
+    Name = "➕ Add player to friends",
     Options = {},
     CurrentOption = "",
     Callback = function(option)
@@ -6646,7 +6646,7 @@ espFriendAddDD = ESPTab:CreateDropdown({
 })
 
 espFriendRmDD = ESPTab:CreateDropdown({
-    Name = "➖ Удалить друга (выбор)",
+    Name = "➖ Remove friend (select)",
     Options = {},
     CurrentOption = "",
     Callback = function(option)
@@ -6668,7 +6668,7 @@ espFriendRmDD = ESPTab:CreateDropdown({
 })
 
 ESPTab:CreateButton({
-    Name = "🧹 Очистить список друзей",
+    Name = "🧹 Clear friends list",
     Callback = function()
         local cnt = #getgenv().ELITE_HUB_FRIENDS
         getgenv().ELITE_HUB_FRIENDS = {}
@@ -6679,7 +6679,7 @@ ESPTab:CreateButton({
 })
 
 ESPTab:CreateButton({
-    Name = "📜 Показать список друзей",
+    Name = "📜 Show friends list",
     Callback = function()
         local list = getgenv().ELITE_HUB_FRIENDS
         if #list == 0 then
@@ -6691,7 +6691,7 @@ ESPTab:CreateButton({
 })
 
 espTargetDD = ESPTab:CreateDropdown({
-    Name = "🎯 Основная цель (подсветка)",
+    Name = "🎯 Main target (highlight)",
     Options = {"(Авто)"},
     CurrentOption = "",
     Callback = function(option)
@@ -6718,10 +6718,10 @@ Players.PlayerAdded:Connect(RefreshESPDD)
 Players.PlayerRemoving:Connect(RefreshESPDD)
 task.delay(1, RefreshESPDD)
 
-ESPTab:CreateSection("🔔 УВЕДОМЛЕНИЯ ESP")
+ESPTab:CreateSection("🔔 ESP NOTIFICATIONS")
 
 ESPTab:CreateToggle({
-    Name = "🔔 ESP: уведомления включены",
+    Name = "🔔 ESP: notifications on",
     CurrentValue = AimbotConfig.NotifyPlayerJoin,
     Callback = function(value)
         AimbotConfig.NotifyPlayerJoin = value
@@ -6730,7 +6730,7 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateToggle({
-    Name = "👋 Уведомлять о входе игроков",
+    Name = "👋 Notify on player join",
     CurrentValue = AimbotConfig.NotifyPlayerJoin,
     Callback = function(value)
         AimbotConfig.NotifyPlayerJoin = value
@@ -6738,7 +6738,7 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateToggle({
-    Name = "👋 Уведомлять о выходе игроков",
+    Name = "👋 Notify on player leave",
     CurrentValue = AimbotConfig.NotifyPlayerLeave,
     Callback = function(value)
         AimbotConfig.NotifyPlayerLeave = value
@@ -6746,17 +6746,17 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateToggle({
-    Name = "❌ Уведомлять о выходе цели",
+    Name = "❌ Notify on target leave",
     CurrentValue = AimbotConfig.NotifyTargetLost,
     Callback = function(value)
         AimbotConfig.NotifyTargetLost = value
     end
 })
 
-ESPTab:CreateSection("🎨 ВИЗУАЛЬНЫЕ ФИЧИ")
+ESPTab:CreateSection("🎨 VISUAL FEATURES")
 
 ESPTab:CreateToggle({
-    Name = "💀 Предупреждение при низком HP",
+    Name = "💀 Low HP warning",
     CurrentValue = ESPConfig.LowHPWarning,
     Callback = function(value)
         ESPConfig.LowHPWarning = value
@@ -6764,7 +6764,7 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateSlider({
-    Name = "❤️ Порог низкого HP (%)",
+    Name = "❤️ Low HP threshold (%)",
     Range = {5, 60},
     Increment = 5,
     Suffix = "%",
@@ -6775,7 +6775,7 @@ ESPTab:CreateSlider({
 })
 
 ESPTab:CreateColorPicker({
-    Name = "🔴 Цвет Vignette",
+    Name = "🔴 Vignette Color",
     Color = ESPConfig.LowHPColor,
     Callback = function(color)
         ESPConfig.LowHPColor = color
@@ -6783,7 +6783,7 @@ ESPTab:CreateColorPicker({
 })
 
 ESPTab:CreateToggle({
-    Name = "💫 Пульс-кольцо вокруг цели",
+    Name = "💫 Pulse ring around target",
     CurrentValue = AimbotConfig.PulseTarget,
     Callback = function(value)
         AimbotConfig.PulseTarget = value
@@ -6791,7 +6791,7 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateColorPicker({
-    Name = "🌈 Цвет пульс-кольца",
+    Name = "🌈 Pulse ring color",
     Color = AimbotConfig.PulseColor,
     Callback = function(color)
         AimbotConfig.PulseColor = color
@@ -6799,7 +6799,7 @@ ESPTab:CreateColorPicker({
 })
 
 ESPTab:CreateSlider({
-    Name = "📐 Радиус пульса",
+    Name = "📐 Pulse radius",
     Range = {20, 200},
     Increment = 5,
     Suffix = "px",
@@ -6810,7 +6810,7 @@ ESPTab:CreateSlider({
 })
 
 ESPTab:CreateSlider({
-    Name = "⚡ Скорость пульса",
+    Name = "⚡ Pulse speed",
     Range = {1, 20},
     Increment = 1,
     CurrentValue = AimbotConfig.PulseSpeed,
@@ -6820,7 +6820,7 @@ ESPTab:CreateSlider({
 })
 
 ESPTab:CreateToggle({
-    Name = "📊 HP-бар цели над головой",
+    Name = "📊 Target HP bar above head",
     CurrentValue = AimbotConfig.TargetHealthBarTop,
     Callback = function(value)
         AimbotConfig.TargetHealthBarTop = value
@@ -6828,7 +6828,7 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateToggle({
-    Name = "📌 Закрепить HP-бар у головы",
+    Name = "📌 Pin HP bar to head",
     CurrentValue = AimbotConfig.TargetHealthBarMounted,
     Callback = function(value)
         AimbotConfig.TargetHealthBarMounted = value
@@ -7018,9 +7018,9 @@ local function UpdateDropdown()
 end
 
 TeleportTab:CreateSection("Игроки")
-onlineLabel = TeleportTab:CreateLabel("👥 Игроков онлайн: 0")
+onlineLabel = TeleportTab:CreateLabel("👥 Players online: 0")
 dropdown = TeleportTab:CreateDropdown({
-    Name = "Выберите игрока",
+    Name = "Select a player",
     Options = {},
     CurrentOption = "",
     Callback = function(option)
@@ -7046,7 +7046,7 @@ dropdown = TeleportTab:CreateDropdown({
 })
 
 TeleportTab:CreateButton({
-    Name = "🚀 Телепорт к выбранному",
+    Name = "🚀 Teleport to selected",
     Callback = function()
         if not selectedPlayer then
             Rayfield:Notify({ Title = "❗ Внимание", Content = "Сначала выберите игрока", Duration = 2 })
@@ -7057,7 +7057,7 @@ TeleportTab:CreateButton({
 })
 
 TeleportTab:CreateToggle({
-    Name = "⚡ Авто-телепорт",
+    Name = "⚡ Auto-teleport",
     CurrentValue = false,
     Callback = function(value)
         autoTp = value
@@ -7108,7 +7108,7 @@ Rayfield:Notify({
     РАЗДЕЛ УБИТЬ ВСЕХ (ОБНОВЛЕННЫЙ)
     ==============================
 ]]--
-local KillAllSection = KillAllTab:CreateSection("⚔️ УБИТЬ ВСЕХ ВРАГОВ")
+local KillAllSection = KillAllTab:CreateSection("⚔️ KILL ALL ENEMIES")
 local safeZoneRadius = 20
 local isActive = false
 local killAllEnabled = true
@@ -7124,7 +7124,7 @@ zonePart.Name = "SafeZone"
 zonePart.Parent = workspace
 
 KillAllTab:CreateToggle({
-   Name = "🛡️ Включить Safe Zone",
+   Name = "🛡️ Enable Safe Zone",
    CurrentValue = isActive,
    Callback = function(Value)
       isActive = Value
@@ -7132,7 +7132,7 @@ KillAllTab:CreateToggle({
 })
 
 KillAllTab:CreateToggle({
-   Name = "⚔️ Режим Kill All",
+   Name = "⚔️ Kill All mode",
    CurrentValue = killAllEnabled,
    Callback = function(Value)
       killAllEnabled = Value
@@ -7140,7 +7140,7 @@ KillAllTab:CreateToggle({
 })
 
 KillAllTab:CreateToggle({
-   Name = "👥 Игнорировать команду",
+   Name = "👥 Ignore team",
    CurrentValue = ignoreTeam,
    Callback = function(Value)
       ignoreTeam = Value
@@ -7148,7 +7148,7 @@ KillAllTab:CreateToggle({
 })
 
 KillAllTab:CreateSlider({
-   Name = "📏 Радиус безопасной зоны",
+   Name = "📏 Safe zone radius",
    Range = {5, 100},
    Increment = 1,
    Suffix = "studs",
@@ -7208,7 +7208,7 @@ end)
     ОБНОВЛЕННЫЕ ДОПОЛНИТЕЛЬНЫЕ СКРИПТЫ
     ==============================
 ]]--
-local ScriptsSection = MainTab:CreateSection("📜 ДОПОЛНИТЕЛЬНЫЕ СКРИПТЫ")
+local ScriptsSection = MainTab:CreateSection("📜 EXTRA SCRIPTS")
 
 local function LoadImprovedFlight()
     local UserInputService = game:GetService("UserInputService")
@@ -7289,15 +7289,15 @@ local newScripts = {
         Url = "https://pastefy.app/59mJGQGe/raw"
     },
     {
-        Name = "💃 FE Анимации",
+        Name = "💃 FE Animations",
         Url = "https://raw.githubusercontent.com/7yd7/Hub/refs/heads/Branch/GUIS/Emotes.lua"
     },
     {
-        Name = "🛫 Улучшенный полет",
+        Name = "🛫 Enhanced Flight",
         Callback = LoadImprovedFlight
     },
     {
-        Name = "👹 The Rake Анимация",
+        Name = "👹 The Rake Animation",
         Callback = LoadRakeAnimation
     },
     {
@@ -7352,11 +7352,11 @@ local scriptUrls = {
     "https://raw.githubusercontent.com/GenesisFE/Genesis/main/Obfuscations/Neptunian%20V"
 }
 local scriptNames = {
-    "👹 SCP-096 Режим",
-    "👻 Невидимость PRO",
-    "🧟 Зомби хаки",
-    "🏎️ флинг+",
-    "🧟 Простой зомби-напарник",
+    "👹 SCP-096 Mode",
+    "👻 Invisibility PRO",
+    "🧟 Zombie Hacks",
+    "🏎️ Fling+",
+    "🧟 Simple Zombie Companion",
     "⚔️ FE GALE FIGHTER",
     "🌊 FE Neptunian V"
 }
@@ -7594,10 +7594,10 @@ local function SetupParticles(char)
     end)
 end
 
-VisualTab:CreateSection("✨ ПАРТИКЛЫ")
+VisualTab:CreateSection("✨ PARTICLES")
 
 VisualTab:CreateToggle({
-    Name = "✨ Включить партиклы",
+    Name = "✨ Enable particles",
     CurrentValue = VisualConfig.ParticlesEnabled,
     Callback = function(value)
         VisualConfig.ParticlesEnabled = value
@@ -7611,7 +7611,7 @@ VisualTab:CreateToggle({
 })
 
 VisualTab:CreateDropdown({
-    Name = "🎯 Тип партиклов",
+    Name = "🎯 Particle type",
     Options = {"Aura", "Trail", "Fire", "Rain", "Snow", "Sparkles", "Confetti", "Smoke", "Blood", "Glow", "Dust", "Bubble", "Lightning", "Poison", "Hex", "Lava", "Ice", "Plasma", "Leaves", "Feathers", "Stars", "Hearts", "Neon", "Chaos", "Meteor", "Electric", "Wind", "Shadow", "Crystal", "Sakura", "Galaxy", "Nuclear", "Phoenix", "Void", "Dragon"},
     CurrentOption = VisualConfig.ParticleType,
     Callback = function(value)
@@ -7622,7 +7622,7 @@ VisualTab:CreateDropdown({
 })
 
 VisualTab:CreateColorPicker({
-    Name = "🎨 Цвет 1",
+    Name = "🎨 Color 1",
     Color = VisualConfig.ParticleColor,
     Callback = function(color)
         VisualConfig.ParticleColor = color
@@ -7633,7 +7633,7 @@ VisualTab:CreateColorPicker({
 })
 
 VisualTab:CreateColorPicker({
-    Name = "🎨 Цвет 2 (градиент)",
+    Name = "🎨 Color 2 (gradient)",
     Color = VisualConfig.ParticleColor2,
     Callback = function(color)
         VisualConfig.ParticleColor2 = color
@@ -7644,7 +7644,7 @@ VisualTab:CreateColorPicker({
 })
 
 VisualTab:CreateToggle({
-    Name = "💡 Светящиеся частицы",
+    Name = "💡 Glowing particles",
     CurrentValue = VisualConfig.ParticleGlow,
     Callback = function(value)
         VisualConfig.ParticleGlow = value
@@ -7655,7 +7655,7 @@ VisualTab:CreateToggle({
 })
 
 VisualTab:CreateSlider({
-    Name = "⚪ Размер частиц",
+    Name = "⚪ Particle size",
     Range = {0.05, 3},
     Increment = 0.05,
     CurrentValue = VisualConfig.ParticleSize,
@@ -7668,7 +7668,7 @@ VisualTab:CreateSlider({
 })
 
 VisualTab:CreateSlider({
-    Name = "⚡ Количество/сек",
+    Name = "⚡ Count/sec",
     Range = {10, 400},
     Increment = 10,
     CurrentValue = VisualConfig.ParticleRate,
@@ -7681,7 +7681,7 @@ VisualTab:CreateSlider({
 })
 
 VisualTab:CreateSlider({
-    Name = "🚀 Скорость частиц",
+    Name = "🚀 Particle speed",
     Range = {0.5, 15},
     Increment = 0.5,
     CurrentValue = VisualConfig.ParticleSpeed,
@@ -7695,7 +7695,7 @@ VisualTab:CreateSlider({
 })
 
 VisualTab:CreateSlider({
-    Name = "⏳ Время жизни частиц",
+    Name = "⏳ Particle lifetime",
     Range = {0.3, 5},
     Increment = 0.1,
     Suffix = "с",
@@ -7721,11 +7721,11 @@ task.spawn(function()
 local MT = getgenv().ELITE_HUB_ModsTab
 getgenv().ELITE_HUB_Log("MODS", "Секция МОДЫ загружена")
 
-MT:CreateSection("🏃 ДВИЖЕНИЕ")
+MT:CreateSection("🏃 MOVEMENT")
 
 getgenv().ELITE_HUB_JumpBoost = false
 MT:CreateToggle({
-    Name = "🦘 Jump Boost (высокий прыжок)",
+    Name = "🦘 Jump Boost (high jump)",
     CurrentValue = false,
     Callback = function(value)
         getgenv().ELITE_HUB_JumpBoost = value
@@ -7748,7 +7748,7 @@ end)
 
 getgenv().ELITE_HUB_HitboxExpander = false
 getgenv().ELITE_HUB_HitboxSize = 10
-MT:CreateSection("🎯 КОМБАТ")
+MT:CreateSection("🎯 COMBAT")
 MT:CreateToggle({
     Name = "📦 Hitbox Expander",
     CurrentValue = false,
@@ -7758,7 +7758,7 @@ MT:CreateToggle({
     end
 })
 MT:CreateSlider({
-    Name = "📦 Размер хитбокса",
+    Name = "📦 Hitbox size",
     Range = {5, 50},
     Increment = 1,
     CurrentValue = 10,
@@ -7787,11 +7787,11 @@ task.spawn(function()
     end
 end)
 
-MT:CreateSection("📷 КАМЕРА & ТЕЛЕПОРТ")
+MT:CreateSection("📷 CAMERA & TELEPORT")
 
 getgenv().ELITE_HUB_FreeCam = false
 MT:CreateToggle({
-    Name = "📷 Free Cam (свободная камера)",
+    Name = "📷 Free Cam (free camera)",
     CurrentValue = false,
     Callback = function(value)
         getgenv().ELITE_HUB_FreeCam = value
@@ -7847,7 +7847,7 @@ task.spawn(function()
 end)
 
 MT:CreateButton({
-    Name = "📍 Телепорт к курсору мыши",
+    Name = "📍 Teleport to cursor",
     Callback = function()
         getgenv().ELITE_HUB_Log("MODS", "Телепорт к курсору мыши")
         pcall(function()
@@ -7864,7 +7864,7 @@ MT:CreateButton({
     end
 })
 
-MT:CreateSection("🌙 ОКРУЖЕНИЕ")
+MT:CreateSection("🌙 ENVIRONMENT")
 
 getgenv().ELITE_HUB_NightMode = false
 getgenv().ELITE_HUB_NightOrigClock = nil
@@ -7896,7 +7896,7 @@ MT:CreateSection("👁️ ESP+")
 
 getgenv().ELITE_HUB_ItemESP = false
 MT:CreateToggle({
-    Name = "🎒 Item ESP (предметы)",
+    Name = "🎒 Item ESP (items)",
     CurrentValue = false,
     Callback = function(value)
         getgenv().ELITE_HUB_ItemESP = value
@@ -7941,7 +7941,7 @@ task.spawn(function()
     end
 end)
 
-MT:CreateSection("🎮 УТИЛИТЫ")
+MT:CreateSection("🎮 UTILITIES")
 
 
 MT:CreateToggle({
@@ -7966,7 +7966,7 @@ MT:CreateToggle({
     end
 })
 
-MT:CreateSection("⚔️ КОМБАТ")
+MT:CreateSection("⚔️ COMBAT")
 
 getgenv().ELITE_HUB_AutoParry = false
 MT:CreateToggle({
@@ -8096,7 +8096,7 @@ MT:CreateSlider({
     end
 })
 
-MT:CreateSection("🌈 ВИЗУАЛ+")
+MT:CreateSection("🌈 VISUAL+")
 
 getgenv().ELITE_HUB_RainbowChams = false
 MT:CreateToggle({
@@ -8122,7 +8122,7 @@ end)
 
 getgenv().ELITE_HUB_XRay = false
 MT:CreateToggle({
-    Name = "👀 X-Ray (стены прозрачные)",
+    Name = "👀 X-Ray (transparent walls)",
     CurrentValue = false,
     Callback = function(value)
         getgenv().ELITE_HUB_XRay = value
@@ -8154,7 +8154,7 @@ MT:CreateToggle({
 
 getgenv().ELITE_HUB_Wallhack = false
 MT:CreateToggle({
-    Name = "🧱 Wallhack (стены исчезают)",
+    Name = "🧱 Wallhack (walls disappear)",
     CurrentValue = false,
     Callback = function(value)
         getgenv().ELITE_HUB_Wallhack = value
@@ -8182,7 +8182,7 @@ MT:CreateToggle({
     end
 })
 
-MT:CreateSection("⚡ СЛАЙДЕРЫ")
+MT:CreateSection("⚡ SLIDERS")
 
 MT:CreateSlider({
     Name = "🏃 WalkSpeed",
@@ -8237,7 +8237,7 @@ MT:CreateSlider({
     end
 })
 
-MT:CreateSection("💬 ЧАТ")
+MT:CreateSection("💬 CHAT")
 
 getgenv().ELITE_HUB_ChatSpammer = false
 getgenv().ELITE_HUB_ChatSpammerMsg = "ELITE HUB"
@@ -8262,15 +8262,15 @@ MT:CreateToggle({
     end
 })
 MT:CreateInput({
-    Name = "📝 Сообщение",
-    PlaceholderText = "Введите сообщение...",
+    Name = "📝 Message",
+    PlaceholderText = "Enter a message...",
     RemoveTextAfterFocusLost = false,
     Callback = function(value)
         getgenv().ELITE_HUB_ChatSpammerMsg = value
     end
 })
 
-MT:CreateSection("🔄 СИСТЕМА")
+MT:CreateSection("🔄 SYSTEM")
 
 getgenv().ELITE_HUB_RejoinOnKick = false
 MT:CreateToggle({
@@ -8362,7 +8362,7 @@ end)
 
 getgenv().ELITE_HUB_ClickTP = false
 MT:CreateToggle({
-    Name = "📍 Click TP (ПКМ)",
+    Name = "📍 Click TP (RMB)",
     CurrentValue = false,
     Callback = function(value)
         getgenv().ELITE_HUB_ClickTP = value
