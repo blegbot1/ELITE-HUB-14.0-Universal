@@ -143,43 +143,117 @@ function EliteHubUI:CreateWindow(config)
     local fab = Instance.new("TextButton")
     fab.Name = "FAB"
     fab.Parent = gui
-    fab.Size = UDim2.new(0, 50, 0, 50)
-    fab.Position = UDim2.new(1, -70, 1, -70)
+    fab.Size = UDim2.new(0, 54, 0, 54)
+    fab.Position = UDim2.new(1, -74, 1, -74)
+    fab.AnchorPoint = Vector2.new(0, 0)
     fab.BackgroundColor3 = C.Accent
-    fab.Text = "EH"
-    fab.TextColor3 = C.TextBright
-    fab.TextSize = 16
-    fab.Font = Enum.Font.GothamBold
+    fab.Text = ""
     fab.BorderSizePixel = 0
     fab.Visible = false
     fab.ZIndex = 50
-    newCorner(fab, 25)
-    newStroke(fab, C.TextBright, 1.5, 0.3)
+    fab.AutoButtonColor = false
+    newCorner(fab, 27)
+    newStroke(fab, C.AccentLight, 2, 0.15)
+
+    local fabIcon = Instance.new("TextLabel")
+    fabIcon.Name = "Icon"
+    fabIcon.Parent = fab
+    fabIcon.Size = UDim2.new(1, 0, 1, 0)
+    fabIcon.BackgroundTransparency = 1
+    fabIcon.Text = "⚡"
+    fabIcon.TextColor3 = C.TextBright
+    fabIcon.TextSize = 22
+    fabIcon.Font = Enum.Font.GothamBlack
+    fabIcon.ZIndex = 51
+
     local fabGlow = Instance.new("UIStroke")
     fabGlow.Color = C.AccentLight
-    fabGlow.Thickness = 2
-    fabGlow.Transparency = 0.5
+    fabGlow.Thickness = 3
+    fabGlow.Transparency = 0.6
     fabGlow.Parent = fab
+
+    local fabShadow = Instance.new("Frame")
+    fabShadow.Name = "Shadow"
+    fabShadow.Parent = gui
+    fabShadow.Size = UDim2.new(0, 60, 0, 60)
+    fabShadow.BackgroundTransparency = 0.6
+    fabShadow.BackgroundColor3 = Color3.fromRGB(80, 30, 160)
+    fabShadow.BorderSizePixel = 0
+    fabShadow.ZIndex = 49
+    fabShadow.Visible = false
+    newCorner(fabShadow, 30)
+
+    local dragging, dragStart, startPos
+    local UIS = game:GetService("UserInputService")
+
+    fab.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            dragStart = input.Position
+            startPos = fab.Position
+        end
+    end)
+    UIS.InputChanged:Connect(function(input)
+        if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+            local delta = input.Position - dragStart
+            local newPos = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+            local vp = workspace.CurrentCamera and workspace.CurrentCamera.ViewportSize or Vector2.new(1000, 600)
+            local px = math.clamp(newPos.X.Offset, 0, vp.X - 54)
+            local py = math.clamp(newPos.Y.Offset, 0, vp.Y - 54)
+            fab.Position = UDim2.new(0, px, 0, py)
+            fabShadow.Position = UDim2.new(0, px - 3, 0, py + 3)
+        end
+    end)
+    UIS.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = false
+        end
+    end)
+
     fab.MouseButton1Click:Connect(function()
+        if dragging then return end
+        TweenService:Create(fab, TweenInfo.new(0.2, Enum.EasingStyle.Back, Enum.EasingDirection.In), {Size = UDim2.new(0, 0, 0, 0)}):Play()
+        TweenService:Create(fabShadow, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {Size = UDim2.new(0, 0, 0, 0), BackgroundTransparency = 1}):Play()
+        task.wait(0.2)
         fab.Visible = false
+        fabShadow.Visible = false
         self:_showWindow()
     end)
     fab.MouseEnter:Connect(function()
-        TweenService:Create(fab, TweenInfo.new(0.15, Enum.EasingStyle.Quad), {Size = UDim2.new(0, 56, 0, 56), Position = UDim2.new(1, -73, 1, -73)}):Play()
+        if not dragging then
+            TweenService:Create(fab, TweenInfo.new(0.2, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Size = UDim2.new(0, 60, 0, 60)}):Play()
+            TweenService:Create(fabShadow, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {Size = UDim2.new(0, 66, 0, 66)}):Play()
+            TweenService:Create(fabGlow, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {Transparency = 0}):Play()
+            TweenService:Create(fabIcon, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {TextSize = 26}):Play()
+        end
     end)
     fab.MouseLeave:Connect(function()
-        TweenService:Create(fab, TweenInfo.new(0.15, Enum.EasingStyle.Quad), {Size = UDim2.new(0, 50, 0, 50), Position = UDim2.new(1, -70, 1, -70)}):Play()
+        if not dragging then
+            TweenService:Create(fab, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {Size = UDim2.new(0, 54, 0, 54)}):Play()
+            TweenService:Create(fabShadow, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {Size = UDim2.new(0, 60, 0, 60)}):Play()
+            TweenService:Create(fabGlow, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {Transparency = 0.6}):Play()
+            TweenService:Create(fabIcon, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {TextSize = 22}):Play()
+        end
     end)
-    self._fab = fab
-    self._onHide = function() fab.Visible = true end
 
-    -- Pulse FAB glow
+    self._fab = fab
+    self._fabShadow = fabShadow
+    self._onHide = function()
+        fab.Visible = true
+        fabShadow.Visible = true
+        fab.Size = UDim2.new(0, 0, 0, 0)
+        fabShadow.Size = UDim2.new(0, 0, 0, 0)
+        fabShadow.BackgroundTransparency = 0.6
+        TweenService:Create(fab, TweenInfo.new(0.35, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Size = UDim2.new(0, 54, 0, 54)}):Play()
+        TweenService:Create(fabShadow, TweenInfo.new(0.35, Enum.EasingStyle.Quad), {Size = UDim2.new(0, 60, 0, 60)}):Play()
+    end
+
     task.spawn(function()
         while fab and fab.Parent do
-            TweenService:Create(fabGlow, TweenInfo.new(1.2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {Transparency = 0.1}):Play()
-            task.wait(1.2)
-            TweenService:Create(fabGlow, TweenInfo.new(1.2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {Transparency = 0.6}):Play()
-            task.wait(1.2)
+            TweenService:Create(fabGlow, TweenInfo.new(1.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {Transparency = 0.1, Thickness = 4}):Play()
+            task.wait(1.5)
+            TweenService:Create(fabGlow, TweenInfo.new(1.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {Transparency = 0.7, Thickness = 2}):Play()
+            task.wait(1.5)
         end
     end)
 
