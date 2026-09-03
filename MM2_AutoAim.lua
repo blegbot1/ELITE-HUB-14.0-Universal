@@ -118,28 +118,6 @@ end
 
 -- ========== SILENT AIM ==========
 
-local function silentAim()
-    local murderer = getMurderer()
-    if not murderer then return end
-    local tc = murderer.Character
-    if not tc then return end
-    local thrp = tc:FindFirstChild(CFG.AimPart)
-    if not thrp then return end
-
-    local c = LP.Character
-    if not c then return end
-    local hrp = c:FindFirstChild("HumanoidRootPart")
-    if not hrp then return end
-
-    -- Teleport behind murderer
-    local dir = (hrp.Position - thrp.Position).Unit
-    local behindPos = thrp.Position + dir * 8
-    hrp.CFrame = CFrame.lookAt(behindPos, thrp.Position)
-
-    -- Face the murderer
-    hrp.CFrame = CFrame.lookAt(hrp.Position, thrp.Position)
-end
-
 local function fireAtTarget()
     local now = tick()
     if now - LastFire < CFG.FireDelay then return end
@@ -154,7 +132,7 @@ local function fireAtTarget()
     local remote, rtype = getShootRemote()
     if not remote then return end
 
-    -- Silent aim: always send bullet to target
+    -- Silent aim: send bullet to target position, no visible changes
     local shootPos = thrp.Position
     pcall(function()
         if rtype == "RF" then
@@ -409,7 +387,6 @@ table.insert(Connections, RunService.RenderStepped:Connect(function()
         -- Silent Aim
         if CFG.SilentAim and hasGun() and dist <= CFG.MaxDist then
             equipGun()
-            silentAim()
             if CFG.AutoShot then
                 fireAtTarget()
             end
