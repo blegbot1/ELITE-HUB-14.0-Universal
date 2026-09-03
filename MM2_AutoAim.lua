@@ -4,199 +4,137 @@
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local CoreGui = game:GetService("CoreGui")
 local UserInputService = game:GetService("UserInputService")
 
 local LP = Players.LocalPlayer
-local Camera = workspace.CurrentCamera
 
 local CFG = {
     SilentAim = false,
-    AutoShot = false,
-    HitboxExpander = false,
-    HitboxSize = 20,
-    GunDropGrab = false,
+    HitboxExpand = false,
+    HitboxSize = 15,
     Noclip = false,
     Speed = false,
-    SpeedVal = 32,
-    MaxDist = 400,
-    FireDelay = 0.5,
+    SpeedVal = 24,
 }
 
 local Connections = {}
-local LastFire = 0
-local HitboxCache = {}
+local Roles = {}
+local Murderer = nil
+local Sheriff = nil
+local Hero = nil
 local MenuOpen = true
 
--- ========== FIND REMOTES ==========
+-- ========== ROLE DETECTION (via ReplicatedStorage events) ==========
 
-local function findGunRemote()
-    local char = LP.Character
-    if not char then return nil end
-
-    local gun = char:FindFirstChild("Gun")
-    if not gun then
-        gun = LP.Backpack:FindFirstChild("Gun")
+local function updateRole(player, role)
+    Roles[player] = role
+    if role == "Murderer" then
+        Murderer = player
+    elseif role == "Sheriff" then
+        Sheriff = player
+    elseif role == "Hero" then
+        Hero = player
     end
-    if not gun then return nil end
-
-    -- Find ShootGun remote anywhere in the tool
-    for _, desc in ipairs(gun:GetDescendants()) do
-        if desc.Name == "ShootGun" then
-            return desc
-        end
-    end
-
-    -- Find any RemoteEvent in KnifeServer
-    local ks = gun:FindFirstChild("KnifeServer")
-    if ks then
-        for _, v in ipairs(ks:GetChildren()) do
-            if v:IsA("RemoteEvent") or v:IsA("RemoteFunction") then
-                return v
-            end
-        end
-    end
-
-    -- Last: any remote in the tool
-    for _, desc in ipairs(gun:GetDescendants()) do
-        if desc:IsA("RemoteEvent") or desc:IsA("RemoteFunction") then
-            return desc
-        end
-    end
-
-    return nil
 end
 
--- ========== ROLE DETECTION ==========
-
-local function getRole(plr)
-    local c = plr.Character
-    if (c and c:FindFirstChild("Knife")) or plr.Backpack:FindFirstChild("Knife") then
-        return "Murderer"
-    elseif (c and c:FindFirstChild("Gun")) or plr.Backpack:FindFirstChild("Gun") then
-        return "Sheriff"
+local function onRoundEnd()
+    for p, _ in pairs(Roles) do
+        Roles[p] = "Unknown"
     end
-    return "Innocent"
+    Murderer, Sheriff, Hero = nil, nil, nil
 end
 
-local function getMurderer()
-    for _, p in ipairs(Players:GetPlayers()) do
-        if p ~= LP and getRole(p) == "Murderer" then
-            local c = p.Character
-            if c then
-                local hrp = c:FindFirstChild("HumanoidRootPart")
-                local hum = c:FindFirstChildOfClass("Humanoid")
-                if hrp and hum and hum.Health > 0 then
-                    return p
+-- Listen to game events for roles
+table.insert(Connections, ReplicatedStorage.Fade.OnClientEvent:Connect(function(data)
+    for _, v in ipairs(Players:GetPlayers()) do
+        local info = data[v.Name]
+        if info then
+            local role = typeof(info) == "table" and info.Role or "Unknown"
+            pcall(updateRole, v, role)
+        end
+    end
+end))
+
+table.insert(Connections, ReplicatedStorage.UpdatePlayerData.OnClientEvent:Connect(function(data)
+    for _, v in ipairs(Players:GetPlayers()) do
+        local info = data[v.Name]
+        if info then
+            local role = typeof(info) == "table" and info.Role or "Unknown"
+            pcall(updateRole, v, role)
+        end
+    end
+end))
+
+table.insert(Connections, ReplicatedStorage.RoleSelect.OnClientEvent:Connect(function(role, ...)
+    updateRole(LP, role or "Unknown")
+end))
+
+pcall(function()
+    table.insert(Connections, ReplicatedStorage.Remotes.Gameplay.RoundEndFade.OnClientEvent:Connect(onRoundEnd))
+end)
+
+-- ========== SILENT AIM (hookmetamethod) ==========
+
+local __namecall
+__namecall = hookmetamethod(game, "__namecall", function(self, ...)
+    local method = getnamecallmethod()
+    local args = { ... }
+    if not checkcaller() then
+        if typeof(self) == "Instance" then
+            if self.Name == "ShootGun" and method == "InvokeServer" then
+                if CFG.SilentAim and Murderer then
+                    local char = Murderer.Character
+                    if char then
+                        local root = char:FindFirstChild("HumanoidRootPart")
+                        if root then
+                            local vel = root.AssemblyLinearVelocity
+                            local predict = vel * Vector3.new(0.1, 0, 0.1)
+                            args[2] = root.Position + predict
+                        end
+                    end
                 end
             end
         end
     end
-    return nil
-end
+    return __namecall(self, unpack(args))
+end)
 
-local function getDist(target)
-    local c = LP.Character
-    if not c then return math.huge end
-    local hrp = c:FindFirstChild("HumanoidRootPart")
-    if not hrp then return math.huge end
-    local tc = target.Character
-    if not tc then return math.huge end
-    local thrp = tc:FindFirstChild("HumanoidRootPart")
-    if not thrp then return math.huge end
-    return (hrp.Position - thrp.Position).Magnitude
-end
-
-local function hasGun()
-    local c = LP.Character
-    return (c and c:FindFirstChild("Gun")) or LP.Backpack:FindFirstChild("Gun")
-end
-
-local function equipGun()
-    local gun = LP.Backpack:FindFirstChild("Gun")
-    if gun and LP.Character then
-        gun.Parent = LP.Character
-    end
-end
-
--- ========== SILENT AIM ==========
-
-local function fireAtTarget()
-    local now = tick()
-    if now - LastFire < CFG.FireDelay then return end
-
-    local murderer = getMurderer()
-    if not murderer then return end
-    local tc = murderer.Character
-    if not tc then return end
-    local thrp = tc:FindFirstChild("HumanoidRootPart")
-    if not thrp then return end
-
-    local remote = findGunRemote()
-    if not remote then return end
-
-    local shootPos = thrp.Position
-    pcall(function()
-        if remote:IsA("RemoteFunction") then
-            remote:InvokeServer(1, shootPos, "AH")
-        else
-            remote:FireServer(shootPos)
-        end
-    end)
-    LastFire = now
-end
-
--- ========== HITBOX EXPANDER ==========
+-- ========== HITBOX EXPANDER (firetouchinterest) ==========
 
 local function expandHitboxes()
-    if not CFG.HitboxExpander then return end
+    if not CFG.HitboxExpand then return end
+    local char = LP.Character
+    if not char then return end
+    local knife = char:FindFirstChild("Knife")
+    if not knife or not knife:IsA("Tool") then return end
+    local handle = knife:FindFirstChild("Handle")
+    if not handle then return end
+
     for _, p in ipairs(Players:GetPlayers()) do
-        if p ~= LP and getRole(p) == "Murderer" then
-            local c = p.Character
-            if c then
-                local hrp = c:FindFirstChild("HumanoidRootPart")
-                if hrp then
-                    if not HitboxCache[p.Name] then
-                        HitboxCache[p.Name] = hrp.Size
-                    end
-                    hrp.Size = Vector3.new(CFG.HitboxSize, CFG.HitboxSize, CFG.HitboxSize)
-                    hrp.Transparency = 0.6
-                    hrp.CanCollide = false
-                    hrp.Massless = true
-                end
+        if p ~= LP and p.Character then
+            local root = p.Character:FindFirstChild("HumanoidRootPart")
+            if root then
+                root.Size = Vector3.new(CFG.HitboxSize, CFG.HitboxSize, CFG.HitboxSize)
+                root.Transparency = 0.6
+                root.CanCollide = false
+                root.Massless = true
             end
         end
     end
 end
 
 local function resetHitboxes()
-    for name, size in pairs(HitboxCache) do
-        local p = Players:FindFirstChild(name)
-        if p and p.Character then
-            local hrp = p.Character:FindFirstChild("HumanoidRootPart")
-            if hrp then
-                hrp.Size = size
-                hrp.Transparency = 1
+    for _, p in ipairs(Players:GetPlayers()) do
+        if p ~= LP and p.Character then
+            local root = p.Character:FindFirstChild("HumanoidRootPart")
+            if root then
+                root.Size = Vector3.new(2, 1, 1)
+                root.Transparency = 1
             end
         end
     end
-    HitboxCache = {}
-end
-
--- ========== GUN DROP ==========
-
-local function watchGunDrop()
-    table.insert(Connections, workspace.ChildAdded:Connect(function(child)
-        if child.Name == "GunDrop" and CFG.GunDropGrab then
-            task.wait(0.05)
-            local c = LP.Character
-            if c then
-                local hrp = c:FindFirstChild("HumanoidRootPart")
-                if hrp then
-                    hrp.CFrame = child.CFrame + Vector3.new(0, 2, 0)
-                end
-            end
-        end
-    end))
 end
 
 -- ========== NOCLIP ==========
@@ -262,7 +200,7 @@ local function createUI()
     ScreenGui.DisplayOrder = 1000
     ScreenGui.Parent = LP:WaitForChild("PlayerGui")
 
-    -- Toggle button (always visible)
+    -- Toggle button
     local toggleBtn = Instance.new("TextButton")
     toggleBtn.Name = "ToggleMenu"
     toggleBtn.Parent = ScreenGui
@@ -277,29 +215,29 @@ local function createUI()
     toggleBtn.AutoButtonColor = false
     toggleBtn.ZIndex = 100
     Instance.new("UICorner", toggleBtn).CornerRadius = UDim.new(0, 25)
-    local toggleStroke = Instance.new("UIStroke")
-    toggleStroke.Color = Color3.fromRGB(255, 100, 120)
-    toggleStroke.Thickness = 2
-    toggleStroke.Parent = toggleBtn
+    local ts = Instance.new("UIStroke")
+    ts.Color = Color3.fromRGB(255, 100, 120)
+    ts.Thickness = 2
+    ts.Parent = toggleBtn
 
     -- Main panel
     MainFrame = Instance.new("Frame")
     MainFrame.Name = "Panel"
     MainFrame.Parent = ScreenGui
-    MainFrame.Size = UDim2.new(0, 200, 0, 310)
-    MainFrame.Position = UDim2.new(0, 70, 0.5, -155)
+    MainFrame.Size = UDim2.new(0, 200, 0, 250)
+    MainFrame.Position = UDim2.new(0, 70, 0.5, -125)
     MainFrame.BackgroundColor3 = Color3.fromRGB(18, 18, 24)
     MainFrame.BorderSizePixel = 0
     MainFrame.Active = true
     MainFrame.Draggable = true
     MainFrame.Visible = true
     Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 10)
-    local mainStroke = Instance.new("UIStroke")
-    mainStroke.Color = Color3.fromRGB(255, 50, 70)
-    mainStroke.Thickness = 1.5
-    mainStroke.Parent = MainFrame
+    local ms = Instance.new("UIStroke")
+    ms.Color = Color3.fromRGB(255, 50, 70)
+    ms.Thickness = 1.5
+    ms.Parent = MainFrame
 
-    -- Title bar
+    -- Title
     local title = Instance.new("Frame")
     title.Parent = MainFrame
     title.Size = UDim2.new(1, 0, 0, 30)
@@ -354,7 +292,7 @@ local function createUI()
     targetLabel.Size = UDim2.new(1, -16, 0, 16)
     targetLabel.Position = UDim2.new(0, 8, 0, 50)
     targetLabel.BackgroundTransparency = 1
-    targetLabel.Text = "Target: Nobody"
+    targetLabel.Text = "Murderer: Nobody"
     targetLabel.TextColor3 = Color3.fromRGB(255, 80, 80)
     targetLabel.TextSize = 10
     targetLabel.Font = Enum.Font.GothamMedium
@@ -363,9 +301,7 @@ local function createUI()
     -- Toggles
     local toggles = {
         {name = "Silent Aim", key = "SilentAim", color = Color3.fromRGB(255, 50, 70)},
-        {name = "Auto Shot", key = "AutoShot", color = Color3.fromRGB(255, 150, 50)},
-        {name = "Hitbox Expander", key = "HitboxExpander", color = Color3.fromRGB(50, 200, 255)},
-        {name = "Gun Drop Grab", key = "GunDropGrab", color = Color3.fromRGB(100, 255, 100)},
+        {name = "Hitbox Expander", key = "HitboxExpand", color = Color3.fromRGB(50, 200, 255)},
         {name = "Noclip", key = "Noclip", color = Color3.fromRGB(200, 100, 255)},
         {name = "Speed", key = "Speed", color = Color3.fromRGB(255, 255, 100)},
     }
@@ -416,15 +352,12 @@ local function createUI()
             end
             if key == "Noclip" then toggleNoclip() end
             if key == "Speed" then toggleSpeed() end
-            if key == "HitboxExpander" and not CFG.HitboxExpander then
-                resetHitboxes()
-            end
+            if key == "HitboxExpand" and not CFG.HitboxExpand then resetHitboxes() end
         end)
 
         yPos = yPos + 34
     end
 
-    -- Toggle menu button
     toggleBtn.MouseButton1Click:Connect(function()
         MenuOpen = not MenuOpen
         MainFrame.Visible = MenuOpen
@@ -436,38 +369,36 @@ end
 -- ========== MAIN ==========
 
 local gui, statusLabel, targetLabel = createUI()
-watchGunDrop()
 
--- Main loop
 table.insert(Connections, RunService.RenderStepped:Connect(function()
-    local myChar = LP.Character
-    if myChar then
-        statusLabel.Text = "Role: " .. getRole(LP)
-    end
+    -- Update status
+    local myRole = Roles[LP] or "..."
+    statusLabel.Text = "Role: " .. myRole
 
-    local murderer = getMurderer()
-    if murderer then
-        local dist = getDist(murderer)
-        targetLabel.Text = "Target: " .. murderer.Name .. " (" .. math.floor(dist) .. "m)"
-
-        -- Silent Aim + Auto Shot
-        if CFG.SilentAim and hasGun() and dist <= CFG.MaxDist then
-            equipGun()
-            if CFG.AutoShot then
-                fireAtTarget()
+    -- Update target
+    if Murderer and Murderer.Character then
+        local root = Murderer.Character:FindFirstChild("HumanoidRootPart")
+        if root then
+            local myChar = LP.Character
+            if myChar then
+                local myRoot = myChar:FindFirstChild("HumanoidRootPart")
+                if myRoot then
+                    local dist = math.floor((myRoot.Position - root.Position).Magnitude)
+                    targetLabel.Text = "Murderer: " .. Murderer.Name .. " (" .. dist .. "m)"
+                end
             end
         end
-
-        -- Hitbox Expander (every frame to override server)
-        if CFG.HitboxExpander then
-            expandHitboxes()
-        end
     else
-        targetLabel.Text = "Target: Nobody"
+        targetLabel.Text = "Murderer: Nobody"
+    end
+
+    -- Hitbox expander
+    if CFG.HitboxExpand then
+        expandHitboxes()
     end
 end))
 
--- Cleanup on leave
+-- Cleanup
 table.insert(Connections, Players.PlayerRemoving:Connect(function(plr)
     if plr == LP then
         resetHitboxes()
@@ -478,7 +409,6 @@ table.insert(Connections, Players.PlayerRemoving:Connect(function(plr)
     end
 end))
 
--- Delete to unload
 UserInputService.InputBegan:Connect(function(input, gpe)
     if gpe then return end
     if input.KeyCode == Enum.KeyCode.Delete then
