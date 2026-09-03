@@ -84,12 +84,36 @@ end
 
 local function getShootRemote()
     local c = LP.Character
-    if not c then return nil end
+    if not c then return nil, nil end
     local gun = c:FindFirstChild("Gun")
-    if not gun then return nil end
+    if not gun then return nil, nil end
+    -- Try KnifeServer folder first
     local ks = gun:FindFirstChild("KnifeServer")
-    if not ks then return nil end
-    return ks:FindFirstChild("ShootGun")
+    if ks then
+        local remote = ks:FindFirstChild("ShootGun")
+        if remote then
+            return remote, remote:IsA("RemoteFunction") and "RF" or "RE"
+        end
+        -- Search all children
+        for _, v in ipairs(ks:GetChildren()) do
+            if v:IsA("RemoteEvent") or v:IsA("RemoteFunction") then
+                return v, v:IsA("RemoteFunction") and "RF" or "RE"
+            end
+        end
+    end
+    -- Fallback: search entire gun
+    for _, v in ipairs(gun:GetDescendants()) do
+        if v.Name == "ShootGun" and (v:IsA("RemoteEvent") or v:IsA("RemoteFunction")) then
+            return v, v:IsA("RemoteFunction") and "RF" or "RE"
+        end
+    end
+    -- Last resort: any remote in gun
+    for _, v in ipairs(gun:GetDescendants()) do
+        if v:IsA("RemoteEvent") or v:IsA("RemoteFunction") then
+            return v, v:IsA("RemoteFunction") and "RF" or "RE"
+        end
+    end
+    return nil, nil
 end
 
 -- ========== SILENT AIM ==========
@@ -127,13 +151,17 @@ local function fireAtTarget()
     local thrp = tc:FindFirstChild(CFG.AimPart)
     if not thrp then return end
 
-    local remote = getShootRemote()
+    local remote, rtype = getShootRemote()
     if not remote then return end
 
     -- Silent aim: always send bullet to target
     local shootPos = thrp.Position
     pcall(function()
-        remote:InvokeServer(1, shootPos, "AH")
+        if rtype == "RF" then
+            remote:InvokeServer(1, shootPos, "AH")
+        else
+            remote:FireServer(shootPos)
+        end
     end)
     LastFire = now
 end
