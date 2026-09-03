@@ -1,4 +1,4 @@
--- MM2 Auto-Aim (Client-Side)
+-- MM2 Pulse-Style Script
 -- Murder Mystery 2 (They're Infinite)
 -- PlaceId: 142823291
 
@@ -7,275 +7,422 @@ local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
 
-local LocalPlayer = Players.LocalPlayer
+local LP = Players.LocalPlayer
 local Camera = workspace.CurrentCamera
 
-local Config = {
-    Enabled = false,
-    AutoFire = true,
-    TeleportBehind = true,
-    BehindDistance = 8,
+local CFG = {
+    SilentAim = false,
+    AutoShot = false,
+    HitboxExpander = false,
+    HitboxSize = 15,
+    GunDropGrab = false,
+    Noclip = false,
+    Speed = false,
+    SpeedVal = 24,
+    MaxDist = 350,
     FireDelay = 0.55,
-    SmoothAim = true,
-    SmoothSpeed = 0.3,
-    MaxDistance = 300,
     AimPart = "HumanoidRootPart",
 }
 
 local Connections = {}
 local LastFire = 0
-local Target = nil
+local OriginalHitbox = {}
 
--- ========== HELPERS ==========
+-- ========== ROLE DETECTION ==========
 
 local function getRole(plr)
-    local char = plr.Character
-    if (char and char:FindFirstChild("Knife")) or plr.Backpack:FindFirstChild("Knife") then
+    local c = plr.Character
+    if (c and c:FindFirstChild("Knife")) or plr.Backpack:FindFirstChild("Knife") then
         return "Murderer"
-    elseif (char and char:FindFirstChild("Gun")) or plr.Backpack:FindFirstChild("Gun") then
+    elseif (c and c:FindFirstChild("Gun")) or plr.Backpack:FindFirstChild("Gun") then
         return "Sheriff"
     end
     return "Innocent"
 end
 
 local function getMurderer()
-    for _, plr in ipairs(Players:GetPlayers()) do
-        if plr ~= LocalPlayer and plr.Character and getRole(plr) == "Murderer" then
-            local hrp = plr.Character:FindFirstChild("HumanoidRootPart")
-            local hum = plr.Character:FindFirstChildOfClass("Humanoid")
-            if hrp and hum and hum.Health > 0 then
-                return plr
+    for _, p in ipairs(Players:GetPlayers()) do
+        if p ~= LP and getRole(p) == "Murderer" then
+            local c = p.Character
+            if c then
+                local hrp = c:FindFirstChild("HumanoidRootPart")
+                local hum = c:FindFirstChildOfClass("Humanoid")
+                if hrp and hum and hum.Health > 0 then
+                    return p
+                end
             end
         end
     end
     return nil
 end
 
+local function getDist(target)
+    local c = LP.Character
+    if not c then return math.huge end
+    local hrp = c:FindFirstChild("HumanoidRootPart")
+    if not hrp then return math.huge end
+    local tc = target.Character
+    if not tc then return math.huge end
+    local thrp = tc:FindFirstChild("HumanoidRootPart")
+    if not thrp then return math.huge end
+    return (hrp.Position - thrp.Position).Magnitude
+end
+
+-- ========== GUN ==========
+
 local function hasGun()
-    local char = LocalPlayer.Character
-    return (char and char:FindFirstChild("Gun") ~= nil) or
-           (LocalPlayer.Backpack:FindFirstChild("Gun") ~= nil)
+    local c = LP.Character
+    return (c and c:FindFirstChild("Gun")) or LP.Backpack:FindFirstChild("Gun")
 end
 
 local function equipGun()
-    local char = LocalPlayer.Character
-    if not char then return false end
-    local gun = LocalPlayer.Backpack:FindFirstChild("Gun")
-    if gun then
-        gun.Parent = char
-        return true
+    local gun = LP.Backpack:FindFirstChild("Gun")
+    if gun and LP.Character then
+        gun.Parent = LP.Character
     end
-    return char:FindFirstChild("Gun") ~= nil
 end
 
-local function getGunRemote()
-    local char = LocalPlayer.Character
-    if not char then return nil end
-    local gun = char:FindFirstChild("Gun")
+local function getShootRemote()
+    local c = LP.Character
+    if not c then return nil end
+    local gun = c:FindFirstChild("Gun")
     if not gun then return nil end
-    local knifeServer = gun:FindFirstChild("KnifeServer")
-    if not knifeServer then return nil end
-    return knifeServer:FindFirstChild("ShootGun")
+    local ks = gun:FindFirstChild("KnifeServer")
+    if not ks then return nil end
+    return ks:FindFirstChild("ShootGun")
 end
 
-local function getDistanceTo(target)
-    local myChar = LocalPlayer.Character
-    if not myChar then return math.huge end
-    local myHRP = myChar:FindFirstChild("HumanoidRootPart")
-    if not myHRP then return math.huge end
-    local targetChar = target.Character
-    if not targetChar then return math.huge end
-    local targetHRP = targetChar:FindFirstChild("HumanoidRootPart")
-    if not targetHRP then return math.huge end
-    return (myHRP.Position - targetHRP.Position).Magnitude
+-- ========== SILENT AIM ==========
+
+local function silentAim()
+    local murderer = getMurderer()
+    if not murderer then return end
+    local tc = murderer.Character
+    if not tc then return end
+    local thrp = tc:FindFirstChild(CFG.AimPart)
+    if not thrp then return end
+
+    local c = LP.Character
+    if not c then return end
+    local hrp = c:FindFirstChild("HumanoidRootPart")
+    if not hrp then return end
+
+    -- Teleport behind murderer
+    local dir = (hrp.Position - thrp.Position).Unit
+    local behindPos = thrp.Position + dir * 8
+    hrp.CFrame = CFrame.lookAt(behindPos, thrp.Position)
+
+    -- Face the murderer
+    hrp.CFrame = CFrame.lookAt(hrp.Position, thrp.Position)
 end
 
-local function aimAt(target)
-    local char = LocalPlayer.Character
-    if not char then return end
-    local myHRP = char:FindFirstChild("HumanoidRootPart")
-    if not myHRP then return end
-    local targetChar = target.Character
-    if not targetChar then return end
-    local targetPart = targetChar:FindFirstChild(Config.AimPart)
-    if not targetPart then return end
-
-    local targetPos = targetPart.Position
-    if Config.TeleportBehind then
-        local lookDir = (myHRP.Position - targetPos).Unit
-        targetPos = targetPos + lookDir * Config.BehindDistance
-    end
-
-    if Config.SmoothAim then
-        local currentCF = myHRP.CFrame
-        local lookAt = CFrame.lookAt(currentCF.Position, targetPart.Position)
-        myHRP.CFrame = currentCF:Lerp(lookAt, Config.SmoothSpeed)
-    else
-        myHRP.CFrame = CFrame.lookAt(myHRP.Position, targetPart.Position)
-    end
-end
-
-local function fireGun()
+local function fireAtTarget()
     local now = tick()
-    if now - LastFire < Config.FireDelay then return end
+    if now - LastFire < CFG.FireDelay then return end
 
     local murderer = getMurderer()
     if not murderer then return end
-    local targetChar = murderer.Character
-    if not targetChar then return end
-    local targetHRP = targetChar:FindFirstChild("HumanoidRootPart")
-    if not targetHRP then return end
+    local tc = murderer.Character
+    if not tc then return end
+    local thrp = tc:FindFirstChild(CFG.AimPart)
+    if not thrp then return end
 
-    local remote = getGunRemote()
+    local remote = getShootRemote()
     if not remote then return end
 
-    local shootPos = targetHRP.Position
-    if Config.TeleportBehind then
-        local myHRP = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-        if myHRP then
-            local lookDir = (myHRP.Position - targetHRP.Position).Unit
-            shootPos = targetHRP.Position + lookDir * Config.BehindDistance
-        end
-    end
-
+    -- Silent aim: always send bullet to target
+    local shootPos = thrp.Position
     pcall(function()
         remote:InvokeServer(1, shootPos, "AH")
     end)
     LastFire = now
 end
 
+-- ========== HITBOX EXPANDER ==========
+
+local function setHitbox(plr, size)
+    local c = plr.Character
+    if not c then return end
+    local hrp = c:FindFirstChild("HumanoidRootPart")
+    if not hrp then return end
+    local old = OriginalHitbox[plr.Name]
+    if not old then
+        OriginalHitbox[plr.Name] = hrp.Size
+    end
+    hrp.Size = Vector3.new(size, size, size)
+    hrp.Transparency = 0.7
+    hrp.CanCollide = false
+end
+
+local function resetHitbox(plr)
+    local c = plr.Character
+    if not c then return end
+    local hrp = c:FindFirstChild("HumanoidRootPart")
+    if not hrp then return end
+    local orig = OriginalHitbox[plr.Name]
+    if orig then
+        hrp.Size = orig
+        hrp.Transparency = 1
+    end
+end
+
+-- ========== GUN DROP GRAB ==========
+
+local function watchGunDrop()
+    table.insert(Connections, workspace.ChildAdded:Connect(function(child)
+        if child.Name == "GunDrop" and CFG.GunDropGrab then
+            task.wait(0.1)
+            local c = LP.Character
+            if c then
+                local hrp = c:FindFirstChild("HumanoidRootPart")
+                if hrp then
+                    hrp.CFrame = child.CFrame + Vector3.new(0, 2, 0)
+                end
+            end
+        end
+    end))
+end
+
+-- ========== NOCLIP ==========
+
+local noclipConn
+local function toggleNoclip()
+    if CFG.Noclip then
+        noclipConn = RunService.Stepped:Connect(function()
+            local c = LP.Character
+            if c then
+                for _, part in ipairs(c:GetDescendants()) do
+                    if part:IsA("BasePart") then
+                        part.CanCollide = false
+                    end
+                end
+            end
+        end)
+        table.insert(Connections, noclipConn)
+    else
+        if noclipConn then
+            noclipConn:Disconnect()
+            noclipConn = nil
+        end
+    end
+end
+
+-- ========== SPEED ==========
+
+local speedConn
+local function toggleSpeed()
+    if CFG.Speed then
+        speedConn = RunService.Stepped:Connect(function()
+            local c = LP.Character
+            if c then
+                local hum = c:FindFirstChildOfClass("Humanoid")
+                if hum then
+                    hum.WalkSpeed = CFG.SpeedVal
+                end
+            end
+        end)
+        table.insert(Connections, speedConn)
+    else
+        if speedConn then
+            speedConn:Disconnect()
+            speedConn = nil
+        end
+        local c = LP.Character
+        if c then
+            local hum = c:FindFirstChildOfClass("Humanoid")
+            if hum then hum.WalkSpeed = 16 end
+        end
+    end
+end
+
 -- ========== UI ==========
 
 local function createUI()
     local gui = Instance.new("ScreenGui")
-    gui.Name = "MM2AutoAim"
+    gui.Name = "MM2Pulse"
     gui.ResetOnSpawn = false
     gui.IgnoreGuiInset = true
     gui.DisplayOrder = 1000
-    gui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+    gui.Parent = LP:WaitForChild("PlayerGui")
 
-    local btn = Instance.new("TextButton")
-    btn.Name = "Toggle"
-    btn.Parent = gui
-    btn.Size = UDim2.new(0, 140, 0, 36)
-    btn.Position = UDim2.new(0.5, -70, 0, 10)
-    btn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-    btn.Text = "  🎯 Auto-Aim: OFF"
-    btn.TextColor3 = Color3.fromRGB(180, 180, 180)
-    btn.TextSize = 13
-    btn.Font = Enum.Font.GothamBold
-    btn.TextXAlignment = Enum.TextXAlignment.Left
-    btn.BorderSizePixel = 0
-    btn.AutoButtonColor = false
-    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
-    local stroke = Instance.new("UIStroke")
-    stroke.Color = Color3.fromRGB(80, 80, 80)
-    stroke.Thickness = 1
-    stroke.Parent = btn
+    local main = Instance.new("Frame")
+    main.Name = "Panel"
+    main.Parent = gui
+    main.Size = UDim2.new(0, 200, 0, 280)
+    main.Position = UDim2.new(0, 10, 0.5, -140)
+    main.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
+    main.BorderSizePixel = 0
+    main.Active = true
+    main.Draggable = true
+    Instance.new("UICorner", main).CornerRadius = UDim.new(0, 10)
+    local mainStroke = Instance.new("UIStroke")
+    mainStroke.Color = Color3.fromRGB(255, 50, 70)
+    mainStroke.Thickness = 1.5
+    mainStroke.Transparency = 0.3
+    mainStroke.Parent = main
+
+    local title = Instance.new("TextLabel")
+    title.Parent = main
+    title.Size = UDim2.new(1, 0, 0, 32)
+    title.BackgroundColor3 = Color3.fromRGB(255, 50, 70)
+    title.Text = "  MM2 PULSE"
+    title.TextColor3 = Color3.fromRGB(255, 255, 255)
+    title.TextSize = 14
+    title.Font = Enum.Font.GothamBlack
+    title.TextXAlignment = Enum.TextXAlignment.Left
+    title.BorderSizePixel = 0
+    Instance.new("UICorner", title).CornerRadius = UDim.new(0, 10)
 
     local status = Instance.new("TextLabel")
     status.Name = "Status"
-    status.Parent = gui
-    status.Size = UDim2.new(0, 200, 0, 24)
-    status.Position = UDim2.new(0.5, -100, 0, 52)
+    status.Parent = main
+    status.Size = UDim2.new(1, -16, 0, 20)
+    status.Position = UDim2.new(0, 8, 0, 36)
     status.BackgroundTransparency = 1
-    status.Text = "Murderer: ???"
-    status.TextColor3 = Color3.fromRGB(200, 80, 80)
-    status.TextSize = 12
+    status.Text = "Role: ..."
+    status.TextColor3 = Color3.fromRGB(180, 180, 180)
+    status.TextSize = 11
     status.Font = Enum.Font.GothamMedium
+    status.TextXAlignment = Enum.TextXAlignment.Left
 
-    btn.MouseButton1Click:Connect(function()
-        Config.Enabled = not Config.Enabled
-        if Config.Enabled then
-            btn.Text = "  🎯 Auto-Aim: ON"
-            btn.BackgroundColor3 = Color3.fromRGB(180, 40, 50)
-            btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-            stroke.Color = Color3.fromRGB(255, 80, 80)
-        else
-            btn.Text = "  🎯 Auto-Aim: OFF"
-            btn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-            btn.TextColor3 = Color3.fromRGB(180, 180, 180)
-            stroke.Color = Color3.fromRGB(80, 80, 80)
-        end
-    end)
+    local targetLabel = Instance.new("TextLabel")
+    targetLabel.Name = "Target"
+    targetLabel.Parent = main
+    targetLabel.Size = UDim2.new(1, -16, 0, 20)
+    targetLabel.Position = UDim2.new(0, 8, 0, 54)
+    targetLabel.BackgroundTransparency = 1
+    targetLabel.Text = "Target: Nobody"
+    targetLabel.TextColor3 = Color3.fromRGB(255, 80, 80)
+    targetLabel.TextSize = 11
+    targetLabel.Font = Enum.Font.GothamMedium
+    targetLabel.TextXAlignment = Enum.TextXAlignment.Left
 
-    -- Draggable
-    local dragging, dragStart, startPos
-    btn.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            dragging = true
-            dragStart = input.Position
-            startPos = btn.Position
-        end
-    end)
-    UserInputService.InputChanged:Connect(function(input)
-        if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-            local delta = input.Position - dragStart
-            btn.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-            status.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, 0, 52)
-        end
-    end)
-    UserInputService.InputEnded:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            dragging = false
-        end
-    end)
+    local toggles = {
+        {name = "Silent Aim", key = "SilentAim", color = Color3.fromRGB(255, 50, 70)},
+        {name = "Auto Shot", key = "AutoShot", color = Color3.fromRGB(255, 150, 50)},
+        {name = "Hitbox Expander", key = "HitboxExpander", color = Color3.fromRGB(50, 200, 255)},
+        {name = "Gun Drop Grab", key = "GunDropGrab", color = Color3.fromRGB(100, 255, 100)},
+        {name = "Noclip", key = "Noclip", color = Color3.fromRGB(200, 100, 255)},
+        {name = "Speed", key = "Speed", color = Color3.fromRGB(255, 255, 100)},
+    }
 
-    return gui, status
+    local yPos = 80
+    for i, t in ipairs(toggles) do
+        local frame = Instance.new("Frame")
+        frame.Parent = main
+        frame.Size = UDim2.new(1, -16, 0, 28)
+        frame.Position = UDim2.new(0, 8, 0, yPos)
+        frame.BackgroundColor3 = Color3.fromRGB(30, 30, 38)
+        frame.BorderSizePixel = 0
+        Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 6)
+
+        local label = Instance.new("TextLabel")
+        label.Parent = frame
+        label.Size = UDim2.new(0.65, 0, 1, 0)
+        label.Position = UDim2.new(0, 8, 0, 0)
+        label.BackgroundTransparency = 1
+        label.Text = t.name
+        label.TextColor3 = Color3.fromRGB(200, 200, 200)
+        label.TextSize = 11
+        label.Font = Enum.Font.GothamMedium
+        label.TextXAlignment = Enum.TextXAlignment.Left
+
+        local toggle = Instance.new("TextButton")
+        toggle.Parent = frame
+        toggle.Size = UDim2.new(0, 40, 0, 18)
+        toggle.Position = UDim2.new(1, -48, 0.5, -9)
+        toggle.BackgroundColor3 = CFG[t.key] and t.color or Color3.fromRGB(60, 60, 60)
+        toggle.Text = CFG[t.key] and "ON" or "OFF"
+        toggle.TextColor3 = Color3.fromRGB(255, 255, 255)
+        toggle.TextSize = 9
+        toggle.Font = Enum.Font.GothamBold
+        toggle.BorderSizePixel = 0
+        Instance.new("UICorner", toggle).CornerRadius = UDim.new(0, 9)
+
+        local key = t.key
+        local col = t.color
+        toggle.MouseButton1Click:Connect(function()
+            CFG[key] = not CFG[key]
+            if CFG[key] then
+                toggle.BackgroundColor3 = col
+                toggle.Text = "ON"
+            else
+                toggle.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+                toggle.Text = "OFF"
+            end
+            if key == "Noclip" then toggleNoclip() end
+            if key == "Speed" then toggleSpeed() end
+        end)
+
+        yPos = yPos + 32
+    end
+
+    return gui, status, targetLabel
 end
 
--- ========== MAIN LOOP ==========
+-- ========== MAIN ==========
 
-local gui, statusLabel = createUI()
+local gui, statusLabel, targetLabel = createUI()
+watchGunDrop()
 
 table.insert(Connections, RunService.RenderStepped:Connect(function()
-    if not Config.Enabled then
-        statusLabel.Text = "Murderer: ???"
-        statusLabel.TextColor3 = Color3.fromRGB(200, 80, 80)
-        return
+    local myChar = LP.Character
+    local myRole = "..."
+    if myChar then
+        myRole = getRole(LP)
     end
+    statusLabel.Text = "Role: " .. myRole
 
     local murderer = getMurderer()
     if murderer then
-        local dist = getDistanceTo(murderer)
-        statusLabel.Text = "Murderer: " .. murderer.Name .. " (" .. math.floor(dist) .. "m)"
-        statusLabel.TextColor3 = Color3.fromRGB(255, 80, 80)
+        local dist = getDist(murderer)
+        targetLabel.Text = "Target: " .. murderer.Name .. " (" .. math.floor(dist) .. "m)"
 
-        if hasGun() and dist <= Config.MaxDistance then
+        -- Silent Aim
+        if CFG.SilentAim and hasGun() and dist <= CFG.MaxDist then
             equipGun()
-            aimAt(murderer)
-            if Config.AutoFire then
-                fireGun()
+            silentAim()
+            if CFG.AutoShot then
+                fireAtTarget()
             end
+        end
+
+        -- Hitbox Expander
+        if CFG.HitboxExpander then
+            setHitbox(murderer, CFG.HitboxSize)
         else
-            statusLabel.Text = statusLabel.Text .. " [NO GUN]"
+            resetHitbox(murderer)
         end
     else
-        statusLabel.Text = "Murderer: Nobody"
-        statusLabel.TextColor3 = Color3.fromRGB(80, 200, 80)
+        targetLabel.Text = "Target: Nobody"
     end
 end))
 
+-- Reset hitbox when murderer changes
 table.insert(Connections, Players.PlayerRemoving:Connect(function(plr)
-    if plr == LocalPlayer then
-        for _, conn in ipairs(Connections) do
-            pcall(function() conn:Disconnect() end)
-        end
-        if gui then gui:Destroy() end
-    end
+    resetHitbox(plr)
+    OriginalHitbox[plr.Name] = nil
 end))
 
--- ========== CLEANUP ON KEYBIND ==========
-
-UserInputService.InputBegan:Connect(function(input, processed)
-    if processed then return end
+-- Cleanup
+UserInputService.InputBegan:Connect(function(input, gpe)
+    if gpe then return end
     if input.KeyCode == Enum.KeyCode.Delete then
-        Config.Enabled = false
-        for _, conn in ipairs(Connections) do
-            pcall(function() conn:Disconnect() end)
+        for _, c in ipairs(Connections) do
+            pcall(function() c:Disconnect() end)
+        end
+        -- Reset all hitboxes
+        for _, p in ipairs(Players:GetPlayers()) do
+            resetHitbox(p)
+        end
+        -- Reset speed
+        if LP.Character then
+            local hum = LP.Character:FindFirstChildOfClass("Humanoid")
+            if hum then hum.WalkSpeed = 16 end
         end
         if gui then gui:Destroy() end
+        print("[MM2 Pulse] Unloaded")
     end
 end)
 
-print("[MM2 Auto-Aim] Loaded | Press Delete to unload")
+print("[MM2 Pulse] Loaded | Press Delete to unload")
