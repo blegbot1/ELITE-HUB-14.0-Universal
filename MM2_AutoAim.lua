@@ -46,34 +46,54 @@ local function onRoundEnd()
     Murderer, Sheriff, Hero = nil, nil, nil
 end
 
--- Listen to game events for roles
-table.insert(Connections, ReplicatedStorage.Fade.OnClientEvent:Connect(function(data)
-    for _, v in ipairs(Players:GetPlayers()) do
-        local info = data[v.Name]
-        if info then
-            local role = typeof(info) == "table" and info.Role or "Unknown"
-            pcall(updateRole, v, role)
+-- Listen to game events for roles (pcall in case remotes don't exist)
+pcall(function()
+    table.insert(Connections, ReplicatedStorage.Fade.OnClientEvent:Connect(function(data)
+        for _, v in ipairs(Players:GetPlayers()) do
+            local info = data[v.Name]
+            if info then
+                local role = typeof(info) == "table" and info.Role or "Unknown"
+                pcall(updateRole, v, role)
+            end
         end
-    end
-end))
+    end))
+end)
 
-table.insert(Connections, ReplicatedStorage.UpdatePlayerData.OnClientEvent:Connect(function(data)
-    for _, v in ipairs(Players:GetPlayers()) do
-        local info = data[v.Name]
-        if info then
-            local role = typeof(info) == "table" and info.Role or "Unknown"
-            pcall(updateRole, v, role)
+pcall(function()
+    table.insert(Connections, ReplicatedStorage.UpdatePlayerData.OnClientEvent:Connect(function(data)
+        for _, v in ipairs(Players:GetPlayers()) do
+            local info = data[v.Name]
+            if info then
+                local role = typeof(info) == "table" and info.Role or "Unknown"
+                pcall(updateRole, v, role)
+            end
         end
-    end
-end))
+    end))
+end)
 
-table.insert(Connections, ReplicatedStorage.RoleSelect.OnClientEvent:Connect(function(role, ...)
-    updateRole(LP, role or "Unknown")
-end))
+pcall(function()
+    table.insert(Connections, ReplicatedStorage.RoleSelect.OnClientEvent:Connect(function(role, ...)
+        updateRole(LP, role or "Unknown")
+    end))
+end)
 
 pcall(function()
     table.insert(Connections, ReplicatedStorage.Remotes.Gameplay.RoundEndFade.OnClientEvent:Connect(onRoundEnd))
 end)
+
+-- Fallback: detect roles by checking tools (works on all versions)
+local function detectRolesByTools()
+    for _, p in ipairs(Players:GetPlayers()) do
+        if p ~= LP then
+            local c = p.Character
+            if (c and c:FindFirstChild("Knife")) or p.Backpack:FindFirstChild("Knife") then
+                updateRole(p, "Murderer")
+            elseif (c and c:FindFirstChild("Gun")) or p.Backpack:FindFirstChild("Gun") then
+                updateRole(p, "Sheriff")
+            end
+        end
+    end
+end
 
 -- ========== SILENT AIM (hookmetamethod) ==========
 
@@ -105,13 +125,6 @@ end)
 
 local function expandHitboxes()
     if not CFG.HitboxExpand then return end
-    local char = LP.Character
-    if not char then return end
-    local knife = char:FindFirstChild("Knife")
-    if not knife or not knife:IsA("Tool") then return end
-    local handle = knife:FindFirstChild("Handle")
-    if not handle then return end
-
     for _, p in ipairs(Players:GetPlayers()) do
         if p ~= LP and p.Character then
             local root = p.Character:FindFirstChild("HumanoidRootPart")
@@ -374,6 +387,9 @@ table.insert(Connections, RunService.RenderStepped:Connect(function()
     -- Update status
     local myRole = Roles[LP] or "..."
     statusLabel.Text = "Role: " .. myRole
+
+    -- Fallback role detection
+    detectRolesByTools()
 
     -- Update target
     if Murderer and Murderer.Character then
