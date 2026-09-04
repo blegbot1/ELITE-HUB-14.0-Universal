@@ -8982,48 +8982,49 @@ end
 
 local countLabel = ItemFinderTab:CreateLabel(L("NoItems"))
 
-ItemListFrame = Instance.new("ScrollingFrame")
-ItemListFrame.Name = "ItemList"
-ItemListFrame.Size = UDim2.new(1, 0, 0, 250)
-ItemListFrame.BackgroundTransparency = 1
-ItemListFrame.ScrollBarThickness = 4
-ItemListFrame.ScrollBarImageColor3 = Color3.fromRGB(150, 70, 255)
-ItemListFrame.BorderSizePixel = 0
-ItemListFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
-ItemListFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
-ItemListFrame.Parent = ItemFinderTab.Content
-Instance.new("UIListLayout", ItemListFrame).Padding = UDim.new(0, 4)
-Instance.new("UIPadding", ItemListFrame).PaddingLeft = UDim.new(0, 4)
+local ifScroll = Instance.new("ScrollingFrame")
+ifScroll.Name = "ItemList"
+ifScroll.Size = UDim2.new(1, 0, 0, 300)
+ifScroll.BackgroundTransparency = 1
+ifScroll.ScrollBarThickness = 4
+ifScroll.ScrollBarImageColor3 = Color3.fromRGB(150, 70, 255)
+ifScroll.BorderSizePixel = 0
+ifScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
+ifScroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
+ifScroll.Parent = ItemFinderTab.Content
+Instance.new("UIListLayout", ifScroll).Padding = UDim.new(0, 4)
+Instance.new("UIPadding", ifScroll).PaddingLeft = UDim.new(0, 4)
+Instance.new("UIPadding", ifScroll).PaddingRight = UDim.new(0, 4)
+ItemListFrame = ifScroll
 
-    local n0 = scanItems()
-    print("[ELITE_HUB] Item Finder scan: " .. n0 .. " items found")
-    for i, item in ipairs(FoundItems) do
-        print("[ELITE_HUB]   " .. i .. ". " .. item.name .. " (" .. item.interactionType .. ")")
+local function refreshItemList()
+    for _, btn in ipairs(ItemButtons) do
+        pcall(function() btn:Destroy() end)
     end
+    ItemButtons = {}
+
+    local n = scanItems()
     pcall(function()
-        countLabel:SetText(L("Found") .. ": " .. n0 .. " " .. L("items"))
+        countLabel:SetText(L("Found") .. ": " .. n .. " " .. L("items"))
     end)
+end
 
 ItemFinderTab:CreateButton({
     Name = L("Refresh"),
     Callback = function()
-        local n = scanItems()
-        pcall(function()
-            countLabel:SetText(L("Found") .. ": " .. n .. " " .. L("items"))
-        end)
+        refreshItemList()
     end
 })
 
 task.spawn(function()
     while task.wait(5) do
         pcall(function()
-            if ItemListFrame and ItemListFrame.Parent then
-                local n = scanItems()
-                countLabel:SetText(L("Found") .. ": " .. n .. " " .. L("items"))
-            end
+            refreshItemList()
         end)
     end
 end)
+
+refreshItemList()
 
 local RangeTab = Window:CreateTab("🎯 " .. "RANGE", 7733960981, "Range")
 
