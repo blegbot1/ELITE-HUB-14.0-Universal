@@ -543,6 +543,7 @@ function EliteHubUI:CreateTab(name, icon, langKey)
 
     -- Click handler
     local function activate()
+        if self._currentTab == name then return end
         for _, f in pairs(self._tabFrames) do
             if f.Visible then
                 TweenService:Create(f, TweenInfo.new(0.12, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {BackgroundTransparency = 1}):Play()
@@ -8999,12 +9000,6 @@ ItemFinderTab:CreateButton({
         refreshItemList()
     end
 })
-
-task.spawn(function()
-    while task.wait(5) do
-        pcall(function() refreshItemList() end)
-    end
-end)
 
 task.spawn(function()
     task.wait(0.5)
