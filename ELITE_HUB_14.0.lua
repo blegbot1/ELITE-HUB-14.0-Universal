@@ -1550,17 +1550,19 @@ task.spawn(function()
         {1.0,  "Done!"},
     }
     for _, step in ipairs(steps) do
-        TweenService:Create(bar, TweenInfo.new(0.05, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(step[1], 0, 1, 0)}):Play()
+        TweenService:Create(bar, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(step[1], 0, 1, 0)}):Play()
         status.Text = step[2]
+        task.wait(0.3)
     end
 
-    TweenService:Create(bg, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = 1}):Play()
-    TweenService:Create(title, TweenInfo.new(0.3), {TextTransparency = 1, TextStrokeTransparency = 1}):Play()
-    TweenService:Create(sub, TweenInfo.new(0.3), {TextTransparency = 1}):Play()
-    TweenService:Create(status, TweenInfo.new(0.3), {TextTransparency = 1}):Play()
-    TweenService:Create(barBg, TweenInfo.new(0.3), {BackgroundTransparency = 1}):Play()
-    TweenService:Create(bar, TweenInfo.new(0.3), {BackgroundTransparency = 1}):Play()
-    game:GetService("RunService").RenderStepped:Wait()
+    task.wait(0.3)
+    TweenService:Create(bg, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = 1}):Play()
+    TweenService:Create(title, TweenInfo.new(0.5), {TextTransparency = 1, TextStrokeTransparency = 1}):Play()
+    TweenService:Create(sub, TweenInfo.new(0.5), {TextTransparency = 1}):Play()
+    TweenService:Create(status, TweenInfo.new(0.5), {TextTransparency = 1}):Play()
+    TweenService:Create(barBg, TweenInfo.new(0.5), {BackgroundTransparency = 1}):Play()
+    TweenService:Create(bar, TweenInfo.new(0.5), {BackgroundTransparency = 1}):Play()
+    task.wait(0.6)
     LG:Destroy()
 end)
 
@@ -9152,6 +9154,62 @@ RangeTab:CreateSlider({
 
 local re2 = RangeTab:CreateSection("🔄 SPIN BOT")
 
+local spinAngle = 0
+local spinConn = nil
+local origBindKeys = nil
+
+local function startSpin()
+    if spinConn then return end
+    pcall(function()
+        local playerModule = player:WaitForChild("PlayerScripts"):WaitForChild("PlayerModule")
+        local cameraModule = playerModule:WaitForChild("CameraModule")
+        local mouseLockController = cameraModule:WaitForChild("MouseLockController")
+        local boundKeysObj = mouseLockController:FindFirstChild("BoundKeys")
+        if boundKeysObj then
+            origBindKeys = boundKeysObj.Value
+            boundKeysObj.Value = ""
+        end
+    end)
+    spinConn = game:GetService("RunService").RenderStepped:Connect(function()
+        pcall(function()
+            if not getgenv().ELITE_HUB_RangeSpin then return end
+            local ch = player.Character
+            if not ch then return end
+            local hrp = ch:FindFirstChild("HumanoidRootPart")
+            local hum = ch:FindFirstChildOfClass("Humanoid")
+            if not hrp or not hum then return end
+            spinAngle = spinAngle + getgenv().ELITE_HUB_RangeSpinSpeed * 0.5
+            local currentPos = hrp.Position
+            local moveDir = hum.MoveDirection
+            if moveDir.Magnitude > 0.1 and getgenv().ELITE_HUB_RangeSpinDuringMove then
+                local moveAngle = math.atan2(moveDir.X, moveDir.Z)
+                hrp.CFrame = CFrame.new(currentPos) * CFrame.Angles(0, moveAngle + math.rad(spinAngle), 0)
+            else
+                hrp.CFrame = CFrame.new(currentPos) * CFrame.Angles(0, math.rad(spinAngle), 0)
+            end
+        end)
+    end)
+end
+
+local function stopSpin()
+    if spinConn then
+        spinConn:Disconnect()
+        spinConn = nil
+    end
+    pcall(function()
+        if origBindKeys then
+            local playerModule = player:WaitForChild("PlayerScripts"):WaitForChild("PlayerModule")
+            local cameraModule = playerModule:WaitForChild("CameraModule")
+            local mouseLockController = cameraModule:WaitForChild("MouseLockController")
+            local boundKeysObj = mouseLockController:FindFirstChild("BoundKeys")
+            if boundKeysObj then
+                boundKeysObj.Value = origBindKeys
+            end
+            origBindKeys = nil
+        end
+    end)
+end
+
 getgenv().ELITE_HUB_RangeSpin = false
 getgenv().ELITE_HUB_RangeSpinSpeed = 50
 getgenv().ELITE_HUB_RangeSpinDuringMove = true
@@ -9202,63 +9260,6 @@ RangeTab:CreateToggle({
         getgenv().ELITE_HUB_RangeSpinDuringMove = value
     end
 })
-
-local spinAngle = 0
-local spinConn = nil
-local origBindKeys = nil
-
-local function startSpin()
-    if spinConn then return end
-    local RunService = game:GetService("RunService")
-    pcall(function()
-        local playerModule = player:WaitForChild("PlayerScripts"):WaitForChild("PlayerModule")
-        local cameraModule = playerModule:WaitForChild("CameraModule")
-        local mouseLockController = cameraModule:WaitForChild("MouseLockController")
-        local boundKeysObj = mouseLockController:FindFirstChild("BoundKeys")
-        if boundKeysObj then
-            origBindKeys = boundKeysObj.Value
-            boundKeysObj.Value = ""
-        end
-    end)
-    spinConn = RunService.RenderStepped:Connect(function()
-        pcall(function()
-            if not getgenv().ELITE_HUB_RangeSpin then return end
-            local ch = player.Character
-            if not ch then return end
-            local hrp = ch:FindFirstChild("HumanoidRootPart")
-            local hum = ch:FindFirstChildOfClass("Humanoid")
-            if not hrp or not hum then return end
-            spinAngle = spinAngle + getgenv().ELITE_HUB_RangeSpinSpeed * 0.5
-            local currentPos = hrp.Position
-            local moveDir = hum.MoveDirection
-            if moveDir.Magnitude > 0.1 and getgenv().ELITE_HUB_RangeSpinDuringMove then
-                local moveAngle = math.atan2(moveDir.X, moveDir.Z)
-                hrp.CFrame = CFrame.new(currentPos) * CFrame.Angles(0, moveAngle + math.rad(spinAngle), 0)
-            else
-                hrp.CFrame = CFrame.new(currentPos) * CFrame.Angles(0, math.rad(spinAngle), 0)
-            end
-        end)
-    end)
-end
-
-local function stopSpin()
-    if spinConn then
-        spinConn:Disconnect()
-        spinConn = nil
-    end
-    pcall(function()
-        if origBindKeys then
-            local playerModule = player:WaitForChild("PlayerScripts"):WaitForChild("PlayerModule")
-            local cameraModule = playerModule:WaitForChild("CameraModule")
-            local mouseLockController = cameraModule:WaitForChild("MouseLockController")
-            local boundKeysObj = mouseLockController:FindFirstChild("BoundKeys")
-            if boundKeysObj then
-                boundKeysObj.Value = origBindKeys
-            end
-            origBindKeys = nil
-        end
-    end)
-end
 
 local re3 = RangeTab:CreateSection("🏃 SPEED BOOST")
 
@@ -9371,7 +9372,7 @@ RangeTab:CreateSlider({
     end
 })
 
-local matNames = {"Neon", "ForceField", "Glass", "SmoothPlastic", "DiamondPlate", "Chrome"}
+local matNames = {"Neon", "ForceField", "Glass", "SmoothPlastic", "DiamondPlate", "Foil"}
 RangeTab:CreateDropdown({
     Name = "🎨 Material",
     Options = matNames,
@@ -9383,7 +9384,7 @@ RangeTab:CreateDropdown({
             Glass = Enum.Material.Glass,
             SmoothPlastic = Enum.Material.SmoothPlastic,
             DiamondPlate = Enum.Material.DiamondPlate,
-            Chrome = Enum.Material.Chrome,
+            Foil = Enum.Material.Foil,
         }
         getgenv().ELITE_HUB_RangeWeaponMat = matMap[opt] or Enum.Material.Neon
     end
