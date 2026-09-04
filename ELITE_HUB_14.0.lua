@@ -8736,15 +8736,25 @@ local function scanItems()
             if item.container == root then return end
         end
         local pos = nil
-        if root:IsA("BasePart") then
-            pos = root.Position
-        elseif root:IsA("Model") then
-            local pp = root.PrimaryPart or root:FindFirstChildWhichIsA("BasePart")
-            if pp then pos = pp.Position end
+        local searchRoot = root
+        while searchRoot and searchRoot ~= workspace do
+            if searchRoot:IsA("BasePart") then
+                pos = searchRoot.Position
+                root = searchRoot
+                break
+            elseif searchRoot:IsA("Model") then
+                local pp = searchRoot.PrimaryPart or searchRoot:FindFirstChildWhichIsA("BasePart")
+                if pp then
+                    pos = pp.Position
+                    root = searchRoot
+                    break
+                end
+            end
+            searchRoot = searchRoot.Parent
         end
         if not pos and intObj then
             local p = intObj.Parent
-            if p and p:IsA("BasePart") then pos = p.Position end
+            if p and p:IsA("BasePart") then pos = p.Position; root = p end
         end
         if pos then
             table.insert(FoundItems, {
@@ -8985,10 +8995,14 @@ ItemListFrame.Parent = ItemFinderTab.Content
 Instance.new("UIListLayout", ItemListFrame).Padding = UDim.new(0, 4)
 Instance.new("UIPadding", ItemListFrame).PaddingLeft = UDim.new(0, 4)
 
-local n0 = scanItems()
-pcall(function()
-    countLabel:SetText(L("Found") .. ": " .. n0 .. " " .. L("items"))
-end)
+    local n0 = scanItems()
+    print("[ELITE_HUB] Item Finder scan: " .. n0 .. " items found")
+    for i, item in ipairs(FoundItems) do
+        print("[ELITE_HUB]   " .. i .. ". " .. item.name .. " (" .. item.interactionType .. ")")
+    end
+    pcall(function()
+        countLabel:SetText(L("Found") .. ": " .. n0 .. " " .. L("items"))
+    end)
 
 ItemFinderTab:CreateButton({
     Name = L("Refresh"),
