@@ -8850,7 +8850,22 @@ task.spawn(function()
         ItemListFrame.Parent = ItemFinderTab.Content
         Instance.new("UIListLayout", ItemListFrame).Padding = UDim.new(0, 4)
         Instance.new("UIPadding", ItemListFrame).PaddingLeft = UDim.new(0, 4)
+        task.wait(0.5)
+        local n = scanItems()
+        pcall(function()
+            countLabel:SetText(L("Found") .. ": " .. n .. " " .. L("items"))
+        end)
     end)
+end)
+
+task.spawn(function()
+    while task.wait(5) do
+        pcall(function()
+            if ItemListFrame and ItemListFrame.Parent then
+                scanItems()
+            end
+        end)
+    end
 end)
 
 local RangeTab = Window:CreateTab("🎯 " .. "RANGE", 7733960981, "Range")
