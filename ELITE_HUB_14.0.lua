@@ -8722,22 +8722,76 @@ local function scanItems()
     local myPos = ch and ch:FindFirstChild("HumanoidRootPart") and ch.HumanoidRootPart.Position or Vector3.zero
 
     for _, obj in ipairs(workspace:GetDescendants()) do
-        local tool = nil
-        if obj:IsA("Tool") then
-            tool = obj
-        elseif obj:IsA("BasePart") then
-            local t = obj:FindFirstChildOfClass("Tool")
-            if t then tool = t end
-        end
-        if tool then
-            local part = tool:FindFirstChild("Handle") or tool:FindFirstChildWhichIsA("BasePart")
-            if part then
-                table.insert(FoundItems, tool)
+        pcall(function()
+            local itemPart = nil
+            local itemName = nil
+            local itemType = ""
+
+            if obj:IsA("Tool") then
+                itemPart = obj:FindFirstChild("Handle") or obj:FindFirstChildWhichIsA("BasePart")
+                itemName = obj.Name
+                itemType = "Tool"
+            elseif obj:IsA("ProximityPrompt") then
+                local parent = obj.Parent
+                if parent and parent:IsA("BasePart") then
+                    itemPart = parent
+                    itemName = parent.Name
+                    itemType = "Prompt"
+                end
+            elseif obj:IsA("BasePart") and obj.Name ~= "Terrain" and obj.Name ~= "Baseplate" then
+                local n = string.lower(obj.Name)
+                if string.find(n, "coin") or string.find(n, "token") or string.find(n, "gem")
+                    or string.find(n, "drop") or string.find(n, "loot") or string.find(n, "chest")
+                    or string.find(n, "box") or string.find(n, "bag") or string.find(n, "key")
+                    or string.find(n, "orb") or string.find(n, "star") or string.find(n, "heart")
+                    or string.find(n, "magnet") or string.find(n, "boost") or string.find(n, "power")
+                    or string.find(n, "pickup") or string.find(n, "collect") or string.find(n, "item")
+                    or string.find(n, "spawn") or string.find(n, "reward") or string.find(n, "prize")
+                    or string.find(n, "treasure") or string.find(n, "gold") or string.find(n, "silver")
+                    or string.find(n, "diamond") or string.find(n, "ruby") or string.find(n, "emerald")
+                    or string.find(n, "weapon") or string.find(n, "sword") or string.find(n, "gun")
+                    or string.find(n, "knife") or string.find(n, "rifle") or string.find(n, "pistol")
+                    or string.find(n, "shotgun") or string.find(n, "bow") or string.find(n, "staff")
+                    or string.find(n, "shield") or string.find(n, "armor") or string.find(n, "helmet")
+                    or string.find(n, "boots") or string.find(n, "ring") or string.find(n, "amulet")
+                    or string.find(n, "potion") or string.find(n, "scroll") or string.find(n, "book")
+                    or obj.Size.Magnitude < 15 then
+                    if obj.Size.Magnitude > 0.5 and obj.Size.Magnitude < 50 then
+                        itemPart = obj
+                        itemName = obj.Name
+                        itemType = "Part"
+                    end
+                end
+            elseif obj:IsA("Model") then
+                local primary = obj.PrimaryPart or obj:FindFirstChildWhichIsA("BasePart")
+                if primary then
+                    local n = string.lower(obj.Name)
+                    if string.find(n, "coin") or string.find(n, "token") or string.find(n, "gem")
+                        or string.find(n, "drop") or string.find(n, "loot") or string.find(n, "chest")
+                        or string.find(n, "box") or string.find(n, "bag") or string.find(n, "key")
+                        or string.find(n, "orb") or string.find(n, "star") or string.find(n, "weapon")
+                        or string.find(n, "sword") or string.find(n, "gun") or string.find(n, "knife")
+                        or string.find(n, "pickup") or string.find(n, "collect") or string.find(n, "item")
+                        or string.find(n, "reward") or string.find(n, "treasure") then
+                        itemPart = primary
+                        itemName = obj.Name
+                        itemType = "Model"
+                    end
+                end
+            end
+
+            if itemPart and itemName then
+                local dist = math.floor((itemPart.Position - myPos).Magnitude)
+                table.insert(FoundItems, {obj = itemPart.Parent or itemPart, part = itemPart})
                 local idx = #FoundItems
-                local name = tool.Name
-                local dist = math.floor((part.Position - myPos).Magnitude)
 
                 if ItemListFrame then
+                    local icon = "📦"
+                    if itemType == "Tool" then icon = "🔫"
+                    elseif itemType == "Prompt" then icon = "⚡"
+                    elseif itemType == "Model" then icon = "🎁"
+                    end
+
                     local row = Instance.new("TextButton")
                     row.Name = "Item_" .. idx
                     row.Size = UDim2.new(1, -8, 0, 30)
@@ -8757,7 +8811,7 @@ local function scanItems()
                     nameLabel.Size = UDim2.new(0.6, 0, 1, 0)
                     nameLabel.Position = UDim2.new(0, 10, 0, 0)
                     nameLabel.BackgroundTransparency = 1
-                    nameLabel.Text = "📦 " .. name
+                    nameLabel.Text = icon .. " " .. itemName
                     nameLabel.TextColor3 = Color3.fromRGB(200, 180, 255)
                     nameLabel.TextSize = 11
                     nameLabel.Font = Enum.Font.GothamBold
@@ -8795,34 +8849,42 @@ local function scanItems()
                     end)
 
                     row.MouseButton1Click:Connect(function()
-                        tpToItem(idx)
+                        pcall(function()
+                            local ch = player.Character
+                            if ch then
+                                local hrp = ch:FindFirstChild("HumanoidRootPart")
+                                if hrp and itemPart and itemPart.Parent then
+                                    hrp.CFrame = itemPart.CFrame + Vector3.new(0, 3, 0)
+                                end
+                            end
+                        end)
                     end)
 
                     row.Parent = ItemListFrame
                     table.insert(ItemButtons, row)
 
-                    if ItemFinderESP and part then
-                        if not part:GetAttribute("EliteHubIFESP") then
+                    if ItemFinderESP and itemPart then
+                        if not itemPart:GetAttribute("EliteHubIFESP") then
                             local bb = Instance.new("BillboardGui")
                             bb.Size = UDim2.new(0, 100, 0, 20)
                             bb.AlwaysOnTop = true
-                            bb.Adornee = part
-                            bb.Parent = part
+                            bb.Adornee = itemPart
+                            bb.Parent = itemPart
                             local tl = Instance.new("TextLabel")
                             tl.BackgroundTransparency = 1
                             tl.Size = UDim2.new(1, 0, 1, 0)
-                            tl.Text = name .. " (" .. dist .. "m)"
+                            tl.Text = itemName .. " (" .. dist .. "m)"
                             tl.TextColor3 = Color3.fromRGB(255, 200, 50)
                             tl.TextSize = 10
                             tl.Font = Enum.Font.GothamBold
                             tl.TextStrokeTransparency = 0
                             tl.Parent = bb
-                            part:SetAttribute("EliteHubIFESP", true)
+                            itemPart:SetAttribute("EliteHubIFESP", true)
                         end
                     end
                 end
             end
-        end
+        end)
     end
     return #FoundItems
 end
