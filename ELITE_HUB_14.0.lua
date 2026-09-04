@@ -9414,38 +9414,32 @@ RangeTab:CreateDropdown({
 })
 
 task.spawn(function()
-    while task.wait(0.5) do
+    while task.wait(0.016) do
         pcall(function()
             if not getgenv().ELITE_HUB_RangeWeaponChams then return end
             local ch = player.Character
             if not ch then return end
-            for _, tool in ipairs(ch:GetChildren()) do
-                if tool:IsA("Tool") then
-                    for _, part in ipairs(tool:GetDescendants()) do
-                        if part:IsA("BasePart") and not part:GetAttribute("EliteHubWC") then
-                            part:SetAttribute("EliteHubWC", true)
-                            part:SetAttribute("EliteHubWCOrigMat", part.Material)
-                            part:SetAttribute("EliteHubWCOrigCol", part.Color)
-                            part.Material = getgenv().ELITE_HUB_RangeWeaponMat
-                            part.Color = getgenv().ELITE_HUB_RangeWeaponColor
-                            part.CastShadow = false
-                        end
+            local mat = getgenv().ELITE_HUB_RangeWeaponMat
+            local col = getgenv().ELITE_HUB_RangeWeaponColor
+            local function applyChams(tool)
+                if not tool or not tool:IsA("Tool") then return end
+                for _, part in ipairs(tool:GetDescendants()) do
+                    if part:IsA("BasePart") then
+                        part.Material = mat
+                        part.Color = col
+                        part.CastShadow = false
                     end
+                    if part:IsA("SurfaceAppearance") then pcall(function() part:Destroy() end) end
+                    if part:IsA("Texture") then pcall(function() part:Destroy() end) end
+                    if part:IsA("Decal") then pcall(function() part.Transparency = 1 end) end
+                    if part:IsA("SpecialMesh") then pcall(function() part.TextureId = "" end) end
                 end
             end
+            for _, tool in ipairs(ch:GetChildren()) do
+                applyChams(tool)
+            end
             for _, tool in ipairs(player.Backpack:GetChildren()) do
-                if tool:IsA("Tool") then
-                    for _, part in ipairs(tool:GetDescendants()) do
-                        if part:IsA("BasePart") and not part:GetAttribute("EliteHubWC") then
-                            part:SetAttribute("EliteHubWC", true)
-                            part:SetAttribute("EliteHubWCOrigMat", part.Material)
-                            part:SetAttribute("EliteHubWCOrigCol", part.Color)
-                            part.Material = getgenv().ELITE_HUB_RangeWeaponMat
-                            part.Color = getgenv().ELITE_HUB_RangeWeaponColor
-                            part.CastShadow = false
-                        end
-                    end
-                end
+                applyChams(tool)
             end
         end)
     end
