@@ -8982,31 +8982,26 @@ end
 
 local countLabel = ItemFinderTab:CreateLabel(L("NoItems"))
 
-local ifScroll = Instance.new("ScrollingFrame")
-ifScroll.Name = "ItemList"
-ifScroll.Size = UDim2.new(1, 0, 0, 300)
-ifScroll.BackgroundTransparency = 1
-ifScroll.ScrollBarThickness = 4
-ifScroll.ScrollBarImageColor3 = Color3.fromRGB(150, 70, 255)
-ifScroll.BorderSizePixel = 0
-ifScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
-ifScroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
-ifScroll.Parent = ItemFinderTab.Content
-Instance.new("UIListLayout", ifScroll).Padding = UDim.new(0, 4)
-Instance.new("UIPadding", ifScroll).PaddingLeft = UDim.new(0, 4)
-Instance.new("UIPadding", ifScroll).PaddingRight = UDim.new(0, 4)
-ItemListFrame = ifScroll
+local ifFrame = Instance.new("Frame")
+ifFrame.Name = "ItemList"
+ifFrame.Size = UDim2.new(1, 0, 1, -100)
+ifFrame.BackgroundTransparency = 1
+ifFrame.BorderSizePixel = 0
+ifFrame.Parent = ItemFinderTab.Content
+local ifList = Instance.new("UIListLayout", ifFrame)
+ifList.Padding = UDim.new(0, 4)
+ifList.FillDirection = Enum.FillDirection.Vertical
+ifList.SortOrder = Enum.SortOrder.LayoutOrder
+ItemListFrame = ifFrame
 
 local function refreshItemList()
     for _, btn in ipairs(ItemButtons) do
         pcall(function() btn:Destroy() end)
     end
     ItemButtons = {}
-
     local n = scanItems()
-    pcall(function()
-        countLabel:SetText(L("Found") .. ": " .. n .. " " .. L("items"))
-    end)
+    countLabel:SetText(L("Found") .. ": " .. tostring(n) .. " " .. L("items"))
+    warn("[ELITE_HUB] ItemFinder refresh: " .. tostring(n) .. " items, buttons: " .. #ItemButtons)
 end
 
 ItemFinderTab:CreateButton({
@@ -9018,13 +9013,14 @@ ItemFinderTab:CreateButton({
 
 task.spawn(function()
     while task.wait(5) do
-        pcall(function()
-            refreshItemList()
-        end)
+        pcall(function() refreshItemList() end)
     end
 end)
 
-refreshItemList()
+task.spawn(function()
+    task.wait(0.5)
+    refreshItemList()
+end)
 
 local RangeTab = Window:CreateTab("🎯 " .. "RANGE", 7733960981, "Range")
 
