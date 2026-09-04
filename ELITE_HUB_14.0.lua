@@ -8972,6 +8972,24 @@ end
 
 local countLabel = ItemFinderTab:CreateLabel(L("NoItems"))
 
+ItemListFrame = Instance.new("ScrollingFrame")
+ItemListFrame.Name = "ItemList"
+ItemListFrame.Size = UDim2.new(1, 0, 0, 250)
+ItemListFrame.BackgroundTransparency = 1
+ItemListFrame.ScrollBarThickness = 4
+ItemListFrame.ScrollBarImageColor3 = Color3.fromRGB(150, 70, 255)
+ItemListFrame.BorderSizePixel = 0
+ItemListFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+ItemListFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
+ItemListFrame.Parent = ItemFinderTab.Content
+Instance.new("UIListLayout", ItemListFrame).Padding = UDim.new(0, 4)
+Instance.new("UIPadding", ItemListFrame).PaddingLeft = UDim.new(0, 4)
+
+local n0 = scanItems()
+pcall(function()
+    countLabel:SetText(L("Found") .. ": " .. n0 .. " " .. L("items"))
+end)
+
 ItemFinderTab:CreateButton({
     Name = L("Refresh"),
     Callback = function()
@@ -8981,29 +8999,6 @@ ItemFinderTab:CreateButton({
         end)
     end
 })
-
-task.spawn(function()
-    task.wait(1)
-    pcall(function()
-        ItemListFrame = Instance.new("ScrollingFrame")
-        ItemListFrame.Name = "ItemList"
-        ItemListFrame.Size = UDim2.new(1, 0, 0, 250)
-        ItemListFrame.BackgroundTransparency = 1
-        ItemListFrame.ScrollBarThickness = 4
-        ItemListFrame.ScrollBarImageColor3 = Color3.fromRGB(150, 70, 255)
-        ItemListFrame.BorderSizePixel = 0
-        ItemListFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
-        ItemListFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
-        ItemListFrame.Parent = ItemFinderTab.Content
-        Instance.new("UIListLayout", ItemListFrame).Padding = UDim.new(0, 4)
-        Instance.new("UIPadding", ItemListFrame).PaddingLeft = UDim.new(0, 4)
-        task.wait(0.5)
-        local n = scanItems()
-        pcall(function()
-            countLabel:SetText(L("Found") .. ": " .. n .. " " .. L("items"))
-        end)
-    end)
-end)
 
 task.spawn(function()
     while task.wait(5) do
