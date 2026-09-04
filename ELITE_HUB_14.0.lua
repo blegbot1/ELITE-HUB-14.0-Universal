@@ -1396,6 +1396,13 @@ do
         Animations = true,
         Lang = "EN",
     }
+    pcall(function()
+        if isfile("EliteHub_Config.json") then
+            local data = game:GetService("HttpService"):JSONDecode(readfile("EliteHub_Config.json"))
+            if data.Animations ~= nil then ES.Animations = data.Animations end
+            if data.Lang then ES.Lang = data.Lang end
+        end
+    end)
     getgenv().EliteHubSettings = ES
 
     local LangData = {
@@ -8721,45 +8728,51 @@ local function scanItems()
     local ch = player.Character
     local myPos = ch and ch:FindFirstChild("HumanoidRootPart") and ch.HumanoidRootPart.Position or Vector3.zero
 
+    local function addItem(root, intObj)
+        if not root then return end
+        local name = root.Name
+        if name == "Terrain" or name == "Camera" or name == "SpawnLocation" then return end
+        for _, item in ipairs(FoundItems) do
+            if item.container == root then return end
+        end
+        local pos = nil
+        if root:IsA("BasePart") then
+            pos = root.Position
+        elseif root:IsA("Model") then
+            local pp = root.PrimaryPart or root:FindFirstChildWhichIsA("BasePart")
+            if pp then pos = pp.Position end
+        end
+        if not pos and intObj then
+            local p = intObj.Parent
+            if p and p:IsA("BasePart") then pos = p.Position end
+        end
+        if pos then
+            table.insert(FoundItems, {
+                name = name,
+                container = root,
+                interaction = intObj,
+                interactionType = intObj and intObj.ClassName or "Item",
+                pos = pos
+            })
+        end
+    end
+
     for _, obj in ipairs(workspace:GetDescendants()) do
         pcall(function()
-            local isInteraction = obj:IsA("ClickDetector") or obj:IsA("ProximityPrompt")
-            if isInteraction then
+            if obj:IsA("ClickDetector") or obj:IsA("ProximityPrompt") then
                 local root = obj
                 while root and root.Parent and root.Parent ~= workspace do
                     root = root.Parent
                 end
-                if not root or root.Parent ~= workspace then
-                    root = obj.Parent
+                if not root or root.Parent ~= workspace then root = obj.Parent end
+                addItem(root, obj)
+            elseif obj:IsA("TouchInterest") then
+                local root = obj.Parent
+                while root and root.Parent and root.Parent ~= workspace do
+                    root = root.Parent
                 end
-                if root then
-                    local name = root.Name
-                    local already = false
-                    for _, item in ipairs(FoundItems) do
-                        if item.name == name then already = true; break end
-                    end
-                    if not already then
-                        local pos = nil
-                        if root:IsA("BasePart") then
-                            pos = root.Position
-                        elseif root:IsA("Model") then
-                            local pp = root.PrimaryPart or root:FindFirstChildWhichIsA("BasePart")
-                            if pp then pos = pp.Position end
-                        end
-                        if not pos and obj.Parent and obj.Parent:IsA("BasePart") then
-                            pos = obj.Parent.Position
-                        end
-                        if pos then
-                            table.insert(FoundItems, {
-                                name = name,
-                                container = root,
-                                interaction = obj,
-                                interactionType = obj.ClassName,
-                                pos = pos
-                            })
-                        end
-                    end
-                end
+                if not root or root.Parent ~= workspace then root = obj.Parent end
+                addItem(root, obj)
             end
         end)
     end
@@ -8767,33 +8780,18 @@ local function scanItems()
     for _, child in ipairs(workspace:GetChildren()) do
         pcall(function()
             if child:IsA("Model") or child:IsA("Folder") then
-                local cd = child:FindFirstChildWhichIsA("ClickDetector", true)
-                local pp = child:FindFirstChildWhichIsA("ProximityPrompt", true)
-                local int = cd or pp
+                local int = child:FindFirstChildWhichIsA("ClickDetector", true)
+                    or child:FindFirstChildWhichIsA("ProximityPrompt", true)
+                    or child:FindFirstChildWhichIsA("TouchInterest", true)
                 if int then
-                    local name = child.Name
-                    local already = false
-                    for _, item in ipairs(FoundItems) do
-                        if item.name == name then already = true; break end
-                    end
-                    if not already then
-                        local pos = nil
-                        if child:IsA("Model") then
-                            local pp2 = child.PrimaryPart or child:FindFirstChildWhichIsA("BasePart")
-                            if pp2 then pos = pp2.Position end
-                        elseif child:IsA("BasePart") then
-                            pos = child.Position
-                        end
-                        if pos then
-                            table.insert(FoundItems, {
-                                name = name,
-                                container = child,
-                                interaction = int,
-                                interactionType = int.ClassName,
-                                pos = pos
-                            })
-                        end
-                    end
+                    addItem(child, int)
+                end
+            elseif child:IsA("BasePart") then
+                local int = child:FindFirstChildWhichIsA("ClickDetector")
+                    or child:FindFirstChildWhichIsA("ProximityPrompt")
+                    or child:FindFirstChildWhichIsA("TouchInterest")
+                if int then
+                    addItem(child, int)
                 end
             end
         end)
@@ -8887,12 +8885,16 @@ local function scanItems()
                         local hrp = ch:FindFirstChild("HumanoidRootPart")
                         if hrp then
                             local origCF = hrp.CFrame
+                            local itemName = itemData.name
+
                             hrp.CFrame = CFrame.new(itemData.pos + Vector3.new(0, 400, 0))
-                            task.wait(0.3)
+                            task.wait(0.05)
                             hrp.CFrame = CFrame.new(itemData.pos + Vector3.new(0, 3, 0))
-                            task.wait(0.5)
+                            task.wait(0.05)
+
                             local int = itemData.container:FindFirstChildWhichIsA("ClickDetector", true)
                                 or itemData.container:FindFirstChildWhichIsA("ProximityPrompt", true)
+                                or itemData.container:FindFirstChildWhichIsA("TouchInterest", true)
                             if int then
                                 if int:IsA("ClickDetector") then
                                     fireclickdetector(int)
@@ -8900,8 +8902,36 @@ local function scanItems()
                                     fireproximityprompt(int)
                                 end
                             end
+                            task.wait(0.1)
+
+                            local gotItem = false
+                            local bp = player:FindFirstChild("Backpack")
+                            if bp then
+                                for _, v in ipairs(bp:GetChildren()) do
+                                    if v.Name == itemName then gotItem = true; break end
+                                end
+                            end
+                            local ch2 = player.Character
+                            if ch2 then
+                                for _, v in ipairs(ch2:GetChildren()) do
+                                    if v:IsA("Tool") and v.Name == itemName then gotItem = true; break end
+                                end
+                            end
+
+                            if gotItem then
+                                grabLabel.Text = "✓ OK"
+                                grabLabel.TextColor3 = Color3.fromRGB(0, 255, 100)
+                            else
+                                grabLabel.Text = "✗ miss"
+                                grabLabel.TextColor3 = Color3.fromRGB(255, 80, 80)
+                            end
+
                             task.wait(0.3)
                             hrp.CFrame = origCF
+
+                            task.wait(1)
+                            grabLabel.Text = "GET →"
+                            grabLabel.TextColor3 = Color3.fromRGB(0, 200, 100)
                         end
                     end
                 end)
@@ -9445,6 +9475,30 @@ task.spawn(function()
     end
 end)
 
+player.CharacterAdded:Connect(function(char)
+    task.wait(0.5)
+    pcall(function()
+        if getgenv().ELITE_HUB_RangeSpin then
+            local hrp = char:FindFirstChild("HumanoidRootPart")
+            if hrp then
+                createTrail(hrp, RC.Color1, RC.Color2)
+                createSparkles(hrp, RC.Color3)
+                createAuraParticles(hrp, RC.Color1)
+            end
+            startSpin()
+        end
+    end)
+    pcall(function()
+        if getgenv().ELITE_HUB_RangeSpeed then
+            local hrp = char:FindFirstChild("HumanoidRootPart")
+            if hrp then
+                createTrail(hrp, RC.Color1, RC.Color2)
+                createAuraParticles(hrp, RC.Color3)
+            end
+        end
+    end)
+end)
+
 local SettingsTab = Window:CreateTab("⚙️ " .. L("Settings"), 0, "Settings")
 
 local s1 = SettingsTab:CreateSection(L("Settings"))
@@ -9457,6 +9511,9 @@ local langDrop = SettingsTab:CreateDropdown({
     Callback = function(opt)
         ES.Lang = opt
         Window:_updateAll()
+        pcall(function()
+            writefile("EliteHub_Config.json", game:GetService("HttpService"):JSONEncode({Animations = ES.Animations, Lang = ES.Lang}))
+        end)
     end
 })
 table.insert(Window._translatables, {element = langDrop.Frame, key = "Language", type = "dropdown"})
@@ -9466,6 +9523,9 @@ local animToggle = SettingsTab:CreateToggle({
     CurrentValue = ES.Animations,
     Callback = function(val)
         ES.Animations = val
+        pcall(function()
+            writefile("EliteHub_Config.json", game:GetService("HttpService"):JSONEncode({Animations = ES.Animations, Lang = ES.Lang}))
+        end)
     end
 })
 table.insert(Window._translatables, {element = animToggle.Frame, key = "Animations", type = "toggle"})
