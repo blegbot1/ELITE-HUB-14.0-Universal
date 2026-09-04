@@ -9000,7 +9000,7 @@ local function refreshItemList()
     end
     ItemButtons = {}
     local n = scanItems()
-    countLabel:SetText(L("Found") .. ": " .. tostring(n) .. " " .. L("items"))
+    countLabel:Set(L("Found") .. ": " .. tostring(n) .. " " .. L("items"))
     warn("[ELITE_HUB] ItemFinder refresh: " .. tostring(n) .. " items, buttons: " .. #ItemButtons)
 end
 
