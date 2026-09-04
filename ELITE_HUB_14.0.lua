@@ -8723,168 +8723,219 @@ local function scanItems()
 
     for _, obj in ipairs(workspace:GetDescendants()) do
         pcall(function()
-            local itemPart = nil
-            local itemName = nil
-            local itemType = ""
-
-            if obj:IsA("Tool") then
-                itemPart = obj:FindFirstChild("Handle") or obj:FindFirstChildWhichIsA("BasePart")
-                itemName = obj.Name
-                itemType = "Tool"
-            elseif obj:IsA("ProximityPrompt") then
-                local parent = obj.Parent
-                if parent and parent:IsA("BasePart") then
-                    itemPart = parent
-                    itemName = parent.Name
-                    itemType = "Prompt"
+            local isInteraction = obj:IsA("ClickDetector") or obj:IsA("ProximityPrompt")
+            if isInteraction then
+                local root = obj
+                while root and root.Parent and root.Parent ~= workspace do
+                    root = root.Parent
                 end
-            elseif obj:IsA("BasePart") and obj.Name ~= "Terrain" and obj.Name ~= "Baseplate" then
-                local n = string.lower(obj.Name)
-                if string.find(n, "coin") or string.find(n, "token") or string.find(n, "gem")
-                    or string.find(n, "drop") or string.find(n, "loot") or string.find(n, "chest")
-                    or string.find(n, "box") or string.find(n, "bag") or string.find(n, "key")
-                    or string.find(n, "orb") or string.find(n, "star") or string.find(n, "heart")
-                    or string.find(n, "magnet") or string.find(n, "boost") or string.find(n, "power")
-                    or string.find(n, "pickup") or string.find(n, "collect") or string.find(n, "item")
-                    or string.find(n, "spawn") or string.find(n, "reward") or string.find(n, "prize")
-                    or string.find(n, "treasure") or string.find(n, "gold") or string.find(n, "silver")
-                    or string.find(n, "diamond") or string.find(n, "ruby") or string.find(n, "emerald")
-                    or string.find(n, "weapon") or string.find(n, "sword") or string.find(n, "gun")
-                    or string.find(n, "knife") or string.find(n, "rifle") or string.find(n, "pistol")
-                    or string.find(n, "shotgun") or string.find(n, "bow") or string.find(n, "staff")
-                    or string.find(n, "shield") or string.find(n, "armor") or string.find(n, "helmet")
-                    or string.find(n, "boots") or string.find(n, "ring") or string.find(n, "amulet")
-                    or string.find(n, "potion") or string.find(n, "scroll") or string.find(n, "book")
-                    or obj.Size.Magnitude < 15 then
-                    if obj.Size.Magnitude > 0.5 and obj.Size.Magnitude < 50 then
-                        itemPart = obj
-                        itemName = obj.Name
-                        itemType = "Part"
-                    end
+                if not root or root.Parent ~= workspace then
+                    root = obj.Parent
                 end
-            elseif obj:IsA("Model") then
-                local primary = obj.PrimaryPart or obj:FindFirstChildWhichIsA("BasePart")
-                if primary then
-                    local n = string.lower(obj.Name)
-                    if string.find(n, "coin") or string.find(n, "token") or string.find(n, "gem")
-                        or string.find(n, "drop") or string.find(n, "loot") or string.find(n, "chest")
-                        or string.find(n, "box") or string.find(n, "bag") or string.find(n, "key")
-                        or string.find(n, "orb") or string.find(n, "star") or string.find(n, "weapon")
-                        or string.find(n, "sword") or string.find(n, "gun") or string.find(n, "knife")
-                        or string.find(n, "pickup") or string.find(n, "collect") or string.find(n, "item")
-                        or string.find(n, "reward") or string.find(n, "treasure") then
-                        itemPart = primary
-                        itemName = obj.Name
-                        itemType = "Model"
+                if root then
+                    local name = root.Name
+                    local already = false
+                    for _, item in ipairs(FoundItems) do
+                        if item.name == name then already = true; break end
                     end
-                end
-            end
-
-            if itemPart and itemName then
-                local dist = math.floor((itemPart.Position - myPos).Magnitude)
-                table.insert(FoundItems, {obj = itemPart.Parent or itemPart, part = itemPart})
-                local idx = #FoundItems
-
-                if ItemListFrame then
-                    local icon = "📦"
-                    if itemType == "Tool" then icon = "🔫"
-                    elseif itemType == "Prompt" then icon = "⚡"
-                    elseif itemType == "Model" then icon = "🎁"
-                    end
-
-                    local row = Instance.new("TextButton")
-                    row.Name = "Item_" .. idx
-                    row.Size = UDim2.new(1, -8, 0, 30)
-                    row.BackgroundColor3 = Color3.fromRGB(28, 28, 36)
-                    row.BorderSizePixel = 0
-                    row.Text = ""
-                    row.AutoButtonColor = false
-                    Instance.new("UICorner", row).CornerRadius = UDim.new(0, 6)
-                    local rowStroke = Instance.new("UIStroke")
-                    rowStroke.Color = Color3.fromRGB(60, 40, 100)
-                    rowStroke.Thickness = 1
-                    rowStroke.Transparency = 0.5
-                    rowStroke.Parent = row
-
-                    local nameLabel = Instance.new("TextLabel")
-                    nameLabel.Parent = row
-                    nameLabel.Size = UDim2.new(0.6, 0, 1, 0)
-                    nameLabel.Position = UDim2.new(0, 10, 0, 0)
-                    nameLabel.BackgroundTransparency = 1
-                    nameLabel.Text = icon .. " " .. itemName
-                    nameLabel.TextColor3 = Color3.fromRGB(200, 180, 255)
-                    nameLabel.TextSize = 11
-                    nameLabel.Font = Enum.Font.GothamBold
-                    nameLabel.TextXAlignment = Enum.TextXAlignment.Left
-
-                    local distLabel = Instance.new("TextLabel")
-                    distLabel.Parent = row
-                    distLabel.Size = UDim2.new(0.25, 0, 1, 0)
-                    distLabel.Position = UDim2.new(0.6, 0, 0, 0)
-                    distLabel.BackgroundTransparency = 1
-                    distLabel.Text = dist .. "m"
-                    distLabel.TextColor3 = Color3.fromRGB(150, 130, 200)
-                    distLabel.TextSize = 10
-                    distLabel.Font = Enum.Font.GothamMedium
-
-                    local tpLabel = Instance.new("TextLabel")
-                    tpLabel.Parent = row
-                    tpLabel.Size = UDim2.new(0.15, 0, 1, 0)
-                    tpLabel.Position = UDim2.new(0.85, 0, 0, 0)
-                    tpLabel.BackgroundTransparency = 1
-                    tpLabel.Text = "TP →"
-                    tpLabel.TextColor3 = Color3.fromRGB(150, 70, 255)
-                    tpLabel.TextSize = 10
-                    tpLabel.Font = Enum.Font.GothamBold
-
-                    row.MouseEnter:Connect(function()
-                        row.BackgroundColor3 = Color3.fromRGB(40, 30, 60)
-                        rowStroke.Color = Color3.fromRGB(150, 70, 255)
-                        rowStroke.Transparency = 0
-                    end)
-                    row.MouseLeave:Connect(function()
-                        row.BackgroundColor3 = Color3.fromRGB(28, 28, 36)
-                        rowStroke.Color = Color3.fromRGB(60, 40, 100)
-                        rowStroke.Transparency = 0.5
-                    end)
-
-                    row.MouseButton1Click:Connect(function()
-                        pcall(function()
-                            local ch = player.Character
-                            if ch then
-                                local hrp = ch:FindFirstChild("HumanoidRootPart")
-                                if hrp and itemPart and itemPart.Parent then
-                                    hrp.CFrame = itemPart.CFrame + Vector3.new(0, 3, 0)
-                                end
-                            end
-                        end)
-                    end)
-
-                    row.Parent = ItemListFrame
-                    table.insert(ItemButtons, row)
-
-                    if ItemFinderESP and itemPart then
-                        if not itemPart:GetAttribute("EliteHubIFESP") then
-                            local bb = Instance.new("BillboardGui")
-                            bb.Size = UDim2.new(0, 100, 0, 20)
-                            bb.AlwaysOnTop = true
-                            bb.Adornee = itemPart
-                            bb.Parent = itemPart
-                            local tl = Instance.new("TextLabel")
-                            tl.BackgroundTransparency = 1
-                            tl.Size = UDim2.new(1, 0, 1, 0)
-                            tl.Text = itemName .. " (" .. dist .. "m)"
-                            tl.TextColor3 = Color3.fromRGB(255, 200, 50)
-                            tl.TextSize = 10
-                            tl.Font = Enum.Font.GothamBold
-                            tl.TextStrokeTransparency = 0
-                            tl.Parent = bb
-                            itemPart:SetAttribute("EliteHubIFESP", true)
+                    if not already then
+                        local pos = nil
+                        if root:IsA("BasePart") then
+                            pos = root.Position
+                        elseif root:IsA("Model") then
+                            local pp = root.PrimaryPart or root:FindFirstChildWhichIsA("BasePart")
+                            if pp then pos = pp.Position end
+                        end
+                        if not pos and obj.Parent and obj.Parent:IsA("BasePart") then
+                            pos = obj.Parent.Position
+                        end
+                        if pos then
+                            table.insert(FoundItems, {
+                                name = name,
+                                container = root,
+                                interaction = obj,
+                                interactionType = obj.ClassName,
+                                pos = pos
+                            })
                         end
                     end
                 end
             end
         end)
+    end
+
+    for _, child in ipairs(workspace:GetChildren()) do
+        pcall(function()
+            if child:IsA("Model") or child:IsA("Folder") then
+                local cd = child:FindFirstChildWhichIsA("ClickDetector", true)
+                local pp = child:FindFirstChildWhichIsA("ProximityPrompt", true)
+                local int = cd or pp
+                if int then
+                    local name = child.Name
+                    local already = false
+                    for _, item in ipairs(FoundItems) do
+                        if item.name == name then already = true; break end
+                    end
+                    if not already then
+                        local pos = nil
+                        if child:IsA("Model") then
+                            local pp2 = child.PrimaryPart or child:FindFirstChildWhichIsA("BasePart")
+                            if pp2 then pos = pp2.Position end
+                        elseif child:IsA("BasePart") then
+                            pos = child.Position
+                        end
+                        if pos then
+                            table.insert(FoundItems, {
+                                name = name,
+                                container = child,
+                                interaction = int,
+                                interactionType = int.ClassName,
+                                pos = pos
+                            })
+                        end
+                    end
+                end
+            end
+        end)
+    end
+
+    table.sort(FoundItems, function(a, b)
+        local da = (a.pos - myPos).Magnitude
+        local db = (b.pos - myPos).Magnitude
+        return da < db
+    end)
+
+    for idx, data in ipairs(FoundItems) do
+        if ItemListFrame then
+            local dist = math.floor((data.pos - myPos).Magnitude)
+            local icon = "📦"
+            if data.interactionType == "ClickDetector" then icon = "🖱️"
+            elseif data.interactionType == "ProximityPrompt" then icon = "⚡"
+            end
+
+            local row = Instance.new("TextButton")
+            row.Name = "Item_" .. idx
+            row.Size = UDim2.new(1, -8, 0, 30)
+            row.BackgroundColor3 = Color3.fromRGB(28, 28, 36)
+            row.BorderSizePixel = 0
+            row.Text = ""
+            row.AutoButtonColor = false
+            Instance.new("UICorner", row).CornerRadius = UDim.new(0, 6)
+            local rowStroke = Instance.new("UIStroke")
+            rowStroke.Color = Color3.fromRGB(60, 40, 100)
+            rowStroke.Thickness = 1
+            rowStroke.Transparency = 0.5
+            rowStroke.Parent = row
+
+            local nameLabel = Instance.new("TextLabel")
+            nameLabel.Parent = row
+            nameLabel.Size = UDim2.new(0.55, 0, 1, 0)
+            nameLabel.Position = UDim2.new(0, 10, 0, 0)
+            nameLabel.BackgroundTransparency = 1
+            nameLabel.Text = icon .. " " .. data.name
+            nameLabel.TextColor3 = Color3.fromRGB(200, 180, 255)
+            nameLabel.TextSize = 11
+            nameLabel.Font = Enum.Font.GothamBold
+            nameLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+            local typeLabel = Instance.new("TextLabel")
+            typeLabel.Parent = row
+            typeLabel.Size = UDim2.new(0.2, 0, 1, 0)
+            typeLabel.Position = UDim2.new(0.55, 0, 0, 0)
+            typeLabel.BackgroundTransparency = 1
+            typeLabel.Text = data.interactionType
+            typeLabel.TextColor3 = Color3.fromRGB(150, 130, 200)
+            typeLabel.TextSize = 9
+            typeLabel.Font = Enum.Font.GothamMedium
+
+            local distLabel = Instance.new("TextLabel")
+            distLabel.Parent = row
+            distLabel.Size = UDim2.new(0.12, 0, 1, 0)
+            distLabel.Position = UDim2.new(0.75, 0, 0, 0)
+            distLabel.BackgroundTransparency = 1
+            distLabel.Text = dist .. "m"
+            distLabel.TextColor3 = Color3.fromRGB(150, 130, 200)
+            distLabel.TextSize = 10
+            distLabel.Font = Enum.Font.GothamMedium
+
+            local grabLabel = Instance.new("TextLabel")
+            grabLabel.Parent = row
+            grabLabel.Size = UDim2.new(0.13, 0, 1, 0)
+            grabLabel.Position = UDim2.new(0.87, 0, 0, 0)
+            grabLabel.BackgroundTransparency = 1
+            grabLabel.Text = "GET →"
+            grabLabel.TextColor3 = Color3.fromRGB(0, 200, 100)
+            grabLabel.TextSize = 10
+            grabLabel.Font = Enum.Font.GothamBold
+
+            row.MouseEnter:Connect(function()
+                row.BackgroundColor3 = Color3.fromRGB(40, 30, 60)
+                rowStroke.Color = Color3.fromRGB(150, 70, 255)
+                rowStroke.Transparency = 0
+            end)
+            row.MouseLeave:Connect(function()
+                row.BackgroundColor3 = Color3.fromRGB(28, 28, 36)
+                rowStroke.Color = Color3.fromRGB(60, 40, 100)
+                rowStroke.Transparency = 0.5
+            end)
+
+            local itemData = data
+            row.MouseButton1Click:Connect(function()
+                pcall(function()
+                    local ch = player.Character
+                    if ch then
+                        local hrp = ch:FindFirstChild("HumanoidRootPart")
+                        if hrp then
+                            local origCF = hrp.CFrame
+                            hrp.CFrame = CFrame.new(itemData.pos + Vector3.new(0, 400, 0))
+                            task.wait(0.3)
+                            hrp.CFrame = CFrame.new(itemData.pos + Vector3.new(0, 3, 0))
+                            task.wait(0.5)
+                            local int = itemData.container:FindFirstChildWhichIsA("ClickDetector", true)
+                                or itemData.container:FindFirstChildWhichIsA("ProximityPrompt", true)
+                            if int then
+                                if int:IsA("ClickDetector") then
+                                    fireclickdetector(int)
+                                elseif int:IsA("ProximityPrompt") then
+                                    fireproximityprompt(int)
+                                end
+                            end
+                            task.wait(0.3)
+                            hrp.CFrame = origCF
+                        end
+                    end
+                end)
+            end)
+
+            row.Parent = ItemListFrame
+            table.insert(ItemButtons, row)
+
+            if ItemFinderESP then
+                local part = nil
+                if data.container:IsA("BasePart") then
+                    part = data.container
+                elseif data.container:IsA("Model") then
+                    part = data.container.PrimaryPart or data.container:FindFirstChildWhichIsA("BasePart")
+                end
+                if part and not part:GetAttribute("EliteHubIFESP") then
+                    local bb = Instance.new("BillboardGui")
+                    bb.Size = UDim2.new(0, 120, 0, 20)
+                    bb.AlwaysOnTop = true
+                    bb.Adornee = part
+                    bb.Parent = part
+                    local tl = Instance.new("TextLabel")
+                    tl.BackgroundTransparency = 1
+                    tl.Size = UDim2.new(1, 0, 1, 0)
+                    tl.Text = data.name .. " [" .. data.interactionType .. "]"
+                    tl.TextColor3 = Color3.fromRGB(255, 200, 50)
+                    tl.TextSize = 10
+                    tl.Font = Enum.Font.GothamBold
+                    tl.TextStrokeTransparency = 0
+                    tl.Parent = bb
+                    part:SetAttribute("EliteHubIFESP", true)
+                end
+            end
+        end
     end
     return #FoundItems
 end
