@@ -8691,26 +8691,33 @@ ItemFinderTab:CreateToggle({
     end
 })
 
-local ItemSearch = ""
-ItemFinderTab:CreateInput({
-    Name = L("SearchItem"),
-    PlaceholderText = "Knife, Gun, Coins...",
-    RemoveTextAfterFocusLost = false,
-    Callback = function(value)
-        ItemSearch = string.lower(value)
-    end
-})
-
 local ItemListFrame = nil
 local ItemButtons = {}
+local FoundItems = {}
+
+local function tpToItem(index)
+    pcall(function()
+        local item = FoundItems[index]
+        if not item or not item.Parent then return end
+        local part = item:FindFirstChild("Handle") or item:FindFirstChildWhichIsA("BasePart")
+        if not part then return end
+        local ch = player.Character
+        if ch then
+            local hrp = ch:FindFirstChild("HumanoidRootPart")
+            if hrp then
+                hrp.CFrame = part.CFrame + Vector3.new(0, 3, 0)
+            end
+        end
+    end)
+end
 
 local function scanItems()
     for _, btn in ipairs(ItemButtons) do
         pcall(function() btn:Destroy() end)
     end
     ItemButtons = {}
+    FoundItems = {}
 
-    local count = 0
     local ch = player.Character
     local myPos = ch and ch:FindFirstChild("HumanoidRootPart") and ch.HumanoidRootPart.Position or Vector3.zero
 
@@ -8723,110 +8730,107 @@ local function scanItems()
             if t then tool = t end
         end
         if tool then
-            local name = tool.Name
-            if ItemSearch == "" or string.find(string.lower(name), ItemSearch) then
-                local part = tool:FindFirstChild("Handle") or tool:FindFirstChildWhichIsA("BasePart")
-                if part then
-                    count = count + 1
-                    local dist = math.floor((part.Position - myPos).Magnitude)
+            local part = tool:FindFirstChild("Handle") or tool:FindFirstChildWhichIsA("BasePart")
+            if part then
+                table.insert(FoundItems, tool)
+                local idx = #FoundItems
+                local name = tool.Name
+                local dist = math.floor((part.Position - myPos).Magnitude)
 
-                    if ItemListFrame then
-                        local row = Instance.new("Frame")
-                        row.Name = "Item_" .. count
-                        row.Size = UDim2.new(1, -8, 0, 28)
+                if ItemListFrame then
+                    local row = Instance.new("TextButton")
+                    row.Name = "Item_" .. idx
+                    row.Size = UDim2.new(1, -8, 0, 30)
+                    row.BackgroundColor3 = Color3.fromRGB(28, 28, 36)
+                    row.BorderSizePixel = 0
+                    row.Text = ""
+                    row.AutoButtonColor = false
+                    Instance.new("UICorner", row).CornerRadius = UDim.new(0, 6)
+                    local rowStroke = Instance.new("UIStroke")
+                    rowStroke.Color = Color3.fromRGB(60, 40, 100)
+                    rowStroke.Thickness = 1
+                    rowStroke.Transparency = 0.5
+                    rowStroke.Parent = row
+
+                    local nameLabel = Instance.new("TextLabel")
+                    nameLabel.Parent = row
+                    nameLabel.Size = UDim2.new(0.6, 0, 1, 0)
+                    nameLabel.Position = UDim2.new(0, 10, 0, 0)
+                    nameLabel.BackgroundTransparency = 1
+                    nameLabel.Text = "📦 " .. name
+                    nameLabel.TextColor3 = Color3.fromRGB(200, 180, 255)
+                    nameLabel.TextSize = 11
+                    nameLabel.Font = Enum.Font.GothamBold
+                    nameLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+                    local distLabel = Instance.new("TextLabel")
+                    distLabel.Parent = row
+                    distLabel.Size = UDim2.new(0.25, 0, 1, 0)
+                    distLabel.Position = UDim2.new(0.6, 0, 0, 0)
+                    distLabel.BackgroundTransparency = 1
+                    distLabel.Text = dist .. "m"
+                    distLabel.TextColor3 = Color3.fromRGB(150, 130, 200)
+                    distLabel.TextSize = 10
+                    distLabel.Font = Enum.Font.GothamMedium
+
+                    local tpLabel = Instance.new("TextLabel")
+                    tpLabel.Parent = row
+                    tpLabel.Size = UDim2.new(0.15, 0, 1, 0)
+                    tpLabel.Position = UDim2.new(0.85, 0, 0, 0)
+                    tpLabel.BackgroundTransparency = 1
+                    tpLabel.Text = "TP →"
+                    tpLabel.TextColor3 = Color3.fromRGB(150, 70, 255)
+                    tpLabel.TextSize = 10
+                    tpLabel.Font = Enum.Font.GothamBold
+
+                    row.MouseEnter:Connect(function()
+                        row.BackgroundColor3 = Color3.fromRGB(40, 30, 60)
+                        rowStroke.Color = Color3.fromRGB(150, 70, 255)
+                        rowStroke.Transparency = 0
+                    end)
+                    row.MouseLeave:Connect(function()
                         row.BackgroundColor3 = Color3.fromRGB(28, 28, 36)
-                        row.BorderSizePixel = 0
-                        Instance.new("UICorner", row).CornerRadius = UDim.new(0, 6)
+                        rowStroke.Color = Color3.fromRGB(60, 40, 100)
+                        rowStroke.Transparency = 0.5
+                    end)
 
-                        local nameLabel = Instance.new("TextLabel")
-                        nameLabel.Parent = row
-                        nameLabel.Size = UDim2.new(0.55, 0, 1, 0)
-                        nameLabel.Position = UDim2.new(0, 8, 0, 0)
-                        nameLabel.BackgroundTransparency = 1
-                        nameLabel.Text = name
-                        nameLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
-                        nameLabel.TextSize = 11
-                        nameLabel.Font = Enum.Font.GothamMedium
-                        nameLabel.TextXAlignment = Enum.TextXAlignment.Left
+                    row.MouseButton1Click:Connect(function()
+                        tpToItem(idx)
+                    end)
 
-                        local distLabel = Instance.new("TextLabel")
-                        distLabel.Parent = row
-                        distLabel.Size = UDim2.new(0.2, 0, 1, 0)
-                        distLabel.Position = UDim2.new(0.55, 0, 0, 0)
-                        distLabel.BackgroundTransparency = 1
-                        distLabel.Text = dist .. "m"
-                        distLabel.TextColor3 = Color3.fromRGB(180, 180, 180)
-                        distLabel.TextSize = 10
-                        distLabel.Font = Enum.Font.GothamMedium
+                    row.Parent = ItemListFrame
+                    table.insert(ItemButtons, row)
 
-                        local tpBtn = Instance.new("TextButton")
-                        tpBtn.Parent = row
-                        tpBtn.Size = UDim2.new(0, 44, 0, 20)
-                        tpBtn.Position = UDim2.new(1, -52, 0.5, -10)
-                        tpBtn.BackgroundColor3 = Color3.fromRGB(100, 50, 200)
-                        tpBtn.Text = "TP"
-                        tpBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-                        tpBtn.TextSize = 10
-                        tpBtn.Font = Enum.Font.GothamBold
-                        tpBtn.BorderSizePixel = 0
-                        Instance.new("UICorner", tpBtn).CornerRadius = UDim.new(0, 6)
-
-                        tpBtn.MouseButton1Click:Connect(function()
-                            pcall(function()
-                                local ch = player.Character
-                                if ch then
-                                    local hrp = ch:FindFirstChild("HumanoidRootPart")
-                                    if hrp and part and part.Parent then
-                                        hrp.CFrame = part.CFrame + Vector3.new(0, 3, 0)
-                                    end
-                                end
-                            end)
-                        end)
-
-                        row.Parent = ItemListFrame
-                        table.insert(ItemButtons, row)
-
-                        if ItemFinderESP and part then
-                            if not part:GetAttribute("EliteHubIFESP") then
-                                local bb = Instance.new("BillboardGui")
-                                bb.Size = UDim2.new(0, 100, 0, 20)
-                                bb.AlwaysOnTop = true
-                                bb.Adornee = part
-                                bb.Parent = part
-                                local tl = Instance.new("TextLabel")
-                                tl.BackgroundTransparency = 1
-                                tl.Size = UDim2.new(1, 0, 1, 0)
-                                tl.Text = name .. " (" .. dist .. "m)"
-                                tl.TextColor3 = Color3.fromRGB(255, 200, 50)
-                                tl.TextSize = 10
-                                tl.Font = Enum.Font.GothamBold
-                                tl.TextStrokeTransparency = 0
-                                tl.Parent = bb
-                                part:SetAttribute("EliteHubIFESP", true)
-                            end
+                    if ItemFinderESP and part then
+                        if not part:GetAttribute("EliteHubIFESP") then
+                            local bb = Instance.new("BillboardGui")
+                            bb.Size = UDim2.new(0, 100, 0, 20)
+                            bb.AlwaysOnTop = true
+                            bb.Adornee = part
+                            bb.Parent = part
+                            local tl = Instance.new("TextLabel")
+                            tl.BackgroundTransparency = 1
+                            tl.Size = UDim2.new(1, 0, 1, 0)
+                            tl.Text = name .. " (" .. dist .. "m)"
+                            tl.TextColor3 = Color3.fromRGB(255, 200, 50)
+                            tl.TextSize = 10
+                            tl.Font = Enum.Font.GothamBold
+                            tl.TextStrokeTransparency = 0
+                            tl.Parent = bb
+                            part:SetAttribute("EliteHubIFESP", true)
                         end
                     end
                 end
             end
         end
     end
-    return count
+    return #FoundItems
 end
-
-ItemFinderTab:CreateButton({
-    Name = L("Refresh"),
-    Callback = function()
-        local n = scanItems()
-        pcall(function()
-            countLabel:SetText(L("Found") .. ": " .. n .. " " .. L("items"))
-        end)
-    end
-})
 
 local countLabel = ItemFinderTab:CreateLabel(L("NoItems"))
 
 ItemFinderTab:CreateButton({
-    Name = "🔍 " .. L("SearchItem"),
+    Name = L("Refresh"),
     Callback = function()
         local n = scanItems()
         pcall(function()
@@ -8840,7 +8844,7 @@ task.spawn(function()
     pcall(function()
         ItemListFrame = Instance.new("ScrollingFrame")
         ItemListFrame.Name = "ItemList"
-        ItemListFrame.Size = UDim2.new(1, 0, 0, 200)
+        ItemListFrame.Size = UDim2.new(1, 0, 0, 250)
         ItemListFrame.BackgroundTransparency = 1
         ItemListFrame.ScrollBarThickness = 4
         ItemListFrame.ScrollBarImageColor3 = Color3.fromRGB(150, 70, 255)
@@ -8862,7 +8866,8 @@ task.spawn(function()
     while task.wait(5) do
         pcall(function()
             if ItemListFrame and ItemListFrame.Parent then
-                scanItems()
+                local n = scanItems()
+                countLabel:SetText(L("Found") .. ": " .. n .. " " .. L("items"))
             end
         end)
     end
