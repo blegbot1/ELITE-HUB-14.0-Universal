@@ -1424,6 +1424,13 @@ do
             Version = "ELITE HUB 14.0 HASKER | v14.0",
             ON = "ВКЛ",
             OFF = "ВЫКЛ",
+            ItemFinder = "ПОИСК ПРЕДМЕТОВ",
+            ItemFinderDesc = "Найти и телепортироваться к предметам",
+            Refresh = "🔄 Обновить",
+            SearchItem = "🔍 Поиск предмета",
+            NoItems = "Предметы не найдены",
+            Found = "Найдено",
+            items = "предметов",
         },
         EN = {
             Settings = "SETTINGS",
@@ -1450,6 +1457,13 @@ do
             Version = "ELITE HUB 14.0 HASKER | v14.0",
             ON = "ON",
             OFF = "OFF",
+            ItemFinder = "ITEM FINDER",
+            ItemFinderDesc = "Find and teleport to items",
+            Refresh = "🔄 Refresh",
+            SearchItem = "🔍 Search Item",
+            NoItems = "No items found",
+            Found = "Found",
+            items = "items",
         },
     }
 
@@ -8653,6 +8667,184 @@ MT:CreateButton({
         end)
     end
 })
+
+local ItemFinderTab = Window:CreateTab("🔍 " .. L("ItemFinder"), 6026568198, "ItemFinder")
+
+local if1 = ItemFinderTab:CreateSection(L("ItemFinder"))
+table.insert(Window._translatables, {element = if1, key = "ItemFinder", type = "section", prefix = ""})
+
+local ItemFinderESP = false
+ItemFinderTab:CreateToggle({
+    Name = "👁️ Item ESP",
+    CurrentValue = false,
+    Callback = function(value)
+        ItemFinderESP = value
+        if not value then
+            for _, v in ipairs(workspace:GetDescendants()) do
+                if v:GetAttribute("EliteHubIFESP") then
+                    local bb = v:FindFirstChildOfClass("BillboardGui")
+                    if bb then bb:Destroy() end
+                    v:SetAttribute("EliteHubIFESP", nil)
+                end
+            end
+        end
+    end
+})
+
+local ItemSearch = ""
+ItemFinderTab:CreateInput({
+    Name = L("SearchItem"),
+    PlaceholderText = "Knife, Gun, Coins...",
+    RemoveTextAfterFocusLost = false,
+    Callback = function(value)
+        ItemSearch = string.lower(value)
+    end
+})
+
+local ItemListFrame = nil
+local ItemButtons = {}
+
+local function scanItems()
+    for _, btn in ipairs(ItemButtons) do
+        pcall(function() btn:Destroy() end)
+    end
+    ItemButtons = {}
+
+    local count = 0
+    local ch = player.Character
+    local myPos = ch and ch:FindFirstChild("HumanoidRootPart") and ch.HumanoidRootPart.Position or Vector3.zero
+
+    for _, obj in ipairs(workspace:GetDescendants()) do
+        if obj:IsA("Tool") or (obj:IsA("BasePart") and obj:FindFirstChildOfClass("Tool")) then
+            local tool = obj:IsA("Tool") and obj or obj:FindFirstChildOfClass("Tool")
+            local name = tool.Name
+            if ItemSearch == "" or string.find(string.lower(name), ItemSearch) then
+                local part = tool:FindFirstChild("Handle") or tool:FindFirstChildWhichIsA("BasePart")
+                if part then
+                    count = count + 1
+                    local dist = math.floor((part.Position - myPos).Magnitude)
+
+                    if ItemListFrame then
+                        local row = Instance.new("Frame")
+                        row.Name = "Item_" .. count
+                        row.Size = UDim2.new(1, -8, 0, 28)
+                        row.BackgroundColor3 = Color3.fromRGB(28, 28, 36)
+                        row.BorderSizePixel = 0
+                        Instance.new("UICorner", row).CornerRadius = UDim.new(0, 6)
+
+                        local nameLabel = Instance.new("TextLabel")
+                        nameLabel.Parent = row
+                        nameLabel.Size = UDim2.new(0.55, 0, 1, 0)
+                        nameLabel.Position = UDim2.new(0, 8, 0, 0)
+                        nameLabel.BackgroundTransparency = 1
+                        nameLabel.Text = name
+                        nameLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+                        nameLabel.TextSize = 11
+                        nameLabel.Font = Enum.Font.GothamMedium
+                        nameLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+                        local distLabel = Instance.new("TextLabel")
+                        distLabel.Parent = row
+                        distLabel.Size = UDim2.new(0.2, 0, 1, 0)
+                        distLabel.Position = UDim2.new(0.55, 0, 0, 0)
+                        distLabel.BackgroundTransparency = 1
+                        distLabel.Text = dist .. "m"
+                        distLabel.TextColor3 = Color3.fromRGB(180, 180, 180)
+                        distLabel.TextSize = 10
+                        distLabel.Font = Enum.Font.GothamMedium
+
+                        local tpBtn = Instance.new("TextButton")
+                        tpBtn.Parent = row
+                        tpBtn.Size = UDim2.new(0, 44, 0, 20)
+                        tpBtn.Position = UDim2.new(1, -52, 0.5, -10)
+                        tpBtn.BackgroundColor3 = Color3.fromRGB(100, 50, 200)
+                        tpBtn.Text = "TP"
+                        tpBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+                        tpBtn.TextSize = 10
+                        tpBtn.Font = Enum.Font.GothamBold
+                        tpBtn.BorderSizePixel = 0
+                        Instance.new("UICorner", tpBtn).CornerRadius = UDim.new(0, 6)
+
+                        tpBtn.MouseButton1Click:Connect(function()
+                            pcall(function()
+                                local ch = player.Character
+                                if ch then
+                                    local hrp = ch:FindFirstChild("HumanoidRootPart")
+                                    if hrp and part and part.Parent then
+                                        hrp.CFrame = part.CFrame + Vector3.new(0, 3, 0)
+                                    end
+                                end
+                            end)
+                        end)
+
+                        row.Parent = ItemListFrame
+                        table.insert(ItemButtons, row)
+
+                        if ItemFinderESP and part then
+                            if not part:GetAttribute("EliteHubIFESP") then
+                                local bb = Instance.new("BillboardGui")
+                                bb.Size = UDim2.new(0, 100, 0, 20)
+                                bb.AlwaysOnTop = true
+                                bb.Adornee = part
+                                bb.Parent = part
+                                local tl = Instance.new("TextLabel")
+                                tl.BackgroundTransparency = 1
+                                tl.Size = UDim2.new(1, 0, 1, 0)
+                                tl.Text = name .. " (" .. dist .. "m)"
+                                tl.TextColor3 = Color3.fromRGB(255, 200, 50)
+                                tl.TextSize = 10
+                                tl.Font = Enum.Font.GothamBold
+                                tl.TextStrokeTransparency = 0
+                                tl.Parent = bb
+                                part:SetAttribute("EliteHubIFESP", true)
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+    return count
+end
+
+ItemFinderTab:CreateButton({
+    Name = L("Refresh"),
+    Callback = function()
+        scanItems()
+    end
+})
+
+local countLabel = ItemFinderTab:CreateLabel(L("NoItems"))
+
+ItemFinderTab:CreateButton({
+    Name = "🔍 " .. L("SearchItem"),
+    Callback = function()
+        local n = scanItems()
+        if countLabel and countLabel.SetText then
+            countLabel:SetText(L("Found") .. ": " .. n .. " " .. L("items"))
+        end
+    end
+})
+
+task.spawn(function()
+    task.wait(2)
+    pcall(function()
+        ItemListFrame = Instance.new("ScrollingFrame")
+        ItemListFrame.Name = "ItemList"
+        ItemListFrame.Size = UDim2.new(1, 0, 0, 200)
+        ItemListFrame.BackgroundTransparency = 1
+        ItemListFrame.ScrollBarThickness = 4
+        ItemListFrame.ScrollBarImageColor3 = Color3.fromRGB(150, 70, 255)
+        ItemListFrame.BorderSizePixel = 0
+        ItemListFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+        ItemListFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
+        ItemListFrame.Parent = ItemFinderTab and ItemFinderTab.Content or nil
+        if ItemListFrame.Parent then
+            Instance.new("UIListLayout", ItemListFrame).Padding = UDim.new(0, 4)
+            Instance.new("UIPadding", ItemListFrame).PaddingLeft = UDim.new(0, 4)
+        end
+    end)
+end)
 
 local SettingsTab = Window:CreateTab("⚙️ " .. L("Settings"), 0, "Settings")
 
