@@ -8828,6 +8828,7 @@ local function scanItems()
             row.BorderSizePixel = 0
             row.Text = ""
             row.AutoButtonColor = false
+            row.LayoutOrder = 1000 + idx
             Instance.new("UICorner", row).CornerRadius = UDim.new(0, 6)
             local rowStroke = Instance.new("UIStroke")
             rowStroke.Color = Color3.fromRGB(60, 40, 100)
@@ -8981,7 +8982,7 @@ local function scanItems()
 end
 
 local countLabel = ItemFinderTab:CreateLabel(L("NoItems"))
-ItemListFrame = ItemFinderTab.Content
+ItemListFrame = ItemFinderTab._scroll
 
 local function refreshItemList()
     for _, btn in ipairs(ItemButtons) do
