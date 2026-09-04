@@ -8888,9 +8888,7 @@ local function scanItems()
                         if hrp then
                             local origCF = hrp.CFrame
                             hrp.CFrame = CFrame.new(itemData.pos + Vector3.new(0, 400, 0))
-                            task.wait(0.3)
                             hrp.CFrame = CFrame.new(itemData.pos + Vector3.new(0, 3, 0))
-                            task.wait(0.5)
                             local int = itemData.container:FindFirstChildWhichIsA("ClickDetector", true)
                                 or itemData.container:FindFirstChildWhichIsA("ProximityPrompt", true)
                             if int then
@@ -8900,7 +8898,6 @@ local function scanItems()
                                     fireproximityprompt(int)
                                 end
                             end
-                            task.wait(0.3)
                             hrp.CFrame = origCF
                         end
                     end
@@ -8953,7 +8950,6 @@ ItemFinderTab:CreateButton({
 })
 
 task.spawn(function()
-    task.wait(1)
     pcall(function()
         ItemListFrame = Instance.new("ScrollingFrame")
         ItemListFrame.Name = "ItemList"
@@ -8967,7 +8963,6 @@ task.spawn(function()
         ItemListFrame.Parent = ItemFinderTab.Content
         Instance.new("UIListLayout", ItemListFrame).Padding = UDim.new(0, 4)
         Instance.new("UIPadding", ItemListFrame).PaddingLeft = UDim.new(0, 4)
-        task.wait(0.5)
         local n = scanItems()
         pcall(function()
             countLabel:SetText(L("Found") .. ": " .. n .. " " .. L("items"))
@@ -8976,7 +8971,7 @@ task.spawn(function()
 end)
 
 task.spawn(function()
-    while task.wait(5) do
+    while task.wait(3) do
         pcall(function()
             if ItemListFrame and ItemListFrame.Parent then
                 local n = scanItems()
