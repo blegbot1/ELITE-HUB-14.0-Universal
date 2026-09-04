@@ -9187,6 +9187,11 @@ RangeTab:CreateToggle({
     Callback = function(value)
         getgenv().ELITE_HUB_RangeSpin = value
         getgenv().ELITE_HUB_Log("RANGE", "Spin Bot: " .. tostring(value))
+        if value then
+            startSpin()
+        else
+            stopSpin()
+        end
         pcall(function()
             local ch = player.Character
             if ch then
@@ -9223,9 +9228,24 @@ RangeTab:CreateToggle({
     end
 })
 
-task.spawn(function()
-    local angle = 0
-    while task.wait(0.016) do
+local spinAngle = 0
+local spinConn = nil
+local origBindKeys = nil
+
+local function startSpin()
+    if spinConn then return end
+    local RunService = game:GetService("RunService")
+    pcall(function()
+        local playerModule = player:WaitForChild("PlayerScripts"):WaitForChild("PlayerModule")
+        local cameraModule = playerModule:WaitForChild("CameraModule")
+        local mouseLockController = cameraModule:WaitForChild("MouseLockController")
+        local boundKeysObj = mouseLockController:FindFirstChild("BoundKeys")
+        if boundKeysObj then
+            origBindKeys = boundKeysObj.Value
+            boundKeysObj.Value = ""
+        end
+    end)
+    spinConn = RunService.RenderStepped:Connect(function()
         pcall(function()
             if not getgenv().ELITE_HUB_RangeSpin then return end
             local ch = player.Character
@@ -9233,18 +9253,37 @@ task.spawn(function()
             local hrp = ch:FindFirstChild("HumanoidRootPart")
             local hum = ch:FindFirstChildOfClass("Humanoid")
             if not hrp or not hum then return end
-            angle = angle + getgenv().ELITE_HUB_RangeSpinSpeed * 0.1
-            local moveDir = hum.MoveDirection
+            spinAngle = spinAngle + getgenv().ELITE_HUB_RangeSpinSpeed * 0.5
             local currentPos = hrp.Position
+            local moveDir = hum.MoveDirection
             if moveDir.Magnitude > 0.1 and getgenv().ELITE_HUB_RangeSpinDuringMove then
-                local moveCF = CFrame.lookAt(currentPos, currentPos + Vector3.new(moveDir.X, 0, moveDir.Z))
-                hrp.CFrame = moveCF * CFrame.Angles(0, math.rad(angle), 0)
+                local moveAngle = math.atan2(moveDir.X, moveDir.Z)
+                hrp.CFrame = CFrame.new(currentPos) * CFrame.Angles(0, moveAngle + math.rad(spinAngle), 0)
             else
-                hrp.CFrame = CFrame.new(currentPos) * CFrame.Angles(0, math.rad(angle), 0)
+                hrp.CFrame = CFrame.new(currentPos) * CFrame.Angles(0, math.rad(spinAngle), 0)
             end
         end)
+    end)
+end
+
+local function stopSpin()
+    if spinConn then
+        spinConn:Disconnect()
+        spinConn = nil
     end
-end)
+    pcall(function()
+        if origBindKeys then
+            local playerModule = player:WaitForChild("PlayerScripts"):WaitForChild("PlayerModule")
+            local cameraModule = playerModule:WaitForChild("CameraModule")
+            local mouseLockController = cameraModule:WaitForChild("MouseLockController")
+            local boundKeysObj = mouseLockController:FindFirstChild("BoundKeys")
+            if boundKeysObj then
+                boundKeysObj.Value = origBindKeys
+            end
+            origBindKeys = nil
+        end
+    end)
+end
 
 local re3 = RangeTab:CreateSection("🏃 SPEED BOOST")
 
