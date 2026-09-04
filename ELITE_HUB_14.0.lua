@@ -8981,18 +8981,7 @@ local function scanItems()
 end
 
 local countLabel = ItemFinderTab:CreateLabel(L("NoItems"))
-
-local ifFrame = Instance.new("Frame")
-ifFrame.Name = "ItemList"
-ifFrame.Size = UDim2.new(1, 0, 1, -100)
-ifFrame.BackgroundTransparency = 1
-ifFrame.BorderSizePixel = 0
-ifFrame.Parent = ItemFinderTab.Content
-local ifList = Instance.new("UIListLayout", ifFrame)
-ifList.Padding = UDim.new(0, 4)
-ifList.FillDirection = Enum.FillDirection.Vertical
-ifList.SortOrder = Enum.SortOrder.LayoutOrder
-ItemListFrame = ifFrame
+ItemListFrame = ItemFinderTab.Content
 
 local function refreshItemList()
     for _, btn in ipairs(ItemButtons) do
@@ -9001,7 +8990,6 @@ local function refreshItemList()
     ItemButtons = {}
     local n = scanItems()
     countLabel:Set(L("Found") .. ": " .. tostring(n) .. " " .. L("items"))
-    warn("[ELITE_HUB] ItemFinder refresh: " .. tostring(n) .. " items, buttons: " .. #ItemButtons)
 end
 
 ItemFinderTab:CreateButton({
