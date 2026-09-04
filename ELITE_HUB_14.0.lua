@@ -8846,6 +8846,252 @@ task.spawn(function()
     end)
 end)
 
+local RangeTab = Window:CreateTab("🎯 " .. "RANGE", 7733960981, "Range")
+
+local r1 = RangeTab:CreateSection("🔄 SPIN BOT")
+
+getgenv().ELITE_HUB_RangeSpin = false
+getgenv().ELITE_HUB_RangeSpinSpeed = 50
+getgenv().ELITE_HUB_RangeSpinDuringMove = true
+
+RangeTab:CreateToggle({
+    Name = "🔄 Spin Bot",
+    CurrentValue = false,
+    Callback = function(value)
+        getgenv().ELITE_HUB_RangeSpin = value
+        getgenv().ELITE_HUB_Log("RANGE", "Spin Bot: " .. tostring(value))
+    end
+})
+
+RangeTab:CreateSlider({
+    Name = "🔄 Spin Speed",
+    Range = {10, 300},
+    Increment = 5,
+    CurrentValue = 50,
+    Callback = function(value)
+        getgenv().ELITE_HUB_RangeSpinSpeed = value
+    end
+})
+
+RangeTab:CreateToggle({
+    Name = "🏃 Spin During Movement",
+    CurrentValue = true,
+    Callback = function(value)
+        getgenv().ELITE_HUB_RangeSpinDuringMove = value
+    end
+})
+
+task.spawn(function()
+    local angle = 0
+    while task.wait(0.016) do
+        pcall(function()
+            if not getgenv().ELITE_HUB_RangeSpin then return end
+            local ch = player.Character
+            if not ch then return end
+            local hrp = ch:FindFirstChild("HumanoidRootPart")
+            local hum = ch:FindFirstChildOfClass("Humanoid")
+            if not hrp or not hum then return end
+
+            angle = angle + getgenv().ELITE_HUB_RangeSpinSpeed * 0.1
+
+            local moveDir = hum.MoveDirection
+            local currentPos = hrp.Position
+            local currentCF = hrp.CFrame
+
+            if moveDir.Magnitude > 0.1 and getgenv().ELITE_HUB_RangeSpinDuringMove then
+                local moveCF = CFrame.lookAt(currentPos, currentPos + Vector3.new(moveDir.X, 0, moveDir.Z))
+                hrp.CFrame = moveCF * CFrame.Angles(0, math.rad(angle), 0)
+            else
+                hrp.CFrame = CFrame.new(currentPos) * CFrame.Angles(0, math.rad(angle), 0) * CFrame.new(0, 0, 0)
+                hrp.CFrame = CFrame.new(currentPos) * CFrame.Angles(0, math.rad(angle), 0)
+            end
+        end)
+    end
+end)
+
+local r2 = RangeTab:CreateSection("⚔️ AUTO HIT")
+
+getgenv().ELITE_HUB_RangeAutoHit = false
+getgenv().ELITE_HUB_RangeHitDist = 10
+getgenv().ELITE_HUB_RangeHitAngle = 90
+
+RangeTab:CreateToggle({
+    Name = "⚔️ Auto Hit",
+    CurrentValue = false,
+    Callback = function(value)
+        getgenv().ELITE_HUB_RangeAutoHit = value
+        getgenv().ELITE_HUB_Log("RANGE", "Auto Hit: " .. tostring(value))
+    end
+})
+
+RangeTab:CreateSlider({
+    Name = "📏 Hit Distance",
+    Range = {3, 30},
+    Increment = 1,
+    CurrentValue = 10,
+    Callback = function(value)
+        getgenv().ELITE_HUB_RangeHitDist = value
+    end
+})
+
+RangeTab:CreateSlider({
+    Name = "📐 Hit Angle",
+    Range = {10, 180},
+    Increment = 5,
+    CurrentValue = 90,
+    Callback = function(value)
+        getgenv().ELITE_HUB_RangeHitAngle = value
+    end
+})
+
+task.spawn(function()
+    while task.wait(0.1) do
+        pcall(function()
+            if not getgenv().ELITE_HUB_RangeAutoHit then return end
+            local ch = player.Character
+            if not ch then return end
+            local hrp = ch:FindFirstChild("HumanoidRootPart")
+            local hum = ch:FindFirstChildOfClass("Humanoid")
+            if not hrp or not hum or hum.Health <= 0 then return end
+            local tool = ch:FindFirstChildOfClass("Tool")
+            if not tool then return end
+            local handle = tool:FindFirstChild("Handle")
+            if not handle then return end
+            for _, plr in ipairs(game:GetService("Players"):GetPlayers()) do
+                if plr ~= player and plr.Character then
+                    local ehrp = plr.Character:FindFirstChild("HumanoidRootPart")
+                    local ehum = plr.Character:FindFirstChildOfClass("Humanoid")
+                    if ehrp and ehum and ehum.Health > 0 then
+                        local dist = (ehrp.Position - handle.Position).Magnitude
+                        if dist < getgenv().ELITE_HUB_RangeHitDist then
+                            tool:Activate()
+                        end
+                    end
+                end
+            end
+        end)
+    end
+end)
+
+local r3 = RangeTab:CreateSection("🏃 MOVEMENT")
+
+getgenv().ELITE_HUB_RangeSpeed = false
+getgenv().ELITE_HUB_RangeSpeedVal = 24
+
+RangeTab:CreateToggle({
+    Name = "🏃 Speed Boost",
+    CurrentValue = false,
+    Callback = function(value)
+        getgenv().ELITE_HUB_RangeSpeed = value
+        getgenv().ELITE_HUB_Log("RANGE", "Speed: " .. tostring(value))
+        if not value then
+            pcall(function()
+                local hum = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+                if hum then hum.WalkSpeed = 16 end
+            end)
+        end
+    end
+})
+
+RangeTab:CreateSlider({
+    Name = "🏃 Speed Value",
+    Range = {16, 200},
+    Increment = 1,
+    CurrentValue = 24,
+    Callback = function(value)
+        getgenv().ELITE_HUB_RangeSpeedVal = value
+    end
+})
+
+task.spawn(function()
+    while task.wait(0.2) do
+        pcall(function()
+            if not getgenv().ELITE_HUB_RangeSpeed then return end
+            local hum = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+            if hum then hum.WalkSpeed = getgenv().ELITE_HUB_RangeSpeedVal end
+        end)
+    end
+end)
+
+getgenv().ELITE_HUB_RangeJump = false
+getgenv().ELITE_HUB_RangeJumpVal = 80
+
+RangeTab:CreateToggle({
+    Name = "🦘 Jump Boost",
+    CurrentValue = false,
+    Callback = function(value)
+        getgenv().ELITE_HUB_RangeJump = value
+        getgenv().ELITE_HUB_Log("RANGE", "Jump: " .. tostring(value))
+        if not value then
+            pcall(function()
+                local hum = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+                if hum then hum.UseJumpPower = true; hum.JumpPower = 50 end
+            end)
+        end
+    end
+})
+
+RangeTab:CreateSlider({
+    Name = "🦘 Jump Power",
+    Range = {50, 300},
+    Increment = 10,
+    CurrentValue = 80,
+    Callback = function(value)
+        getgenv().ELITE_HUB_RangeJumpVal = value
+    end
+})
+
+task.spawn(function()
+    while task.wait(0.2) do
+        pcall(function()
+            if not getgenv().ELITE_HUB_RangeJump then return end
+            local hum = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+            if hum then hum.UseJumpPower = true; hum.JumpPower = getgenv().ELITE_HUB_RangeJumpVal end
+        end)
+    end
+end)
+
+local r4 = RangeTab:CreateSection("🛡️ DEFENSE")
+
+getgenv().ELITE_HUB_RangeAutoBlock = false
+RangeTab:CreateToggle({
+    Name = "🛡️ Auto Block",
+    CurrentValue = false,
+    Callback = function(value)
+        getgenv().ELITE_HUB_RangeAutoBlock = value
+        getgenv().ELITE_HUB_Log("RANGE", "Auto Block: " .. tostring(value))
+    end
+})
+
+task.spawn(function()
+    while task.wait(0.05) do
+        pcall(function()
+            if not getgenv().ELITE_HUB_RangeAutoBlock then return end
+            local ch = player.Character
+            if not ch then return end
+            local hrp = ch:FindFirstChild("HumanoidRootPart")
+            local hum = ch:FindFirstChildOfClass("Humanoid")
+            if not hrp or not hum or hum.Health <= 0 then return end
+            for _, plr in ipairs(game:GetService("Players"):GetPlayers()) do
+                if plr ~= player and plr.Character then
+                    local ehrp = plr.Character:FindFirstChild("HumanoidRootPart")
+                    local ehum = plr.Character:FindFirstChildOfClass("Humanoid")
+                    if ehrp and ehum and ehum.Health > 0 then
+                        local dist = (ehrp.Position - hrp.Position).Magnitude
+                        if dist < 8 then
+                            local tool = ch:FindFirstChildOfClass("Tool")
+                            if tool then
+                                tool:Activate()
+                            end
+                            hum:ChangeState(Enum.HumanoidStateType.Blocking)
+                        end
+                    end
+                end
+            end
+        end)
+    end
+end)
+
 local SettingsTab = Window:CreateTab("⚙️ " .. L("Settings"), 0, "Settings")
 
 local s1 = SettingsTab:CreateSection(L("Settings"))
