@@ -9130,6 +9130,128 @@ player.JumpRequest:Connect(function()
     end)
 end)
 
+local r5 = RangeTab:CreateSection("🔫 WEAPON CHAMS")
+
+getgenv().ELITE_HUB_RangeWeaponChams = false
+getgenv().ELITE_HUB_RangeWeaponColor = Color3.fromRGB(255, 50, 80)
+getgenv().ELITE_HUB_RangeWeaponMat = Enum.Material.Neon
+getgenv().ELITE_HUB_RangeWeaponHighlights = {}
+
+RangeTab:CreateToggle({
+    Name = "🔫 Weapon Chams",
+    CurrentValue = false,
+    Callback = function(value)
+        getgenv().ELITE_HUB_RangeWeaponChams = value
+        getgenv().ELITE_HUB_Log("RANGE", "Weapon Chams: " .. tostring(value))
+        if not value then
+            for _, h in ipairs(getgenv().ELITE_HUB_RangeWeaponHighlights) do
+                pcall(function() h:Destroy() end)
+            end
+            getgenv().ELITE_HUB_RangeWeaponHighlights = {}
+            for _, part in ipairs(workspace:GetDescendants()) do
+                if part:GetAttribute("EliteHubWC") then
+                    pcall(function()
+                        part.Material = part:GetAttribute("EliteHubWCOrigMat")
+                        part.Color = part:GetAttribute("EliteHubWCOrigCol")
+                        part:SetAttribute("EliteHubWC", nil)
+                        part:SetAttribute("EliteHubWCOrigMat", nil)
+                        part:SetAttribute("EliteHubWCOrigCol", nil)
+                    end)
+                end
+            end
+        end
+    end
+})
+
+RangeTab:CreateSlider({
+    Name = "🎨 R",
+    Range = {0, 255},
+    Increment = 5,
+    CurrentValue = 255,
+    Callback = function(value)
+        local g = getgenv().ELITE_HUB_RangeWeaponColor
+        getgenv().ELITE_HUB_RangeWeaponColor = Color3.fromRGB(value, g.G * 255, g.B * 255)
+    end
+})
+
+RangeTab:CreateSlider({
+    Name = "🎨 G",
+    Range = {0, 255},
+    Increment = 5,
+    CurrentValue = 50,
+    Callback = function(value)
+        local c = getgenv().ELITE_HUB_RangeWeaponColor
+        getgenv().ELITE_HUB_RangeWeaponColor = Color3.fromRGB(c.R * 255, value, c.B * 255)
+    end
+})
+
+RangeTab:CreateSlider({
+    Name = "🎨 B",
+    Range = {0, 255},
+    Increment = 5,
+    CurrentValue = 80,
+    Callback = function(value)
+        local c = getgenv().ELITE_HUB_RangeWeaponColor
+        getgenv().ELITE_HUB_RangeWeaponColor = Color3.fromRGB(c.R * 255, c.G * 255, value)
+    end
+})
+
+local matNames = {"Neon", "ForceField", "Glass", "SmoothPlastic", "DiamondPlate", "Chrome"}
+RangeTab:CreateDropdown({
+    Name = "🎨 Material",
+    Options = matNames,
+    CurrentOption = {"Neon"},
+    Callback = function(opt)
+        local matMap = {
+            Neon = Enum.Material.Neon,
+            ForceField = Enum.Material.ForceField,
+            Glass = Enum.Material.Glass,
+            SmoothPlastic = Enum.Material.SmoothPlastic,
+            DiamondPlate = Enum.Material.DiamondPlate,
+            Chrome = Enum.Material.Chrome,
+        }
+        getgenv().ELITE_HUB_RangeWeaponMat = matMap[opt] or Enum.Material.Neon
+    end
+})
+
+task.spawn(function()
+    while task.wait(0.5) do
+        pcall(function()
+            if not getgenv().ELITE_HUB_RangeWeaponChams then return end
+            local ch = player.Character
+            if not ch then return end
+            for _, tool in ipairs(ch:GetChildren()) do
+                if tool:IsA("Tool") then
+                    for _, part in ipairs(tool:GetDescendants()) do
+                        if part:IsA("BasePart") and not part:GetAttribute("EliteHubWC") then
+                            part:SetAttribute("EliteHubWC", true)
+                            part:SetAttribute("EliteHubWCOrigMat", part.Material)
+                            part:SetAttribute("EliteHubWCOrigCol", part.Color)
+                            part.Material = getgenv().ELITE_HUB_RangeWeaponMat
+                            part.Color = getgenv().ELITE_HUB_RangeWeaponColor
+                            part.CastShadow = false
+                        end
+                    end
+                end
+            end
+            for _, tool in ipairs(player.Backpack:GetChildren()) do
+                if tool:IsA("Tool") then
+                    for _, part in ipairs(tool:GetDescendants()) do
+                        if part:IsA("BasePart") and not part:GetAttribute("EliteHubWC") then
+                            part:SetAttribute("EliteHubWC", true)
+                            part:SetAttribute("EliteHubWCOrigMat", part.Material)
+                            part:SetAttribute("EliteHubWCOrigCol", part.Color)
+                            part.Material = getgenv().ELITE_HUB_RangeWeaponMat
+                            part.Color = getgenv().ELITE_HUB_RangeWeaponColor
+                            part.CastShadow = false
+                        end
+                    end
+                end
+            end
+        end)
+    end
+end)
+
 local SettingsTab = Window:CreateTab("⚙️ " .. L("Settings"), 0, "Settings")
 
 local s1 = SettingsTab:CreateSection(L("Settings"))
