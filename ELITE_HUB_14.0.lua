@@ -227,6 +227,7 @@ function EliteHubUI:CreateWindow(config)
         if didDrag then return end
         TweenService:Create(fab, TweenInfo.new(0.2, Enum.EasingStyle.Back, Enum.EasingDirection.In), {Size = UDim2.new(0, 0, 0, 0)}):Play()
         TweenService:Create(fabShadow, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {Size = UDim2.new(0, 0, 0, 0), BackgroundTransparency = 1}):Play()
+        task.wait(0.2)
         fab.Visible = false
         fabShadow.Visible = false
         self:_showWindow()
@@ -265,9 +266,9 @@ function EliteHubUI:CreateWindow(config)
     task.spawn(function()
         while fab and fab.Parent do
             TweenService:Create(fabGlow, TweenInfo.new(1.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {Transparency = 0.1, Thickness = 4}):Play()
-            game:GetService("RunService").RenderStepped:Wait()
+            task.wait(1.5)
             TweenService:Create(fabGlow, TweenInfo.new(1.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {Transparency = 0.7, Thickness = 2}):Play()
-            game:GetService("RunService").RenderStepped:Wait()
+            task.wait(1.5)
         end
     end)
 
@@ -354,6 +355,7 @@ function EliteHubUI:CreateWindow(config)
             Size = UDim2.new(0, 0, 0, 0),
             Position = UDim2.new(0.5, 0, 0.5, 0)
         }):Play()
+        task.wait(0.25)
         main.Visible = false
         if self._onHide then self._onHide() end
     end)
@@ -427,19 +429,21 @@ self._content = content
         local pg = player:WaitForChild("PlayerGui")
         local waited = 0
         while not pg:FindFirstChild("EliteHubLoader") and waited < 6 do
-            game:GetService("RunService").RenderStepped:Wait()
-            waited = waited + 0.05
+            task.wait(0.1)
+            waited = waited + 0.1
         end
         while pg:FindFirstChild("EliteHubLoader") do
-            game:GetService("RunService").RenderStepped:Wait()
+            task.wait(0.1)
         end
         if reveal and reveal.Parent then
-            TweenService:Create(reveal, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { BackgroundTransparency = 1 }):Play()
+            TweenService:Create(reveal, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { BackgroundTransparency = 1 }):Play()
+            task.wait(0.3)
             TweenService:Create(main, TweenInfo.new(0.35, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
                 Size = UDim2.new(0, W, 0, H),
                 Position = UDim2.new(0.5, -W/2, 0.5, -H/2),
                 BackgroundTransparency = 0
             }):Play()
+            task.wait(0.3)
             reveal:Destroy()
         end
     end)
@@ -1360,16 +1364,17 @@ function EliteHubUI:Notify(config)
 
     local barTween = TweenService:Create(progress, TweenInfo.new(dur, Enum.EasingStyle.Linear), { Size = UDim2.new(0, 0, 0, 3) })
     task.spawn(function()
+        task.wait(0.3)
         barTween:Play()
     end)
 
     task.spawn(function()
-        game:GetService("RunService").RenderStepped:Wait()
+        task.wait(dur + 0.4)
         local fade = TweenService:Create(notif, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In), { Position = UDim2.new(1, 0, 0, (stackIndex - 1) * stackGap), BackgroundTransparency = 1 })
         local fadeTitle = TweenService:Create(titleLabel, TweenInfo.new(0.3), { TextTransparency = 1 })
         fade:Play()
         fadeTitle:Play()
-        game:GetService("RunService").RenderStepped:Wait()
+        task.wait(0.35)
         notifGui:Destroy()
         notifStack = math.max(0, notifStack - 1)
     end)
@@ -1797,8 +1802,10 @@ local function DestroyScript()
     Rayfield:Notify({
         Title = "🛑 Shutting down...",
         Content = "ELITE HUB is being unloaded",
-        Duration = 0.5
+        Duration = 1.5
     })
+
+    task.wait(0.5)
 
     for name, _ in pairs(getgenv()) do
         if string.sub(name, 1, 11) == "ELITE_HUB_" then
@@ -1814,6 +1821,8 @@ local function DestroyScript()
             end
         end
     end
+
+    task.wait(0.5)
 end
 
 local function LoadScript(name, url)
@@ -1823,10 +1832,14 @@ local function LoadScript(name, url)
             Content = name .. " is launching",
             Duration = 2
         })
-
+        
+        task.wait(0.5)
+        
         local success, err = pcall(function()
             loadstring(game:HttpGet(url))()
         end)
+        
+        task.wait(0.5)
         
         if success then
             Rayfield:Notify({
@@ -2539,13 +2552,13 @@ local function performWallJump()
              didJump = true
 
              rootPart.CFrame = rootPart.CFrame * CFrame.Angles(0, -1, 0)
-             game:GetService("RunService").RenderStepped:Wait()
+             task.wait(0.15)
              rootPart.CFrame = rootPart.CFrame * CFrame.Angles(0, 1, 0)
         end
 
         if didJump then
              local directionTowardsWall = -baseDirectionAwayFromWall
-             game:GetService("RunService").RenderStepped:Wait()
+             task.wait(0.05) -- Wait for flick to visually finish
              rootPart.CFrame = CFrame.lookAt(rootPart.Position, rootPart.Position + directionTowardsWall)
         end
 
@@ -2604,7 +2617,7 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
         if getgenv().ELITE_HUB_SpinBot then
             task.spawn(function()
                 while getgenv().ELITE_HUB_SpinBot do
-                    game:GetService("RunService").RenderStepped:Wait()
+                    task.wait(0.016)
                     pcall(function()
                         if not flyBg then
                             local ch = player.Character
@@ -2719,7 +2732,7 @@ getgenv().ELITE_HUB_SpinBtn = CreateMiniButton("SpinBotBtn", "🔄 Spin Bot", 4,
     if getgenv().ELITE_HUB_SpinBot then
         task.spawn(function()
             while getgenv().ELITE_HUB_SpinBot do
-                game:GetService("RunService").RenderStepped:Wait()
+                task.wait(0.016)
                 pcall(function()
                     if not flyBg then
                         local ch = player.Character
@@ -2909,6 +2922,7 @@ end
 
 player.CharacterAdded:Connect(function()
     if getgenv().ELITE_HUB_SpeedActive then
+        task.wait(0.5)
         DeactivateSpeedBoost()
     end
 end)
@@ -3611,7 +3625,7 @@ local function SafeNotify(title, content, duration, category)
             Size = UDim2.new(0, 0, 0, 3)
         })
         barTween:Play()
-        game:GetService("RunService").RenderStepped:Wait()
+        task.wait(duration)
 
         local fadeOut = tweenService:Create(frame, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
             Position = UDim2.new(1, 0, 0.8, -70 * (id % 5)),
@@ -4164,7 +4178,7 @@ end
 
 task.spawn(function()
     Log("AIMBOT", "Цикл аимбота запущен")
-    while true do game:GetService("RunService").RenderStepped:Wait()
+    while task.wait() do
         pcall(function()
             local camera = workspace.CurrentCamera
             local camPos = camera.CFrame.Position
@@ -4261,7 +4275,7 @@ task.spawn(function()
                                     pcall(function()
                                         local vup = game:GetService("VirtualUser")
                                         vup:Button1Down(Vector2.new(0, 0))
-                                        game:GetService("RunService").RenderStepped:Wait()
+                                        task.wait(0.05)
                                         vup:Button1Up(Vector2.new(0, 0))
                                     end)
                                 end)
@@ -4858,7 +4872,7 @@ UpdateMyTeamLabel()
 
 task.spawn(function()
     while true do
-        game:GetService("RunService").RenderStepped:Wait()
+        task.wait(1)
         UpdateMyTeamLabel()
     end
 end)
@@ -5073,7 +5087,7 @@ friendTargetDD = CombatTab:CreateDropdown({
 
 task.spawn(function()
     while true do
-        game:GetService("RunService").RenderStepped:Wait()
+        task.wait(4)
         RefreshAimbotDD()
     end
 end)
@@ -6662,7 +6676,7 @@ ESPTab:CreateButton({
 
 task.spawn(function()
     while true do
-        game:GetService("RunService").RenderStepped:Wait()
+        task.wait(1)
         UpdateEspMyTeamLabel()
     end
 end)
@@ -6814,7 +6828,7 @@ espTargetDD = ESPTab:CreateDropdown({
 
 task.spawn(function()
     while true do
-        game:GetService("RunService").RenderStepped:Wait()
+        task.wait(4)
         RefreshESPDD()
     end
 end)
@@ -7006,7 +7020,7 @@ VFX.BarBillboard.Enabled = false
 end)
 
 task.spawn(function()
-    while true do game:GetService("RunService").RenderStepped:Wait()
+    while task.wait(0.1) do
         pcall(function()
             local lowHP = false
             local myChar = player.Character
@@ -7175,7 +7189,7 @@ TeleportTab:CreateToggle({
 
 task.spawn(function()
     while true do
-        game:GetService("RunService").RenderStepped:Wait()
+        task.wait(0.12)
         if autoTp and selectedPlayer and Players:FindFirstChild(selectedPlayer.Name) then
             local myChar = LocalPlayer.Character
             local targetChar = selectedPlayer.Character
@@ -7192,7 +7206,7 @@ end)
 
 task.spawn(function()
     while true do
-        game:GetService("RunService").RenderStepped:Wait()
+        task.wait(5)
         UpdateDropdown()
     end
 end)
@@ -7264,7 +7278,7 @@ KillAllTab:CreateSlider({
 
 task.spawn(function()
     Log("KILLALL", "Цикл Kill All запущен")
-    while true do game:GetService("RunService").RenderStepped:Wait()
+    while task.wait(0.1) do
         pcall(function()
             local myChar = player.Character
             if not myChar or not myChar:FindFirstChild("HumanoidRootPart") then return end
@@ -7508,6 +7522,7 @@ end)
 player.CharacterAdded:Connect(function(character)
 
     if ESPConfig.Enabled then
+        task.wait(2)
         UpdateESP()
     end
 end)
@@ -7814,6 +7829,7 @@ VisualTab:CreateSlider({
 task.spawn(function()
     player.CharacterAdded:Connect(function()
         if VisualConfig.ParticlesEnabled then
+            task.wait(1)
             SetupParticles(player.Character)
         end
     end)
@@ -7841,6 +7857,7 @@ MT:CreateToggle({
     end
 })
 player.CharacterAdded:Connect(function(char)
+    task.wait(1)
     if getgenv().ELITE_HUB_JumpBoost then
         local hum = char:FindFirstChildOfClass("Humanoid")
         if hum then hum.UseJumpPower = true; hum.JumpPower = 120 end
@@ -7869,7 +7886,7 @@ MT:CreateSlider({
     end
 })
 task.spawn(function()
-    while true do game:GetService("RunService").RenderStepped:Wait()
+    while task.wait(0.5) do
         pcall(function()
             if not getgenv().ELITE_HUB_HitboxExpander then return end
             for _, plr in ipairs(game:GetService("Players"):GetPlayers()) do
@@ -7919,7 +7936,7 @@ MT:CreateToggle({
     end
 })
 task.spawn(function()
-    while true do game:GetService("RunService").RenderStepped:Wait()
+    while task.wait(0.03) do
         pcall(function()
             if not getgenv().ELITE_HUB_FreeCam then return end
             local cam = workspace.CurrentCamera
@@ -8013,7 +8030,7 @@ MT:CreateToggle({
     end
 })
 task.spawn(function()
-    while true do game:GetService("RunService").RenderStepped:Wait()
+    while task.wait(1) do
         pcall(function()
             if not getgenv().ELITE_HUB_ItemESP then return end
             for _, v in ipairs(workspace:GetDescendants()) do
@@ -8079,7 +8096,7 @@ MT:CreateToggle({
         if value then
             task.spawn(function()
                 while getgenv().ELITE_HUB_AutoParry do
-                    game:GetService("RunService").RenderStepped:Wait()
+                    task.wait(0.05)
                     pcall(function()
                         local ch = player.Character
                         if not ch then return end
@@ -8132,7 +8149,7 @@ MT:CreateSlider({
     end
 })
 task.spawn(function()
-    while true do game:GetService("RunService").RenderStepped:Wait()
+    while task.wait(0.1) do
         pcall(function()
             if not getgenv().ELITE_HUB_Reach then return end
             local ch = player.Character
@@ -8170,7 +8187,7 @@ MT:CreateToggle({
         if value then
             task.spawn(function()
                 while getgenv().ELITE_HUB_SpinBot do
-                    game:GetService("RunService").RenderStepped:Wait()
+                    task.wait(0.016)
                     pcall(function()
                         if not flyBg then
                             local ch = player.Character
@@ -8210,7 +8227,7 @@ MT:CreateToggle({
 })
 task.spawn(function()
     local hue = 0
-    while true do game:GetService("RunService").RenderStepped:Wait()
+    while task.wait(0.05) do
         pcall(function()
             if not getgenv().ELITE_HUB_RainbowChams then return end
             if not ESPConfig.ChamsEnabled then return end
@@ -8351,7 +8368,7 @@ MT:CreateToggle({
         if value then
             task.spawn(function()
                 while getgenv().ELITE_HUB_ChatSpammer do
-                    game:GetService("RunService").RenderStepped:Wait()
+                    task.wait(2)
                     pcall(function()
                         game:GetService("ReplicatedStorage"):WaitForChild("DefaultChatSystemSpeechEvents"):FindFirstChild("SayMessageRequest"):FireServer(
                             getgenv().ELITE_HUB_ChatSpammerMsg, "All"
@@ -8382,7 +8399,7 @@ MT:CreateToggle({
         getgenv().ELITE_HUB_Log("MODS", "Rejoin on Kick: " .. tostring(value))
         if value then
             player.CharacterRemoving:Connect(function()
-                game:GetService("RunService").RenderStepped:Wait()
+                task.wait(3)
                 if getgenv().ELITE_HUB_RejoinOnKick then
                     pcall(function()
                         game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, game.JobId, player)
@@ -8504,12 +8521,13 @@ MT:CreateToggle({
         if value then
             task.spawn(function()
                 while getgenv().ELITE_HUB_AutoRespawn do
-                    game:GetService("RunService").RenderStepped:Wait()
+                    task.wait(0.5)
                     pcall(function()
                         local ch = player.Character
                         if ch then
                             local hum = ch:FindFirstChildOfClass("Humanoid")
                             if hum and hum.Health <= 0 then
+                                task.wait(1)
                                 player:LoadCharacter()
                             end
                         end
@@ -8545,7 +8563,7 @@ MT:CreateToggle({
 })
 task.spawn(function()
     local lastHealth = {}
-    while true do game:GetService("RunService").RenderStepped:Wait()
+    while task.wait(0.2) do
         pcall(function()
             if not getgenv().ELITE_HUB_KillSound then return end
             for _, plr in ipairs(game:GetService("Players"):GetPlayers()) do
@@ -8580,7 +8598,7 @@ MT:CreateToggle({
         if value then
             task.spawn(function()
                 while getgenv().ELITE_HUB_BunnyHop do
-                    game:GetService("RunService").RenderStepped:Wait()
+                    task.wait(0.1)
                     pcall(function()
                         local ch = player.Character
                         if ch then
@@ -8870,7 +8888,9 @@ local function scanItems()
                         if hrp then
                             local origCF = hrp.CFrame
                             hrp.CFrame = CFrame.new(itemData.pos + Vector3.new(0, 400, 0))
+                            task.wait(0.3)
                             hrp.CFrame = CFrame.new(itemData.pos + Vector3.new(0, 3, 0))
+                            task.wait(0.5)
                             local int = itemData.container:FindFirstChildWhichIsA("ClickDetector", true)
                                 or itemData.container:FindFirstChildWhichIsA("ProximityPrompt", true)
                             if int then
@@ -8880,6 +8900,7 @@ local function scanItems()
                                     fireproximityprompt(int)
                                 end
                             end
+                            task.wait(0.3)
                             hrp.CFrame = origCF
                         end
                     end
@@ -8932,6 +8953,7 @@ ItemFinderTab:CreateButton({
 })
 
 task.spawn(function()
+    task.wait(1)
     pcall(function()
         ItemListFrame = Instance.new("ScrollingFrame")
         ItemListFrame.Name = "ItemList"
@@ -8945,6 +8967,7 @@ task.spawn(function()
         ItemListFrame.Parent = ItemFinderTab.Content
         Instance.new("UIListLayout", ItemListFrame).Padding = UDim.new(0, 4)
         Instance.new("UIPadding", ItemListFrame).PaddingLeft = UDim.new(0, 4)
+        task.wait(0.5)
         local n = scanItems()
         pcall(function()
             countLabel:SetText(L("Found") .. ": " .. n .. " " .. L("items"))
@@ -8953,7 +8976,7 @@ task.spawn(function()
 end)
 
 task.spawn(function()
-    while true do game:GetService("RunService").RenderStepped:Wait()
+    while task.wait(5) do
         pcall(function()
             if ItemListFrame and ItemListFrame.Parent then
                 local n = scanItems()
@@ -9302,7 +9325,7 @@ RangeTab:CreateSlider({
 })
 
 task.spawn(function()
-    while true do game:GetService("RunService").RenderStepped:Wait()
+    while task.wait(0.2) do
         pcall(function()
             if not getgenv().ELITE_HUB_RangeSpeed then return end
             local hum = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
@@ -9391,7 +9414,7 @@ RangeTab:CreateDropdown({
 })
 
 task.spawn(function()
-    while true do game:GetService("RunService").RenderStepped:Wait()
+    while task.wait(0.5) do
         pcall(function()
             if not getgenv().ELITE_HUB_RangeWeaponChams then return end
             local ch = player.Character
