@@ -128,6 +128,7 @@ for i, testFn in ipairs(METHODS) do
     local success, result = pcall(testFn)
     if success then
         local works, msg = result
+        msg = tostring(msg or "no message")
         if works then
             warn("[METHOD " .. i .. "] ✅ WORKS: " .. msg)
         else
