@@ -1678,6 +1678,99 @@ OverlayGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 local _ogParent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 OverlayGui.Parent = _ogParent
 
+-- ═══════════════════════════════════════════════════════════════════
+-- TOP STATUS BAR — FPS / Ping / Time / Server
+-- ═══════════════════════════════════════════════════════════════════
+do
+    local bar = Instance.new("Frame")
+    bar.Name = "EliteHub_TopBar"
+    bar.Size = UDim2.new(1, 0, 0, 28)
+    bar.Position = UDim2.new(0, 0, 0, 0)
+    bar.BackgroundColor3 = Color3.fromRGB(16, 11, 30)
+    bar.BackgroundTransparency = 0.15
+    bar.BorderSizePixel = 0
+    bar.ZIndex = 100
+    bar.Parent = OverlayGui
+
+    local grad = Instance.new("UIGradient")
+    grad.Color = ColorSequence.new{
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(150, 70, 255)),
+        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(100, 50, 200)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(150, 70, 255))
+    }
+    grad.Transparency = NumberSequence.new{
+        NumberSequenceKeypoint.new(0, 0.85),
+        NumberSequenceKeypoint.new(0.5, 0.92),
+        NumberSequenceKeypoint.new(1, 0.85)
+    }
+    grad.Parent = bar
+
+    local stroke = Instance.new("UIStroke")
+    stroke.Color = Color3.fromRGB(140, 60, 255)
+    stroke.Thickness = 1
+    stroke.Transparency = 0.6
+    stroke.Parent = bar
+
+    local function makeLabel(name, pos, anchor)
+        local lbl = Instance.new("TextLabel")
+        lbl.Name = name
+        lbl.Size = UDim2.new(0, 160, 1, 0)
+        lbl.Position = pos
+        lbl.AnchorPoint = anchor or Vector2.new(0, 0)
+        lbl.BackgroundTransparency = 1
+        lbl.TextColor3 = Color3.fromRGB(200, 180, 255)
+        lbl.Font = Enum.Font.GothamBold
+        lbl.TextSize = 13
+        lbl.TextXAlignment = Enum.TextXAlignment.Center
+        lbl.ZIndex = 101
+        lbl.Parent = bar
+        return lbl
+    end
+
+    local fpsLabel = makeLabel("FPS", UDim2.new(0, 10, 0, 0))
+    fpsLabel.TextXAlignment = Enum.TextXAlignment.Left
+    local pingLabel = makeLabel("Ping", UDim2.new(0.5, -80, 0, 0))
+    local timeLabel = makeLabel("Time", UDim2.new(1, -170, 0, 0))
+    timeLabel.TextXAlignment = Enum.TextXAlignment.Right
+    local serverLabel = makeLabel("Server", UDim2.new(0, 180, 0, 0))
+    serverLabel.TextXAlignment = Enum.TextXAlignment.Left
+    serverLabel.TextSize = 11
+    serverLabel.TextColor3 = Color3.fromRGB(150, 130, 200)
+
+    local RunService = game:GetService("RunService")
+    local Stats = game:GetService("Stats")
+    local frames = 0
+    local lastFpsTime = tick()
+
+    RunService.RenderStepped:Connect(function()
+        frames = frames + 1
+        local now = tick()
+        if now - lastFpsTime >= 0.5 then
+            local fps = math.floor(frames / (now - lastFpsTime) + 0.5)
+            frames = 0
+            lastFpsTime = now
+            local fpsColor = fps >= 55 and Color3.fromRGB(100, 255, 140) or fps >= 30 and Color3.fromRGB(255, 220, 80) or Color3.fromRGB(255, 80, 80)
+            fpsLabel.Text = "⚡ " .. fps .. " FPS"
+            fpsLabel.TextColor3 = fpsColor
+
+            local ping = math.floor(Stats.Network.ServerStatsItem["Data Ping"]:GetValue() + 0.5)
+            local pingColor = ping < 60 and Color3.fromRGB(100, 255, 140) or ping < 120 and Color3.fromRGB(255, 220, 80) or Color3.fromRGB(255, 80, 80)
+            pingLabel.Text = "📡 " .. ping .. " ms"
+            pingLabel.TextColor3 = pingColor
+
+            local t = os.date("*t")
+            local h = string.format("%02d", t.hour)
+            local m = string.format("%02d", t.min)
+            local s = string.format("%02d", t.sec)
+            timeLabel.Text = "🕐 " .. h .. ":" .. m .. ":" .. s
+
+            local players = #game.Players:GetPlayers()
+            local maxP = game.Players.MaxPlayers
+            serverLabel.Text = "👥 " .. players .. "/" .. maxP .. "  |  ELITE HUB 14.0"
+        end
+    end)
+end
+
 local function NewOverlayLine()
     local frame = Instance.new("Frame")
     frame.BackgroundColor3 = Color3.new(1, 1, 1)
@@ -2363,6 +2456,18 @@ FEScriptsTab:CreateButton({
     ВКЛАДКА СКРИПТОВ ДЛЯ ИГР
     ==============================
 ]]--
+
+-- ═══════════════════════════════════════════
+-- 🛠️ VISUALS & TOOLS (TOP PICKS)
+-- ═══════════════════════════════════════════
+GameScriptsTab:CreateSection("🛠️ VISUALS & TOOLS")
+
+GameScriptsTab:CreateButton({
+    Name = "🔭 Sp3arParvus v4.2.9 (ESP+Aimbot+Explorer)",
+    Callback = function()
+        LoadScript("🔭 Sp3arParvus v4.2.9", "https://raw.githubusercontent.com/JakeHukari/Sp3arParvus/refs/heads/main/Sp3arParvus.lua")
+    end
+})
 
 -- ═══════════════════════════════════════════
 -- 🌟 UNIVERSAL HUBS (30+ игр каждый)
