@@ -1713,8 +1713,8 @@ do
 
     local subtitle = Instance.new("Frame")
     subtitle.Name = "EliteHub_SubBar"
-    subtitle.Size = UDim2.new(0, 160, 0, 18)
-    subtitle.Position = UDim2.new(0.5, 0, 0, 27)
+    subtitle.Size = UDim2.new(0, 180, 0, 22)
+    subtitle.Position = UDim2.new(0.5, 0, 0, 28)
     subtitle.AnchorPoint = Vector2.new(0.5, 0)
     subtitle.BackgroundColor3 = Color3.fromRGB(18, 12, 34)
     subtitle.BackgroundTransparency = 0.02
@@ -1739,7 +1739,7 @@ do
     subText.Text = "E L I T E   H U B"
     subText.TextColor3 = Color3.fromRGB(170, 120, 255)
     subText.Font = Enum.Font.GothamBlack
-    subText.TextSize = 11
+    subText.TextSize = 13
     subText.TextXAlignment = Enum.TextXAlignment.Center
     subText.ZIndex = 101
     subText.Parent = subtitle
