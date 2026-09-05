@@ -10544,9 +10544,20 @@ local re2 = RangeTab:CreateSection("🔄 SPIN BOT")
 
 local spinAngle = 0
 local spinConn = nil
+local origBindKeys = nil
 
 local function startSpin()
     if spinConn then return end
+    pcall(function()
+        local playerModule = player:WaitForChild("PlayerScripts"):WaitForChild("PlayerModule")
+        local cameraModule = playerModule:WaitForChild("CameraModule")
+        local mouseLockController = cameraModule:WaitForChild("MouseLockController")
+        local boundKeysObj = mouseLockController:FindFirstChild("BoundKeys")
+        if boundKeysObj and boundKeysObj.Value ~= "" then
+            origBindKeys = boundKeysObj.Value
+            boundKeysObj.Value = ""
+        end
+    end)
     spinConn = game:GetService("RunService").RenderStepped:Connect(function()
         pcall(function()
             if not getgenv().ELITE_HUB_RangeSpin then return end
@@ -10577,6 +10588,18 @@ local function stopSpin()
         spinConn:Disconnect()
         spinConn = nil
     end
+    pcall(function()
+        if origBindKeys then
+            local playerModule = player:WaitForChild("PlayerScripts"):WaitForChild("PlayerModule")
+            local cameraModule = playerModule:WaitForChild("CameraModule")
+            local mouseLockController = cameraModule:WaitForChild("MouseLockController")
+            local boundKeysObj = mouseLockController:FindFirstChild("BoundKeys")
+            if boundKeysObj then
+                boundKeysObj.Value = origBindKeys
+            end
+            origBindKeys = nil
+        end
+    end)
 end
 
 getgenv().ELITE_HUB_RangeSpin = false
