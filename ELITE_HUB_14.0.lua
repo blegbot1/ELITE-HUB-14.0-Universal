@@ -1739,20 +1739,23 @@ do
         return lbl
     end
 
-    local sep = Instance.new("Frame")
-    sep.Size = UDim2.new(0, 1, 0, 16)
-    sep.BackgroundColor3 = Color3.fromRGB(150, 70, 255)
-    sep.BackgroundTransparency = 0.5
-    sep.BorderSizePixel = 0
-    sep.ZIndex = 101
-    sep.Parent = bar
+    local function makeSep()
+        local s = Instance.new("Frame")
+        s.Size = UDim2.new(0, 1, 0, 16)
+        s.BackgroundColor3 = Color3.fromRGB(150, 70, 255)
+        s.BackgroundTransparency = 0.5
+        s.BorderSizePixel = 0
+        s.ZIndex = 101
+        s.Parent = bar
+        return s
+    end
 
     local fpsLabel = makeLabel("FPS", 90)
-    sep:Clone().Parent = bar
+    makeSep()
     local pingLabel = makeLabel("Ping", 90)
-    sep:Clone().Parent = bar
+    makeSep()
     local timeLabel = makeLabel("Time", 80)
-    sep:Clone().Parent = bar
+    makeSep()
     local serverLabel = makeLabel("Server", 130)
     serverLabel.TextSize = 11
     serverLabel.TextColor3 = Color3.fromRGB(170, 150, 220)
@@ -10561,20 +10564,9 @@ local re2 = RangeTab:CreateSection("🔄 SPIN BOT")
 
 local spinAngle = 0
 local spinConn = nil
-local origBindKeys = nil
 
 local function startSpin()
     if spinConn then return end
-    pcall(function()
-        local playerModule = player:WaitForChild("PlayerScripts"):WaitForChild("PlayerModule")
-        local cameraModule = playerModule:WaitForChild("CameraModule")
-        local mouseLockController = cameraModule:WaitForChild("MouseLockController")
-        local boundKeysObj = mouseLockController:FindFirstChild("BoundKeys")
-        if boundKeysObj and boundKeysObj.Value ~= "" then
-            origBindKeys = boundKeysObj.Value
-            boundKeysObj.Value = ""
-        end
-    end)
     spinConn = game:GetService("RunService").RenderStepped:Connect(function()
         pcall(function()
             if not getgenv().ELITE_HUB_RangeSpin then return end
@@ -10585,15 +10577,8 @@ local function startSpin()
             if not hrp or not hum then return end
 
             spinAngle = spinAngle + getgenv().ELITE_HUB_RangeSpinSpeed * 0.5
-            local moveDir = hum.MoveDirection
-            local newPos = hrp.Position + moveDir * hum.WalkSpeed * 0.016
-
-            if moveDir.Magnitude > 0.1 then
-                local moveAngle = math.atan2(moveDir.X, moveDir.Z)
-                hrp.CFrame = CFrame.new(newPos) * CFrame.Angles(0, moveAngle + math.rad(spinAngle), 0)
-            else
-                hrp.CFrame = CFrame.new(newPos) * CFrame.Angles(0, math.rad(spinAngle), 0)
-            end
+            local pos = hrp.Position
+            hrp.CFrame = CFrame.new(pos) * CFrame.Angles(0, math.rad(spinAngle), 0)
             hrp.RotVelocity = Vector3.new(0, 0, 0)
         end)
     end)
@@ -10604,18 +10589,6 @@ local function stopSpin()
         spinConn:Disconnect()
         spinConn = nil
     end
-    pcall(function()
-        if origBindKeys then
-            local playerModule = player:WaitForChild("PlayerScripts"):WaitForChild("PlayerModule")
-            local cameraModule = playerModule:WaitForChild("CameraModule")
-            local mouseLockController = cameraModule:WaitForChild("MouseLockController")
-            local boundKeysObj = mouseLockController:FindFirstChild("BoundKeys")
-            if boundKeysObj then
-                boundKeysObj.Value = origBindKeys
-            end
-            origBindKeys = nil
-        end
-    end)
 end
 
 getgenv().ELITE_HUB_RangeSpin = false
