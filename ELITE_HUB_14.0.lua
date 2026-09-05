@@ -10544,20 +10544,9 @@ local re2 = RangeTab:CreateSection("🔄 SPIN BOT")
 
 local spinAngle = 0
 local spinConn = nil
-local origBindKeys = nil
 
 local function startSpin()
     if spinConn then return end
-    pcall(function()
-        local playerModule = player:WaitForChild("PlayerScripts"):WaitForChild("PlayerModule")
-        local cameraModule = playerModule:WaitForChild("CameraModule")
-        local mouseLockController = cameraModule:WaitForChild("MouseLockController")
-        local boundKeysObj = mouseLockController:FindFirstChild("BoundKeys")
-        if boundKeysObj then
-            origBindKeys = boundKeysObj.Value
-            boundKeysObj.Value = ""
-        end
-    end)
     spinConn = game:GetService("RunService").RenderStepped:Connect(function()
         pcall(function()
             if not getgenv().ELITE_HUB_RangeSpin then return end
@@ -10566,9 +10555,11 @@ local function startSpin()
             local hrp = ch:FindFirstChild("HumanoidRootPart")
             local hum = ch:FindFirstChildOfClass("Humanoid")
             if not hrp or not hum then return end
+
             spinAngle = spinAngle + getgenv().ELITE_HUB_RangeSpinSpeed * 0.5
             local lockedPos = hrp.Position
             local moveDir = hum.MoveDirection
+
             if moveDir.Magnitude > 0.1 and getgenv().ELITE_HUB_RangeSpinDuringMove then
                 local moveAngle = math.atan2(moveDir.X, moveDir.Z)
                 hrp.CFrame = CFrame.new(lockedPos) * CFrame.Angles(0, moveAngle + math.rad(spinAngle), 0)
@@ -10586,18 +10577,6 @@ local function stopSpin()
         spinConn:Disconnect()
         spinConn = nil
     end
-    pcall(function()
-        if origBindKeys then
-            local playerModule = player:WaitForChild("PlayerScripts"):WaitForChild("PlayerModule")
-            local cameraModule = playerModule:WaitForChild("CameraModule")
-            local mouseLockController = cameraModule:WaitForChild("MouseLockController")
-            local boundKeysObj = mouseLockController:FindFirstChild("BoundKeys")
-            if boundKeysObj then
-                boundKeysObj.Value = origBindKeys
-            end
-            origBindKeys = nil
-        end
-    end)
 end
 
 getgenv().ELITE_HUB_RangeSpin = false
