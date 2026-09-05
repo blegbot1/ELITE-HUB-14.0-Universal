@@ -1,30 +1,21 @@
--- EliteHub Nametag Test Script v2
--- Показывает "ELITE HUB" над ВСЕМИ игроками кроме себя
+-- EliteHub Nametag
+-- Показывает "ELITE HUB" над всеми игроками кроме тебя
 -- Запуск: loadstring(game:HttpGet("https://raw.githubusercontent.com/blegbot1/ELITE-HUB-14.0-Universal/refs/heads/main/EliteHub_Nametag.lua"))()
 
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 
 warn("[EliteHub Nametag] Loaded! Player: " .. player.Name)
-warn("[EliteHub Nametag] Players in server: " .. #Players:GetPlayers())
 
--- Ждём загрузки
-task.wait(3)
-
--- Просто показываем бейдж над каждым игроком кроме себя
 task.spawn(function()
-    warn("[EliteHub Nametag] Loop started!")
     while task.wait(2) do
-        for _, p in ipairs(Players:GetPlayers()) do
-            if p ~= player then
-                local char = p.Character
-                if char then
-                    local hrp = char:FindFirstChild("HumanoidRootPart")
-                    if hrp then
-                        local existing = hrp:FindFirstChild("EliteHubTag")
-                        if not existing then
-                            warn("[EliteHub Nametag] Creating tag for: " .. p.Name)
-
+        pcall(function()
+            for _, p in ipairs(Players:GetPlayers()) do
+                if p ~= player then
+                    local char = p.Character
+                    if char then
+                        local hrp = char:FindFirstChild("HumanoidRootPart")
+                        if hrp and not hrp:FindFirstChild("EliteHubTag") then
                             local bb = Instance.new("BillboardGui")
                             bb.Name = "EliteHubTag"
                             bb.AlwaysOnTop = true
@@ -55,6 +46,6 @@ task.spawn(function()
                     end
                 end
             end
-        end
+        end)
     end
 end)
