@@ -1682,16 +1682,24 @@ OverlayGui.Parent = _ogParent
 -- TOP STATUS BAR — FPS / Ping / Time / Server + ELITE HUB subtitle
 -- ═══════════════════════════════════════════════════════════════════
 do
+    local holder = Instance.new("Frame")
+    holder.Name = "EliteHub_TopHolder"
+    holder.Size = UDim2.new(0, 420, 0, 42)
+    holder.Position = UDim2.new(0.5, 0, 0, 5)
+    holder.AnchorPoint = Vector2.new(0.5, 0)
+    holder.BackgroundTransparency = 1
+    holder.ZIndex = 100
+    holder.Parent = OverlayGui
+
     local bar = Instance.new("Frame")
     bar.Name = "EliteHub_TopBar"
-    bar.Size = UDim2.new(0, 440, 0, 26)
-    bar.Position = UDim2.new(0.5, 0, 0, 6)
-    bar.AnchorPoint = Vector2.new(0.5, 0)
+    bar.Size = UDim2.new(1, 0, 0, 24)
+    bar.Position = UDim2.new(0, 0, 0, 0)
     bar.BackgroundColor3 = Color3.fromRGB(20, 14, 38)
     bar.BackgroundTransparency = 0.05
     bar.BorderSizePixel = 0
     bar.ZIndex = 100
-    bar.Parent = OverlayGui
+    bar.Parent = holder
 
     local corner = Instance.new("UICorner")
     corner.CornerRadius = UDim.new(0, 8)
@@ -1703,56 +1711,63 @@ do
     stroke.Transparency = 0.3
     stroke.Parent = bar
 
-    local function makeSep(parent, x)
-        local s = Instance.new("Frame")
-        s.Size = UDim2.new(0, 1, 0, 14)
-        s.Position = UDim2.new(0, x, 0.5, 0)
-        s.AnchorPoint = Vector2.new(0, 0.5)
-        s.BackgroundColor3 = Color3.fromRGB(150, 70, 255)
-        s.BackgroundTransparency = 0.4
-        s.BorderSizePixel = 0
-        s.ZIndex = 102
-        s.Parent = parent
-        return s
-    end
-
-    local function makeLbl(name, x, w, align)
-        local lbl = Instance.new("TextLabel")
-        lbl.Name = name
-        lbl.Size = UDim2.new(0, w, 1, 0)
-        lbl.Position = UDim2.new(0, x, 0, 0)
-        lbl.BackgroundTransparency = 1
-        lbl.TextColor3 = Color3.fromRGB(210, 190, 255)
-        lbl.Font = Enum.Font.GothamBold
-        lbl.TextSize = 12
-        lbl.TextXAlignment = align or Enum.TextXAlignment.Center
-        lbl.ZIndex = 102
-        lbl.Parent = bar
-        return lbl
-    end
-
-    local fpsLabel = makeLbl("FPS", 12, 70, Enum.TextXAlignment.Left)
-    makeSep(bar, 88)
-    local pingLabel = makeLbl("Ping", 96, 70, Enum.TextXAlignment.Left)
-    makeSep(bar, 172)
-    local timeLabel = makeLbl("Time", 180, 65, Enum.TextXAlignment.Left)
-    makeSep(bar, 251)
-    local serverLabel = makeLbl("Server", 259, 55, Enum.TextXAlignment.Left)
-    serverLabel.TextSize = 11
-    serverLabel.TextColor3 = Color3.fromRGB(170, 150, 220)
-
     local subtitle = Instance.new("TextLabel")
     subtitle.Name = "Subtitle"
     subtitle.Size = UDim2.new(1, 0, 0, 14)
-    subtitle.Position = UDim2.new(0, 0, 1, 3)
+    subtitle.Position = UDim2.new(0, 0, 0, 26)
     subtitle.BackgroundTransparency = 1
     subtitle.Text = "ELITE HUB 14.0"
     subtitle.TextColor3 = Color3.fromRGB(140, 100, 200)
     subtitle.Font = Enum.Font.GothamBlack
     subtitle.TextSize = 11
     subtitle.TextXAlignment = Enum.TextXAlignment.Center
+    subtitle.TextStrokeTransparency = 0.8
+    subtitle.TextStrokeColor3 = Color3.fromRGB(80, 40, 140)
     subtitle.ZIndex = 100
-    subtitle.Parent = bar
+    subtitle.Parent = holder
+
+    local layout = Instance.new("UIListLayout")
+    layout.FillDirection = Enum.FillDirection.Horizontal
+    layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+    layout.VerticalAlignment = Enum.VerticalAlignment.Center
+    layout.Padding = UDim.new(0, 0)
+    layout.Parent = bar
+
+    local function makeLbl(name, w)
+        local lbl = Instance.new("TextLabel")
+        lbl.Name = name
+        lbl.Size = UDim2.new(0, w, 1, 0)
+        lbl.BackgroundTransparency = 1
+        lbl.TextColor3 = Color3.fromRGB(210, 190, 255)
+        lbl.Font = Enum.Font.GothamBold
+        lbl.TextSize = 12
+        lbl.TextXAlignment = Enum.TextXAlignment.Center
+        lbl.ZIndex = 102
+        lbl.Parent = bar
+        return lbl
+    end
+
+    local function makeSep()
+        local s = Instance.new("Frame")
+        s.Name = "Sep"
+        s.Size = UDim2.new(0, 1, 0, 14)
+        s.BackgroundColor3 = Color3.fromRGB(150, 70, 255)
+        s.BackgroundTransparency = 0.3
+        s.BorderSizePixel = 0
+        s.ZIndex = 102
+        s.Parent = bar
+        return s
+    end
+
+    local fpsLabel = makeLbl("FPS", 80)
+    makeSep()
+    local pingLabel = makeLbl("Ping", 80)
+    makeSep()
+    local timeLabel = makeLbl("Time", 75)
+    makeSep()
+    local serverLabel = makeLbl("Server", 65)
+    serverLabel.TextSize = 11
+    serverLabel.TextColor3 = Color3.fromRGB(170, 150, 220)
 
     local RunService = game:GetService("RunService")
     local Stats = game:GetService("Stats")
