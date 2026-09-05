@@ -10573,13 +10573,14 @@ local function startSpin()
             local ch = player.Character
             if not ch then return end
             local hrp = ch:FindFirstChild("HumanoidRootPart")
-            local hum = ch:FindFirstChildOfClass("Humanoid")
-            if not hrp or not hum then return end
+            if not hrp then return end
 
-            spinAngle = spinAngle + getgenv().ELITE_HUB_RangeSpinSpeed * 0.5
-            local pos = hrp.Position
-            hrp.CFrame = CFrame.new(pos) * CFrame.Angles(0, math.rad(spinAngle), 0)
-            hrp.RotVelocity = Vector3.new(0, 0, 0)
+            local speed = getgenv().ELITE_HUB_RangeSpinSpeed or 50
+            spinAngle = spinAngle + speed * 0.5
+            local savedVel = hrp.AssemblyLinearVelocity
+            hrp.CFrame = hrp.CFrame * CFrame.Angles(0, math.rad(speed * 0.5), 0)
+            hrp.AssemblyLinearVelocity = savedVel
+            hrp.AssemblyRotVelocity = Vector3.new(0, 0, 0)
         end)
     end)
 end
