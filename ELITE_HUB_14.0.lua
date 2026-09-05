@@ -1679,12 +1679,12 @@ local _ogParent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 OverlayGui.Parent = _ogParent
 
 -- ═══════════════════════════════════════════════════════════════════
--- TOP STATUS BAR — FPS / Ping / Time / Server (CENTERED)
+-- TOP STATUS BAR — FPS / Ping / Time / Server + ELITE HUB subtitle
 -- ═══════════════════════════════════════════════════════════════════
 do
     local bar = Instance.new("Frame")
     bar.Name = "EliteHub_TopBar"
-    bar.Size = UDim2.new(0, 520, 0, 32)
+    bar.Size = UDim2.new(0, 440, 0, 26)
     bar.Position = UDim2.new(0.5, 0, 0, 6)
     bar.AnchorPoint = Vector2.new(0.5, 0)
     bar.BackgroundColor3 = Color3.fromRGB(20, 14, 38)
@@ -1694,7 +1694,7 @@ do
     bar.Parent = OverlayGui
 
     local corner = Instance.new("UICorner")
-    corner.CornerRadius = UDim.new(0, 10)
+    corner.CornerRadius = UDim.new(0, 8)
     corner.Parent = bar
 
     local stroke = Instance.new("UIStroke")
@@ -1703,62 +1703,56 @@ do
     stroke.Transparency = 0.3
     stroke.Parent = bar
 
-    local grad = Instance.new("UIGradient")
-    grad.Color = ColorSequence.new{
-        ColorSequenceKeypoint.new(0, Color3.fromRGB(150, 70, 255)),
-        ColorSequenceKeypoint.new(0.3, Color3.fromRGB(100, 40, 200)),
-        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(80, 30, 160)),
-        ColorSequenceKeypoint.new(0.7, Color3.fromRGB(100, 40, 200)),
-        ColorSequenceKeypoint.new(1, Color3.fromRGB(150, 70, 255))
-    }
-    grad.Transparency = NumberSequence.new{
-        NumberSequenceKeypoint.new(0, 0.7),
-        NumberSequenceKeypoint.new(0.5, 0.85),
-        NumberSequenceKeypoint.new(1, 0.7)
-    }
-    grad.Parent = bar
+    local function makeSep(parent, x)
+        local s = Instance.new("Frame")
+        s.Size = UDim2.new(0, 1, 0, 14)
+        s.Position = UDim2.new(0, x, 0.5, 0)
+        s.AnchorPoint = Vector2.new(0, 0.5)
+        s.BackgroundColor3 = Color3.fromRGB(150, 70, 255)
+        s.BackgroundTransparency = 0.4
+        s.BorderSizePixel = 0
+        s.ZIndex = 102
+        s.Parent = parent
+        return s
+    end
 
-    local layout = Instance.new("UIListLayout")
-    layout.FillDirection = Enum.FillDirection.Horizontal
-    layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-    layout.VerticalAlignment = Enum.VerticalAlignment.Center
-    layout.Padding = UDim.new(0, 6)
-    layout.Parent = bar
-
-    local function makeLabel(name, width)
+    local function makeLbl(name, x, w, align)
         local lbl = Instance.new("TextLabel")
         lbl.Name = name
-        lbl.Size = UDim2.new(0, width, 1, 0)
+        lbl.Size = UDim2.new(0, w, 1, 0)
+        lbl.Position = UDim2.new(0, x, 0, 0)
         lbl.BackgroundTransparency = 1
         lbl.TextColor3 = Color3.fromRGB(210, 190, 255)
         lbl.Font = Enum.Font.GothamBold
-        lbl.TextSize = 13
-        lbl.TextXAlignment = Enum.TextXAlignment.Center
-        lbl.ZIndex = 101
+        lbl.TextSize = 12
+        lbl.TextXAlignment = align or Enum.TextXAlignment.Center
+        lbl.ZIndex = 102
         lbl.Parent = bar
         return lbl
     end
 
-    local function makeSep()
-        local s = Instance.new("Frame")
-        s.Size = UDim2.new(0, 1, 0, 16)
-        s.BackgroundColor3 = Color3.fromRGB(150, 70, 255)
-        s.BackgroundTransparency = 0.5
-        s.BorderSizePixel = 0
-        s.ZIndex = 101
-        s.Parent = bar
-        return s
-    end
-
-    local fpsLabel = makeLabel("FPS", 90)
-    makeSep()
-    local pingLabel = makeLabel("Ping", 90)
-    makeSep()
-    local timeLabel = makeLabel("Time", 80)
-    makeSep()
-    local serverLabel = makeLabel("Server", 130)
+    local fpsLabel = makeLbl("FPS", 12, 70, Enum.TextXAlignment.Left)
+    makeSep(bar, 88)
+    local pingLabel = makeLbl("Ping", 96, 70, Enum.TextXAlignment.Left)
+    makeSep(bar, 172)
+    local timeLabel = makeLbl("Time", 180, 65, Enum.TextXAlignment.Left)
+    makeSep(bar, 251)
+    local serverLabel = makeLbl("Server", 259, 80, Enum.TextXAlignment.Left)
     serverLabel.TextSize = 11
     serverLabel.TextColor3 = Color3.fromRGB(170, 150, 220)
+
+    local subtitle = Instance.new("TextLabel")
+    subtitle.Name = "Subtitle"
+    subtitle.Size = UDim2.new(1, 0, 0, 10)
+    subtitle.Position = UDim2.new(0, 0, 1, 2)
+    subtitle.BackgroundTransparency = 1
+    subtitle.Text = "ELITE HUB 14.0"
+    subtitle.TextColor3 = Color3.fromRGB(120, 80, 180)
+    subtitle.Font = Enum.Font.GothamBold
+    subtitle.TextSize = 8
+    subtitle.TextXAlignment = Enum.TextXAlignment.Center
+    subtitle.ZIndex = 100
+    subtitle.Parent = bar
 
     local RunService = game:GetService("RunService")
     local Stats = game:GetService("Stats")
@@ -1786,7 +1780,7 @@ do
 
             local players = #game.Players:GetPlayers()
             local maxP = game.Players.MaxPlayers
-            serverLabel.Text = players .. "/" .. maxP .. " players"
+            serverLabel.Text = players .. "/" .. maxP
         end
     end)
 end
@@ -10567,7 +10561,8 @@ local spinConn = nil
 
 local function startSpin()
     if spinConn then return end
-    spinConn = game:GetService("RunService").RenderStepped:Connect(function()
+    local RunService = game:GetService("RunService")
+    spinConn = RunService.Heartbeat:Connect(function(dt)
         pcall(function()
             if not getgenv().ELITE_HUB_RangeSpin then return end
             local ch = player.Character
@@ -10576,11 +10571,8 @@ local function startSpin()
             if not hrp then return end
 
             local speed = getgenv().ELITE_HUB_RangeSpinSpeed or 50
-            spinAngle = spinAngle + speed * 0.5
-            local savedVel = hrp.AssemblyLinearVelocity
-            hrp.CFrame = hrp.CFrame * CFrame.Angles(0, math.rad(speed * 0.5), 0)
-            hrp.AssemblyLinearVelocity = savedVel
-            hrp.AssemblyRotVelocity = Vector3.new(0, 0, 0)
+            local delta = speed * dt * 3
+            hrp.CFrame = hrp.CFrame * CFrame.Angles(0, math.rad(delta), 0)
         end)
     end)
 end
