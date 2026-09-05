@@ -1679,46 +1679,58 @@ local _ogParent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 OverlayGui.Parent = _ogParent
 
 -- ═══════════════════════════════════════════════════════════════════
--- TOP STATUS BAR — FPS / Ping / Time / Server
+-- TOP STATUS BAR — FPS / Ping / Time / Server (CENTERED)
 -- ═══════════════════════════════════════════════════════════════════
 do
     local bar = Instance.new("Frame")
     bar.Name = "EliteHub_TopBar"
-    bar.Size = UDim2.new(1, 0, 0, 28)
-    bar.Position = UDim2.new(0, 0, 0, 0)
-    bar.BackgroundColor3 = Color3.fromRGB(16, 11, 30)
-    bar.BackgroundTransparency = 0.15
+    bar.Size = UDim2.new(0, 520, 0, 32)
+    bar.Position = UDim2.new(0.5, 0, 0, 6)
+    bar.AnchorPoint = Vector2.new(0.5, 0)
+    bar.BackgroundColor3 = Color3.fromRGB(20, 14, 38)
+    bar.BackgroundTransparency = 0.05
     bar.BorderSizePixel = 0
     bar.ZIndex = 100
     bar.Parent = OverlayGui
 
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 10)
+    corner.Parent = bar
+
+    local stroke = Instance.new("UIStroke")
+    stroke.Color = Color3.fromRGB(150, 70, 255)
+    stroke.Thickness = 1.5
+    stroke.Transparency = 0.3
+    stroke.Parent = bar
+
     local grad = Instance.new("UIGradient")
     grad.Color = ColorSequence.new{
         ColorSequenceKeypoint.new(0, Color3.fromRGB(150, 70, 255)),
-        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(100, 50, 200)),
+        ColorSequenceKeypoint.new(0.3, Color3.fromRGB(100, 40, 200)),
+        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(80, 30, 160)),
+        ColorSequenceKeypoint.new(0.7, Color3.fromRGB(100, 40, 200)),
         ColorSequenceKeypoint.new(1, Color3.fromRGB(150, 70, 255))
     }
     grad.Transparency = NumberSequence.new{
-        NumberSequenceKeypoint.new(0, 0.85),
-        NumberSequenceKeypoint.new(0.5, 0.92),
-        NumberSequenceKeypoint.new(1, 0.85)
+        NumberSequenceKeypoint.new(0, 0.7),
+        NumberSequenceKeypoint.new(0.5, 0.85),
+        NumberSequenceKeypoint.new(1, 0.7)
     }
     grad.Parent = bar
 
-    local stroke = Instance.new("UIStroke")
-    stroke.Color = Color3.fromRGB(140, 60, 255)
-    stroke.Thickness = 1
-    stroke.Transparency = 0.6
-    stroke.Parent = bar
+    local layout = Instance.new("UIListLayout")
+    layout.FillDirection = Enum.FillDirection.Horizontal
+    layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+    layout.VerticalAlignment = Enum.VerticalAlignment.Center
+    layout.Padding = UDim.new(0, 6)
+    layout.Parent = bar
 
-    local function makeLabel(name, pos, anchor)
+    local function makeLabel(name, width)
         local lbl = Instance.new("TextLabel")
         lbl.Name = name
-        lbl.Size = UDim2.new(0, 160, 1, 0)
-        lbl.Position = pos
-        lbl.AnchorPoint = anchor or Vector2.new(0, 0)
+        lbl.Size = UDim2.new(0, width, 1, 0)
         lbl.BackgroundTransparency = 1
-        lbl.TextColor3 = Color3.fromRGB(200, 180, 255)
+        lbl.TextColor3 = Color3.fromRGB(210, 190, 255)
         lbl.Font = Enum.Font.GothamBold
         lbl.TextSize = 13
         lbl.TextXAlignment = Enum.TextXAlignment.Center
@@ -1727,15 +1739,23 @@ do
         return lbl
     end
 
-    local fpsLabel = makeLabel("FPS", UDim2.new(0, 10, 0, 0))
-    fpsLabel.TextXAlignment = Enum.TextXAlignment.Left
-    local pingLabel = makeLabel("Ping", UDim2.new(0.5, -80, 0, 0))
-    local timeLabel = makeLabel("Time", UDim2.new(1, -170, 0, 0))
-    timeLabel.TextXAlignment = Enum.TextXAlignment.Right
-    local serverLabel = makeLabel("Server", UDim2.new(0, 180, 0, 0))
-    serverLabel.TextXAlignment = Enum.TextXAlignment.Left
+    local sep = Instance.new("Frame")
+    sep.Size = UDim2.new(0, 1, 0, 16)
+    sep.BackgroundColor3 = Color3.fromRGB(150, 70, 255)
+    sep.BackgroundTransparency = 0.5
+    sep.BorderSizePixel = 0
+    sep.ZIndex = 101
+    sep.Parent = bar
+
+    local fpsLabel = makeLabel("FPS", 90)
+    sep:Clone().Parent = bar
+    local pingLabel = makeLabel("Ping", 90)
+    sep:Clone().Parent = bar
+    local timeLabel = makeLabel("Time", 80)
+    sep:Clone().Parent = bar
+    local serverLabel = makeLabel("Server", 130)
     serverLabel.TextSize = 11
-    serverLabel.TextColor3 = Color3.fromRGB(150, 130, 200)
+    serverLabel.TextColor3 = Color3.fromRGB(170, 150, 220)
 
     local RunService = game:GetService("RunService")
     local Stats = game:GetService("Stats")
@@ -1750,23 +1770,20 @@ do
             frames = 0
             lastFpsTime = now
             local fpsColor = fps >= 55 and Color3.fromRGB(100, 255, 140) or fps >= 30 and Color3.fromRGB(255, 220, 80) or Color3.fromRGB(255, 80, 80)
-            fpsLabel.Text = "⚡ " .. fps .. " FPS"
+            fpsLabel.Text = fps .. " FPS"
             fpsLabel.TextColor3 = fpsColor
 
             local ping = math.floor(Stats.Network.ServerStatsItem["Data Ping"]:GetValue() + 0.5)
             local pingColor = ping < 60 and Color3.fromRGB(100, 255, 140) or ping < 120 and Color3.fromRGB(255, 220, 80) or Color3.fromRGB(255, 80, 80)
-            pingLabel.Text = "📡 " .. ping .. " ms"
+            pingLabel.Text = ping .. " ms"
             pingLabel.TextColor3 = pingColor
 
             local t = os.date("*t")
-            local h = string.format("%02d", t.hour)
-            local m = string.format("%02d", t.min)
-            local s = string.format("%02d", t.sec)
-            timeLabel.Text = "🕐 " .. h .. ":" .. m .. ":" .. s
+            timeLabel.Text = string.format("%02d:%02d:%02d", t.hour, t.min, t.sec)
 
             local players = #game.Players:GetPlayers()
             local maxP = game.Players.MaxPlayers
-            serverLabel.Text = "👥 " .. players .. "/" .. maxP .. "  |  ELITE HUB 14.0"
+            serverLabel.Text = players .. "/" .. maxP .. " players"
         end
     end)
 end
@@ -10568,16 +10585,15 @@ local function startSpin()
             if not hrp or not hum then return end
 
             spinAngle = spinAngle + getgenv().ELITE_HUB_RangeSpinSpeed * 0.5
-            local lockedPos = hrp.Position
             local moveDir = hum.MoveDirection
+            local newPos = hrp.Position + moveDir * hum.WalkSpeed * 0.016
 
-            if moveDir.Magnitude > 0.1 and getgenv().ELITE_HUB_RangeSpinDuringMove then
+            if moveDir.Magnitude > 0.1 then
                 local moveAngle = math.atan2(moveDir.X, moveDir.Z)
-                hrp.CFrame = CFrame.new(lockedPos) * CFrame.Angles(0, moveAngle + math.rad(spinAngle), 0)
+                hrp.CFrame = CFrame.new(newPos) * CFrame.Angles(0, moveAngle + math.rad(spinAngle), 0)
             else
-                hrp.CFrame = CFrame.new(lockedPos) * CFrame.Angles(0, math.rad(spinAngle), 0)
+                hrp.CFrame = CFrame.new(newPos) * CFrame.Angles(0, math.rad(spinAngle), 0)
             end
-            hrp.Velocity = Vector3.new(0, hrp.Velocity.Y, 0)
             hrp.RotVelocity = Vector3.new(0, 0, 0)
         end)
     end)
