@@ -1687,7 +1687,9 @@ end)
 -- ═══════════════════════════════════════════════════════════════════
 -- AUTOMATIC NAMETAG — scans all players for EliteHubUser tag
 -- ═══════════════════════════════════════════════════════════════════
+warn("[ELITE HUB NAMETAG] Nametag system starting...")
 task.spawn(function()
+    warn("[ELITE HUB NAMETAG] Loop started")
     while task.wait(3) do
         pcall(function()
             local count = 0
