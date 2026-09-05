@@ -1737,19 +1737,19 @@ do
     makeSep(bar, 172)
     local timeLabel = makeLbl("Time", 180, 65, Enum.TextXAlignment.Left)
     makeSep(bar, 251)
-    local serverLabel = makeLbl("Server", 259, 80, Enum.TextXAlignment.Left)
+    local serverLabel = makeLbl("Server", 259, 55, Enum.TextXAlignment.Left)
     serverLabel.TextSize = 11
     serverLabel.TextColor3 = Color3.fromRGB(170, 150, 220)
 
     local subtitle = Instance.new("TextLabel")
     subtitle.Name = "Subtitle"
-    subtitle.Size = UDim2.new(1, 0, 0, 10)
-    subtitle.Position = UDim2.new(0, 0, 1, 2)
+    subtitle.Size = UDim2.new(1, 0, 0, 14)
+    subtitle.Position = UDim2.new(0, 0, 1, 3)
     subtitle.BackgroundTransparency = 1
     subtitle.Text = "ELITE HUB 14.0"
-    subtitle.TextColor3 = Color3.fromRGB(120, 80, 180)
-    subtitle.Font = Enum.Font.GothamBold
-    subtitle.TextSize = 8
+    subtitle.TextColor3 = Color3.fromRGB(140, 100, 200)
+    subtitle.Font = Enum.Font.GothamBlack
+    subtitle.TextSize = 11
     subtitle.TextXAlignment = Enum.TextXAlignment.Center
     subtitle.ZIndex = 100
     subtitle.Parent = bar
@@ -10558,9 +10558,20 @@ local re2 = RangeTab:CreateSection("🔄 SPIN BOT")
 
 local spinAngle = 0
 local spinConn = nil
+local prevAutoRotate = nil
 
 local function startSpin()
     if spinConn then return end
+    pcall(function()
+        local ch = player.Character
+        if ch then
+            local hum = ch:FindFirstChildOfClass("Humanoid")
+            if hum then
+                prevAutoRotate = hum.AutoRotate
+                hum.AutoRotate = false
+            end
+        end
+    end)
     local RunService = game:GetService("RunService")
     spinConn = RunService.Heartbeat:Connect(function(dt)
         pcall(function()
@@ -10582,6 +10593,16 @@ local function stopSpin()
         spinConn:Disconnect()
         spinConn = nil
     end
+    pcall(function()
+        local ch = player.Character
+        if ch then
+            local hum = ch:FindFirstChildOfClass("Humanoid")
+            if hum then
+                hum.AutoRotate = prevAutoRotate ~= nil and prevAutoRotate or true
+                prevAutoRotate = nil
+            end
+        end
+    end)
 end
 
 getgenv().ELITE_HUB_RangeSpin = false
