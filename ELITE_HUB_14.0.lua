@@ -1688,51 +1688,63 @@ end)
 -- AUTOMATIC NAMETAG — scans all players for EliteHubUser tag
 -- ═══════════════════════════════════════════════════════════════════
 task.spawn(function()
-    while task.wait(2) do
-        for _, p in ipairs(Players:GetPlayers()) do
-            if p ~= player then
-                local char = p.Character
-                if char then
-                    local hrp = char:FindFirstChild("HumanoidRootPart")
-                    if hrp then
-                        local existing = hrp:FindFirstChild("EliteHubTag")
-                        local isUser = CollectionService:HasTag(p, "EliteHubUser") or CollectionService:HasTag(char, "EliteHubUser")
-                        if isUser then
-                            if not existing then
-                                local bb = Instance.new("BillboardGui")
-                                bb.Name = "EliteHubTag"
-                                bb.AlwaysOnTop = true
-                                bb.ExtentsOffset = Vector3.new(0, 3.5, 0)
-                                bb.Size = UDim2.new(0, 140, 0, 20)
-                                bb.Adornee = hrp
-                                bb.Parent = hrp
+    while task.wait(3) do
+        pcall(function()
+            local count = 0
+            for _, p in ipairs(Players:GetPlayers()) do
+                if p ~= player then
+                    count = count + 1
+                    local char = p.Character
+                    if char then
+                        local hrp = char:FindFirstChild("HumanoidRootPart")
+                        if hrp then
+                            local existing = hrp:FindFirstChild("EliteHubTag")
+                            local attr1 = p:GetAttribute("EliteHubUser")
+                            local attr2 = char:GetAttribute("EliteHubUser")
+                            local tag1 = CollectionService:HasTag(p, "EliteHubUser")
+                            local tag2 = CollectionService:HasTag(char, "EliteHubUser")
+                            local isUser = attr1 or attr2 or tag1 or tag2
+                            if isUser then
+                                if not existing then
+                                    warn("[ELITE HUB] Found user: " .. p.Name .. " | attr=" .. tostring(attr1) .. "," .. tostring(attr2) .. " tag=" .. tostring(tag1) .. "," .. tostring(tag2))
+                                    local bb = Instance.new("BillboardGui")
+                                    bb.Name = "EliteHubTag"
+                                    bb.AlwaysOnTop = true
+                                    bb.ExtentsOffset = Vector3.new(0, 3.5, 0)
+                                    bb.Size = UDim2.new(0, 140, 0, 20)
+                                    bb.Adornee = hrp
+                                    bb.Parent = hrp
 
-                                local bg = Instance.new("Frame")
-                                bg.Size = UDim2.new(1, 0, 1, 0)
-                                bg.BackgroundColor3 = Color3.fromRGB(120, 40, 200)
-                                bg.BackgroundTransparency = 0.1
-                                bg.BorderSizePixel = 0
-                                bg.Parent = bb
-                                Instance.new("UICorner", bg).CornerRadius = UDim.new(0, 5)
+                                    local bg = Instance.new("Frame")
+                                    bg.Size = UDim2.new(1, 0, 1, 0)
+                                    bg.BackgroundColor3 = Color3.fromRGB(120, 40, 200)
+                                    bg.BackgroundTransparency = 0.1
+                                    bg.BorderSizePixel = 0
+                                    bg.Parent = bb
+                                    Instance.new("UICorner", bg).CornerRadius = UDim.new(0, 5)
 
-                                local lbl = Instance.new("TextLabel")
-                                lbl.Size = UDim2.new(1, 0, 1, 0)
-                                lbl.BackgroundTransparency = 1
-                                lbl.Text = "ELITE HUB"
-                                lbl.TextColor3 = Color3.fromRGB(220, 180, 255)
-                                lbl.TextSize = 11
-                                lbl.Font = Enum.Font.GothamBlack
-                                lbl.TextStrokeTransparency = 0
-                                lbl.TextStrokeColor3 = Color3.new(0, 0, 0)
-                                lbl.Parent = bg
+                                    local lbl = Instance.new("TextLabel")
+                                    lbl.Size = UDim2.new(1, 0, 1, 0)
+                                    lbl.BackgroundTransparency = 1
+                                    lbl.Text = "ELITE HUB"
+                                    lbl.TextColor3 = Color3.fromRGB(220, 180, 255)
+                                    lbl.TextSize = 11
+                                    lbl.Font = Enum.Font.GothamBlack
+                                    lbl.TextStrokeTransparency = 0
+                                    lbl.TextStrokeColor3 = Color3.new(0, 0, 0)
+                                    lbl.Parent = bg
+                                end
+                            else
+                                if existing then existing:Destroy() end
                             end
-                        else
-                            if existing then existing:Destroy() end
                         end
                     end
                 end
             end
-        end
+            if count == 0 then
+                warn("[ELITE HUB] No other players found in server")
+            end
+        end)
     end
 end)
 
