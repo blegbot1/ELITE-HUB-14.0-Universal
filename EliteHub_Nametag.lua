@@ -69,9 +69,12 @@ end
 task.spawn(function()
     local url = base(NAME)
     while task.wait(PING) do
-        pcall(function()
+        local ok, err = pcall(function()
             HttpService:PostAsync(url, tostring(os.time()))
         end)
+        if not ok then
+            warn("[EliteHub Nametag] ❌ HEARTBEAT FAILED: " .. tostring(err))
+        end
     end
 end)
 
@@ -80,7 +83,7 @@ task.spawn(function()
     local listUrl = base()
     local counter = 0
     while task.wait(POLL) do
-        pcall(function()
+        local ok, err = pcall(function()
             counter = counter + 1
             local body = HttpService:GetAsync(listUrl)
             local now = os.time()
@@ -120,6 +123,9 @@ task.spawn(function()
                 lastHeard = {}
             end
         end)
+        if not ok then
+            warn("[EliteHub Nametag] ❌ POLL FAILED: " .. tostring(err))
+        end
     end
 end)
 
