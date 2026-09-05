@@ -1,25 +1,29 @@
--- EliteHub Nametag v4
--- Детекция через чат: отправляем маркер, другие ловят и показывают бейдж
--- Запуск: loadstring(game:HttpGet("https://raw.githubusercontent.com/blegbot1/ELITE-HUB-14.0-Universal/refs/heads/main/EliteHub_Nametag.lua"))()
+-- EliteHub Nametag v5 - HTTP presence sync
+-- Каждый клиент шлёт heartbeat на kvdb.io (общий бакет)
+-- Другие клиенты читают список живых и показывают бейдж ТОЛЬКО им
+-- Запуск: loadstring(game:HttpGet(".../EliteHub_Nametag.lua"))()
 
 local Players = game:GetService("Players")
-local TextChatService = game:GetService("TextChatService")
+local HttpService = game:GetService("HttpService")
 local player = Players.LocalPlayer
 
-local MARKER = "[EHACTIVE]"
-local detectedUsers = {}
+local BUCKET = "CnWTikAq6kahaCkrUahVM4"
+local PING = 8      -- heartbeat каждые 8с
+local POLL = 6      -- опрос списка каждые 6с
+local STALE = 25    -- считать мёртвым после 25с тишины
 
-warn("[EliteHub Nametag] Loaded! Player: " .. player.Name)
+local NAME = player.Name
+local detected = {}   -- name -> true
+local lastHeard = {}  -- name -> os.time()
 
--- Функция показа бейджа
-local function showTag(p)
-    local char = p.Character
-    if not char then return end
-    local hrp = char:FindFirstChild("HumanoidRootPart")
-    if not hrp then return end
+warn("[EliteHub Nametag] HTTP sync loaded. Player: " .. NAME)
+
+local function base(extra)
+    return "https://kvdb.io/" .. BUCKET .. "/" .. (extra or "")
+end
+
+local function showTag(hrp)
     if hrp:FindFirstChild("EliteHubTag") then return end
-
-    warn("[EliteHub Nametag] Tag created for: " .. p.Name)
 
     local bb = Instance.new("BillboardGui")
     bb.Name = "EliteHubTag"
@@ -49,59 +53,74 @@ local function showTag(p)
     lbl.Parent = bg
 end
 
--- Слушаем входящие чат-сообщения
-pcall(function()
-    TextChatService.MessageReceived:Connect(function(message)
+local function tagPlayer(name)
+    local p = Players:FindFirstChild(name)
+    if p and p.Character then
+        local hrp = p.Character:FindFirstChild("HumanoidRootPart")
+        if hrp then
+            showTag(hrp)
+            return true
+        end
+    end
+    return false
+end
+
+-- Heartbeat: POST свой ник с текущим временем
+task.spawn(function()
+    local url = base(NAME)
+    while task.wait(PING) do
         pcall(function()
-            local text = message.Text or ""
-            if text:find(MARKER) then
-                local sender = message.TextSource
-                if sender then
-                    local senderPlayer = Players:GetPlayerByUserId(sender.UserId)
-                    if senderPlayer and senderPlayer ~= player then
-                        if not detectedUsers[senderPlayer.Name] then
-                            detectedUsers[senderPlayer.Name] = true
-                            warn("[EliteHub Nametag] Detected via chat: " .. senderPlayer.Name)
-                            showTag(senderPlayer)
+            HttpService:PostAsync(url, tostring(os.time()))
+        end)
+    end
+end)
+
+-- Опрос: GET список ников, проверяем кто живой
+task.spawn(function()
+    local listUrl = base()
+    local counter = 0
+    while task.wait(POLL) do
+        pcall(function()
+            counter = counter + 1
+            local body = HttpService:GetAsync(listUrl)
+            local now = os.time()
+
+            for name in (body .. "\n"):gmatch("([^\n]+)\n") do
+                if name ~= NAME then
+                    if not detected[name] then
+                        -- новый ник - проверяем свежесть
+                        local ok, tsStr = pcall(HttpService.GetAsync, HttpService, base(name))
+                        local ts = ok and tonumber(tsStr) or nil
+                        if ts and (now - ts) <= STALE then
+                            lastHeard[name] = ts
+                            if tagPlayer(name) then
+                                detected[name] = true
+                                warn("[EliteHub Nametag] Detected user: " .. name)
+                            end
+                        end
+                    else
+                        -- уже помечен - следим чтобы не уснул
+                        if counter % 3 == 0 then
+                            local ok, tsStr = pcall(HttpService.GetAsync, HttpService, base(name))
+                            local ts = ok and tonumber(tsStr) or nil
+                            if ts and (now - ts) > STALE then
+                                detected[name] = nil
+                                lastHeard[name] = nil
+                                pcall(HttpService.RequestAsync, HttpService, { Url = base(name), Method = "DELETE" })
+                                warn("[EliteHub Nametag] User left (stale): " .. name)
+                            end
                         end
                     end
                 end
             end
-        end)
-    end)
-end)
 
--- Также слушаем через LegacyChat (некоторые игры)
-pcall(function()
-    local chat = game:GetService("Chat")
-    chat.Chatted:Connect(function(message)
-        if message:find(MARKER) then
-            -- Chatted не даёт имя отправителя напрямую, пропускаем
-        end
-    end)
-end)
-
--- Отправляем маркер каждые 5 секунд
-task.spawn(function()
-    while task.wait(5) do
-        pcall(function()
-            TextChatService:FindFirstChild("TextChannels"):FindFirstChild("RBXGeneral"):SendAsync(MARKER)
-        end)
-    end
-end)
-
--- Также показываем бейдж тем кого засекли
-task.spawn(function()
-    while task.wait(3) do
-        pcall(function()
-            for name, _ in pairs(detectedUsers) do
-                local p = Players:FindFirstChild(name)
-                if p then
-                    showTag(p)
-                end
+            -- если сервер пуст - чистим список детекций
+            if not body or body == "" then
+                detected = {}
+                lastHeard = {}
             end
         end)
     end
 end)
 
-warn("[EliteHub Nametag] Chat detection active! Sending marker every 5s.")
+warn("[EliteHub Nametag] Presence sync active. Waiting for other users...")
