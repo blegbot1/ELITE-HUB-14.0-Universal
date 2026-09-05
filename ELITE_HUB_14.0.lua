@@ -1684,7 +1684,7 @@ OverlayGui.Parent = _ogParent
 do
     local holder = Instance.new("Frame")
     holder.Name = "EliteHub_TopHolder"
-    holder.Size = UDim2.new(0, 310, 0, 44)
+    holder.Size = UDim2.new(0, 310, 0, 50)
     holder.Position = UDim2.new(0.5, 0, 0, 4)
     holder.AnchorPoint = Vector2.new(0.5, 0)
     holder.BackgroundTransparency = 1
@@ -1711,20 +1711,38 @@ do
     stroke.Transparency = 0.2
     stroke.Parent = bar
 
-    local watermark = Instance.new("TextLabel")
-    watermark.Name = "Watermark"
-    watermark.Size = UDim2.new(1, 60, 0, 28)
-    watermark.Position = UDim2.new(0.5, 0, 0.5, 0)
-    watermark.AnchorPoint = Vector2.new(0.5, 0.5)
-    watermark.BackgroundTransparency = 1
-    watermark.Text = "E L I T E   H U B"
-    watermark.TextColor3 = Color3.fromRGB(100, 60, 170)
-    watermark.Font = Enum.Font.GothamBlack
-    watermark.TextSize = 22
-    watermark.TextXAlignment = Enum.TextXAlignment.Center
-    watermark.TextTransparency = 0.65
-    watermark.ZIndex = 99
-    watermark.Parent = holder
+    local subtitle = Instance.new("Frame")
+    subtitle.Name = "EliteHub_SubBar"
+    subtitle.Size = UDim2.new(0, 160, 0, 18)
+    subtitle.Position = UDim2.new(0.5, 0, 0, 27)
+    subtitle.AnchorPoint = Vector2.new(0.5, 0)
+    subtitle.BackgroundColor3 = Color3.fromRGB(18, 12, 34)
+    subtitle.BackgroundTransparency = 0.02
+    subtitle.BorderSizePixel = 0
+    subtitle.ZIndex = 100
+    subtitle.Parent = holder
+
+    local subCorner = Instance.new("UICorner")
+    subCorner.CornerRadius = UDim.new(0, 6)
+    subCorner.Parent = subtitle
+
+    local subStroke = Instance.new("UIStroke")
+    subStroke.Color = Color3.fromRGB(150, 70, 255)
+    subStroke.Thickness = 1
+    subStroke.Transparency = 0.2
+    subStroke.Parent = subtitle
+
+    local subText = Instance.new("TextLabel")
+    subText.Name = "SubText"
+    subText.Size = UDim2.new(1, 0, 1, 0)
+    subText.BackgroundTransparency = 1
+    subText.Text = "E L I T E   H U B"
+    subText.TextColor3 = Color3.fromRGB(170, 120, 255)
+    subText.Font = Enum.Font.GothamBlack
+    subText.TextSize = 11
+    subText.TextXAlignment = Enum.TextXAlignment.Center
+    subText.ZIndex = 101
+    subText.Parent = subtitle
 
     local layout = Instance.new("UIListLayout")
     layout.FillDirection = Enum.FillDirection.Horizontal
