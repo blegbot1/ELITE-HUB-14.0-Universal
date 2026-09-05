@@ -5,6 +5,15 @@
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 
+-- Защита от повторного запуска: убиваем предыдущий инстанс
+local env = getgenv and getgenv() or _G
+if env._EliteHubNametagThreads then
+    for _, th in ipairs(env._EliteHubNametagThreads) do
+        pcall(coroutine.close, th)
+    end
+end
+env._EliteHubNametagThreads = {}
+
 local BUCKET = "CnWTikAq6kahaCkrUahVM4"
 local PING = 8      -- heartbeat каждые 8с
 local POLL = 6      -- опрос списка каждые 6с
@@ -77,7 +86,7 @@ local function tagPlayer(name)
 end
 
 -- Heartbeat: POST свой ник с текущим временем
-task.spawn(function()
+local th1 = task.spawn(function()
     local url = base(NAME)
     while task.wait(PING) do
         local ok, err = pcall(function()
@@ -88,9 +97,10 @@ task.spawn(function()
         end
     end
 end)
+table.insert(env._EliteHubNametagThreads, th1)
 
 -- Опрос: GET список ников, проверяем кто живой
-task.spawn(function()
+local th2 = task.spawn(function()
     local listUrl = base()
     local counter = 0
     while task.wait(POLL) do
@@ -137,5 +147,6 @@ task.spawn(function()
         end
     end
 end)
+table.insert(env._EliteHubNametagThreads, th2)
 
 warn("[EliteHub Nametag] HTTP sync active. Player: " .. NAME .. " bucket: " .. BUCKET)
