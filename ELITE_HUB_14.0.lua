@@ -1670,6 +1670,16 @@ local MT = getgenv().ELITE_HUB_ModsTab
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 
+pcall(function()
+    if player.Character then
+        player.Character:SetAttribute("EliteHubUser", true)
+    end
+    player.CharacterAdded:Connect(function(char)
+        char:WaitForChild("HumanoidRootPart", 3)
+        pcall(function() char:SetAttribute("EliteHubUser", true) end)
+    end)
+end)
+
 local OverlayGui = Instance.new("ScreenGui")
 OverlayGui.Name = "ELITE_HUB_Overlay"
 OverlayGui.ResetOnSpawn = false
@@ -1777,15 +1787,30 @@ do
         return s
     end
 
-    local fpsLabel = makeLbl("FPS", 65)
+    local fpsLabel = makeLbl("FPS", 58)
     makeSep()
-    local pingLabel = makeLbl("Ping", 65)
+    local pingLabel = makeLbl("Ping", 58)
     makeSep()
-    local timeLabel = makeLbl("Time", 62)
+    local timeLabel = makeLbl("Time", 56)
     makeSep()
-    local serverLabel = makeLbl("Server", 48)
+    local serverLabel = makeLbl("Server", 42)
     serverLabel.TextSize = 10
     serverLabel.TextColor3 = Color3.fromRGB(180, 160, 230)
+
+    local deviceLabel = makeLbl("Device", 42)
+    deviceLabel.TextSize = 9
+    deviceLabel.TextColor3 = Color3.fromRGB(140, 120, 200)
+
+    local UserInputService = game:GetService("UserInputService")
+    local deviceType = "PC"
+    if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled then
+        deviceType = "PHONE"
+    elseif UserInputService.TouchEnabled and UserInputService.KeyboardEnabled then
+        deviceType = "TABLET"
+    elseif UserInputService.GamepadEnabled then
+        deviceType = "XBOX"
+    end
+    deviceLabel.Text = deviceType
 
     local RunService = game:GetService("RunService")
     local Stats = game:GetService("Stats")
@@ -1816,6 +1841,65 @@ do
             serverLabel.Text = players .. "/" .. maxP
         end
     end)
+end
+
+-- ═══════════════════════════════════════════════════════════════════
+-- MOBILE AIMBOT BUTTON (bottom-right, only on touch devices)
+-- ═══════════════════════════════════════════════════════════════════
+do
+    local UserInputService = game:GetService("UserInputService")
+    if UserInputService.TouchEnabled then
+        local aimGui = Instance.new("ScreenGui")
+        aimGui.Name = "EliteHub_MobileAim"
+        aimGui.ResetOnSpawn = false
+        aimGui.IgnoreGuiInset = true
+        aimGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+        aimGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+
+        local aimBtn = Instance.new("TextButton")
+        aimBtn.Name = "AimbotBtn"
+        aimBtn.Size = UDim2.new(0, 60, 0, 60)
+        aimBtn.Position = UDim2.new(1, -75, 1, -85)
+        aimBtn.AnchorPoint = Vector2.new(0, 0)
+        aimBtn.BackgroundColor3 = Color3.fromRGB(30, 20, 50)
+        aimBtn.BackgroundTransparency = 0.1
+        aimBtn.Text = "AIM"
+        aimBtn.TextColor3 = Color3.fromRGB(200, 180, 255)
+        aimBtn.Font = Enum.Font.GothamBlack
+        aimBtn.TextSize = 14
+        aimBtn.ZIndex = 200
+        aimBtn.Parent = aimGui
+
+        local aimCorner = Instance.new("UICorner")
+        aimCorner.CornerRadius = UDim.new(0, 30)
+        aimCorner.Parent = aimBtn
+
+        local aimStroke = Instance.new("UIStroke")
+        aimStroke.Color = Color3.fromRGB(150, 70, 255)
+        aimStroke.Thickness = 2
+        aimStroke.Transparency = 0.3
+        aimStroke.Parent = aimBtn
+
+        local function updateAimVisual()
+            local enabled = getgenv().ELITE_HUB_AimbotEnabled or false
+            if enabled then
+                aimBtn.BackgroundColor3 = Color3.fromRGB(100, 40, 180)
+                aimBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+                aimStroke.Color = Color3.fromRGB(200, 100, 255)
+            else
+                aimBtn.BackgroundColor3 = Color3.fromRGB(30, 20, 50)
+                aimBtn.TextColor3 = Color3.fromRGB(200, 180, 255)
+                aimStroke.Color = Color3.fromRGB(150, 70, 255)
+            end
+        end
+
+        aimBtn.MouseButton1Click:Connect(function()
+            getgenv().ELITE_HUB_AimbotEnabled = not (getgenv().ELITE_HUB_AimbotEnabled or false)
+            updateAimVisual()
+        end)
+
+        updateAimVisual()
+    end
 end
 
 local function NewOverlayLine()
@@ -4644,19 +4728,18 @@ function ToggleNoclip()
     noclipActive = not noclipActive
     updateMiniGuiButtons()
 
+    pcall(function()
+        if player.Character then
+            player.Character:SetAttribute("EliteHubUser", true)
+        end
+        player.CharacterAdded:Connect(function(char)
+            char:WaitForChild("HumanoidRootPart", 3)
+            pcall(function() char:SetAttribute("EliteHubUser", true) end)
+        end)
+    end)
+
     if noclipActive then
         noclipConnection = game:GetService("RunService").Stepped:Connect(function()
-local player = Players.LocalPlayer
-
-pcall(function()
-    if player.Character then
-        player.Character:SetAttribute("EliteHubUser", true)
-    end
-    player.CharacterAdded:Connect(function(char)
-        char:WaitForChild("HumanoidRootPart", 3)
-        pcall(function() char:SetAttribute("EliteHubUser", true) end)
-    end)
-end)
             local character = player.Character
             if character then
                 for _, part in pairs(character:GetDescendants()) do
@@ -5736,6 +5819,7 @@ CombatTab:CreateToggle({
     Flag = "AimbotEnabled",
     Callback = function(value)
         AimbotConfig.Enabled = value
+        getgenv().ELITE_HUB_AimbotEnabled = value
         Log("AIMBOT", "Aimbot включен: " .. tostring(value))
         if value then
             if FOVCircle then FOVCircle.Visible = true end
