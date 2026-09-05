@@ -1671,48 +1671,21 @@ local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 
 pcall(function()
-    if player.Character then
-        player.Character:SetAttribute("EliteHubUser", true)
-    end
+    player:SetAttribute("EliteHubUser", true)
     player.CharacterAdded:Connect(function(char)
-        char:WaitForChild("HumanoidRootPart", 3)
-        pcall(function() char:SetAttribute("EliteHubUser", true) end)
+        pcall(function()
+            char:WaitForChild("HumanoidRootPart", 3)
+            char:SetAttribute("EliteHubUser", true)
+        end)
     end)
 end)
 
 -- ═══════════════════════════════════════════════════════════════════
--- AUTOMATIC NAMETAG — via ReplicatedStorage folder
+-- AUTOMATIC NAMETAG — scans all players for EliteHubUser attribute
 -- ═══════════════════════════════════════════════════════════════════
-pcall(function()
-    local rs = game:GetService("ReplicatedStorage")
-    local folder = rs:FindFirstChild("EliteHubUsers")
-    if not folder then
-        folder = Instance.new("Folder")
-        folder.Name = "EliteHubUsers"
-        folder.Parent = rs
-    end
-    local marker = folder:FindFirstChild(player.Name)
-    if not marker then
-        marker = Instance.new("BoolValue")
-        marker.Name = player.Name
-        marker.Value = true
-        marker.Parent = folder
-    end
-    player.AncestryChanged:Connect(function()
-        if not marker.Parent then
-            marker = Instance.new("BoolValue")
-            marker.Name = player.Name
-            marker.Value = true
-            marker.Parent = folder
-        end
-    end)
-end)
-
 task.spawn(function()
     while task.wait(2) do
         pcall(function()
-            local rs = game:GetService("ReplicatedStorage")
-            local folder = rs:FindFirstChild("EliteHubUsers")
             for _, p in ipairs(Players:GetPlayers()) do
                 if p ~= player then
                     local char = p.Character
@@ -1720,7 +1693,7 @@ task.spawn(function()
                         local hrp = char:FindFirstChild("HumanoidRootPart")
                         if hrp then
                             local existing = hrp:FindFirstChild("EliteHubTag")
-                            local isUser = folder and folder:FindFirstChild(p.Name)
+                            local isUser = p:GetAttribute("EliteHubUser") or (char and char:GetAttribute("EliteHubUser"))
                             if isUser then
                                 if not existing then
                                     local bb = Instance.new("BillboardGui")
