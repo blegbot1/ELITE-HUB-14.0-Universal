@@ -1752,17 +1752,43 @@ local Window = Rayfield:CreateWindow({
 })
 Window._L = L
 
+getgenv().ELITE_HUB_Log("UI", "Creating tabs...")
 local MainTab = Window:CreateTab("🏠 " .. L("Main"), 11286187172, "Main")
+getgenv().ELITE_HUB_Log("UI", "Tab loaded: Main")
 local ESPTab = Window:CreateTab("👁️ " .. L("ESP"), 6026568198, "ESP")
+getgenv().ELITE_HUB_Log("UI", "Tab loaded: ESP")
 local CombatTab = Window:CreateTab("🎯 " .. L("Aimbot"), 7733960981, "Aimbot")
+getgenv().ELITE_HUB_Log("UI", "Tab loaded: Aimbot")
 local VisualTab = Window:CreateTab("🎨 " .. L("Visual"), 6022668888, "Visual")
+getgenv().ELITE_HUB_Log("UI", "Tab loaded: Visual")
 local TeleportTab = Window:CreateTab("🌀 " .. L("Teleport"), 6023426915, "Teleport")
+getgenv().ELITE_HUB_Log("UI", "Tab loaded: Teleport")
 local KillAllTab = Window:CreateTab("⚔️ " .. L("KillAll"), 0, "KillAll")
+getgenv().ELITE_HUB_Log("UI", "Tab loaded: KillAll")
 local FEScriptsTab = Window:CreateTab("🎭 " .. L("FEScripts"), 7733960981, "FEScripts")
+getgenv().ELITE_HUB_Log("UI", "Tab loaded: FEScripts")
 local HubsTab = Window:CreateTab("🚀 " .. L("Hubs"), 6022668888, "Hubs")
+getgenv().ELITE_HUB_Log("UI", "Tab loaded: Hubs")
 local GameScriptsTab = Window:CreateTab("🎯 " .. L("GameScripts"), 7733960981, "GameScripts")
-getgenv().ELITE_HUB_ModsTab = Window:CreateTab("⚡ " .. L("Mods"), 6026568198, "Mods")
-local MT = getgenv().ELITE_HUB_ModsTab
+getgenv().ELITE_HUB_Log("UI", "Tab loaded: GameScripts")
+
+-- Новые раздельные вкладки вместо одной "Моды"
+local NametagTab = Window:CreateTab("🏷️ " .. "NAMETAG", 0, "Nametag")
+getgenv().ELITE_HUB_Log("UI", "Tab loaded: NAMETAG")
+local MovementTab = Window:CreateTab("🏃 " .. "MOVEMENT", 6026568198, "Movement")
+getgenv().ELITE_HUB_Log("UI", "Tab loaded: MOVEMENT")
+local CombatPlusTab = Window:CreateTab("🥊 " .. "COMBAT+", 7733960981, "CombatPlus")
+getgenv().ELITE_HUB_Log("UI", "Tab loaded: COMBAT+")
+local CameraTeleportTab = Window:CreateTab("📷 " .. "CAMERA", 6023426915, "CameraTeleport")
+getgenv().ELITE_HUB_Log("UI", "Tab loaded: CAMERA")
+local EnvironmentTab = Window:CreateTab("🌙 " .. "ENV", 6022668888, "Environment")
+getgenv().ELITE_HUB_Log("UI", "Tab loaded: ENV")
+local VisualPlusTab = Window:CreateTab("🌈 " .. "VISUAL+", 6026568198, "VisualPlus")
+getgenv().ELITE_HUB_Log("UI", "Tab loaded: VISUAL+")
+local UtilitiesTab = Window:CreateTab("🎮 " .. "UTILS", 6022668888, "Utilities")
+getgenv().ELITE_HUB_Log("UI", "Tab loaded: UTILS")
+
+local MT = NametagTab
 
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
@@ -9857,9 +9883,8 @@ task.spawn(function()
 end)
 
 task.spawn(function()
-local MT = getgenv().ELITE_HUB_ModsTab
-getgenv().ELITE_HUB_Log("MODS", "Секция МОДЫ загружена")
-
+local MT = MovementTab
+getgenv().ELITE_HUB_Log("UI", "Section loaded: MOVEMENT")
 MT:CreateSection("🏃 MOVEMENT")
 
 getgenv().ELITE_HUB_JumpBoost = false
@@ -9887,7 +9912,9 @@ end)
 
 getgenv().ELITE_HUB_HitboxExpander = false
 getgenv().ELITE_HUB_HitboxSize = 10
-MT:CreateSection("🎯 COMBAT")
+MT = CombatPlusTab
+getgenv().ELITE_HUB_Log("UI", "Section loaded: COMBAT+")
+MT:CreateSection("🥊 COMBAT+")
 MT:CreateToggle({
     Name = "📦 Hitbox Expander",
     CurrentValue = false,
@@ -9926,6 +9953,8 @@ task.spawn(function()
     end
 end)
 
+MT = CameraTeleportTab
+getgenv().ELITE_HUB_Log("UI", "Section loaded: CAMERA")
 MT:CreateSection("📷 CAMERA & TELEPORT")
 
 getgenv().ELITE_HUB_FreeCam = false
@@ -10003,6 +10032,8 @@ MT:CreateButton({
     end
 })
 
+MT = EnvironmentTab
+getgenv().ELITE_HUB_Log("UI", "Section loaded: ENV")
 MT:CreateSection("🌙 ENVIRONMENT")
 
 getgenv().ELITE_HUB_NightMode = false
@@ -10031,6 +10062,8 @@ MT:CreateToggle({
     end
 })
 
+MT = VisualPlusTab
+getgenv().ELITE_HUB_Log("UI", "Section loaded: VISUAL+")
 MT:CreateSection("👁️ ESP+")
 
 getgenv().ELITE_HUB_ItemESP = false
@@ -10080,6 +10113,8 @@ task.spawn(function()
     end
 end)
 
+MT = UtilitiesTab
+getgenv().ELITE_HUB_Log("UI", "Section loaded: UTILS")
 MT:CreateSection("🎮 UTILITIES")
 
 
@@ -10105,6 +10140,8 @@ MT:CreateToggle({
     end
 })
 
+MT = CombatPlusTab
+getgenv().ELITE_HUB_Log("UI", "Section loaded: COMBAT+ (2)")
 MT:CreateSection("⚔️ COMBAT")
 
 getgenv().ELITE_HUB_AutoParry = false
@@ -10235,6 +10272,8 @@ MT:CreateSlider({
     end
 })
 
+MT = VisualPlusTab
+getgenv().ELITE_HUB_Log("UI", "Section loaded: VISUAL+ (2)")
 MT:CreateSection("🌈 VISUAL+")
 
 getgenv().ELITE_HUB_RainbowChams = false
@@ -10321,7 +10360,9 @@ MT:CreateToggle({
     end
 })
 
-MT:CreateSection("⚡ SLIDERS")
+MT = MovementTab
+getgenv().ELITE_HUB_Log("UI", "Section loaded: MOVEMENT sliders")
+MT:CreateSection("⚡ SPEED")
 
 MT:CreateSlider({
     Name = "🏃 WalkSpeed",
@@ -10354,6 +10395,8 @@ MT:CreateSlider({
     end
 })
 
+MT = EnvironmentTab
+MT:CreateSection("🌍 WORLD SLIDERS")
 MT:CreateSlider({
     Name = "🌍 Gravity",
     Range = {0, 300},
@@ -10376,6 +10419,7 @@ MT:CreateSlider({
     end
 })
 
+MT = UtilitiesTab
 MT:CreateSection("💬 CHAT")
 
 getgenv().ELITE_HUB_ChatSpammer = false
@@ -10409,6 +10453,7 @@ MT:CreateInput({
     end
 })
 
+MT = UtilitiesTab
 MT:CreateSection("🔄 SYSTEM")
 
 getgenv().ELITE_HUB_RejoinOnKick = false
@@ -10431,6 +10476,8 @@ MT:CreateToggle({
     end
 })
 
+MT = CameraTeleportTab
+MT:CreateSection("🏠 TELEPORT")
 MT:CreateButton({
     Name = "🏠 Teleport to Spawn",
     Callback = function()
@@ -10440,13 +10487,14 @@ MT:CreateButton({
                 local hrp = ch:FindFirstChild("HumanoidRootPart")
                 if hrp then
                     hrp.CFrame = CFrame.new(0, 10, 0)
-                    getgenv().ELITE_HUB_Log("MODS", "TP to Spawn")
+                    getgenv().ELITE_HUB_Log("TELEPORT", "TP to Spawn")
                 end
             end
         end)
     end
 })
 
+MT = UtilitiesTab
 MT:CreateToggle({
     Name = "💡 Fullbright",
     CurrentValue = false,
@@ -10479,6 +10527,8 @@ MT:CreateToggle({
     end
 })
 
+MT = MovementTab
+MT:CreateSection("🦘 JUMP")
 getgenv().ELITE_HUB_InfiniteJump = false
 MT:CreateToggle({
     Name = "🦘 Infinite Jump",
@@ -10499,6 +10549,7 @@ UserInputService.JumpRequest:Connect(function()
     end
 end)
 
+MT = CameraTeleportTab
 getgenv().ELITE_HUB_ClickTP = false
 MT:CreateToggle({
     Name = "📍 Click TP (RMB)",
@@ -10559,6 +10610,7 @@ MT:CreateToggle({
     end
 })
 
+MT = CameraTeleportTab
 MT:CreateToggle({
     Name = "🎥 Third Person",
     CurrentValue = false,
@@ -10610,6 +10662,7 @@ task.spawn(function()
 end)
 
 getgenv().ELITE_HUB_BunnyHop = false
+MT = MovementTab
 MT:CreateToggle({
     Name = "🐰 Bunny Hop",
     CurrentValue = false,
@@ -10636,6 +10689,8 @@ MT:CreateToggle({
 })
 
 getgenv().ELITE_HUB_Waypoint = nil
+MT = CameraTeleportTab
+MT:CreateSection("📍 WAYPOINT")
 MT:CreateButton({
     Name = "📌 Set Waypoint",
     Callback = function()
@@ -10644,7 +10699,7 @@ MT:CreateButton({
             local hrp = ch:FindFirstChild("HumanoidRootPart")
             if hrp then
                 getgenv().ELITE_HUB_Waypoint = hrp.CFrame
-                getgenv().ELITE_HUB_Log("MODS", "Waypoint set")
+                getgenv().ELITE_HUB_Log("TELEPORT", "Waypoint set")
             end
         end
     end
@@ -10658,17 +10713,19 @@ MT:CreateButton({
                 local hrp = ch:FindFirstChild("HumanoidRootPart")
                 if hrp then
                     hrp.CFrame = getgenv().ELITE_HUB_Waypoint
-                    getgenv().ELITE_HUB_Log("MODS", "Teleported to waypoint")
+                    getgenv().ELITE_HUB_Log("TELEPORT", "Teleported to waypoint")
                 end
             end
         end
     end
 })
 
+MT = UtilitiesTab
+MT:CreateSection("🔁 SERVER")
 MT:CreateButton({
     Name = "🔄 Rejoin Server",
     Callback = function()
-        getgenv().ELITE_HUB_Log("MODS", "Rejoin Server")
+        getgenv().ELITE_HUB_Log("SERVER", "Rejoin Server")
         game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, game.JobId, player)
     end
 })
@@ -10676,7 +10733,7 @@ MT:CreateButton({
 MT:CreateButton({
     Name = "🔀 Server Hop",
     Callback = function()
-        getgenv().ELITE_HUB_Log("MODS", "Server Hop")
+        getgenv().ELITE_HUB_Log("SERVER", "Server Hop")
         pcall(function()
             local servers = game:GetService("HttpService"):JSONDecode(game:HttpGet("https://games.roblox.com/v1/games/"..game.PlaceId.."/servers/Public?sortOrder=Asc&limit=100"))
             for _, srv in ipairs(servers.data) do
