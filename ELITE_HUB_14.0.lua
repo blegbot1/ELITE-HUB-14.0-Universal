@@ -1671,50 +1671,118 @@ local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 
 -- ═══════════════════════════════════════════════════════════════════
--- AUTOMATIC NAMETAG — shows "ELITE HUB" above all players
+-- AUTOMATIC NAMETAG — показывает "ELITE HUB" только над пользователями
+-- скрипта. Детекция через kvdb.io (облако): heartbeat + опрос.
+-- HttpService в executor'е забанен — используем game:HttpGet/HttpPost.
 -- ═══════════════════════════════════════════════════════════════════
-task.spawn(function()
-    while task.wait(2) do
-        pcall(function()
-            for _, p in ipairs(Players:GetPlayers()) do
-                if p ~= player then
-                    local char = p.Character
-                    if char then
-                        local hrp = char:FindFirstChild("HumanoidRootPart")
-                        if hrp and not hrp:FindFirstChild("EliteHubTag") then
-                            local bb = Instance.new("BillboardGui")
-                            bb.Name = "EliteHubTag"
-                            bb.AlwaysOnTop = true
-                            bb.ExtentsOffset = Vector3.new(0, 3.5, 0)
-                            bb.Size = UDim2.new(0, 140, 0, 20)
-                            bb.Adornee = hrp
-                            bb.Parent = hrp
+do
+    -- защита от повторного запуска
+    local env = getgenv and getgenv() or _G
+    if env.EliteHubNametagActive then return end
+    env.EliteHubNametagActive = true
 
-                            local bg = Instance.new("Frame")
-                            bg.Size = UDim2.new(1, 0, 1, 0)
-                            bg.BackgroundColor3 = Color3.fromRGB(120, 40, 200)
-                            bg.BackgroundTransparency = 0.1
-                            bg.BorderSizePixel = 0
-                            bg.Parent = bb
-                            Instance.new("UICorner", bg).CornerRadius = UDim.new(0, 5)
+    local NH_BUCKET = "CnWTikAq6kahaCkrUahVM4"
+    local NH_PING = 8      -- heartbeat каждые 8с
+    local NH_POLL = 6      -- опрос каждые 6с
+    local NH_STALE = 25    -- мёртв после 25с
 
-                            local lbl = Instance.new("TextLabel")
-                            lbl.Size = UDim2.new(1, 0, 1, 0)
-                            lbl.BackgroundTransparency = 1
-                            lbl.Text = "ELITE HUB"
-                            lbl.TextColor3 = Color3.fromRGB(220, 180, 255)
-                            lbl.TextSize = 11
-                            lbl.Font = Enum.Font.GothamBlack
-                            lbl.TextStrokeTransparency = 0
-                            lbl.TextStrokeColor3 = Color3.new(0, 0, 0)
-                            lbl.Parent = bg
+    local nhName = player.Name
+    local nhDetected = {}
+    local nhDel = request or http_request or (http and http.request)
+
+    local function nhBase(extra)
+        return "https://kvdb.io/" .. NH_BUCKET .. "/" .. (extra or "")
+    end
+
+    local function nhShowTag(hrp)
+        if hrp:FindFirstChild("EliteHubTag") then return end
+
+        local bb = Instance.new("BillboardGui")
+        bb.Name = "EliteHubTag"
+        bb.AlwaysOnTop = true
+        bb.ExtentsOffset = Vector3.new(0, 3, 0)
+        bb.Size = UDim2.new(0, 120, 0, 20)
+        bb.Adornee = hrp
+        bb.Parent = hrp
+
+        local bg = Instance.new("Frame")
+        bg.Size = UDim2.new(1, 0, 1, 0)
+        bg.BackgroundColor3 = Color3.fromRGB(120, 40, 200)
+        bg.BackgroundTransparency = 0.1
+        bg.BorderSizePixel = 0
+        bg.Parent = bb
+        Instance.new("UICorner", bg).CornerRadius = UDim.new(0, 5)
+
+        local lbl = Instance.new("TextLabel")
+        lbl.Size = UDim2.new(1, 0, 1, 0)
+        lbl.BackgroundTransparency = 1
+        lbl.Text = "ELITE HUB"
+        lbl.TextColor3 = Color3.fromRGB(220, 180, 255)
+        lbl.TextSize = 11
+        lbl.Font = Enum.Font.GothamBlack
+        lbl.TextStrokeTransparency = 0
+        lbl.TextStrokeColor3 = Color3.new(0, 0, 0)
+        lbl.Parent = bg
+    end
+
+    local function nhTagPlayer(name)
+        local p = Players:FindFirstChild(name)
+        if p and p.Character then
+            local hrp = p.Character:FindFirstChild("HumanoidRootPart")
+            if hrp then
+                nhShowTag(hrp)
+                return true
+            end
+        end
+        return false
+    end
+
+    -- Heartbeat
+    task.spawn(function()
+        local url = nhBase(nhName)
+        while task.wait(NH_PING) do
+            pcall(function()
+                game:HttpPost(url, tostring(os.time()), "text/plain")
+            end)
+        end
+    end)
+
+    -- Опрос
+    task.spawn(function()
+        local listUrl = nhBase()
+        local counter = 0
+        while task.wait(NH_POLL) do
+            pcall(function()
+                counter = counter + 1
+                local body = game:HttpGet(listUrl, true)
+                local now = os.time()
+
+                for name in (body .. "\n"):gmatch("([^\n]+)\n") do
+                    if name ~= nhName then
+                        if not nhDetected[name] then
+                            local ts = tonumber(game:HttpGet(nhBase(name), true))
+                            if ts and (now - ts) <= NH_STALE then
+                                if nhTagPlayer(name) then
+                                    nhDetected[name] = true
+                                end
+                            end
+                        else
+                            if counter % 3 == 0 then
+                                local ts = tonumber(game:HttpGet(nhBase(name), true))
+                                if not ts or (now - ts) > NH_STALE then
+                                    nhDetected[name] = nil
+                                    if nhDel then
+                                        pcall(nhDel, { Url = nhBase(name), Method = "DELETE" })
+                                    end
+                                end
+                            end
                         end
                     end
                 end
-            end
-        end)
-    end
-end)
+            end)
+        end
+    end)
+end
 
 local OverlayGui = Instance.new("ScreenGui")
 OverlayGui.Name = "ELITE_HUB_Overlay"
