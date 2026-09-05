@@ -1598,6 +1598,103 @@ getgenv().ELITE_HUB_Log = Log
 getgenv().ELITE_HUB_RUN_COUNT = (getgenv().ELITE_HUB_RUN_COUNT or 0) + 1
 Log("SYSTEM", "Скрипт запущен. Общий запуск #" .. tostring(getgenv().ELITE_HUB_RUN_COUNT))
 
+-- ═══════════════════════════════════════════════════════════════════
+-- LOADING CHECKLIST — консольная загрузка, проверяет всё по шагам
+-- ═══════════════════════════════════════════════════════════════════
+do
+    local function Check(name, ok, info)
+        if ok then
+            print("[" .. formatTime() .. "] [BOOT] ✅ " .. name .. (info and (" — " .. tostring(info)) or ""))
+        else
+            print("[" .. formatTime() .. "] [BOOT] ❌ " .. name .. (info and (" — " .. tostring(info)) or " (N/A)"))
+        end
+    end
+
+    print("")
+    print("======================================================")
+    print("         ELITE  HUB  14.0  —  HASKER")
+    print("                loading...")
+    print("======================================================")
+
+    local execName = "unknown"
+    pcall(function()
+        local id = identifyexecutor()
+        if type(id) == "table" then
+            execName = id[1]
+        elseif type(id) == "string" then
+            execName = id
+        end
+    end)
+    task.wait(0.1)
+    Check("Executor", execName ~= "unknown", execName)
+
+    local ver = "?"
+    pcall(function() ver = version() end)
+    task.wait(0.1)
+    Check("Runtime", ver ~= "?" and ver ~= "unknown", tostring(ver))
+
+    task.wait(0.1)
+    local gameName = "N/A"
+    pcall(function() gameName = tostring(game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name) end)
+    Check("Game", gameName ~= "N/A", gameName .. " (" .. tostring(game.PlaceId) .. ")")
+
+    task.wait(0.1)
+    local pl = game:GetService("Players").LocalPlayer
+    Check("Player", pl ~= nil, pl and (pl.Name .. " [" .. tostring(pl.UserId) .. "]") or "N/A")
+
+    task.wait(0.1)
+    Check("Run count", true, "#" .. tostring(getgenv().ELITE_HUB_RUN_COUNT))
+
+    task.wait(0.1)
+    local drawOk = pcall(function()
+        local d = Drawing.new("Line")
+        d:Remove()
+        return true
+    end)
+    Check("Drawing API", drawOk)
+
+    task.wait(0.1)
+    local hasGetenv = type(getgenv) == "function"
+    Check("getgenv()", hasGetenv)
+
+    task.wait(0.1)
+    local hs = "N/A"
+    pcall(function() hs = tostring(game:GetService("HttpService")) end)
+    Check("HttpService", hs ~= "N/A")
+
+    task.wait(0.1)
+    local httpGetOk = false
+    pcall(function()
+        game.HttpGet(game, "https://kvdb.io")
+        httpGetOk = true
+    end)
+    task.wait(0.1)
+    Check("game:HttpGet", httpGetOk, "для облака наметок")
+
+    task.wait(0.1)
+    local reqNames = {}
+    if request then table.insert(reqNames, "request") end
+    if http_request then table.insert(reqNames, "http_request") end
+    if syn and syn.request then table.insert(reqNames, "syn.request") end
+    if http and http.request then table.insert(reqNames, "http.request") end
+    Check("HTTP request()", #reqNames > 0, "N/A" or (#reqNames > 0 and table.concat(reqNames, ", ") or "N/A"))
+
+    task.wait(0.1)
+    pcall(function() game:GetService("UserInputService") end)
+    pcall(function() game:GetService("TweenService") end)
+    Check("Services UIS/Tween/Run", true, "loaded")
+
+    task.wait(0.1)
+    pcall(function() game:GetService("RunService") end)
+    Check("RunService", true, "loaded")
+
+    task.wait(0.1)
+    print("======================================================")
+    print("     ALL CHECKS COMPLETE — initializing UI...")
+    print("======================================================")
+    print("")
+end
+
 local DrawingSupported = pcall(function()
     local d = Drawing.new("Line")
     d:Remove()
@@ -1677,8 +1774,14 @@ local player = Players.LocalPlayer
 -- Настраивается через вкладку Mods → 🏷️ NAMETAG
 -- ═══════════════════════════════════════════════════════════════════
 local env = getgenv and getgenv() or _G
-if not env.EliteHubNametagActive then
-    env.EliteHubNametagActive = true
+if env.EliteHubNametagActive then return end
+env.EliteHubNametagActive = true
+do
+
+-- ═══ LOGGER CHIKH: пишем в консоль на каждое действие наметки ═══
+local function NLog(msgEl, ...)
+    getgenv().ELITE_HUB_Log("NAMETAG", msgEl, ...)
+end
 
     local NH_BUCKET = "CnWTikAq6kahaCkrUahVM4"
     local NH_PING = 8      -- heartbeat каждые 8с
@@ -1853,10 +1956,13 @@ if not env.EliteHubNametagActive then
     -- Heartbeat
     task.spawn(function()
         local url = nhBase(nhName)
+        local count = 0
         while task.wait(NH_PING) do
-            pcall(function()
+            count = count + 1
+            local ok = pcall(function()
                 game:HttpPost(url, tostring(os.time()), "text/plain")
             end)
+            NLog("Heartbeat #" .. tostring(count) .. " → " .. nhName .. " | ok=" .. tostring(ok))
         end
     end)
 
@@ -1870,18 +1976,23 @@ if not env.EliteHubNametagActive then
                 local body = game:HttpGet(listUrl, true)
                 local now = os.time()
 
+                local listStr = (body or ""):gsub("\n", " ") or ""
+                NLog("Poll #" .. tostring(counter) .. " | bucket: " .. tostring(listStr))
+
                 for name in (body .. "\n"):gmatch("([^\n]+)\n") do
                     if name ~= nhName then
                         if not nhDetected[name] then
                             local ts = tonumber(game:HttpGet(nhBase(name), true))
                             if ts and (now - ts) <= NH_STALE then
                                 nhDetected[name] = true
+                                NLog("DETECTED user: " .. tostring(name))
                             end
                         else
                             if counter % 3 == 0 then
                                 local ts = tonumber(game:HttpGet(nhBase(name), true))
                                 if not ts or (now - ts) > NH_STALE then
                                     nhDetected[name] = nil
+                                    NLog("STALE user: " .. tostring(name) .. " → removed")
                                     if nhDel then
                                         pcall(nhDel, { Url = nhBase(name), Method = "DELETE" })
                                     end
@@ -1893,6 +2004,7 @@ if not env.EliteHubNametagActive then
 
                 if not body or body == "" then
                     nhDetected = {}
+                    NLog("Bucket empty → reset detected set")
                 end
             end)
         end
@@ -1951,6 +2063,7 @@ if not env.EliteHubNametagActive then
         Callback = function(v)
             cfg.Enabled = v
             if v then nhRefreshAll() else nhClearTags() end
+            NLog("Setting: Nametag enabled = " .. tostring(v))
         end
     })
     MT:CreateDropdown({
@@ -1960,6 +2073,7 @@ if not env.EliteHubNametagActive then
         Callback = function(opt)
             cfg.Mode = opt == "All players" and "all" or "users"
             nhRefreshAll()
+            NLog("Setting: Show for = " .. tostring(opt))
         end
     })
     local nhNameInput = MT:CreateInput({
@@ -1969,11 +2083,12 @@ if not env.EliteHubNametagActive then
             if v and v ~= "" then
                 cfg.Text = v
                 nhRefreshAll()
+                NLog("Setting: Tag text = " .. tostring(v))
             end
         end
     })
     nhNameInput.Text = cfg.Text
-    MT:CreateSlider({
+MT:CreateSlider({
         Name = "🔠 Text size",
         Range = { 8, 20 },
         Increment = 1,
@@ -1981,6 +2096,7 @@ if not env.EliteHubNametagActive then
         Callback = function(v)
             cfg.TextSize = v
             nhRefreshAll()
+            NLog("Setting: Text size = " .. tostring(v))
         end
     })
     MT:CreateSlider({
@@ -1991,6 +2107,7 @@ if not env.EliteHubNametagActive then
         Callback = function(v)
             cfg.Width = v
             nhRefreshAll()
+            NLog("Setting: Tag width = " .. tostring(v))
         end
     })
     MT:CreateSlider({
@@ -2001,6 +2118,7 @@ if not env.EliteHubNametagActive then
         Callback = function(v)
             cfg.Height = v
             nhRefreshAll()
+            NLog("Setting: Tag height = " .. tostring(v))
         end
     })
     MT:CreateSlider({
@@ -2011,6 +2129,7 @@ if not env.EliteHubNametagActive then
         Callback = function(v)
             cfg.Offset = v
             nhRefreshAll()
+            NLog("Setting: Offset = " .. tostring(v))
         end
     })
     MT:CreateSlider({
@@ -2021,6 +2140,7 @@ if not env.EliteHubNametagActive then
         Callback = function(v)
             cfg.BgTransparency = v / 100
             nhRefreshAll()
+            NLog("Setting: BG transparency = " .. tostring(v))
         end
     })
     MT:CreateSlider({
@@ -2031,6 +2151,7 @@ if not env.EliteHubNametagActive then
         Callback = function(v)
             cfg.Corner = v
             nhRefreshAll()
+            NLog("Setting: Corner = " .. tostring(v))
         end
     })
     MT:CreateColorPicker({
@@ -2039,6 +2160,7 @@ if not env.EliteHubNametagActive then
         Callback = function(c)
             cfg.TextColor = c
             nhRefreshAll()
+            NLog("Setting: Text color = " .. tostring(c))
         end
     })
     MT:CreateColorPicker({
@@ -2047,6 +2169,7 @@ if not env.EliteHubNametagActive then
         Callback = function(c)
             cfg.BgColor = c
             nhRefreshAll()
+            NLog("Setting: Bg color = " .. tostring(c))
         end
     })
     MT:CreateToggle({
@@ -2055,6 +2178,7 @@ if not env.EliteHubNametagActive then
         Callback = function(v)
             cfg.Rainbow = v
             nhRefreshAll()
+            NLog("Setting: Rainbow = " .. tostring(v))
         end
     })
     MT:CreateToggle({
@@ -2063,6 +2187,7 @@ if not env.EliteHubNametagActive then
         Callback = function(v)
             cfg.ShowNick = v
             nhRefreshAll()
+            NLog("Setting: Show nickname = " .. tostring(v))
         end
     })
     MT:CreateToggle({
@@ -2071,6 +2196,7 @@ if not env.EliteHubNametagActive then
         Callback = function(v)
             cfg.Glow = v
             nhRefreshAll()
+            NLog("Setting: Glow = " .. tostring(v))
         end
     })
     MT:CreateToggle({
@@ -2079,6 +2205,7 @@ if not env.EliteHubNametagActive then
         Callback = function(v)
             cfg.Stroke = v
             nhRefreshAll()
+            NLog("Setting: Text stroke = " .. tostring(v))
         end
     })
     MT:CreateToggle({
@@ -2086,6 +2213,7 @@ if not env.EliteHubNametagActive then
         CurrentValue = cfg.Pulse,
         Callback = function(v)
             cfg.Pulse = v
+            NLog("Setting: Pulse = " .. tostring(v))
         end
     })
     MT:CreateToggle({
@@ -2094,6 +2222,7 @@ if not env.EliteHubNametagActive then
         Callback = function(v)
             cfg.AlwaysOnTop = v
             nhRefreshAll()
+NLog("Setting: Always on top = " .. tostring(v))
         end
     })
 end
