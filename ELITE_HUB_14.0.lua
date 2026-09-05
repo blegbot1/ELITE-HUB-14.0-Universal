@@ -1787,6 +1787,8 @@ local VisualPlusTab = Window:CreateTab("🌈 " .. "VISUAL+", 6026568198, "Visual
 getgenv().ELITE_HUB_Log("UI", "Tab loaded: VISUAL+")
 local UtilitiesTab = Window:CreateTab("🎮 " .. "UTILS", 6022668888, "Utilities")
 getgenv().ELITE_HUB_Log("UI", "Tab loaded: UTILS")
+getgenv().ELITE_HUB_ChamsTab = Window:CreateTab("🌈 " .. "CHAMS", 6026568198, "Chams")
+getgenv().ELITE_HUB_Log("UI", "Tab loaded: CHAMS")
 
 local MT = NametagTab
 
@@ -8496,19 +8498,19 @@ ESPTab:CreateColorPicker({
     end
 })
 
-ESPTab:CreateSection("💎 CHAMS")
+getgenv().ELITE_HUB_ChamsTab:CreateSection("💎 PLAYER CHAMS")
 
 task.spawn(function()
-ESPTab:CreateToggle({
+getgenv().ELITE_HUB_ChamsTab:CreateToggle({
     Name = "💎 Enable Chams",
     CurrentValue = ESPConfig.ChamsEnabled,
     Callback = function(value)
         ESPConfig.ChamsEnabled = value
-        getgenv().ELITE_HUB_Log("ESP", "Chams: " .. tostring(value))
+        getgenv().ELITE_HUB_Log("CHAMS", "Chams: " .. tostring(value))
     end
 })
 
-ESPTab:CreateColorPicker({
+getgenv().ELITE_HUB_ChamsTab:CreateColorPicker({
     Name = "🎨 Fill color",
     Color = ESPConfig.ChamsFillColor,
     Callback = function(value)
@@ -8516,7 +8518,7 @@ ESPTab:CreateColorPicker({
     end
 })
 
-ESPTab:CreateSlider({
+getgenv().ELITE_HUB_ChamsTab:CreateSlider({
     Name = "🔍 Fill transparency",
     Range = {0, 1},
     Increment = 0.05,
@@ -8526,7 +8528,7 @@ ESPTab:CreateSlider({
     end
 })
 
-ESPTab:CreateColorPicker({
+getgenv().ELITE_HUB_ChamsTab:CreateColorPicker({
     Name = "🎨 Outline color",
     Color = ESPConfig.ChamsOutlineColor,
     Callback = function(value)
@@ -8534,7 +8536,7 @@ ESPTab:CreateColorPicker({
     end
 })
 
-ESPTab:CreateSlider({
+getgenv().ELITE_HUB_ChamsTab:CreateSlider({
     Name = "🔍 Outline transparency",
     Range = {0, 1},
     Increment = 0.05,
@@ -8544,7 +8546,7 @@ ESPTab:CreateSlider({
     end
 })
 
-ESPTab:CreateDropdown({
+getgenv().ELITE_HUB_ChamsTab:CreateDropdown({
     Name = "🧊 Chams material",
     Options = {"ForceField", "Neon", "Glass", "SmoothPlastic", "Plastic", "Wood", "DiamondPlate", "Foil", "Ice", "Brick", "Cobblestone", "CorrodedMetal", "Grass", "Sand", "Slate", "Marble", "Granite", "Limestone"},
     CurrentOption = "ForceField",
@@ -8554,7 +8556,7 @@ ESPTab:CreateDropdown({
     end
 })
 
-ESPTab:CreateToggle({
+getgenv().ELITE_HUB_ChamsTab:CreateToggle({
     Name = "👥 Team check",
     CurrentValue = ESPConfig.ChamsTeamCheck,
     Callback = function(value)
@@ -8562,7 +8564,7 @@ ESPTab:CreateToggle({
     end
 })
 
-ESPTab:CreateToggle({
+getgenv().ELITE_HUB_ChamsTab:CreateToggle({
     Name = "👤 Show on self",
     CurrentValue = ESPConfig.ChamsSelf,
     Callback = function(value)
@@ -8570,13 +8572,37 @@ ESPTab:CreateToggle({
     end
 })
 
-ESPTab:CreateToggle({
+getgenv().ELITE_HUB_ChamsTab:CreateToggle({
     Name = "🤝 Show on teammates",
     CurrentValue = ESPConfig.ChamsTeammates,
     Callback = function(value)
         ESPConfig.ChamsTeammates = value
     end
 })
+end)
+
+getgenv().ELITE_HUB_ChamsTab:CreateSection("🌈 RAINBOW CHAMS")
+
+getgenv().ELITE_HUB_RainbowChams = false
+getgenv().ELITE_HUB_ChamsTab:CreateToggle({
+    Name = "🌈 Rainbow Chams",
+    CurrentValue = false,
+    Callback = function(value)
+        getgenv().ELITE_HUB_RainbowChams = value
+        getgenv().ELITE_HUB_Log("CHAMS", "Rainbow Chams: " .. tostring(value))
+    end
+})
+task.spawn(function()
+    local hue = 0
+    while task.wait(0.05) do
+        pcall(function()
+            if not getgenv().ELITE_HUB_RainbowChams then return end
+            if not ESPConfig.ChamsEnabled then return end
+            hue = (hue + 0.01) % 1
+            ESPConfig.ChamsFillColor = Color3.fromHSV(hue, 1, 1)
+            ESPConfig.ChamsOutlineColor = Color3.fromHSV((hue + 0.5) % 1, 1, 1)
+        end)
+    end
 end)
 
 ESPTab:CreateToggle({
@@ -10234,6 +10260,56 @@ task.spawn(function()
     end
 end)
 
+-- Spin Bot (копия из RANGE: Heartbeat + сохранение AutoRotate)
+task.spawn(function()
+local spinAngle = 0
+local spinConn = nil
+local prevAutoRotate = nil
+
+local function startSpin()
+    if spinConn then return end
+    pcall(function()
+        local ch = player.Character
+        if ch then
+            local hum = ch:FindFirstChildOfClass("Humanoid")
+            if hum then
+                prevAutoRotate = hum.AutoRotate
+                hum.AutoRotate = false
+            end
+        end
+    end)
+    local RunService = game:GetService("RunService")
+    spinConn = RunService.Heartbeat:Connect(function(dt)
+        pcall(function()
+            if not getgenv().ELITE_HUB_SpinBot then return end
+            local ch = player.Character
+            if not ch then return end
+            local hrp = ch:FindFirstChild("HumanoidRootPart")
+            if not hrp then return end
+            local speed = getgenv().ELITE_HUB_SpinSpeed or 50
+            local delta = speed * dt * 3
+            hrp.CFrame = hrp.CFrame * CFrame.Angles(0, math.rad(delta), 0)
+        end)
+    end)
+end
+
+local function stopSpin()
+    if spinConn then
+        spinConn:Disconnect()
+        spinConn = nil
+    end
+    pcall(function()
+        local ch = player.Character
+        if ch then
+            local hum = ch:FindFirstChildOfClass("Humanoid")
+            if hum then
+                hum.AutoRotate = prevAutoRotate ~= nil and prevAutoRotate or true
+                prevAutoRotate = nil
+            end
+        end
+    end)
+end
+
 getgenv().ELITE_HUB_SpinBot = false
 getgenv().ELITE_HUB_SpinSpeed = 50
 MT:CreateToggle({
@@ -10241,62 +10317,40 @@ MT:CreateToggle({
     CurrentValue = false,
     Callback = function(value)
         getgenv().ELITE_HUB_SpinBot = value
-        getgenv().ELITE_HUB_Log("MODS", "Spin Bot: " .. tostring(value))
+        getgenv().ELITE_HUB_Log("COMBAT", "Spin Bot: " .. tostring(value))
         if value then
-            task.spawn(function()
-                while getgenv().ELITE_HUB_SpinBot do
-                    task.wait(0.016)
-                    pcall(function()
-                        if not flyBg then
-                            local ch = player.Character
-                            if ch then
-                                local hrp = ch:FindFirstChild("HumanoidRootPart")
-                                if hrp then
-                                    hrp.CFrame = hrp.CFrame * CFrame.Angles(0, math.rad(getgenv().ELITE_HUB_SpinSpeed * 0.1), 0)
-                                end
-                            end
-                        end
-                    end)
-                end
-            end)
+            startSpin()
+        else
+            stopSpin()
         end
     end
 })
 MT:CreateSlider({
     Name = "🔄 Spin Speed",
-    Range = {10, 200},
+    Range = {10, 300},
     Increment = 5,
     CurrentValue = 50,
     Callback = function(value)
         getgenv().ELITE_HUB_SpinSpeed = value
     end
 })
+task.spawn(function()
+    while task.wait(1) do
+        pcall(function()
+            if not getgenv().ELITE_HUB_SpinBot then return end
+            local ch = player.Character
+            if ch then
+                local hum = ch:FindFirstChildOfClass("Humanoid")
+                if hum then hum.AutoRotate = false end
+            end
+        end)
+    end
+end)
+end)
 
 MT = VisualPlusTab
 getgenv().ELITE_HUB_Log("UI", "Section loaded: VISUAL+ (2)")
 MT:CreateSection("🌈 VISUAL+")
-
-getgenv().ELITE_HUB_RainbowChams = false
-MT:CreateToggle({
-    Name = "🌈 Rainbow Chams",
-    CurrentValue = false,
-    Callback = function(value)
-        getgenv().ELITE_HUB_RainbowChams = value
-        getgenv().ELITE_HUB_Log("MODS", "Rainbow Chams: " .. tostring(value))
-    end
-})
-task.spawn(function()
-    local hue = 0
-    while task.wait(0.05) do
-        pcall(function()
-            if not getgenv().ELITE_HUB_RainbowChams then return end
-            if not ESPConfig.ChamsEnabled then return end
-            hue = (hue + 0.01) % 1
-            ESPConfig.ChamsFillColor = Color3.fromHSV(hue, 1, 1)
-            ESPConfig.ChamsOutlineColor = Color3.fromHSV((hue + 0.5) % 1, 1, 1)
-        end)
-    end
-end)
 
 getgenv().ELITE_HUB_XRay = false
 MT:CreateToggle({
@@ -11417,18 +11471,18 @@ task.spawn(function()
     end
 end)
 
-local re4 = RangeTab:CreateSection("🔫 WEAPON CHAMS")
+getgenv().ELITE_HUB_ChamsTab:CreateSection("🔫 WEAPON CHAMS")
 
 getgenv().ELITE_HUB_RangeWeaponChams = false
 getgenv().ELITE_HUB_RangeWeaponColor = Color3.fromRGB(150, 70, 255)
 getgenv().ELITE_HUB_RangeWeaponMat = Enum.Material.Neon
 
-RangeTab:CreateToggle({
+getgenv().ELITE_HUB_ChamsTab:CreateToggle({
     Name = "🔫 Weapon Chams",
     CurrentValue = false,
     Callback = function(value)
         getgenv().ELITE_HUB_RangeWeaponChams = value
-        getgenv().ELITE_HUB_Log("RANGE", "Weapon Chams: " .. tostring(value))
+        getgenv().ELITE_HUB_Log("CHAMS", "Weapon Chams: " .. tostring(value))
         if not value then
             for _, part in ipairs(workspace:GetDescendants()) do
                 if part:GetAttribute("EliteHubWC") then
@@ -11445,7 +11499,7 @@ RangeTab:CreateToggle({
     end
 })
 
-RangeTab:CreateSlider({
+getgenv().ELITE_HUB_ChamsTab:CreateSlider({
     Name = "🎨 Weapon R",
     Range = {0, 255},
     Increment = 5,
@@ -11456,7 +11510,7 @@ RangeTab:CreateSlider({
     end
 })
 
-RangeTab:CreateSlider({
+getgenv().ELITE_HUB_ChamsTab:CreateSlider({
     Name = "🎨 Weapon G",
     Range = {0, 255},
     Increment = 5,
@@ -11467,7 +11521,7 @@ RangeTab:CreateSlider({
     end
 })
 
-RangeTab:CreateSlider({
+getgenv().ELITE_HUB_ChamsTab:CreateSlider({
     Name = "🎨 Weapon B",
     Range = {0, 255},
     Increment = 5,
@@ -11479,7 +11533,7 @@ RangeTab:CreateSlider({
 })
 
 local matNames = {"Neon", "ForceField", "Glass", "SmoothPlastic", "DiamondPlate", "Foil"}
-RangeTab:CreateDropdown({
+getgenv().ELITE_HUB_ChamsTab:CreateDropdown({
     Name = "🎨 Material",
     Options = matNames,
     CurrentOption = {"Neon"},
