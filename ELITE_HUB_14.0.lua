@@ -1711,20 +1711,20 @@ do
     stroke.Transparency = 0.2
     stroke.Parent = bar
 
-    local subtitle = Instance.new("TextLabel")
-    subtitle.Name = "Subtitle"
-    subtitle.Size = UDim2.new(1, 0, 0, 18)
-    subtitle.Position = UDim2.new(0, 0, 0, 24)
-    subtitle.BackgroundTransparency = 1
-    subtitle.Text = "E L I T E   H U B"
-    subtitle.TextColor3 = Color3.fromRGB(170, 120, 255)
-    subtitle.Font = Enum.Font.GothamBlack
-    subtitle.TextSize = 14
-    subtitle.TextXAlignment = Enum.TextXAlignment.Center
-    subtitle.TextStrokeTransparency = 0.6
-    subtitle.TextStrokeColor3 = Color3.fromRGB(100, 50, 180)
-    subtitle.ZIndex = 100
-    subtitle.Parent = holder
+    local watermark = Instance.new("TextLabel")
+    watermark.Name = "Watermark"
+    watermark.Size = UDim2.new(1, 60, 0, 28)
+    watermark.Position = UDim2.new(0.5, 0, 0.5, 0)
+    watermark.AnchorPoint = Vector2.new(0.5, 0.5)
+    watermark.BackgroundTransparency = 1
+    watermark.Text = "E L I T E   H U B"
+    watermark.TextColor3 = Color3.fromRGB(100, 60, 170)
+    watermark.Font = Enum.Font.GothamBlack
+    watermark.TextSize = 22
+    watermark.TextXAlignment = Enum.TextXAlignment.Center
+    watermark.TextTransparency = 0.65
+    watermark.ZIndex = 99
+    watermark.Parent = holder
 
     local layout = Instance.new("UIListLayout")
     layout.FillDirection = Enum.FillDirection.Horizontal
