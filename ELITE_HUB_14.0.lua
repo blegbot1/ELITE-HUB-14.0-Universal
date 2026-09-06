@@ -8275,7 +8275,22 @@ task.spawn(function()
         origMats[plr] = {}
         for _, part in ipairs(ch:GetDescendants()) do
             if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" then
-                origMats[plr][part] = {Material = part.Material, Color = part.Color, Transparency = part.Transparency}
+                local data = {Material = part.Material, Color = part.Color, Transparency = part.Transparency}
+                if part:IsA("MeshPart") then
+                    pcall(function() data.TextureID = part.TextureID end)
+                end
+                origMats[plr][part] = data
+            end
+            if part:IsA("SpecialMesh") then
+                pcall(function()
+                    origMats[plr][part] = {VertexColor = part.VertexColor, TextureId = part.TextureId}
+                end)
+            end
+            if part:IsA("SurfaceAppearance") then
+                origMats[plr][part] = {Enabled = part.Enabled}
+            end
+            if part:IsA("Texture") then
+                origMats[plr][part] = {Transparency = part.Transparency}
             end
         end
     end
@@ -8285,20 +8300,25 @@ task.spawn(function()
             for part, data in pairs(origMats[plr]) do
                 if part and part.Parent then
                     pcall(function()
-                        part.Material = data.Material
-                        part.Color = data.Color
-                        part.Transparency = data.Transparency
+                        if part:IsA("BasePart") then
+                            part.Material = data.Material
+                            part.Color = data.Color
+                            part.Transparency = data.Transparency
+                            if data.TextureID ~= nil and part:IsA("MeshPart") then
+                                part.TextureID = data.TextureID
+                            end
+                        elseif part:IsA("SpecialMesh") then
+                            if data.VertexColor then part.VertexColor = data.VertexColor end
+                            if data.TextureId then part.TextureId = data.TextureId end
+                        elseif part:IsA("SurfaceAppearance") then
+                            part.Enabled = data.Enabled
+                        elseif part:IsA("Texture") then
+                            part.Transparency = data.Transparency
+                        end
                     end)
                 end
             end
             origMats[plr] = nil
-        end
-        local ch = plr.Character
-        if ch then
-            for _, part in ipairs(ch:GetDescendants()) do
-                if part:IsA("SurfaceAppearance") then pcall(function() part.Enabled = true end) end
-                if part:IsA("Texture") then pcall(function() part.Transparency = 0 end) end
-            end
         end
     end
 
@@ -8386,8 +8406,21 @@ task.spawn(function()
         RestoreOriginals(plr)
     end)
 
+    for _, plr in ipairs(Players:GetPlayers()) do
+        if plr ~= player then
+            plr.CharacterAdded:Connect(function(char)
+                origMats[plr] = nil
+                task.wait(1)
+                if ESPConfig.ChamsEnabled then
+                    pcall(ApplyCham, plr)
+                end
+            end)
+        end
+    end
+
     Players.PlayerAdded:Connect(function(plr)
         plr.CharacterAdded:Connect(function(char)
+            origMats[plr] = nil
             task.wait(1)
             if ESPConfig.ChamsEnabled then
                 pcall(ApplyCham, plr)
