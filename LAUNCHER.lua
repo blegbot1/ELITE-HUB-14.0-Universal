@@ -1,5 +1,5 @@
--- ELITE HUB 14.0 LAUNCHER (with kotik image from GitHub)
--- Drag once -> moves to top-left. Click -> loads hub.
+-- ELITE HUB 14.0 LAUNCHER v2
+-- Square button with kotik photo, stays where you put it
 
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
@@ -15,80 +15,94 @@ gui.ResetOnSpawn = false
 gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 gui.Parent = player:WaitForChild("PlayerGui")
 
+-- SQUARE button, no corner rounding
 local btn = Instance.new("ImageButton")
 btn.Name = "KolkaBtn"
 btn.Size = UDim2.new(0, 90, 0, 90)
 btn.Position = UDim2.new(0.5, -45, 0.5, -45)
-btn.BackgroundColor3 = Color3.fromRGB(30, 15, 45)
+btn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+btn.BackgroundTransparency = 0
 btn.BorderSizePixel = 0
 btn.AutoButtonColor = false
 btn.ScaleType = Enum.ScaleType.Fit
+btn.Image = ""
 btn.Parent = gui
 
+-- SQUARE corners (no rounding)
 local corner = Instance.new("UICorner")
-corner.CornerRadius = UDim.new(0, 14)
+corner.CornerRadius = UDim.new(0, 0)
 corner.Parent = btn
 
 local stroke = Instance.new("UIStroke")
 stroke.Color = Color3.fromRGB(200, 50, 200)
-stroke.Thickness = 2.5
+stroke.Thickness = 2
 stroke.Transparency = 0.2
 stroke.Parent = btn
 
-local glow = Instance.new("ImageLabel")
-glow.Name = "Glow"
-glow.Size = UDim2.new(1, 30, 1, 30)
-glow.Position = UDim2.new(0, -15, 0, -15)
-glow.BackgroundTransparency = 1
-glow.Image = "rbxassetid://5028857084"
-glow.ImageColor3 = Color3.fromRGB(200, 50, 200)
-glow.ImageTransparency = 0.6
-glow.ScaleType = Enum.ScaleType.Fit
-glow.ZIndex = 0
-glow.Parent = btn
-
+-- Load image from GitHub
 local function loadImage()
-    local asset
     if getgenv().ELITE_HUB_KotikAsset then
-        asset = getgenv().ELITE_HUB_KotikAsset
-    elseif isfile and isfile(IMAGE_FILE) then
-        asset = getcustomasset(IMAGE_FILE)
-        getgenv().ELITE_HUB_KotikAsset = asset
-    else
-        local ok, data = pcall(function()
-            if http_request then
-                return http_request({Url = IMAGE_URL, Method = "GET"})
-            elseif request then
-                return request({Url = IMAGE_URL, Method = "GET"})
-            end
-        end)
-        if ok and data and data.Body then
-            writefile(IMAGE_FILE, data.Body)
-            asset = getcustomasset(IMAGE_FILE)
-            getgenv().ELITE_HUB_KotikAsset = asset
-        else
-            warn("[KOLKA] Image download failed, using placeholder")
-            btn.BackgroundColor3 = Color3.fromRGB(200, 50, 200)
-            local lbl = Instance.new("TextLabel")
-            lbl.Size = UDim2.new(1, 0, 1, 0)
-            lbl.BackgroundTransparency = 1
-            lbl.Text = "KOLKA"
-            lbl.TextColor3 = Color3.new(1, 1, 1)
-            lbl.TextSize = 18
-            lbl.Font = Enum.Font.GothamBlack
-            lbl.TextStrokeTransparency = 0.5
-            lbl.Parent = btn
-            return
-        end
+        btn.Image = getgenv().ELITE_HUB_KotikAsset
+        return true
     end
-    btn.Image = asset
+    
+    local hasFiles = type(isfile) == "function" and type(writefile) == "function" and type(getcustomasset) == "function"
+    
+    if hasFiles and isfile(IMAGE_FILE) then
+        local asset = getcustomasset(IMAGE_FILE)
+        btn.Image = asset
+        getgenv().ELITE_HUB_KotikAsset = asset
+        return true
+    end
+    
+    local hasRequest = type(request) == "function" or type(http_request) == "function"
+    if not hasRequest then
+        warn("[KOLKA] No request function available")
+        return false
+    end
+    
+    print("[KOLKA] Downloading kotik image...")
+    local ok, data = pcall(function()
+        if http_request then
+            return http_request({Url = IMAGE_URL, Method = "GET"})
+        else
+            return request({Url = IMAGE_URL, Method = "GET"})
+        end
+    end)
+    
+    if ok and data and data.Body and #data.Body > 100 then
+        if hasFiles then
+            writefile(IMAGE_FILE, data.Body)
+        end
+        local asset = getcustomasset(IMAGE_FILE)
+        btn.Image = asset
+        getgenv().ELITE_HUB_KotikAsset = asset
+        print("[KOLKA] Image loaded!")
+        return true
+    else
+        warn("[KOLKA] Image download failed")
+        return false
+    end
 end
 
-loadImage()
+local hasImage = loadImage()
 
+if not hasImage then
+    btn.BackgroundColor3 = Color3.fromRGB(200, 50, 200)
+    local lbl = Instance.new("TextLabel")
+    lbl.Size = UDim2.new(1, 0, 1, 0)
+    lbl.BackgroundTransparency = 1
+    lbl.Text = "KOLKA"
+    lbl.TextColor3 = Color3.new(1, 1, 1)
+    lbl.TextSize = 20
+    lbl.Font = Enum.Font.GothamBlack
+    lbl.TextStrokeTransparency = 0.3
+    lbl.Parent = btn
+end
+
+-- DRAGGING (stays where you drop it, no auto-move)
 local dragging = false
 local dragStart, startPos
-local movedToCorner = false
 
 btn.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
@@ -111,32 +125,33 @@ end)
 btn.InputEnded:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
         dragging = false
-        if not movedToCorner then
-            movedToCorner = true
-            TweenService:Create(btn, TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-                Position = UDim2.new(0, 12, 0, 12),
-                Size = UDim2.new(0, 60, 0, 60)
-            }):Play()
-        end
     end
 end)
 
+-- HOVER
 btn.MouseEnter:Connect(function()
-    local sz = movedToCorner and 65 or 95
-    TweenService:Create(btn, TweenInfo.new(0.15), {Size = UDim2.new(0, sz, 0, sz)}):Play()
-    TweenService:Create(stroke, TweenInfo.new(0.15), {Transparency = 0, Thickness = 3.5}):Play()
+    TweenService:Create(btn, TweenInfo.new(0.12), {
+        Size = UDim2.new(0, 96, 0, 96),
+        Position = UDim2.new(btn.Position.X.Scale, btn.Position.X.Offset - 3, btn.Position.Y.Scale, btn.Position.Y.Offset - 3)
+    }):Play()
+    TweenService:Create(stroke, TweenInfo.new(0.12), {Transparency = 0, Thickness = 3}):Play()
 end)
 
 btn.MouseLeave:Connect(function()
-    local sz = movedToCorner and 60 or 90
-    TweenService:Create(btn, TweenInfo.new(0.15), {Size = UDim2.new(0, sz, 0, sz)}):Play()
-    TweenService:Create(stroke, TweenInfo.new(0.15), {Transparency = 0.2, Thickness = 2.5}):Play()
+    TweenService:Create(btn, TweenInfo.new(0.12), {
+        Size = UDim2.new(0, 90, 0, 90),
+        Position = UDim2.new(btn.Position.X.Scale, btn.Position.X.Offset + 3, btn.Position.Y.Scale, btn.Position.Y.Offset + 3)
+    }):Play()
+    TweenService:Create(stroke, TweenInfo.new(0.12), {Transparency = 0.2, Thickness = 2}):Play()
 end)
 
+-- CLICK -> load hub
 btn.MouseButton1Click:Connect(function()
+    if dragging then return end
+    
     local origSize = btn.Size
     TweenService:Create(btn, TweenInfo.new(0.08), {
-        Size = UDim2.new(0, origSize.X.Offset * 0.8, 0, origSize.Y.Offset * 0.8)
+        Size = UDim2.new(0, 78, 0, 78)
     }):Play()
     task.wait(0.08)
     TweenService:Create(btn, TweenInfo.new(0.08), {Size = origSize}):Play()
@@ -161,17 +176,18 @@ btn.MouseButton1Click:Connect(function()
     end
 end)
 
+-- PULSE
 task.spawn(function()
     while gui.Parent do
-        TweenService:Create(stroke, TweenInfo.new(1.2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
+        TweenService:Create(stroke, TweenInfo.new(1, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
             Transparency = 0.7
         }):Play()
-        task.wait(1.2)
-        TweenService:Create(stroke, TweenInfo.new(1.2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
+        task.wait(1)
+        TweenService:Create(stroke, TweenInfo.new(1, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
             Transparency = 0.1
         }):Play()
-        task.wait(1.2)
+        task.wait(1)
     end
 end)
 
-print("[KOLKA] Ready!")
+print("[KOLKA] Launcher ready!")
