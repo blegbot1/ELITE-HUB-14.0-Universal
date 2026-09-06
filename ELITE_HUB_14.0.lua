@@ -10425,18 +10425,20 @@ getgenv().ELITE_HUB_Log("UI", "Section loaded: CHINESE HAT")
 MT:CreateSection("🎩 CHINESE HAT")
 
 getgenv().ELITE_HUB_ChineseHatOn = false
-getgenv().ELITE_HUB_ChineseHatY = 0.25
+getgenv().ELITE_HUB_ChineseHatY = 0
 getgenv().ELITE_HUB_ChineseHatConeH = 1.4
 getgenv().ELITE_HUB_ChineseHatR = 1.6
 getgenv().ELITE_HUB_ChineseHatColor = Color3.fromRGB(222, 184, 135)
 getgenv().ELITE_HUB_ChineseHatSpin = false
 getgenv().ELITE_HUB_ChineseHatSpinSpeed = 50
 local hatConn = nil
-local hatParts = {} -- {part = cfOffset} — хранит смещения от head
+local hatParts = {} -- {part = offsetCFrame} — смещения от head
+local hatSpinParts = {} -- {part = localCF} — исходные CFrame в head-local пространстве
 
 local function RemoveHat(char)
     if hatConn then hatConn:Disconnect() hatConn = nil end
     hatParts = {}
+    hatSpinParts = {}
     local old = char and char:FindFirstChild("ELITEHUB_CHINESE_HAT")
     if old then pcall(function() old:Destroy() end) end
 end
@@ -10448,7 +10450,7 @@ local function MakePart(props)
     p.Material = props.Material or Enum.Material.ForceField
     p.Color = props.Color or Color3.new(1,1,1)
     p.CanCollide = false
-    p.Anchored = true -- anchored пока создаём, потом unanchor
+    p.Anchored = true
     p.CastShadow = false
     p.Massless = true
     p.CustomPhysicalProperties = PhysicalProperties.new(0.001, 0, 0, 1, 1)
@@ -10462,7 +10464,7 @@ local function BuildHat(char)
     if not head then return end
 
     RemoveHat(char)
-    task.wait(0.2) -- ждём 2 кадра чтобы физика успокоилась
+    task.wait(0.2)
 
     local hat = Instance.new("Model")
     hat.Name = "ELITEHUB_CHINESE_HAT"
@@ -10475,56 +10477,56 @@ local function BuildHat(char)
     local N = 48
     local headCF = head.CFrame
 
-    -- Конус из тонких пластин
-    local slantH = math.sqrt(R * R + H * H)
-    local coneAngle = math.atan2(H, R)
-
     for i = 0, N - 1 do
         local ang = (i / N) * math.pi * 2
         local segW = 2 * R * math.tan(math.pi / N) * 1.02
 
         local slat = MakePart({
-            Size = Vector3.new(segW, slantH, 0.03),
+            Size = Vector3.new(segW, math.sqrt(R*R + H*H), 0.03),
             Color = COL,
         })
-        local slatCF = headCF
-            * CFrame.new(0, Y + H / 2, 0)
-            * CFrame.Angles(0, ang, 0)
-            * CFrame.Angles(0, 0, coneAngle)
-            * CFrame.new(0, -slantH / 2, 0)
-        slat.CFrame = slatCF
+
+        local bottomPos = Vector3.new(R * math.cos(ang), Y, R * math.sin(ang))
+        local apexPos = Vector3.new(0, Y + H, 0)
+        local center = (bottomPos + apexPos) / 2
+        local dir = (apexPos - bottomPos).Unit
+        local tangent = Vector3.new(-math.sin(ang), 0, math.cos(ang))
+
+        local localCF = CFrame.fromMatrix(center, tangent, dir)
+        local worldCF = headCF * localCF
+
+        slat.CFrame = worldCF
         slat.Parent = hat
-        hatParts[slat] = headCF:Inverse() * slatCF
+        hatParts[slat] = headCF:Inverse() * worldCF
+        hatSpinParts[slat] = localCF
     end
 
-    -- Верхушка
     local tip = MakePart({
         Shape = Enum.PartType.Ball,
         Size = Vector3.new(0.15, 0.18, 0.15),
         Color = COL,
     })
-    local tipCF = headCF * CFrame.new(0, Y + H + 0.05, 0)
-    tip.CFrame = tipCF
+    local tipLocal = CFrame.new(0, Y + H + 0.05, 0)
+    tip.CFrame = headCF * tipLocal
     tip.Parent = hat
-    hatParts[tip] = headCF:Inverse() * tipCF
+    hatParts[tip] = tipLocal
+    hatSpinParts[tip] = tipLocal
 
-    -- Поля
     local brim = MakePart({
         Shape = Enum.PartType.Cylinder,
         Size = Vector3.new(0.06, R * 2 + 0.4, R * 2 + 0.4),
         Color = COL,
     })
-    local brimCF = headCF * CFrame.new(0, Y - 0.02, 0) * CFrame.Angles(0, 0, math.pi / 2)
-    brim.CFrame = brimCF
+    local brimLocal = CFrame.new(0, Y, 0) * CFrame.Angles(0, 0, math.pi / 2)
+    brim.CFrame = headCF * brimLocal
     brim.Parent = hat
-    hatParts[brim] = headCF:Inverse() * brimCF
+    hatParts[brim] = brimLocal
+    hatSpinParts[brim] = brimLocal
 
-    -- Unanchor все parts (теперь они следуют за головой через Heartbeat)
     for p, _ in pairs(hatParts) do
         p.Anchored = false
     end
 
-    -- Heartbeat: двигаем parts + ноклип + вращение
     if hatConn then hatConn:Disconnect() hatConn = nil end
     local RunService = game:GetService("RunService")
     local spinAngle = 0
@@ -10537,21 +10539,20 @@ local function BuildHat(char)
             end
             local h = char and char:FindFirstChild("ELITEHUB_CHINESE_HAT")
             if not h then return end
-            local hrp = char:FindFirstChild("HumanoidRootPart")
-            if not hrp then return end
+            local hd = char:FindFirstChild("Head")
+            if not hd then return end
 
-            -- Вращение
             if getgenv().ELITE_HUB_ChineseHatSpin then
                 spinAngle = spinAngle + (getgenv().ELITE_HUB_ChineseHatSpinSpeed or 50) * dt * 3
             end
 
-            -- Двигаем каждый part: CFrame = head * offset * spin
             local spinCF = CFrame.Angles(0, math.rad(spinAngle), 0)
-            for p, offset in pairs(hatParts) do
+            local hdCF = hd.CFrame
+            for p, localCF in pairs(hatSpinParts) do
                 if p and p.Parent then
                     p.CanCollide = false
                     p.Massless = true
-                    p.CFrame = hrp.CFrame * offset * spinCF
+                    p.CFrame = hdCF * spinCF * localCF
                 end
             end
         end)
@@ -10576,7 +10577,7 @@ MT:CreateSlider({
     Name = "⬆️ Hat Height (Y)",
     Range = {0, 1.5},
     Increment = 0.05,
-    CurrentValue = 0.25,
+    CurrentValue = 0,
     Callback = function(value)
         getgenv().ELITE_HUB_ChineseHatY = value
         if getgenv().ELITE_HUB_ChineseHatOn then
