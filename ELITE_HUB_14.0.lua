@@ -12049,11 +12049,16 @@ getgenv().ELITE_HUB_ChamsTab:CreateToggle({
             for _, part in ipairs(workspace:GetDescendants()) do
                 if part:GetAttribute("EliteHubWC") then
                     pcall(function()
-                        part.Material = part:GetAttribute("EliteHubWCOrigMat")
-                        part.Color = part:GetAttribute("EliteHubWCOrigCol")
+                        local origMat = part:GetAttribute("EliteHubWCOrigMat")
+                        local origCol = part:GetAttribute("EliteHubWCOrigCol")
+                        local origTrans = part:GetAttribute("EliteHubWCOrigTrans")
+                        if origMat then part.Material = origMat end
+                        if origCol then part.Color = origCol end
+                        if origTrans then part.Transparency = origTrans end
                         part:SetAttribute("EliteHubWC", nil)
                         part:SetAttribute("EliteHubWCOrigMat", nil)
                         part:SetAttribute("EliteHubWCOrigCol", nil)
+                        part:SetAttribute("EliteHubWCOrigTrans", nil)
                     end)
                 end
             end
@@ -12113,7 +12118,7 @@ getgenv().ELITE_HUB_ChamsTab:CreateDropdown({
 })
 
 task.spawn(function()
-    while task.wait(0.016) do
+    while task.wait(0.1) do
         pcall(function()
             if not getgenv().ELITE_HUB_RangeWeaponChams then return end
             local ch = player.Character
@@ -12124,14 +12129,27 @@ task.spawn(function()
                 if not tool or not tool:IsA("Tool") then return end
                 for _, part in ipairs(tool:GetDescendants()) do
                     if part:IsA("BasePart") then
+                        if not part:GetAttribute("EliteHubWC") then
+                            part:SetAttribute("EliteHubWC", true)
+                            part:SetAttribute("EliteHubWCOrigMat", part.Material)
+                            part:SetAttribute("EliteHubWCOrigCol", part.Color)
+                            part:SetAttribute("EliteHubWCOrigTrans", part.Transparency)
+                        end
                         part.Material = mat
                         part.Color = col
                         part.CastShadow = false
+                        part.Transparency = 0
+                        if part:IsA("MeshPart") then
+                            pcall(function() part.TextureID = "" end)
+                        end
                     end
                     if part:IsA("SurfaceAppearance") then pcall(function() part:Destroy() end) end
                     if part:IsA("Texture") then pcall(function() part:Destroy() end) end
                     if part:IsA("Decal") then pcall(function() part.Transparency = 1 end) end
-                    if part:IsA("SpecialMesh") then pcall(function() part.TextureId = "" end) end
+                    if part:IsA("SpecialMesh") then
+                        pcall(function() part.TextureId = "" end)
+                        pcall(function() part.VertexColor = Vector3.new(col.R, col.G, col.B) end)
+                    end
                 end
             end
             for _, tool in ipairs(ch:GetChildren()) do
