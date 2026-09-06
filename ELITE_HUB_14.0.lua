@@ -3136,6 +3136,13 @@ FEScriptsTab:CreateButton({
     end
 })
 
+FEScriptsTab:CreateButton({
+    Name = "🦹 The Villain Loader",
+    Callback = function()
+        LoadScript("🦹 The Villain Loader", "https://raw.githubusercontent.com/Jskfhggjxu/My-Script/refs/heads/main/The-Villain-Loader")
+    end
+})
+
 local FEUtilitiesSection = FEScriptsTab:CreateSection("🛠️ FE UTILITIES")
 
 FEScriptsTab:CreateButton({
