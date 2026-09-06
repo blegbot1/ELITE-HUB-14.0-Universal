@@ -10443,6 +10443,7 @@ local function BuildHat(char)
     if not head then return end
 
     RemoveHat(char)
+    task.wait() -- ждём один кадр чтобы физика обработала удаление
 
     local hat = Instance.new("Model")
     hat.Name = "ELITEHUB_CHINESE_HAT"
@@ -10452,7 +10453,7 @@ local function BuildHat(char)
     local H = getgenv().ELITE_HUB_ChineseHatConeH
     local Y = getgenv().ELITE_HUB_ChineseHatY
     local COL = getgenv().ELITE_HUB_ChineseHatColor
-    local N = 48 -- количество клиньев (больше = глаже)
+    local N = 48
 
     local function weld(part)
         part.CanCollide = false
@@ -10465,27 +10466,31 @@ local function BuildHat(char)
         w.Parent = part
     end
 
-    -- Гладкий конус из WedgePart: каждый клин наклонён под угол конуса
-    -- slanted face идёт от apex (центр, верх) к rim (край, низ)
-    local segW = 2 * R * math.tan(math.pi / N) * 1.02
-    local coneAngle = math.atan(H / R) -- угол наклона поверхности конуса
+    -- Конус из тонких пластин-клиньев: КАЖДЫЙ клин — это тонкий Part
+    -- наклонённый под угол конуса. Клинья НЕ создают стенок в центре,
+    -- потому что каждый сужается к верхушке (apex).
+    local slantH = math.sqrt(R * R + H * H)
+    local coneAngle = math.atan2(H, R) -- угол от горизонтали
 
     for i = 0, N - 1 do
         local ang = (i / N) * math.pi * 2
-        local wedge = Instance.new("WedgePart")
-        wedge.Size = Vector3.new(segW, H, R)
-        wedge.Material = Enum.Material.ForceField
-        wedge.Color = COL
-        -- Позиция: центр конуса на высоте Y+H/2, поворот на угол сегмента,
-        -- сдвиг на R/2 чтобы back face (полн. высота) была в центре (apex)
-        wedge.CFrame = head.CFrame
+        local segW = 2 * R * math.tan(math.pi / N) * 1.02
+
+        local slat = Instance.new("Part")
+        slat.Size = Vector3.new(segW, slantH, 0.03)
+        slat.Material = Enum.Material.ForceField
+        slat.Color = COL
+        -- Позиция: центр пластины на середине склона конуса
+        -- Наклон: от горизонтали под углом конуса
+        slat.CFrame = head.CFrame
             * CFrame.new(0, Y + H / 2, 0)
             * CFrame.Angles(0, ang, 0)
-            * CFrame.new(0, 0, R / 2)
-        weld(wedge)
+            * CFrame.Angles(0, 0, coneAngle)
+            * CFrame.new(0, -slantH / 2, 0)
+        weld(slat)
     end
 
-    -- Верхушка конуса (маленький шарик)
+    -- Верхушка конуса
     local tip = Instance.new("Part")
     tip.Shape = Enum.PartType.Ball
     tip.Size = Vector3.new(0.15, 0.18, 0.15)
@@ -10500,7 +10505,7 @@ local function BuildHat(char)
     tw.Parent = tip
     tip.CFrame = head.CFrame * CFrame.new(0, Y + H + 0.05, 0)
 
-    -- Широкие поля снизу (тонкий диск)
+    -- Широкие поля снизу
     local brim = Instance.new("Part")
     brim.Shape = Enum.PartType.Cylinder
     brim.Size = Vector3.new(0.06, R * 2 + 0.4, R * 2 + 0.4)
@@ -10517,10 +10522,11 @@ local function BuildHat(char)
         * CFrame.new(0, Y - 0.02, 0)
         * CFrame.Angles(0, 0, math.pi / 2)
 
-    -- Ноклип: непрерывно снимаем коллизию со всех партов шляпы
+    -- Ноклип + вращение в одном loop
     if hatConn then hatConn:Disconnect() hatConn = nil end
     local RunService = game:GetService("RunService")
-    hatConn = RunService.Heartbeat:Connect(function()
+    local spinAngle = 0
+    hatConn = RunService.Heartbeat:Connect(function(dt)
         pcall(function()
             if not getgenv().ELITE_HUB_ChineseHatOn then
                 hatConn:Disconnect()
@@ -10529,34 +10535,20 @@ local function BuildHat(char)
             end
             local h = char and char:FindFirstChild("ELITEHUB_CHINESE_HAT")
             if not h then return end
+            -- Ноклип: каждую секунду снимаем коллизию
             for _, p in ipairs(h:GetDescendants()) do
-                if p:IsA("BasePart") then
-                    p.CanCollide = false
+                if p:IsA("BasePart") then p.CanCollide = false end
+            end
+            -- Вращение
+            if getgenv().ELITE_HUB_ChineseHatSpin then
+                local hrp = char:FindFirstChild("HumanoidRootPart")
+                if hrp then
+                    spinAngle = spinAngle + (getgenv().ELITE_HUB_ChineseHatSpinSpeed or 50) * dt * 3
+                    h:SetPrimaryPartCFrame(hrp.CFrame * CFrame.Angles(0, math.rad(spinAngle), 0))
                 end
             end
         end)
     end)
-
-    -- Вращение (отдельная логика)
-    if getgenv().ELITE_HUB_ChineseHatSpin then
-        local spinAngle = 0
-        hatConn:Disconnect()
-        hatConn = RunService.Heartbeat:Connect(function(dt)
-            pcall(function()
-                if not getgenv().ELITE_HUB_ChineseHatSpin then return end
-                local h = char and char:FindFirstChild("ELITEHUB_CHINESE_HAT")
-                if not h then return end
-                local hrp = char:FindFirstChild("HumanoidRootPart")
-                if not hrp then return end
-                -- Ноклип + вращение
-                for _, p in ipairs(h:GetDescendants()) do
-                    if p:IsA("BasePart") then p.CanCollide = false end
-                end
-                spinAngle = spinAngle + (getgenv().ELITE_HUB_ChineseHatSpinSpeed or 50) * dt * 3
-                h:SetPrimaryPartCFrame(hrp.CFrame * CFrame.Angles(0, math.rad(spinAngle), 0))
-            end)
-        end)
-    end
 end
 
 MT:CreateToggle({
@@ -10581,7 +10573,9 @@ MT:CreateSlider({
     CurrentValue = 0.25,
     Callback = function(value)
         getgenv().ELITE_HUB_ChineseHatY = value
-        if getgenv().ELITE_HUB_ChineseHatOn then BuildHat(player.Character) end
+        if getgenv().ELITE_HUB_ChineseHatOn then
+            task.spawn(function() BuildHat(player.Character) end)
+        end
     end
 })
 
@@ -10592,7 +10586,9 @@ MT:CreateSlider({
     CurrentValue = 1.4,
     Callback = function(value)
         getgenv().ELITE_HUB_ChineseHatConeH = value
-        if getgenv().ELITE_HUB_ChineseHatOn then BuildHat(player.Character) end
+        if getgenv().ELITE_HUB_ChineseHatOn then
+            task.spawn(function() BuildHat(player.Character) end)
+        end
     end
 })
 
@@ -10603,7 +10599,9 @@ MT:CreateSlider({
     CurrentValue = 1.6,
     Callback = function(value)
         getgenv().ELITE_HUB_ChineseHatR = value
-        if getgenv().ELITE_HUB_ChineseHatOn then BuildHat(player.Character) end
+        if getgenv().ELITE_HUB_ChineseHatOn then
+            task.spawn(function() BuildHat(player.Character) end)
+        end
     end
 })
 
@@ -10612,7 +10610,9 @@ MT:CreateColorPicker({
     Color = Color3.fromRGB(222, 184, 135),
     Callback = function(value)
         getgenv().ELITE_HUB_ChineseHatColor = value
-        if getgenv().ELITE_HUB_ChineseHatOn then BuildHat(player.Character) end
+        if getgenv().ELITE_HUB_ChineseHatOn then
+            task.spawn(function() BuildHat(player.Character) end)
+        end
     end
 })
 
@@ -10622,7 +10622,6 @@ MT:CreateToggle({
     Callback = function(value)
         getgenv().ELITE_HUB_ChineseHatSpin = value
         getgenv().ELITE_HUB_Log("MODS", "Chinese Hat Spin: " .. tostring(value))
-        if getgenv().ELITE_HUB_ChineseHatOn then BuildHat(player.Character) end
     end
 })
 
@@ -10637,7 +10636,7 @@ MT:CreateSlider({
 })
 
 player.CharacterAdded:Connect(function(char)
-    task.wait(0.6)
+    task.wait(1)
     pcall(function()
         if getgenv().ELITE_HUB_ChineseHatOn then
             BuildHat(char)
