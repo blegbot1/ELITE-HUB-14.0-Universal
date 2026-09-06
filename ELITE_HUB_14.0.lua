@@ -12777,4 +12777,102 @@ table.insert(Window._translatables, {element = resetBtn, key = "ResetSettings", 
 local verLabel = SettingsTab:CreateLabel(L("Version"))
 table.insert(Window._translatables, {element = verLabel.Frame, key = "Version", type = "label"})
 
+-- ═══════════════════════════════════════════════════════════════════
+-- PERSISTENT WATCHDOG — каждые 2 секунды проверяет активные фичи
+-- и переприменяет если они пропали (респавн, смерть, баги)
+-- ═══════════════════════════════════════════════════════════════════
+task.spawn(function()
+    while task.wait(2) do
+        pcall(function()
+            local ch = player.Character
+            local hum = ch and ch:FindFirstChildOfClass("Humanoid")
+            if not ch or not hum or hum.Health <= 0 then return end
+
+            -- Chinese Hat
+            if getgenv().ELITE_HUB_ChineseHatOn then
+                if not ch:FindFirstChild("ELITEHUB_CHINESE_HAT") then
+                    pcall(function() BuildHat(ch) end)
+                end
+            end
+
+            -- Neon Body
+            if getgenv().ELITE_HUB_NeonBody then
+                for _, part in ipairs(ch:GetDescendants()) do
+                    if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" then
+                        pcall(function()
+                            if part.Material ~= Enum.Material.Neon then
+                                part.Material = Enum.Material.Neon
+                            end
+                            if part.Color ~= getgenv().ELITE_HUB_NeonBodyColor then
+                                part.Color = getgenv().ELITE_HUB_NeonBodyColor
+                            end
+                        end)
+                    end
+                end
+            end
+
+            -- Fire Trail
+            if getgenv().ELITE_HUB_FireTrail then
+                local hasFire = false
+                for _, obj in ipairs(ch:GetDescendants()) do
+                    if obj.Name == "EliteHubFireTrail" then hasFire = true break end
+                end
+                if not hasFire then
+                    for _, part in ipairs(ch:GetDescendants()) do
+                        if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" then
+                            pcall(function()
+                                local fire = Instance.new("Fire")
+                                fire.Name = "EliteHubFireTrail"
+                                fire.Size = 2
+                                fire.Heat = 1
+                                fire.Color = getgenv().ELITE_HUB_FireTrailColor or Color3.fromRGB(255, 68, 0)
+                                fire.SecondaryColor = Color3.fromRGB(255, 200, 0)
+                                fire.Enabled = true
+                                fire.Parent = part
+                            end)
+                        end
+                    end
+                end
+            end
+
+            -- Noclip
+            if getgenv().ELITE_HUB_NoclipActive then
+                for _, part in ipairs(ch:GetDescendants()) do
+                    if part:IsA("BasePart") then
+                        pcall(function() part.CanCollide = false end)
+                    end
+                end
+            end
+
+            -- Speed Boost
+            if getgenv().ELITE_HUB_SpeedBoost then
+                if hum.WalkSpeed ~= 32 then
+                    hum.WalkSpeed = 32
+                end
+            end
+
+            -- Jump Boost
+            if getgenv().ELITE_HUB_JumpBoost then
+                if hum.UseJumpPower ~= true then hum.UseJumpPower = true end
+                if hum.JumpPower ~= 120 then hum.JumpPower = 120 end
+            end
+
+            -- WalkSpeed
+            if getgenv().ELITE_HUB_WalkSpeed and getgenv().ELITE_HUB_WalkSpeed > 0 then
+                if hum.WalkSpeed ~= getgenv().ELITE_HUB_WalkSpeed then
+                    hum.WalkSpeed = getgenv().ELITE_HUB_WalkSpeed
+                end
+            end
+
+            -- JumpPower
+            if getgenv().ELITE_HUB_JumpPower and getgenv().ELITE_HUB_JumpPower > 0 then
+                if hum.UseJumpPower ~= true then hum.UseJumpPower = true end
+                if hum.JumpPower ~= getgenv().ELITE_HUB_JumpPower then
+                    hum.JumpPower = getgenv().ELITE_HUB_JumpPower
+                end
+            end
+        end)
+    end
+end)
+
 end) -- конец task.spawn(mods)
