@@ -10425,10 +10425,10 @@ getgenv().ELITE_HUB_Log("UI", "Section loaded: CHINESE HAT")
 MT:CreateSection("🎩 CHINESE HAT")
 
 getgenv().ELITE_HUB_ChineseHatOn = false
-getgenv().ELITE_HUB_ChineseHatY = 0
-getgenv().ELITE_HUB_ChineseHatConeH = 1.4
-getgenv().ELITE_HUB_ChineseHatR = 1.6
-getgenv().ELITE_HUB_ChineseHatColor = Color3.fromRGB(222, 184, 135)
+getgenv().ELITE_HUB_ChineseHatY = 0.5
+getgenv().ELITE_HUB_ChineseHatConeH = 1.2
+getgenv().ELITE_HUB_ChineseHatR = 2.5
+getgenv().ELITE_HUB_ChineseHatColor = Color3.fromRGB(255, 0, 255)
 getgenv().ELITE_HUB_ChineseHatSpin = false
 getgenv().ELITE_HUB_ChineseHatSpinSpeed = 50
 local hatConn = nil
@@ -10453,6 +10453,12 @@ local function MakePart(props)
     p.Anchored = true
     p.CastShadow = false
     p.Massless = true
+    p.TopSurface = Enum.SurfaceType.Smooth
+    p.BottomSurface = Enum.SurfaceType.Smooth
+    p.FrontSurface = Enum.SurfaceType.Smooth
+    p.BackSurface = Enum.SurfaceType.Smooth
+    p.LeftSurface = Enum.SurfaceType.Smooth
+    p.RightSurface = Enum.SurfaceType.Smooth
     p.CustomPhysicalProperties = PhysicalProperties.new(0.001, 0, 0, 1, 1)
     return p
 end
@@ -10479,7 +10485,7 @@ local function BuildHat(char)
 
     for i = 0, N - 1 do
         local ang = (i / N) * math.pi * 2
-        local segW = 2 * R * math.tan(math.pi / N) * 1.02
+        local segW = 2 * R * math.tan(math.pi / N) * 1.08
 
         local slat = MakePart({
             Size = Vector3.new(segW, math.sqrt(R*R + H*H), 0.03),
@@ -10496,6 +10502,7 @@ local function BuildHat(char)
         local worldCF = headCF * localCF
 
         slat.CFrame = worldCF
+        slat:BreakJoints()
         slat.Parent = hat
         hatParts[slat] = headCF:Inverse() * worldCF
         hatSpinParts[slat] = localCF
@@ -10508,6 +10515,7 @@ local function BuildHat(char)
     })
     local tipLocal = CFrame.new(0, Y + H + 0.05, 0)
     tip.CFrame = headCF * tipLocal
+    tip:BreakJoints()
     tip.Parent = hat
     hatParts[tip] = tipLocal
     hatSpinParts[tip] = tipLocal
@@ -10519,6 +10527,7 @@ local function BuildHat(char)
     })
     local brimLocal = CFrame.new(0, Y, 0) * CFrame.Angles(0, 0, math.pi / 2)
     brim.CFrame = headCF * brimLocal
+    brim:BreakJoints()
     brim.Parent = hat
     hatParts[brim] = brimLocal
     hatSpinParts[brim] = brimLocal
@@ -10577,7 +10586,7 @@ MT:CreateSlider({
     Name = "⬆️ Hat Height (Y)",
     Range = {0, 1.5},
     Increment = 0.05,
-    CurrentValue = 0,
+    CurrentValue = 0.5,
     Callback = function(value)
         getgenv().ELITE_HUB_ChineseHatY = value
         if getgenv().ELITE_HUB_ChineseHatOn then
@@ -10590,7 +10599,7 @@ MT:CreateSlider({
     Name = "🔺 Cone Height",
     Range = {0.3, 3},
     Increment = 0.1,
-    CurrentValue = 1.4,
+    CurrentValue = 1.2,
     Callback = function(value)
         getgenv().ELITE_HUB_ChineseHatConeH = value
         if getgenv().ELITE_HUB_ChineseHatOn then
@@ -10603,7 +10612,7 @@ MT:CreateSlider({
     Name = "📏 Cone Radius",
     Range = {0.5, 3},
     Increment = 0.1,
-    CurrentValue = 1.6,
+    CurrentValue = 2.5,
     Callback = function(value)
         getgenv().ELITE_HUB_ChineseHatR = value
         if getgenv().ELITE_HUB_ChineseHatOn then
@@ -10614,7 +10623,7 @@ MT:CreateSlider({
 
 MT:CreateColorPicker({
     Name = "🎨 Hat Color",
-    Color = Color3.fromRGB(222, 184, 135),
+    Color = Color3.fromRGB(255, 0, 255),
     Callback = function(value)
         getgenv().ELITE_HUB_ChineseHatColor = value
         if getgenv().ELITE_HUB_ChineseHatOn then
