@@ -1806,6 +1806,8 @@ getgenv().ELITE_HUB_Log("UI", "Tab loaded: CAMERA")
 
 local UtilitiesTab = Window:CreateTab("🔧 " .. "UTILS", 6022668888, "Utilities")
 getgenv().ELITE_HUB_Log("UI", "Tab loaded: UTILS")
+local MusicTab = Window:CreateTab("🎵 " .. "MUSIC", 6022668888, "Music")
+getgenv().ELITE_HUB_Log("UI", "Tab loaded: MUSIC")
 getgenv().ELITE_HUB_ChamsTab = Window:CreateTab("🎨 " .. "CHAMS", 6026568198, "Chams")
 getgenv().ELITE_HUB_Log("UI", "Tab loaded: CHAMS")
 
@@ -7927,11 +7929,19 @@ task.spawn(function()
         origMats[plr] = {}
         for _, part in ipairs(ch:GetDescendants()) do
             if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" then
-                local data = {Material = part.Material, Color = part.Color, Transparency = part.Transparency}
+                local data = {Material = part.Material, Color = part.Color, Transparency = part.Transparency, CastShadow = part.CastShadow}
                 if part:IsA("MeshPart") then
                     pcall(function() data.TextureID = part.TextureID end)
                 end
                 origMats[plr][part] = data
+            end
+            if part:IsA("Accessory") then
+                pcall(function()
+                    local handle = part:FindFirstChild("Handle")
+                    if handle then
+                        origMats[plr][handle] = {Material = handle.Material, Color = handle.Color, Transparency = handle.Transparency, CastShadow = handle.CastShadow}
+                    end
+                end)
             end
             if part:IsA("SpecialMesh") then
                 pcall(function()
@@ -7956,6 +7966,7 @@ task.spawn(function()
                             part.Material = data.Material
                             part.Color = data.Color
                             part.Transparency = data.Transparency
+                            if data.CastShadow ~= nil then part.CastShadow = data.CastShadow end
                             if data.TextureID ~= nil and part:IsA("MeshPart") then
                                 part.TextureID = data.TextureID
                             end
@@ -8032,9 +8043,19 @@ task.spawn(function()
                     pcall(function()
                         part.Material = mat
                         part.Color = col
-                        part.Transparency = 0
+                        part.CastShadow = false
                         if part:IsA("MeshPart") then
                             pcall(function() part.TextureID = "" end)
+                        end
+                    end)
+                end
+                if part:IsA("Accessory") then
+                    pcall(function()
+                        local handle = part:FindFirstChild("Handle")
+                        if handle then
+                            handle.Material = mat
+                            handle.Color = col
+                            handle.CastShadow = false
                         end
                     end)
                 end
@@ -8519,6 +8540,17 @@ getgenv().ELITE_HUB_ChamsTab:CreateToggle({
     Callback = function(value)
         ESPConfig.ChamsEnabled = value
         getgenv().ELITE_HUB_Log("CHAMS", "Chams: " .. tostring(value))
+        if not value then
+            for _, plr in ipairs(game:GetService("Players"):GetPlayers()) do
+                pcall(function()
+                    if chamHighlights[plr] then
+                        chamHighlights[plr]:Destroy()
+                        chamHighlights[plr] = nil
+                    end
+                    RestoreOriginals(plr)
+                end)
+            end
+        end
     end
 })
 
@@ -10632,8 +10664,8 @@ local function ELITE_HUB_MusicPlayTrack(track)
     end)
 end
 
-MT:CreateSection("🎵 MUSIC PLAYER")
-MT:CreateButton({
+MusicTab:CreateSection("🎵 MUSIC PLAYER")
+MusicTab:CreateButton({
     Name = " Load Playlist",
     Callback = function()
         task.spawn(function()
@@ -10658,7 +10690,7 @@ MT:CreateButton({
     end
 })
 
-local musicDropdown = MT:CreateDropdown({
+local musicDropdown = MusicTab:CreateDropdown({
     Name = " Select Track",
     Options = {"Load playlist first"},
     CurrentOption = {"Load playlist first"},
@@ -10672,7 +10704,7 @@ local musicDropdown = MT:CreateDropdown({
     end
 })
 
-MT:CreateToggle({
+MusicTab:CreateToggle({
     Name = " Play / Pause",
     CurrentValue = false,
     Callback = function(value)
@@ -10696,7 +10728,7 @@ MT:CreateToggle({
     end
 })
 
-MT:CreateButton({
+MusicTab:CreateButton({
     Name = " Next Track",
     Callback = function()
         local playlist = getgenv().ELITE_HUB_MusicPlaylist
@@ -10710,7 +10742,7 @@ MT:CreateButton({
     end
 })
 
-MT:CreateButton({
+MusicTab:CreateButton({
     Name = " Prev Track",
     Callback = function()
         local playlist = getgenv().ELITE_HUB_MusicPlaylist
@@ -10725,7 +10757,7 @@ MT:CreateButton({
     end
 })
 
-MT:CreateSlider({
+MusicTab:CreateSlider({
     Name = " Volume",
     Range = {0, 10},
     Increment = 0.5,
@@ -10738,7 +10770,7 @@ MT:CreateSlider({
     end
 })
 
-MT:CreateButton({
+MusicTab:CreateButton({
     Name = " Refresh Playlist",
     Callback = function()
         task.spawn(function()
