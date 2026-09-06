@@ -2891,34 +2891,135 @@ local function DestroyScript()
 
     task.wait(0.5)
 
-    pcall(function() if getgenv().ELITE_HUB_AntiAfkConn then getgenv().ELITE_HUB_AntiAfkConn:Disconnect() end end)
+    -- Stop Chinese Hat
     pcall(function() if hatConn then hatConn:Disconnect() hatConn = nil end end)
-    pcall(function() if getgenv().ELITE_HUB_MusicPlayer then getgenv().ELITE_HUB_MusicPlayer:Stop() getgenv().ELITE_HUB_MusicPlayer:Destroy() getgenv().ELITE_HUB_MusicPlayer = nil end end)
+    pcall(function()
+        local ch = player.Character
+        if ch then
+            for _, obj in ipairs(ch:GetDescendants()) do
+                if obj.Name == "ELITEHUB_CHINESE_HAT" then obj:Destroy() end
+            end
+        end
+    end)
+
+    -- Stop Nametag connections
+    pcall(function()
+        for _, conn in pairs(nhCharConns or {}) do
+            if conn then pcall(function() conn:Disconnect() end) end
+        end
+        nhCharConns = {}
+    end)
+
+    -- Stop Fly
+    pcall(function()
+        nowe = false
+        if flyBg then flyBg:Destroy() flyBg = nil end
+        if flyBv then flyBv:Destroy() flyBv = nil end
+        if _G.flyCtrl then _G.flyCtrl = nil end
+    end)
+
+    -- Stop Noclip
+    pcall(function() if noclipConnection then noclipConnection:Disconnect() noclipConnection = nil end end)
+
+    -- Stop SpinBot
+    pcall(function() if spinConn then spinConn:Disconnect() spinConn = nil end end)
+
+    -- Stop Music Player
+    pcall(function()
+        if getgenv().ELITE_HUB_MusicPlayer then
+            getgenv().ELITE_HUB_MusicPlayer:Stop()
+            getgenv().ELITE_HUB_MusicPlayer:Destroy()
+            getgenv().ELITE_HUB_MusicPlayer = nil
+        end
+    end)
+
+    -- Stop Anti-AFK / Rejoin
+    pcall(function() if getgenv().ELITE_HUB_AntiAfkConn then getgenv().ELITE_HUB_AntiAfkConn:Disconnect() end end)
     pcall(function() if getgenv().ELITE_HUB_RejoinConn then getgenv().ELITE_HUB_RejoinConn:Disconnect() end end)
-    pcall(function() getgenv().ELITE_HUB_FlyNow = false end)
-    pcall(function() getgenv().ELITE_HUB_NoclipActive = false end)
-    pcall(function() getgenv().ELITE_HUB_NightMode = false end)
-    pcall(function() getgenv().ELITE_HUB_NoFog = false end)
+
+    -- Restore Chams (restore all originals, destroy highlights)
+    pcall(function()
+        for _, plr in ipairs(Players:GetPlayers()) do
+            pcall(function() RestoreOriginals(plr) end)
+            pcall(function()
+                local hl = chamHighlights[plr]
+                if hl then hl:Destroy() chamHighlights[plr] = nil end
+            end)
+        end
+    end)
+
+    -- Restore Neon Body / Fire Trail
+    pcall(function()
+        local ch = player.Character
+        if ch then
+            for _, part in ipairs(ch:GetDescendants()) do
+                if part:IsA("BasePart") and part:GetAttribute("EliteHubOrigMaterial") then
+                    pcall(function()
+                        part.Material = Enum.Material[part:GetAttribute("EliteHubOrigMaterial")]
+                        part.Color = part:GetAttribute("EliteHubOrigColor")
+                    end)
+                end
+                if part.Name == "EliteHubFireTrail" then
+                    pcall(function() part:Destroy() end)
+                end
+            end
+        end
+    end)
+
+    -- Restore Speed Boost
+    pcall(function()
+        local ch = player.Character
+        local hum = ch and ch:FindFirstChildOfClass("Humanoid")
+        if hum then
+            hum.WalkSpeed = 16
+            hum.JumpPower = 50
+        end
+    end)
+
+    -- Restore Lighting (Night, Fog, Fullbright)
     pcall(function()
         local l = game:GetService("Lighting")
         if getgenv().ELITE_HUB_NightOrigClock then l.ClockTime = getgenv().ELITE_HUB_NightOrigClock end
+        if getgenv().ELITE_HUB_NightOrigOutdoorAmbient then l.OutdoorAmbient = getgenv().ELITE_HUB_NightOrigOutdoorAmbient end
+        if getgenv().ELITE_HUB_NightOrigBrightness then l.Brightness = getgenv().ELITE_HUB_NightOrigBrightness end
         if getgenv().ELITE_HUB_NoFogOrigFogEnd ~= nil then l.FogEnd = getgenv().ELITE_HUB_NoFogOrigFogEnd end
+        if getgenv().ELITE_HUB_NoFogOrigFogStart ~= nil then l.FogStart = getgenv().ELITE_HUB_NoFogOrigFogStart end
+        if getgenv().ELITE_HUB_NoFogOrigFogColor then l.FogColor = getgenv().ELITE_HUB_NoFogOrigFogColor end
+        if getgenv().ELITE_HUB_FullbrightBackup then
+            local b = getgenv().ELITE_HUB_FullbrightBackup
+            if b.FogEnd then l.FogEnd = b.FogEnd end
+            if b.Technology then l.Technology = b.Technology end
+        end
     end)
 
+    -- Nil all ELITE_HUB_ globals
     for name, _ in pairs(getgenv()) do
         if string.sub(name, 1, 11) == "ELITE_HUB_" then
             pcall(function() getgenv()[name] = nil end)
         end
     end
 
-    local pg = game:GetService("Players").LocalPlayer:FindFirstChild("PlayerGui")
-    if pg then
-        for _, gui in ipairs(pg:GetChildren()) do
-            if gui:IsA("ScreenGui") and (gui.Name == "EliteHubUI" or gui.Name == "ELITE_HUB_Overlay" or gui.Name == "EliteNotif") then
+    -- Destroy UI Screens
+    pcall(function()
+        local pg = player:FindFirstChild("PlayerGui")
+        if pg then
+            for _, gui in ipairs(pg:GetChildren()) do
+                if gui:IsA("ScreenGui") and (gui.Name == "EliteHubUI" or gui.Name == "ELITE_HUB_Overlay" or gui.Name == "EliteNotif") then
+                    gui:Destroy()
+                end
+            end
+        end
+    end)
+
+    -- Destroy CoreGui overlays
+    pcall(function()
+        local cg = game:GetService("CoreGui")
+        for _, gui in ipairs(cg:GetChildren()) do
+            if gui:IsA("ScreenGui") and gui.Name == "ELITE_HUB_Overlay" then
                 gui:Destroy()
             end
         end
-    end
+    end)
 
     task.wait(0.5)
 end
