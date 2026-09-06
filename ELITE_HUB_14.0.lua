@@ -140,31 +140,54 @@ function EliteHubUI:CreateWindow(config)
         }):Play()
     end
 
-    local fab = Instance.new("TextButton")
+    local fab = Instance.new("ImageButton")
     fab.Name = "FAB"
     fab.Parent = gui
     fab.Size = UDim2.new(0, 54, 0, 54)
     fab.Position = UDim2.new(1, -74, 1, -74)
     fab.AnchorPoint = Vector2.new(0, 0)
     fab.BackgroundColor3 = C.Accent
-    fab.Text = ""
     fab.BorderSizePixel = 0
     fab.Visible = false
     fab.ZIndex = 50
     fab.AutoButtonColor = false
-    newCorner(fab, 27)
+    fab.ScaleType = Enum.ScaleType.Fit
     newStroke(fab, C.AccentLight, 2, 0.15)
 
-    local fabIcon = Instance.new("TextLabel")
-    fabIcon.Name = "Icon"
-    fabIcon.Parent = fab
-    fabIcon.Size = UDim2.new(1, 0, 1, 0)
-    fabIcon.BackgroundTransparency = 1
-    fabIcon.Text = ""
-    fabIcon.TextColor3 = C.TextBright
-    fabIcon.TextSize = 22
-    fabIcon.Font = Enum.Font.GothamBlack
-    fabIcon.ZIndex = 51
+    local FAB_IMAGE_URL = "https://raw.githubusercontent.com/blegbot1/ELITE-HUB-14.0-Universal/main/launcher/kotik.jpg"
+    local FAB_IMAGE_FILE = "elitehub_kotik_fab.jpg"
+
+    local function loadFabImage()
+        if getgenv().ELITE_HUB_FabAsset then
+            fab.Image = getgenv().ELITE_HUB_FabAsset
+            return
+        end
+        pcall(function()
+            local hasFiles = type(isfile) == "function" and type(writefile) == "function" and type(getcustomasset) == "function"
+            if hasFiles and isfile(FAB_IMAGE_FILE) then
+                local asset = getcustomasset(FAB_IMAGE_FILE)
+                fab.Image = asset
+                getgenv().ELITE_HUB_FabAsset = asset
+                return
+            end
+            local hasReq = type(request) == "function" or type(http_request) == "function"
+            if not hasReq then return end
+            local ok, data = pcall(function()
+                if type(http_request) == "function" then
+                    return http_request({Url = FAB_IMAGE_URL, Method = "GET"})
+                else
+                    return request({Url = FAB_IMAGE_URL, Method = "GET"})
+                end
+            end)
+            if ok and data and data.Body and #data.Body > 50 then
+                if hasFiles then writefile(FAB_IMAGE_FILE, data.Body) end
+                local asset = getcustomasset(FAB_IMAGE_FILE)
+                fab.Image = asset
+                getgenv().ELITE_HUB_FabAsset = asset
+            end
+        end)
+    end
+    loadFabImage()
 
     local fabGlow = Instance.new("UIStroke")
     fabGlow.Color = C.AccentLight
@@ -181,7 +204,6 @@ function EliteHubUI:CreateWindow(config)
     fabShadow.BorderSizePixel = 0
     fabShadow.ZIndex = 49
     fabShadow.Visible = false
-    newCorner(fabShadow, 30)
 
     local dragging, dragStart, startPos, didDrag
     local UIS = game:GetService("UserInputService")
@@ -237,7 +259,6 @@ function EliteHubUI:CreateWindow(config)
             TweenService:Create(fab, TweenInfo.new(0.2, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Size = UDim2.new(0, 60, 0, 60)}):Play()
             TweenService:Create(fabShadow, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {Size = UDim2.new(0, 66, 0, 66)}):Play()
             TweenService:Create(fabGlow, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {Transparency = 0}):Play()
-            TweenService:Create(fabIcon, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {TextSize = 26}):Play()
         end
     end)
     fab.MouseLeave:Connect(function()
@@ -245,7 +266,6 @@ function EliteHubUI:CreateWindow(config)
             TweenService:Create(fab, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {Size = UDim2.new(0, 54, 0, 54)}):Play()
             TweenService:Create(fabShadow, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {Size = UDim2.new(0, 60, 0, 60)}):Play()
             TweenService:Create(fabGlow, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {Transparency = 0.6}):Play()
-            TweenService:Create(fabIcon, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {TextSize = 22}):Play()
         end
     end)
 
