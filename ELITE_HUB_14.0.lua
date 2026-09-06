@@ -8235,16 +8235,20 @@ task.spawn(function()
         origMats[plr] = {}
         for _, part in ipairs(ch:GetDescendants()) do
             if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" then
-                origMats[plr][part] = part.Material
+                origMats[plr][part] = {Material = part.Material, Color = part.Color, Transparency = part.Transparency}
             end
         end
     end
 
     local function RestoreOriginals(plr)
         if origMats[plr] then
-            for part, mat in pairs(origMats[plr]) do
+            for part, data in pairs(origMats[plr]) do
                 if part and part.Parent then
-                    pcall(function() part.Material = mat end)
+                    pcall(function()
+                        part.Material = data.Material
+                        part.Color = data.Color
+                        part.Transparency = data.Transparency
+                    end)
                 end
             end
             origMats[plr] = nil
@@ -8310,11 +8314,27 @@ task.spawn(function()
         hl.Adornee = ch
 
         local mat = ESPConfig.ChamsMaterial
+        local col = ESPConfig.ChamsFillColor
         if mat then
             for _, part in ipairs(ch:GetDescendants()) do
                 if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" then
-                    pcall(function() part.Material = mat end)
+                    pcall(function()
+                        part.Material = mat
+                        part.Color = col
+                        part.Transparency = 0
+                        if part:IsA("MeshPart") then
+                            pcall(function() part.TextureID = "" end)
+                        end
+                    end)
                 end
+                if part:IsA("SpecialMesh") then
+                    pcall(function()
+                        part.TextureId = ""
+                        part.VertexColor = Vector3.new(col.R, col.G, col.B)
+                    end)
+                end
+                if part:IsA("SurfaceAppearance") then pcall(function() part:Destroy() end) end
+                if part:IsA("Texture") then pcall(function() part:Destroy() end) end
             end
         end
     end
