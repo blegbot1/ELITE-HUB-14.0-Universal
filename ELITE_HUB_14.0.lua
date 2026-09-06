@@ -1927,7 +1927,13 @@ local function BuildHat(char)
                 return
             end
             local h = char and char:FindFirstChild("ELITEHUB_CHINESE_HAT")
-            if not h then return end
+            if not h then
+                local ch = player.Character
+                if ch and ch:FindFirstChild("Head") then
+                    task.spawn(function() BuildHat(ch) end)
+                end
+                return
+            end
             local hd = char:FindFirstChild("Head")
             if not hd then return end
 
