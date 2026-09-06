@@ -10368,6 +10368,76 @@ game:GetService("Players").PlayerAdded:Connect(function(plr)
 end)
 end)
 
+getgenv().ELITE_HUB_FireTrail = false
+getgenv().ELITE_HUB_FireTrailColor = Color3.fromRGB(255, 100, 0)
+task.spawn(function()
+VisualTab:CreateSection("🔥 FIRE TRAIL")
+VisualTab:CreateToggle({
+    Name = "🔥 Fire Trail",
+    CurrentValue = false,
+    Callback = function(value)
+        getgenv().ELITE_HUB_FireTrail = value
+        getgenv().ELITE_HUB_Log("MODS", "Fire Trail: " .. tostring(value))
+        local ch = player.Character
+        if not ch then return end
+        if value then
+            for _, part in ipairs(ch:GetDescendants()) do
+                if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" then
+                    local fire = Instance.new("Fire")
+                    fire.Name = "EliteHubFireTrail"
+                    fire.Size = 2
+                    fire.Heat = 1
+                    fire.Color = getgenv().ELITE_HUB_FireTrailColor
+                    fire.SecondaryColor = Color3.fromRGB(255, 200, 0)
+                    fire.Enabled = true
+                    fire.Parent = part
+                end
+            end
+        else
+            for _, obj in ipairs(ch:GetDescendants()) do
+                if obj.Name == "EliteHubFireTrail" then
+                    pcall(function() obj:Destroy() end)
+                end
+            end
+        end
+    end
+})
+VisualTab:CreateColorPicker({
+    Name = "🔥 Fire Color",
+    CurrentColor = getgenv().ELITE_HUB_FireTrailColor,
+    Callback = function(color)
+        getgenv().ELITE_HUB_FireTrailColor = color
+        if getgenv().ELITE_HUB_FireTrail then
+            local ch = player.Character
+            if ch then
+                for _, obj in ipairs(ch:GetDescendants()) do
+                    if obj.Name == "EliteHubFireTrail" and obj:IsA("Fire") then
+                        obj.Color = color
+                    end
+                end
+            end
+        end
+    end
+})
+player.CharacterAdded:Connect(function(char)
+    task.wait(1)
+    if getgenv().ELITE_HUB_FireTrail then
+        for _, part in ipairs(char:GetDescendants()) do
+            if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" then
+                local fire = Instance.new("Fire")
+                fire.Name = "EliteHubFireTrail"
+                fire.Size = 2
+                fire.Heat = 1
+                fire.Color = getgenv().ELITE_HUB_FireTrailColor
+                fire.SecondaryColor = Color3.fromRGB(255, 200, 0)
+                fire.Enabled = true
+                fire.Parent = part
+            end
+        end
+    end
+end)
+end)
+
 task.spawn(function()
 local MT = MovementTab
 getgenv().ELITE_HUB_Log("UI", "Section loaded: MOVEMENT")
