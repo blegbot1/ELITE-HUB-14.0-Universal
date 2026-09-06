@@ -2046,7 +2046,7 @@ MT:CreateDropdown({
     Flag = "ChineseHatMat",
     Callback = function(value)
         getgenv().ELITE_HUB_ChineseHatMat = value
-        for _, p in ipairs(hatParts) do
+        for p, _ in pairs(hatParts) do
             pcall(function() p.Material = Enum.Material[value] end)
         end
     end
