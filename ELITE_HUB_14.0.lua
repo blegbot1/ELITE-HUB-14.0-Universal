@@ -10155,6 +10155,75 @@ task.spawn(function()
     end)
 end)
 
+getgenv().ELITE_HUB_NeonBody = false
+getgenv().ELITE_HUB_NeonBodyColor = Color3.fromRGB(0, 255, 255)
+VisualTab:CreateSection("✨ NEON BODY")
+VisualTab:CreateToggle({
+    Name = "💡 Neon Body",
+    CurrentValue = false,
+    Callback = function(value)
+        getgenv().ELITE_HUB_NeonBody = value
+        getgenv().ELITE_HUB_Log("MODS", "Neon Body: " .. tostring(value))
+        local ch = player.Character
+        if not ch then return end
+        for _, part in ipairs(ch:GetDescendants()) do
+            if part:IsA("BasePart") then
+                if value then
+                    if not part:GetAttribute("EliteHubOrigMaterial") then
+                        part:SetAttribute("EliteHubOrigMaterial", part.Material.Name)
+                        part:SetAttribute("EliteHubOrigColor", part.Color)
+                    end
+                    part.Material = Enum.Material.Neon
+                    part.Color = getgenv().ELITE_HUB_NeonBodyColor
+                else
+                    local origMat = part:GetAttribute("EliteHubOrigMaterial")
+                    local origCol = part:GetAttribute("EliteHubOrigColor")
+                    if origMat then
+                        part.Material = Enum.Material[origMat] or Enum.Material.Plastic
+                    end
+                    if origCol then
+                        part.Color = origCol
+                    end
+                    part:SetAttribute("EliteHubOrigMaterial", nil)
+                    part:SetAttribute("EliteHubOrigColor", nil)
+                end
+            end
+        end
+    end
+})
+VisualTab:CreateColorPicker({
+    Name = "💡 Neon Color",
+    CurrentColor = getgenv().ELITE_HUB_NeonBodyColor,
+    Callback = function(color)
+        getgenv().ELITE_HUB_NeonBodyColor = color
+        if getgenv().ELITE_HUB_NeonBody then
+            local ch = player.Character
+            if ch then
+                for _, part in ipairs(ch:GetDescendants()) do
+                    if part:IsA("BasePart") and part.Material == Enum.Material.Neon then
+                        part.Color = color
+                    end
+                end
+            end
+        end
+    end
+})
+player.CharacterAdded:Connect(function(char)
+    task.wait(1)
+    if getgenv().ELITE_HUB_NeonBody then
+        for _, part in ipairs(char:GetDescendants()) do
+            if part:IsA("BasePart") then
+                if not part:GetAttribute("EliteHubOrigMaterial") then
+                    part:SetAttribute("EliteHubOrigMaterial", part.Material.Name)
+                    part:SetAttribute("EliteHubOrigColor", part.Color)
+                end
+                part.Material = Enum.Material.Neon
+                part.Color = getgenv().ELITE_HUB_NeonBodyColor
+            end
+        end
+    end
+end)
+
 task.spawn(function()
 local MT = MovementTab
 getgenv().ELITE_HUB_Log("UI", "Section loaded: MOVEMENT")
@@ -10331,6 +10400,38 @@ MT:CreateToggle({
             lighting.Ambient = Color3.fromRGB(128, 128, 128)
             lighting.OutdoorAmbient = Color3.fromRGB(128, 128, 128)
             lighting.Brightness = 2
+        end
+    end
+})
+
+getgenv().ELITE_HUB_NoFog = false
+getgenv().ELITE_HUB_NoFogOrigFogEnd = nil
+getgenv().ELITE_HUB_NoFogOrigFogStart = nil
+getgenv().ELITE_HUB_NoFogOrigFogColor = nil
+MT:CreateToggle({
+    Name = "🌫️ No Fog",
+    CurrentValue = false,
+    Callback = function(value)
+        getgenv().ELITE_HUB_NoFog = value
+        getgenv().ELITE_HUB_Log("MODS", "No Fog: " .. tostring(value))
+        local lighting = game:GetService("Lighting")
+        if value then
+            getgenv().ELITE_HUB_NoFogOrigFogEnd = lighting.FogEnd
+            getgenv().ELITE_HUB_NoFogOrigFogStart = lighting.FogStart
+            getgenv().ELITE_HUB_NoFogOrigFogColor = lighting.FogColor
+            lighting.FogEnd = 10000000
+            lighting.FogStart = 10000000
+            lighting.FogColor = Color3.fromRGB(200, 200, 255)
+        else
+            if getgenv().ELITE_HUB_NoFogOrigFogEnd then
+                lighting.FogEnd = getgenv().ELITE_HUB_NoFogOrigFogEnd
+            end
+            if getgenv().ELITE_HUB_NoFogOrigFogStart then
+                lighting.FogStart = getgenv().ELITE_HUB_NoFogOrigFogStart
+            end
+            if getgenv().ELITE_HUB_NoFogOrigFogColor then
+                lighting.FogColor = getgenv().ELITE_HUB_NoFogOrigFogColor
+            end
         end
     end
 })
@@ -10593,6 +10694,136 @@ task.spawn(function()
         end)
     end
 end)
+end)
+
+getgenv().ELITE_HUB_HitMarkers = false
+getgenv().ELITE_HUB_HitMarkerColor = Color3.fromRGB(255, 0, 0)
+getgenv().ELITE_HUB_HitMarkerSize = 30
+getgenv().ELITE_HUB_HitMarkerDuration = 0.3
+getgenv().ELITE_HUB_DamageNumbers = false
+getgenv().ELITE_HUB_DamageNumberColor = Color3.fromRGB(255, 255, 0)
+
+MT:CreateSection("💥 HIT EFFECTS")
+MT:CreateToggle({
+    Name = "❌ Hit Markers",
+    CurrentValue = false,
+    Callback = function(value)
+        getgenv().ELITE_HUB_HitMarkers = value
+        getgenv().ELITE_HUB_Log("MODS", "Hit Markers: " .. tostring(value))
+    end
+})
+MT:CreateColorPicker({
+    Name = "❌ Hit Marker Color",
+    CurrentColor = getgenv().ELITE_HUB_HitMarkerColor,
+    Callback = function(color)
+        getgenv().ELITE_HUB_HitMarkerColor = color
+    end
+})
+MT:CreateSlider({
+    Name = "❌ Hit Marker Size",
+    Range = {10, 80},
+    Increment = 5,
+    CurrentValue = getgenv().ELITE_HUB_HitMarkerSize,
+    Callback = function(value)
+        getgenv().ELITE_HUB_HitMarkerSize = value
+    end
+})
+MT:CreateToggle({
+    Name = "🔢 Damage Numbers",
+    CurrentValue = false,
+    Callback = function(value)
+        getgenv().ELITE_HUB_DamageNumbers = value
+        getgenv().ELITE_HUB_Log("MODS", "Damage Numbers: " .. tostring(value))
+    end
+})
+MT:CreateColorPicker({
+    Name = "🔢 Damage Color",
+    CurrentColor = getgenv().ELITE_HUB_DamageNumberColor,
+    Callback = function(color)
+        getgenv().ELITE_HUB_DamageNumberColor = color
+    end
+})
+
+local oldHealth = {}
+local function hookCharacterDmg(plr, char)
+    task.wait(1)
+    local hum = char:FindFirstChildOfClass("Humanoid")
+    if not hum then return end
+    oldHealth[plr.Name] = hum.Health
+    hum.HealthChanged:Connect(function(newHP)
+        local prev = oldHealth[plr.Name] or newHP
+        local dmg = prev - newHP
+        oldHealth[plr.Name] = newHP
+        if dmg <= 0 then return end
+        local hrp = char:FindFirstChild("HumanoidRootPart")
+        if not hrp then return end
+        if getgenv().ELITE_HUB_HitMarkers and plr ~= player then
+            task.spawn(function()
+                local gui = Instance.new("ScreenGui")
+                gui.Name = "EliteHubHitMarker"
+                gui.ResetOnSpawn = false
+                gui.IgnoreGuiInset = true
+                gui.DisplayOrder = 99999
+                local s = getgenv().ELITE_HUB_HitMarkerSize
+                local col = getgenv().ELITE_HUB_HitMarkerColor
+                local offsets = {
+                    {1, 1}, {-1, 1}, {1, -1}, {-1, -1}
+                }
+                for _, off in ipairs(offsets) do
+                    local f = Instance.new("Frame")
+                    f.AnchorPoint = Vector2.new(0.5, 0.5)
+                    f.Size = UDim2.new(0, 2, 0, s)
+                    f.Position = UDim2.new(0.5 + off[1] * 0.015, 0, 0.5 + off[2] * 0.015, 0)
+                    f.BackgroundColor3 = col
+                    f.BorderSizePixel = 0
+                    f.Rotation = 45 * off[1] * off[2]
+                    f.Parent = gui
+                end
+                gui.Parent = game:GetService("CoreGui")
+                task.wait(getgenv().ELITE_HUB_HitMarkerDuration)
+                gui:Destroy()
+            end)
+        end
+        if getgenv().ELITE_HUB_DamageNumbers then
+            task.spawn(function()
+                local billboard = Instance.new("BillboardGui")
+                billboard.Name = "EliteHubDmgNum"
+                billboard.Adornee = hrp
+                billboard.Size = UDim2.new(0, 200, 0, 50)
+                billboard.StudsOffset = Vector3.new(math.random(-2, 2), 2 + math.random(), 0)
+                billboard.AlwaysOnTop = true
+                billboard.LightInfluence = 0
+                local text = Instance.new("TextLabel")
+                text.Size = UDim2.new(1, 0, 1, 0)
+                text.BackgroundTransparency = 1
+                text.Text = "-" .. math.floor(dmg)
+                text.TextColor3 = getgenv().ELITE_HUB_DamageNumberColor
+                text.TextStrokeTransparency = 0.3
+                text.TextStrokeColor3 = Color3.new(0, 0, 0)
+                text.TextScaled = true
+                text.Font = Enum.Font.GothamBold
+                text.Parent = billboard
+                billboard.Parent = game:GetService("CoreGui")
+                for i = 1, 30 do
+                    task.wait(0.02)
+                    billboard.StudsOffset = billboard.StudsOffset + Vector3.new(0, 0.05, 0)
+                    text.TextTransparency = i / 30
+                    text.TextStrokeTransparency = 0.3 + (i / 30) * 0.7
+                end
+                billboard:Destroy()
+            end)
+        end
+    end)
+end
+
+for _, plr in ipairs(game:GetService("Players"):GetPlayers()) do
+    if plr ~= player then
+        plr.CharacterAdded:Connect(function(char) hookCharacterDmg(plr, char) end)
+        if plr.Character then hookCharacterDmg(plr, plr.Character) end
+    end
+end
+game:GetService("Players").PlayerAdded:Connect(function(plr)
+    plr.CharacterAdded:Connect(function(char) hookCharacterDmg(plr, char) end)
 end)
 
 MT = VisualPlusTab
