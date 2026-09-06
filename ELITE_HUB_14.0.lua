@@ -8307,14 +8307,6 @@ task.spawn(function()
         if not ch then return end
         local hum = ch:FindFirstChildOfClass("Humanoid")
         if not hum then return end
-        if hum.Health <= 0 then
-            if chamHighlights[plr] then
-                chamHighlights[plr]:Destroy()
-                chamHighlights[plr] = nil
-            end
-            RestoreOriginals(plr)
-            return
-        end
 
         local show = false
         if ESPConfig.ChamsEnabled then
