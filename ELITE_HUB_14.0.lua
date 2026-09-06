@@ -10748,6 +10748,139 @@ MT:CreateToggle({
     end
 })
 
+getgenv().ELITE_HUB_MusicPlayer = nil
+getgenv().ELITE_HUB_MusicVolume = 0.5
+getgenv().ELITE_HUB_MusicPlaying = false
+getgenv().ELITE_HUB_MusicPlaylist = {}
+getgenv().ELITE_HUB_MusicIndex = 1
+
+MT:CreateSection("🎵 MUSIC PLAYER")
+MT:CreateButton({
+    Name = "📥 Load Playlist",
+    Callback = function()
+        task.spawn(function()
+            pcall(function()
+                local url = "https://raw.githubusercontent.com/blegbot1/ELITE-HUB-14.0-Universal/main/music/playlist.json"
+                local json = game:HttpGet(url)
+                local HttpService = game:GetService("HttpService")
+                getgenv().ELITE_HUB_MusicPlaylist = HttpService:JSONDecode(json)
+                getgenv().ELITE_HUB_Log("MUSIC", "Loaded " .. #getgenv().ELITE_HUB_MusicPlaylist .. " tracks")
+                Rayfield:Notify({
+                    Title = "🎵 Playlist Loaded",
+                    Content = #getgenv().ELITE_HUB_MusicPlaylist .. " tracks available",
+                    Duration = 3
+                })
+            end)
+        end)
+    end
+})
+
+local musicDropdown = MT:CreateDropdown({
+    Name = "🎵 Select Track",
+    Options = {"Load playlist first"},
+    CurrentOption = {"Load playlist first"},
+    Callback = function(opt)
+        for i, track in ipairs(getgenv().ELITE_HUB_MusicPlaylist) do
+            if track.name == opt then
+                getgenv().ELITE_HUB_MusicIndex = i
+                break
+            end
+        end
+    end
+})
+
+MT:CreateToggle({
+    Name = "▶️ Play / Pause",
+    CurrentValue = false,
+    Callback = function(value)
+        getgenv().ELITE_HUB_Log("MUSIC", "Play: " .. tostring(value))
+        if not getgenv().ELITE_HUB_MusicPlayer then
+            getgenv().ELITE_HUB_MusicPlayer = Instance.new("Sound")
+            getgenv().ELITE_HUB_MusicPlayer.Name = "EliteHubMusic"
+            getgenv().ELITE_HUB_MusicPlayer.Volume = getgenv().ELITE_HUB_MusicVolume
+            getgenv().ELITE_HUB_MusicPlayer.Looped = true
+            getgenv().ELITE_HUB_MusicPlayer.Parent = game:GetService("SoundService")
+        end
+        local playlist = getgenv().ELITE_HUB_MusicPlaylist
+        local idx = getgenv().ELITE_HUB_MusicIndex
+        if value then
+            if #playlist > 0 and playlist[idx] then
+                getgenv().ELITE_HUB_MusicPlayer.SoundId = playlist[idx].url
+                getgenv().ELITE_HUB_MusicPlayer:Play()
+                getgenv().ELITE_HUB_MusicPlaying = true
+                getgenv().ELITE_HUB_Log("MUSIC", "Playing: " .. playlist[idx].name)
+            end
+        else
+            getgenv().ELITE_HUB_MusicPlayer:Pause()
+            getgenv().ELITE_HUB_MusicPlaying = false
+        end
+    end
+})
+
+MT:CreateButton({
+    Name = "⏭️ Next Track",
+    Callback = function()
+        local playlist = getgenv().ELITE_HUB_MusicPlaylist
+        if #playlist == 0 then return end
+        getgenv().ELITE_HUB_MusicIndex = (getgenv().ELITE_HUB_MusicIndex % #playlist) + 1
+        local track = playlist[getgenv().ELITE_HUB_MusicIndex]
+        if getgenv().ELITE_HUB_MusicPlayer and getgenv().ELITE_HUB_MusicPlaying then
+            getgenv().ELITE_HUB_MusicPlayer.SoundId = track.url
+            getgenv().ELITE_HUB_MusicPlayer:Play()
+        end
+        getgenv().ELITE_HUB_Log("MUSIC", "Next: " .. track.name)
+    end
+})
+
+MT:CreateButton({
+    Name = "⏮️ Prev Track",
+    Callback = function()
+        local playlist = getgenv().ELITE_HUB_MusicPlaylist
+        if #playlist == 0 then return end
+        getgenv().ELITE_HUB_MusicIndex = getgenv().ELITE_HUB_MusicIndex - 1
+        if getgenv().ELITE_HUB_MusicIndex < 1 then getgenv().ELITE_HUB_MusicIndex = #playlist end
+        local track = playlist[getgenv().ELITE_HUB_MusicIndex]
+        if getgenv().ELITE_HUB_MusicPlayer and getgenv().ELITE_HUB_MusicPlaying then
+            getgenv().ELITE_HUB_MusicPlayer.SoundId = track.url
+            getgenv().ELITE_HUB_MusicPlayer:Play()
+        end
+        getgenv().ELITE_HUB_Log("MUSIC", "Prev: " .. track.name)
+    end
+})
+
+MT:CreateSlider({
+    Name = "🔊 Volume",
+    Range = {0, 10},
+    Increment = 0.5,
+    CurrentValue = 0.5,
+    Callback = function(value)
+        getgenv().ELITE_HUB_MusicVolume = value
+        if getgenv().ELITE_HUB_MusicPlayer then
+            getgenv().ELITE_HUB_MusicPlayer.Volume = value
+        end
+    end
+})
+
+MT:CreateButton({
+    Name = "🔄 Refresh Playlist",
+    Callback = function()
+        task.spawn(function()
+            pcall(function()
+                local url = "https://raw.githubusercontent.com/blegbot1/ELITE-HUB-14.0-Universal/main/music/playlist.json"
+                local json = game:HttpGet(url)
+                local HttpService = game:GetService("HttpService")
+                getgenv().ELITE_HUB_MusicPlaylist = HttpService:JSONDecode(json)
+                local names = {}
+                for _, track in ipairs(getgenv().ELITE_HUB_MusicPlaylist) do
+                    table.insert(names, track.name)
+                end
+                musicDropdown:Refresh(names)
+                getgenv().ELITE_HUB_Log("MUSIC", "Refreshed: " .. #getgenv().ELITE_HUB_MusicPlaylist .. " tracks")
+            end)
+        end)
+    end
+})
+
 MT = CombatPlusTab
 getgenv().ELITE_HUB_Log("UI", "Section loaded: COMBAT+ (2)")
 MT:CreateSection("⚔️ COMBAT")
