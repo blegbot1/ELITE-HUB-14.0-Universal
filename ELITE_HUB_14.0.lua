@@ -151,7 +151,7 @@ function EliteHubUI:CreateWindow(config)
     fab.Visible = false
     fab.ZIndex = 50
     fab.AutoButtonColor = false
-    fab.ScaleType = Enum.ScaleType.Fit
+    fab.ScaleType = Enum.ScaleType.Stretch
     newStroke(fab, C.AccentLight, 2, 0.15)
 
     local FAB_IMAGE_URL = "https://raw.githubusercontent.com/blegbot1/ELITE-HUB-14.0-Universal/main/launcher/kotik.jpg"

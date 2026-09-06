@@ -23,7 +23,7 @@ btn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 btn.BackgroundTransparency = 0
 btn.BorderSizePixel = 0
 btn.AutoButtonColor = false
-btn.ScaleType = Enum.ScaleType.Fit
+btn.ScaleType = Enum.ScaleType.Stretch
 btn.Image = ""
 btn.Parent = gui
 
