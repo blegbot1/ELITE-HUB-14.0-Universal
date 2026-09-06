@@ -2124,7 +2124,7 @@ end
 
         local grad = Instance.new("UIGradient")
         grad.Color = ColorSequence.new(
-            Color3.fromRGB(cfg.BgColor.r * 255 * 0.55, cfg.BgColor.g * 255 * 0.55, cfg.BgColor.b * 255 * 0.55),
+            Color3.new(cfg.BgColor.r * 0.55, cfg.BgColor.g * 0.55, cfg.BgColor.b * 0.55),
             cfg.BgColor
         )
         grad.Rotation = 90
@@ -2219,9 +2219,10 @@ end
     end
 
     -- ре-применение при респавне
+    local nhCharConns = {}
     local function nhBindChar(p)
         if p == player then return end
-        p.CharacterAdded:Connect(function()
+        local conn = p.CharacterAdded:Connect(function()
             task.wait(1.5)
             pcall(function()
                 if cfg.Enabled and nhGetTargets()[p.Name] then
@@ -2229,9 +2230,16 @@ end
                 end
             end)
         end)
+        nhCharConns[p] = conn
     end
     for _, p in ipairs(Players:GetPlayers()) do nhBindChar(p) end
     Players.PlayerAdded:Connect(nhBindChar)
+    Players.PlayerRemoving:Connect(function(p)
+        if nhCharConns[p] then
+            nhCharConns[p]:Disconnect()
+            nhCharConns[p] = nil
+        end
+    end)
 
     -- Heartbeat
     task.spawn(function()
@@ -2312,19 +2320,21 @@ end
                         if hrp then
                             local tag = hrp:FindFirstChild("EliteHubTag")
                             if tag then
-                                if cfg.Pulse then
-                                    local s = 1 + math.sin(t * 3) * 0.03
-                                    tag.Scale = Vector3.new(s, s, s)
-                                else
-                                    tag.Scale = Vector3.new(1, 1, 1)
-                                end
                                 local bg = tag:FindFirstChild("TagFrame")
                                 if bg then
                                     local lbl = bg:FindFirstChild("TagText")
-                                    if lbl and cfg.Rainbow then
-                                        lbl.TextColor3 = Color3.fromHSV(hue, 0.85, 1)
-                                    elseif lbl and not cfg.Rainbow then
-                                        lbl.TextColor3 = cfg.TextColor
+                                    if lbl then
+                                        if cfg.Pulse then
+                                            local s = 1 + math.sin(t * 3) * 0.08
+                                            lbl.TextSize = cfg.TextSize * s
+                                        else
+                                            lbl.TextSize = cfg.TextSize
+                                        end
+                                        if cfg.Rainbow then
+                                            lbl.TextColor3 = Color3.fromHSV(hue, 0.85, 1)
+                                        else
+                                            lbl.TextColor3 = cfg.TextColor
+                                        end
                                     end
                                 end
                             end
@@ -2865,6 +2875,20 @@ local function DestroyScript()
     })
 
     task.wait(0.5)
+
+    pcall(function() if getgenv().ELITE_HUB_AntiAfkConn then getgenv().ELITE_HUB_AntiAfkConn:Disconnect() end end)
+    pcall(function() if hatConn then hatConn:Disconnect() hatConn = nil end end)
+    pcall(function() if getgenv().ELITE_HUB_MusicPlayer then getgenv().ELITE_HUB_MusicPlayer:Stop() getgenv().ELITE_HUB_MusicPlayer:Destroy() getgenv().ELITE_HUB_MusicPlayer = nil end end)
+    pcall(function() if getgenv().ELITE_HUB_RejoinConn then getgenv().ELITE_HUB_RejoinConn:Disconnect() end end)
+    pcall(function() getgenv().ELITE_HUB_FlyNow = false end)
+    pcall(function() getgenv().ELITE_HUB_NoclipActive = false end)
+    pcall(function() getgenv().ELITE_HUB_NightMode = false end)
+    pcall(function() getgenv().ELITE_HUB_NoFog = false end)
+    pcall(function()
+        local l = game:GetService("Lighting")
+        if getgenv().ELITE_HUB_NightOrigClock then l.ClockTime = getgenv().ELITE_HUB_NightOrigClock end
+        if getgenv().ELITE_HUB_NoFogOrigFogEnd ~= nil then l.FogEnd = getgenv().ELITE_HUB_NoFogOrigFogEnd end
+    end)
 
     for name, _ in pairs(getgenv()) do
         if string.sub(name, 1, 11) == "ELITE_HUB_" then
@@ -4932,24 +4956,6 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
         getgenv().ELITE_HUB_SpinBot = not getgenv().ELITE_HUB_SpinBot
         getgenv().ELITE_HUB_Log("MODS", "Spin Bot: " .. tostring(getgenv().ELITE_HUB_SpinBot))
         pcall(updateMiniGuiButtons)
-        if getgenv().ELITE_HUB_SpinBot then
-            task.spawn(function()
-                while getgenv().ELITE_HUB_SpinBot do
-                    task.wait(0.016)
-                    pcall(function()
-                        if not flyBg then
-                            local ch = player.Character
-                            if ch then
-                                local hrp = ch:FindFirstChild("HumanoidRootPart")
-                                if hrp then
-                                    hrp.CFrame = hrp.CFrame * CFrame.Angles(0, math.rad(getgenv().ELITE_HUB_SpinSpeed * 0.1), 0)
-                                end
-                            end
-                        end
-                    end)
-                end
-            end)
-        end
     end
 end)
 
@@ -5149,6 +5155,13 @@ function ActivateSpeedBoost()
     getgenv().ELITE_HUB_SpeedOldSpeed = hum.WalkSpeed
     hum.WalkSpeed = 50
 
+    pcall(function()
+        local old = getgenv().ELITE_HUB_SpeedTrail
+        if old then
+            for _, v in pairs(old) do if v and v.Parent then v:Destroy() end end
+        end
+    end)
+
     local sb = getgenv().ELITE_HUB_SpeedBtn
     if sb then
         sb.Text = "  ⚡ Speed: ON"
@@ -5239,6 +5252,14 @@ function DeactivateSpeedBoost()
 end
 
 player.CharacterAdded:Connect(function()
+    task.wait(1)
+    if nowe then
+        nowe = false
+        pcall(function()
+            if flyBg then flyBg:Destroy() flyBg = nil end
+            if flyBv then flyBv:Destroy() flyBv = nil end
+        end)
+    end
     if getgenv().ELITE_HUB_SpeedActive then
         task.wait(0.5)
         DeactivateSpeedBoost()
@@ -5989,8 +6010,8 @@ local SkeletonLinksR6 = {
     {"Torso", "Right Arm"},
     {"Torso", "Left Leg"},
     {"Torso", "Right Leg"},
-    {"Left Leg", "LeftFoot"},
-    {"Right Leg", "RightFoot"},
+    {"Left Leg", "Left Hip"},
+    {"Right Leg", "Right Hip"},
 }
 local SKELETON_MAX_LINES = 20
 
@@ -8138,7 +8159,11 @@ end
 
 getgenv().ELITE_HUB_LastChars = getgenv().ELITE_HUB_LastChars or {}
 
+local espUpdateDebounce = false
 local function UpdateESP()
+    if espUpdateDebounce then return end
+    espUpdateDebounce = true
+    task.delay(0.1, function() espUpdateDebounce = false end)
     for targetPlayer, _ in pairs(ESPObjects) do
         ClearPlayerESP(targetPlayer)
     end
@@ -8253,6 +8278,13 @@ task.spawn(function()
             end
             origMats[plr] = nil
         end
+        local ch = plr.Character
+        if ch then
+            for _, part in ipairs(ch:GetDescendants()) do
+                if part:IsA("SurfaceAppearance") then pcall(function() part.Enabled = true end) end
+                if part:IsA("Texture") then pcall(function() part.Transparency = 0 end) end
+            end
+        end
     end
 
     local function ApplyCham(plr)
@@ -8333,8 +8365,8 @@ task.spawn(function()
                         part.VertexColor = Vector3.new(col.R, col.G, col.B)
                     end)
                 end
-                if part:IsA("SurfaceAppearance") then pcall(function() part:Destroy() end) end
-                if part:IsA("Texture") then pcall(function() part:Destroy() end) end
+                if part:IsA("SurfaceAppearance") then pcall(function() part.Enabled = false end) end
+                if part:IsA("Texture") then pcall(function() part.Transparency = 1 end) end
             end
         end
     end
@@ -8347,7 +8379,10 @@ task.spawn(function()
         RestoreOriginals(plr)
     end)
 
+    local chamFrameCount = 0
     RunService.RenderStepped:Connect(function()
+        chamFrameCount = chamFrameCount + 1
+        if chamFrameCount % 10 ~= 0 then return end
         for _, plr in ipairs(Players:GetPlayers()) do
             pcall(ApplyCham, plr)
         end
@@ -10225,7 +10260,7 @@ VisualTab:CreateToggle({
 })
 VisualTab:CreateColorPicker({
     Name = "💡 Neon Color",
-    CurrentColor = getgenv().ELITE_HUB_NeonBodyColor,
+    Color = getgenv().ELITE_HUB_NeonBodyColor,
     Callback = function(color)
         getgenv().ELITE_HUB_NeonBodyColor = color
         if getgenv().ELITE_HUB_NeonBody then
@@ -10242,18 +10277,20 @@ VisualTab:CreateColorPicker({
 })
 player.CharacterAdded:Connect(function(char)
     task.wait(1)
-    if getgenv().ELITE_HUB_NeonBody then
-        for _, part in ipairs(char:GetDescendants()) do
-            if part:IsA("BasePart") then
-                if not part:GetAttribute("EliteHubOrigMaterial") then
-                    part:SetAttribute("EliteHubOrigMaterial", part.Material.Name)
-                    part:SetAttribute("EliteHubOrigColor", part.Color)
+    pcall(function()
+        if getgenv().ELITE_HUB_NeonBody then
+            for _, part in ipairs(char:GetDescendants()) do
+                if part:IsA("BasePart") then
+                    if not part:GetAttribute("EliteHubOrigMaterial") then
+                        part:SetAttribute("EliteHubOrigMaterial", part.Material.Name)
+                        part:SetAttribute("EliteHubOrigColor", part.Color)
+                    end
+                    part.Material = Enum.Material.Neon
+                    part.Color = getgenv().ELITE_HUB_NeonBodyColor
                 end
-                part.Material = Enum.Material.Neon
-                part.Color = getgenv().ELITE_HUB_NeonBodyColor
             end
         end
-    end
+    end)
 end)
 
 getgenv().ELITE_HUB_HitMarkers = false
@@ -10275,7 +10312,7 @@ VisualTab:CreateToggle({
 })
 VisualTab:CreateColorPicker({
     Name = "❌ Hit Marker Color",
-    CurrentColor = getgenv().ELITE_HUB_HitMarkerColor,
+    Color = getgenv().ELITE_HUB_HitMarkerColor,
     Callback = function(color)
         getgenv().ELITE_HUB_HitMarkerColor = color
     end
@@ -10299,7 +10336,7 @@ VisualTab:CreateToggle({
 })
 VisualTab:CreateColorPicker({
     Name = "🔢 Damage Color",
-    CurrentColor = getgenv().ELITE_HUB_DamageNumberColor,
+    Color = getgenv().ELITE_HUB_DamageNumberColor,
     Callback = function(color)
         getgenv().ELITE_HUB_DamageNumberColor = color
     end
@@ -10340,7 +10377,7 @@ local function hookCharacterDmg(plr, char)
                     f.Rotation = 45 * off[1] * off[2]
                     f.Parent = gui
                 end
-                gui.Parent = game:GetService("CoreGui")
+                pcall(function() gui.Parent = game:GetService("CoreGui") end)
                 task.wait(getgenv().ELITE_HUB_HitMarkerDuration)
                 gui:Destroy()
             end)
@@ -10364,7 +10401,7 @@ local function hookCharacterDmg(plr, char)
                 text.TextScaled = true
                 text.Font = Enum.Font.GothamBold
                 text.Parent = billboard
-                billboard.Parent = game:GetService("CoreGui")
+                pcall(function() billboard.Parent = game:GetService("CoreGui") end)
                 for i = 1, 30 do
                     task.wait(0.02)
                     billboard.StudsOffset = billboard.StudsOffset + Vector3.new(0, 0.05, 0)
@@ -10401,6 +10438,11 @@ VisualTab:CreateToggle({
         local ch = player.Character
         if not ch then return end
         if value then
+            for _, obj in ipairs(ch:GetDescendants()) do
+                if obj.Name == "EliteHubFireTrail" then
+                    pcall(function() obj:Destroy() end)
+                end
+            end
             for _, part in ipairs(ch:GetDescendants()) do
                 if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" then
                     local fire = Instance.new("Fire")
@@ -10424,7 +10466,7 @@ VisualTab:CreateToggle({
 })
 VisualTab:CreateColorPicker({
     Name = "🔥 Fire Color",
-    CurrentColor = getgenv().ELITE_HUB_FireTrailColor,
+    Color = getgenv().ELITE_HUB_FireTrailColor,
     Callback = function(color)
         getgenv().ELITE_HUB_FireTrailColor = color
         if getgenv().ELITE_HUB_FireTrail then
@@ -10441,20 +10483,27 @@ VisualTab:CreateColorPicker({
 })
 player.CharacterAdded:Connect(function(char)
     task.wait(1)
-    if getgenv().ELITE_HUB_FireTrail then
-        for _, part in ipairs(char:GetDescendants()) do
-            if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" then
-                local fire = Instance.new("Fire")
-                fire.Name = "EliteHubFireTrail"
-                fire.Size = 2
-                fire.Heat = 1
-                fire.Color = getgenv().ELITE_HUB_FireTrailColor
-                fire.SecondaryColor = Color3.fromRGB(255, 200, 0)
-                fire.Enabled = true
-                fire.Parent = part
+    pcall(function()
+        if getgenv().ELITE_HUB_FireTrail then
+            for _, obj in ipairs(char:GetDescendants()) do
+                if obj.Name == "EliteHubFireTrail" then
+                    pcall(function() obj:Destroy() end)
+                end
+            end
+            for _, part in ipairs(char:GetDescendants()) do
+                if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" then
+                    local fire = Instance.new("Fire")
+                    fire.Name = "EliteHubFireTrail"
+                    fire.Size = 2
+                    fire.Heat = 1
+                    fire.Color = getgenv().ELITE_HUB_FireTrailColor
+                    fire.SecondaryColor = Color3.fromRGB(255, 200, 0)
+                    fire.Enabled = true
+                    fire.Parent = part
+                end
             end
         end
-    end
+    end)
 end)
 end)
 
@@ -10473,7 +10522,12 @@ MT:CreateToggle({
         local hum = ch and ch:FindFirstChildOfClass("Humanoid")
         if hum then
             hum.UseJumpPower = true
-            hum.JumpPower = value and 120 or 50
+            if value then
+                getgenv().ELITE_HUB_JumpBoostOrig = hum.JumpPower
+                hum.JumpPower = 120
+            else
+                hum.JumpPower = getgenv().ELITE_HUB_JumpBoostOrig or 50
+            end
         end
         getgenv().ELITE_HUB_Log("MODS", "Jump Boost: " .. tostring(value))
     end
@@ -10482,7 +10536,11 @@ player.CharacterAdded:Connect(function(char)
     task.wait(1)
     if getgenv().ELITE_HUB_JumpBoost then
         local hum = char:FindFirstChildOfClass("Humanoid")
-        if hum then hum.UseJumpPower = true; hum.JumpPower = 120 end
+        if hum then
+            hum.UseJumpPower = true
+            getgenv().ELITE_HUB_JumpBoostOrig = hum.JumpPower
+            hum.JumpPower = 120
+        end
     end
 end)
 
@@ -10509,14 +10567,35 @@ MT:CreateSlider({
         getgenv().ELITE_HUB_Log("MODS", "Hitbox Size: " .. tostring(value))
     end
 })
+local origHitboxData = {}
 task.spawn(function()
     while task.wait(0.5) do
         pcall(function()
-            if not getgenv().ELITE_HUB_HitboxExpander then return end
+            if not getgenv().ELITE_HUB_HitboxExpander then
+                for plrName, data in pairs(origHitboxData) do
+                    local p = game:GetService("Players"):FindFirstChild(plrName)
+                    if p and p.Character then
+                        local hrp = p.Character:FindFirstChild("HumanoidRootPart")
+                        if hrp then
+                            pcall(function()
+                                hrp.Size = data.Size
+                                hrp.Transparency = data.Transparency
+                                hrp.BrickColor = data.BrickColor
+                                hrp.Material = data.Material
+                            end)
+                        end
+                    end
+                end
+                origHitboxData = {}
+                return
+            end
             for _, plr in ipairs(game:GetService("Players"):GetPlayers()) do
                 if plr ~= player and plr.Character then
                     local hrp = plr.Character:FindFirstChild("HumanoidRootPart")
                     if hrp then
+                        if not origHitboxData[plr.Name] then
+                            origHitboxData[plr.Name] = {Size = hrp.Size, Transparency = hrp.Transparency, BrickColor = hrp.BrickColor, Material = hrp.Material}
+                        end
                         hrp.Size = Vector3.new(getgenv().ELITE_HUB_HitboxSize, getgenv().ELITE_HUB_HitboxSize, getgenv().ELITE_HUB_HitboxSize)
                         hrp.Transparency = 0.7
                         hrp.BrickColor = BrickColor.new("Really red")
@@ -10589,6 +10668,19 @@ task.spawn(function()
         end)
     end
 end)
+player.CharacterAdded:Connect(function(char)
+    task.wait(1)
+    if getgenv().ELITE_HUB_FreeCam then
+        getgenv().ELITE_HUB_FreeCam = false
+        pcall(function()
+            workspace.CurrentCamera.CameraType = Enum.CameraType.Custom
+            local bpcam = workspace:FindFirstChild("FreeCamBP")
+            if bpcam then bpcam:Destroy() end
+            local bp = getgenv().ELITE_HUB_FreeCamBP
+            if bp then bp:Destroy(); getgenv().ELITE_HUB_FreeCamBP = nil end
+        end)
+    end
+end)
 
 MT:CreateButton({
     Name = "📍 Teleport to cursor",
@@ -10623,6 +10715,8 @@ MT:CreateToggle({
         local lighting = game:GetService("Lighting")
         if value then
             getgenv().ELITE_HUB_NightOrigClock = lighting.ClockTime
+            getgenv().ELITE_HUB_NightOrigOutdoorAmbient = lighting.OutdoorAmbient
+            getgenv().ELITE_HUB_NightOrigBrightness = lighting.Brightness
             lighting.ClockTime = 0
             lighting.Ambient = Color3.fromRGB(20, 20, 40)
             lighting.OutdoorAmbient = Color3.fromRGB(20, 20, 40)
@@ -10632,8 +10726,12 @@ MT:CreateToggle({
                 lighting.ClockTime = getgenv().ELITE_HUB_NightOrigClock
             end
             lighting.Ambient = Color3.fromRGB(128, 128, 128)
-            lighting.OutdoorAmbient = Color3.fromRGB(128, 128, 128)
-            lighting.Brightness = 2
+            if getgenv().ELITE_HUB_NightOrigOutdoorAmbient then
+                lighting.OutdoorAmbient = getgenv().ELITE_HUB_NightOrigOutdoorAmbient
+            end
+            if getgenv().ELITE_HUB_NightOrigBrightness then
+                lighting.Brightness = getgenv().ELITE_HUB_NightOrigBrightness
+            end
         end
     end
 })
@@ -10657,13 +10755,13 @@ MT:CreateToggle({
             lighting.FogStart = 10000000
             lighting.FogColor = Color3.fromRGB(200, 200, 255)
         else
-            if getgenv().ELITE_HUB_NoFogOrigFogEnd then
+            if getgenv().ELITE_HUB_NoFogOrigFogEnd ~= nil then
                 lighting.FogEnd = getgenv().ELITE_HUB_NoFogOrigFogEnd
             end
-            if getgenv().ELITE_HUB_NoFogOrigFogStart then
+            if getgenv().ELITE_HUB_NoFogOrigFogStart ~= nil then
                 lighting.FogStart = getgenv().ELITE_HUB_NoFogOrigFogStart
             end
-            if getgenv().ELITE_HUB_NoFogOrigFogColor then
+            if getgenv().ELITE_HUB_NoFogOrigFogColor ~= nil then
                 lighting.FogColor = getgenv().ELITE_HUB_NoFogOrigFogColor
             end
         end
@@ -10764,6 +10862,11 @@ MT:CreateButton({
                 local json = game:HttpGet(url)
                 local HttpService = game:GetService("HttpService")
                 getgenv().ELITE_HUB_MusicPlaylist = HttpService:JSONDecode(json)
+                local names = {}
+                for _, track in ipairs(getgenv().ELITE_HUB_MusicPlaylist) do
+                    table.insert(names, track.name)
+                end
+                musicDropdown:Refresh(names)
                 getgenv().ELITE_HUB_Log("MUSIC", "Loaded " .. #getgenv().ELITE_HUB_MusicPlaylist .. " tracks")
                 Rayfield:Notify({
                     Title = "🎵 Playlist Loaded",
@@ -10811,7 +10914,11 @@ MT:CreateToggle({
                 getgenv().ELITE_HUB_Log("MUSIC", "Playing: " .. playlist[idx].name)
             end
         else
-            getgenv().ELITE_HUB_MusicPlayer:Pause()
+            if getgenv().ELITE_HUB_MusicPlayer then
+                getgenv().ELITE_HUB_MusicPlayer:Stop()
+                getgenv().ELITE_HUB_MusicPlayer:Destroy()
+                getgenv().ELITE_HUB_MusicPlayer = nil
+            end
             getgenv().ELITE_HUB_MusicPlaying = false
         end
     end
@@ -10875,6 +10982,9 @@ MT:CreateButton({
                     table.insert(names, track.name)
                 end
                 musicDropdown:Refresh(names)
+                if getgenv().ELITE_HUB_MusicIndex > #getgenv().ELITE_HUB_MusicPlaylist then
+                    getgenv().ELITE_HUB_MusicIndex = 1
+                end
                 getgenv().ELITE_HUB_Log("MUSIC", "Refreshed: " .. #getgenv().ELITE_HUB_MusicPlaylist .. " tracks")
             end)
         end)
@@ -10915,9 +11025,8 @@ MT:CreateToggle({
                                             if handle then
                                                 tool:Activate()
                                             end
-                                        end
-                                        hum:ChangeState(Enum.HumanoidStateType.Blocking)
                                     end
+                                end
                                 end
                             end
                         end
@@ -11139,6 +11248,7 @@ MT:CreateSlider({
     Increment = 1,
     CurrentValue = 16,
     Callback = function(value)
+        getgenv().ELITE_HUB_WalkSpeed = value
         pcall(function()
             local hum = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
             if hum then hum.WalkSpeed = value end
@@ -11153,6 +11263,7 @@ MT:CreateSlider({
     Increment = 10,
     CurrentValue = 50,
     Callback = function(value)
+        getgenv().ELITE_HUB_JumpPower = value
         pcall(function()
             local hum = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
             if hum then
@@ -11163,6 +11274,22 @@ MT:CreateSlider({
         getgenv().ELITE_HUB_Log("MODS", "JumpPower: " .. value)
     end
 })
+
+player.CharacterAdded:Connect(function(char)
+    task.wait(1)
+    pcall(function()
+        local hum = char:FindFirstChildOfClass("Humanoid")
+        if hum then
+            if getgenv().ELITE_HUB_WalkSpeed then
+                hum.WalkSpeed = getgenv().ELITE_HUB_WalkSpeed
+            end
+            if getgenv().ELITE_HUB_JumpPower then
+                hum.UseJumpPower = true
+                hum.JumpPower = getgenv().ELITE_HUB_JumpPower
+            end
+        end
+    end)
+end)
 
 MT = VisualTab
 MT:CreateSection("🌍 WORLD SLIDERS")
@@ -11204,7 +11331,9 @@ MT:CreateToggle({
                 while getgenv().ELITE_HUB_ChatSpammer do
                     task.wait(2)
                     pcall(function()
-                        game:GetService("ReplicatedStorage"):WaitForChild("DefaultChatSystemSpeechEvents"):FindFirstChild("SayMessageRequest"):FireServer(
+                        local chatEvents = game:GetService("ReplicatedStorage"):WaitForChild("DefaultChatSystemSpeechEvents", 5)
+                        if not chatEvents then return end
+                        chatEvents:FindFirstChild("SayMessageRequest"):FireServer(
                             getgenv().ELITE_HUB_ChatSpammerMsg, "All"
                         )
                     end)
@@ -11233,7 +11362,12 @@ MT:CreateToggle({
         getgenv().ELITE_HUB_RejoinOnKick = value
         getgenv().ELITE_HUB_Log("MODS", "Rejoin on Kick: " .. tostring(value))
         if value then
-            player.CharacterRemoving:Connect(function()
+            if getgenv().ELITE_HUB_RejoinConn then
+                getgenv().ELITE_HUB_RejoinConn:Disconnect()
+            end
+            getgenv().ELITE_HUB_RejoinConn = player.CharacterRemoving:Connect(function(char)
+                local hum = char and char:FindFirstChildOfClass("Humanoid")
+                if hum and hum.Health <= 0 then return end
                 task.wait(3)
                 if getgenv().ELITE_HUB_RejoinOnKick then
                     pcall(function()
@@ -11276,7 +11410,8 @@ MT:CreateToggle({
                 Ambient = lighting.Ambient,
                 OutdoorAmbient = lighting.OutdoorAmbient,
                 GlobalShadows = lighting.GlobalShadows,
-                Technology = lighting.Technology
+                Technology = lighting.Technology,
+                FogEnd = lighting.FogEnd
             }
             lighting.Brightness = 10
             lighting.Ambient = Color3.fromRGB(255, 255, 255)
@@ -11290,8 +11425,9 @@ MT:CreateToggle({
                 lighting.Ambient = b.Ambient
                 lighting.OutdoorAmbient = b.OutdoorAmbient
                 lighting.GlobalShadows = b.GlobalShadows
+                lighting.Technology = b.Technology
+                lighting.FogEnd = b.FogEnd
             end
-            lighting.FogEnd = 100000
         end
     end
 })
@@ -12226,7 +12362,7 @@ getgenv().ELITE_HUB_ChamsTab:CreateSlider({
     CurrentValue = 150,
     Callback = function(value)
         local c = getgenv().ELITE_HUB_RangeWeaponColor
-        getgenv().ELITE_HUB_RangeWeaponColor = Color3.fromRGB(value, c.G * 255, c.B * 255)
+        getgenv().ELITE_HUB_RangeWeaponColor = Color3.new(value / 255, c.G, c.B)
     end
 })
 
@@ -12237,7 +12373,7 @@ getgenv().ELITE_HUB_ChamsTab:CreateSlider({
     CurrentValue = 70,
     Callback = function(value)
         local c = getgenv().ELITE_HUB_RangeWeaponColor
-        getgenv().ELITE_HUB_RangeWeaponColor = Color3.fromRGB(c.R * 255, value, c.B * 255)
+        getgenv().ELITE_HUB_RangeWeaponColor = Color3.new(c.R, value / 255, c.B)
     end
 })
 
@@ -12248,7 +12384,7 @@ getgenv().ELITE_HUB_ChamsTab:CreateSlider({
     CurrentValue = 255,
     Callback = function(value)
         local c = getgenv().ELITE_HUB_RangeWeaponColor
-        getgenv().ELITE_HUB_RangeWeaponColor = Color3.fromRGB(c.R * 255, c.G * 255, value)
+        getgenv().ELITE_HUB_RangeWeaponColor = Color3.new(c.R, c.G, value / 255)
     end
 })
 
@@ -12296,8 +12432,8 @@ task.spawn(function()
                             pcall(function() part.TextureID = "" end)
                         end
                     end
-                    if part:IsA("SurfaceAppearance") then pcall(function() part:Destroy() end) end
-                    if part:IsA("Texture") then pcall(function() part:Destroy() end) end
+                    if part:IsA("SurfaceAppearance") then pcall(function() part.Enabled = false end) end
+                    if part:IsA("Texture") then pcall(function() part.Transparency = 1 end) end
                     if part:IsA("Decal") then pcall(function() part.Transparency = 1 end) end
                     if part:IsA("SpecialMesh") then
                         pcall(function() part.TextureId = "" end)
