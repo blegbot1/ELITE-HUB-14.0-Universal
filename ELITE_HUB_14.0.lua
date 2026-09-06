@@ -1748,8 +1748,8 @@ local ThemePurple = {
 
 local Window = Rayfield:CreateWindow({
     Name = "💎 ELITE HUB 14.0 HASKER 💎",
-    LoadingTitle = "⏳ Hasker Edition загружается... ⏳",
-    LoadingSubtitle = "⭐ by gerkylesichakes | Версия 14.0 | Обновлено: +Mods, Chams, ESP, Aimbot, Spin Bot ⭐",
+    LoadingTitle = "⚡🔥 Hasker Edition загружается... 🔥⚡",
+    LoadingSubtitle = "💜👑 by gerkylesichakes | Версия 14.0 | Обновлено: +Mods, Chams, ESP, Aimbot, Spin Bot 👑💜",
     Theme = ThemePurple
 })
 Window._L = L
