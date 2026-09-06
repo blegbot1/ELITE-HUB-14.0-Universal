@@ -1487,7 +1487,7 @@ end
 local debugMode = true  -- РїРѕСЃС‚Р°РІРёС‚СЊ false, С‡С‚РѕР±С‹ РІС‹РєР»СЋС‡РёС‚СЊ Р»РѕРіРё
 
 if getgenv().ELITE_HUB_HASKER_LOADED then
-    Rayfield:Notify({ Title = " Already running", Content = "ELITE HUB is already loaded", Duration = 3 })
+    Rayfield:Notify({ Title = "Already running", Content = "ELITE HUB is already loaded", Duration = 3 })
     return
 end
 getgenv().ELITE_HUB_HASKER_LOADED = true
@@ -9280,8 +9280,8 @@ Players.PlayerRemoving:Connect(UpdateDropdown)
 
 task.delay(1, UpdateDropdown)
 Rayfield:Notify({
-    Title = " ",
-    Content = "  .      .",
+    Title = "ELITE HUB",
+    Content = "Loaded! Have fun!",
     Duration = 4
 })
 
