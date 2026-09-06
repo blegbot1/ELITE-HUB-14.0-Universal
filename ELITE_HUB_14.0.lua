@@ -1811,6 +1811,7 @@ getgenv().ELITE_HUB_ChineseHatR = 2.5
 getgenv().ELITE_HUB_ChineseHatColor = Color3.fromRGB(255, 0, 255)
 getgenv().ELITE_HUB_ChineseHatSpin = false
 getgenv().ELITE_HUB_ChineseHatSpinSpeed = 50
+getgenv().ELITE_HUB_ChineseHatMat = "ForceField"
 local hatConn = nil
 local hatParts = {}
 local hatSpinParts = {}
@@ -1827,7 +1828,7 @@ local function MakePart(props)
     local p = Instance.new("Part")
     p.Size = props.Size or Vector3.new(1,1,1)
     p.Shape = props.Shape or Enum.PartType.Block
-    p.Material = props.Material or Enum.Material.ForceField
+    p.Material = Enum.Material[props.Material or getgenv().ELITE_HUB_ChineseHatMat or "ForceField"]
     p.Color = props.Color or Color3.new(1,1,1)
     p.CanCollide = false
     p.Anchored = true
@@ -2034,6 +2035,20 @@ MT:CreateSlider({
     CurrentValue = 50,
     Callback = function(value)
         getgenv().ELITE_HUB_ChineseHatSpinSpeed = value
+    end
+})
+
+local hatMats = {"ForceField","Neon","Glass","SmoothPlastic","Metal","DiamondPlate","Wood","WoodPlanks","Grass","Slate","Marble","Granite","Cobblestone","Brick","Sand","CorrodedMetal","Foil","Ice","LeafyGrass","Mud","Sandstone","Asphalt","Basalt","Chalk","Clay","Rock","Limestone","Pavement","Plastic","Rubber","Fabric","Carpet","Foam","Cotton","Wool"}
+MT:CreateDropdown({
+    Name = "🧊 Material",
+    Options = hatMats,
+    CurrentOption = {"ForceField"},
+    Flag = "ChineseHatMat",
+    Callback = function(value)
+        getgenv().ELITE_HUB_ChineseHatMat = value
+        for _, p in ipairs(hatParts) do
+            pcall(function() p.Material = Enum.Material[value] end)
+        end
     end
 })
 
