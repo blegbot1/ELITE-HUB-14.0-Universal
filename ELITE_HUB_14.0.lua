@@ -1802,7 +1802,7 @@ local player = Players.LocalPlayer
 task.spawn(function()
 local MT = VisualTab
 getgenv().ELITE_HUB_Log("UI", "Section loaded: CHINESE HAT")
-MT:CreateSection(" CHINESE HAT")
+MT:CreateSection("🎩 CHINESE HAT")
 
 getgenv().ELITE_HUB_ChineseHatOn = false
 getgenv().ELITE_HUB_ChineseHatY = 0.5
@@ -2592,7 +2592,7 @@ end
     Р’РљР›РђР”РљРђ РҐРђР‘РћР’
     ==============================
 ]]--
-local HubsSection = HubsTab:CreateSection(" UNIVERSAL HUBS")
+local HubsSection = HubsTab:CreateSection("🌐 UNIVERSAL HUBS")
 
 HubsTab:CreateButton({
     Name = " Ghub V15",
@@ -2763,7 +2763,7 @@ HubsTab:CreateButton({
     РќРћР’РђРЇ Р’РљР›РђР”РљРђ FE РЎРљР РРџРўР«
     ==============================
 ]]--
-local FEBasicSection = FEScriptsTab:CreateSection(" CORE FE SCRIPTS")
+local FEBasicSection = FEScriptsTab:CreateSection("🛡 CORE FE SCRIPTS")
 
 FEScriptsTab:CreateButton({
     Name = " Fe Punch (R15/R6)",
@@ -2819,7 +2819,7 @@ FEScriptsTab:CreateButton({
     end
 })
 
-local FEUtilitiesSection = FEScriptsTab:CreateSection(" FE UTILITIES")
+local FEUtilitiesSection = FEScriptsTab:CreateSection("🔧 FE UTILITIES")
 
 FEScriptsTab:CreateButton({
     Name = " Fe G-Man (R6 only)",
@@ -2892,7 +2892,7 @@ FEScriptsTab:CreateButton({
     end
 })
 
-local FEEffectsSection = FEScriptsTab:CreateSection(" FE EFFECTS")
+local FEEffectsSection = FEScriptsTab:CreateSection("✨ FE EFFECTS")
 
 FEScriptsTab:CreateButton({
     Name = " Fe Blackhole",
@@ -2943,7 +2943,7 @@ FEScriptsTab:CreateButton({
     end
 })
 
-local GenesisFESection = FEScriptsTab:CreateSection(" GENESIS FE SCRIPTS")
+local GenesisFESection = FEScriptsTab:CreateSection("🔰 GENESIS FE SCRIPTS")
 
 FEScriptsTab:CreateButton({
     Name = " Fe Ban Hammer",
@@ -3008,7 +3008,7 @@ FEScriptsTab:CreateButton({
     end
 })
 
-local FEAnimationsSection = FEScriptsTab:CreateSection(" FE ANIMATIONS")
+local FEAnimationsSection = FEScriptsTab:CreateSection("💃 FE ANIMATIONS")
 
 FEScriptsTab:CreateButton({
     Name = " Fe Animation Man (R6 only)",
@@ -3036,8 +3036,8 @@ FEScriptsTab:CreateButton({
     end
 })
 
-local AdditionalFESection = FEScriptsTab:CreateSection(" EXTRA FE SCRIPTS")
-local FEUtilitiesSection2 = FEScriptsTab:CreateSection(" POPULAR UTILITIES")
+local AdditionalFESection = FEScriptsTab:CreateSection("➕ EXTRA FE SCRIPTS")
+local FEUtilitiesSection2 = FEScriptsTab:CreateSection("💰 POPULAR UTILITIES")
 
 FEScriptsTab:CreateButton({
     Name = " Infinite Yield",
@@ -3095,7 +3095,7 @@ FEScriptsTab:CreateButton({
 -- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
 -- рџ› пёЏ VISUALS & TOOLS (TOP PICKS)
 -- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
-GameScriptsTab:CreateSection(" VISUALS & TOOLS")
+GameScriptsTab:CreateSection("👁 VISUALS & TOOLS")
 
 GameScriptsTab:CreateButton({
     Name = " Sp3arParvus v4.2.9 (ESP+Aimbot+Explorer)",
@@ -3233,7 +3233,7 @@ GameScriptsTab:CreateButton({
 -- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
 -- вљ”пёЏ RIVALS (FPS)
 -- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
-GameScriptsTab:CreateSection(" RIVALS")
+GameScriptsTab:CreateSection("⚔ RIVALS")
 
 GameScriptsTab:CreateButton({
     Name = " Rivals Auto Farm",
@@ -3383,7 +3383,7 @@ GameScriptsTab:CreateButton({
 -- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
 -- рџ”Є MURDER MYSTERY 2
 -- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
-GameScriptsTab:CreateSection(" MURDER MYSTERY 2")
+GameScriptsTab:CreateSection("🔪 MURDER MYSTERY 2")
 
 GameScriptsTab:CreateButton({
     Name = " MM2 Auto Farm+ESP+Kill All",
@@ -3557,7 +3557,7 @@ GameScriptsTab:CreateButton({
 -- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
 -- вљ”пёЏ BLOX FRUITS
 -- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
-GameScriptsTab:CreateSection(" BLOX FRUITS")
+GameScriptsTab:CreateSection("🍎 BLOX FRUITS")
 
 GameScriptsTab:CreateButton({
     Name = " Blox Fruits Fruit Dupe",
@@ -3629,7 +3629,7 @@ GameScriptsTab:CreateButton({
 -- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
 -- рџ›ЎпёЏ BLADE BALL
 -- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
-GameScriptsTab:CreateSection(" BLADE BALL")
+GameScriptsTab:CreateSection("⚔ BLADE BALL")
 
 GameScriptsTab:CreateButton({
     Name = " Blade Ball Vanish Hub",
@@ -3683,7 +3683,7 @@ GameScriptsTab:CreateButton({
 -- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
 -- рџЏ‹пёЏ ARSENAL
 -- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
-GameScriptsTab:CreateSection(" ARSENAL")
+GameScriptsTab:CreateSection("💣 ARSENAL")
 
 GameScriptsTab:CreateButton({
     Name = " Arsenal KEYLESS OP",
@@ -3725,7 +3725,7 @@ GameScriptsTab:CreateButton({
 -- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
 -- рџЏ« JAILBREAK
 -- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
-GameScriptsTab:CreateSection(" JAILBREAK")
+GameScriptsTab:CreateSection("🚔 JAILBREAK")
 
 GameScriptsTab:CreateButton({
     Name = " Jailbreak Money Farm",
@@ -3749,7 +3749,7 @@ GameScriptsTab:CreateButton({
 -- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
 -- рџЊ± GROW A GARDEN 2
 -- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
-GameScriptsTab:CreateSection(" GROW A GARDEN 2")
+GameScriptsTab:CreateSection("🌿 GROW A GARDEN 2")
 
 GameScriptsTab:CreateButton({
     Name = " GAG2 Script",
@@ -3887,7 +3887,7 @@ GameScriptsTab:CreateButton({
 -- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
 -- рџЏ™пёЏ SOUTH BRONX
 -- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
-GameScriptsTab:CreateSection(" SOUTH BRONX")
+GameScriptsTab:CreateSection("🏖 SOUTH BRONX")
 
 GameScriptsTab:CreateButton({
     Name = " South Bronx Saytus Hub",
@@ -3923,7 +3923,7 @@ GameScriptsTab:CreateButton({
 -- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
 -- рџЋЄ SIMULATORS
 -- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
-GameScriptsTab:CreateSection(" SIMULATORS")
+GameScriptsTab:CreateSection("📊 SIMULATORS")
 
 GameScriptsTab:CreateButton({
     Name = " Muscle Legends",
@@ -3959,7 +3959,7 @@ GameScriptsTab:CreateButton({
 -- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
 -- рџ‘» HORROR GAMES
 -- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
-GameScriptsTab:CreateSection(" HORROR GAMES")
+GameScriptsTab:CreateSection("👻 HORROR GAMES")
 
 GameScriptsTab:CreateButton({
     Name = " Doors (Vynixius)",
@@ -3989,7 +3989,7 @@ GameScriptsTab:CreateButton({
 -- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
 -- рџЏ—пёЏ BUILDING & TYCOON
 -- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
-GameScriptsTab:CreateSection(" BUILDING & TYCOON")
+GameScriptsTab:CreateSection("🏗 BUILDING & TYCOON")
 
 GameScriptsTab:CreateButton({
     Name = " Build A Boat (Vynixius)",
@@ -4007,7 +4007,7 @@ GameScriptsTab:CreateButton({
 -- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
 -- рџЏ° OBBY & PARKOUR
 -- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
-GameScriptsTab:CreateSection(" OBBY & PARKOUR")
+GameScriptsTab:CreateSection("🧗 OBBY & PARKOUR")
 
 GameScriptsTab:CreateButton({
     Name = " Tower of Hell (Vynixius)",
@@ -4025,7 +4025,7 @@ GameScriptsTab:CreateButton({
 -- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
 -- вљЎ ANIME GAMES
 -- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
-GameScriptsTab:CreateSection(" ANIME GAMES")
+GameScriptsTab:CreateSection("👗 ANIME GAMES")
 
 GameScriptsTab:CreateButton({
     Name = " Anime Vanguards",
@@ -4049,7 +4049,7 @@ GameScriptsTab:CreateButton({
 -- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
 -- рџЋ® FUNKY FRIDAY & RHYTHM
 -- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
-GameScriptsTab:CreateSection(" RHYTHM GAMES")
+GameScriptsTab:CreateSection("🎵 RHYTHM GAMES")
 
 GameScriptsTab:CreateButton({
     Name = " Funky Friday",
@@ -4061,7 +4061,7 @@ GameScriptsTab:CreateButton({
 -- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
 -- рџЋ­ EXTRA & MISC GAMES
 -- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
-GameScriptsTab:CreateSection(" EXTRA GAMES")
+GameScriptsTab:CreateSection("❓ EXTRA GAMES")
 
 GameScriptsTab:CreateButton({
     Name = " Prison Life (Vynixius)",
@@ -4404,7 +4404,7 @@ GameScriptsTab:CreateButton({
     Р РђР—Р”Р•Р› РћРЎРќРћР’РќР«РҐ Р¤РЈРќРљР¦РР™
     ==============================
 ]]--
-local AdventureSection = MainTab:CreateSection(" CORE FUNCTIONS")
+local AdventureSection = MainTab:CreateSection("⚡ CORE FUNCTIONS")
 
 local noclipActive = false
 local noclipConnection = nil
@@ -5363,7 +5363,7 @@ MainTab:CreateInput({
     end
 })
 
-MainTab:CreateSection(" BINDS")
+MainTab:CreateSection("📌 BINDS")
 
 MainTab:CreateInput({
     Name = " Fly Bind",
@@ -5434,7 +5434,7 @@ MainTab:CreateInput({
     РЈР›РЈР§РЁР•РќРќР«Р™ AIMBOT РЎ РџР РРћР РРўР•РўРћРњ РџРћ Р”РРЎРўРђРќР¦РР
     ==============================
 ]]--
-local AimbotSection = CombatTab:CreateSection(" IMPROVED AIMBOT 3D FOV")
+local AimbotSection = CombatTab:CreateSection("🎯 IMPROVED AIMBOT 3D FOV")
 local AimbotConfig = {
     Enabled = false,
     TeamCheck = true,
@@ -6213,7 +6213,7 @@ task.spawn(function()
                             local toCamera = (camPos - hrp.Position).Unit
                             local dot = lookDir:Dot(toCamera)
                             if dot < -0.3 then
-                                SafeNotify(" ANTI-AIM", LockedTargetPlayer.Name .. "  !", 2, "AntiAim")
+                                SafeNotify("🛡 ANTI-AIM", LockedTargetPlayer.Name .. "  !", 2, "AntiAim")
                             end
                         end
                     end
@@ -6412,7 +6412,7 @@ CombatTab:CreateColorPicker({
     end
 })
 
-CombatTab:CreateSection(" EXTRA AIMBOT SETTINGS")
+CombatTab:CreateSection("⚙ EXTRA AIMBOT SETTINGS")
 
 CombatTab:CreateToggle({
     Name = " Show FOV circle",
@@ -6514,7 +6514,7 @@ CombatTab:CreateDropdown({
     end
 })
 
-CombatTab:CreateSection(" TARGET INDICATOR")
+CombatTab:CreateSection("📍 TARGET INDICATOR")
 
 CombatTab:CreateToggle({
     Name = " Show target name & HP",
@@ -6600,7 +6600,7 @@ CombatTab:CreateDropdown({
     end
 })
 
-CombatTab:CreateSection(" AUTO-SHOOT")
+CombatTab:CreateSection("🔫 AUTO-SHOOT")
 
 CombatTab:CreateToggle({
     Name = " Auto-shoot",
@@ -6621,7 +6621,7 @@ CombatTab:CreateSlider({
     end
 })
 
-CombatTab:CreateSection(" TARGET VISUALS")
+CombatTab:CreateSection("👁 TARGET VISUALS")
 
 CombatTab:CreateToggle({
     Name = " Aim line to target",
@@ -6647,7 +6647,7 @@ CombatTab:CreateToggle({
     end
 })
 
-CombatTab:CreateSection(" TARGET PRIORITY")
+CombatTab:CreateSection("🔢 TARGET PRIORITY")
 
 CombatTab:CreateDropdown({
     Name = " Target selection priority",
@@ -6658,7 +6658,7 @@ CombatTab:CreateDropdown({
     end
 })
 
-CombatTab:CreateSection(" PREDICTION")
+CombatTab:CreateSection("🔮 PREDICTION")
 
 CombatTab:CreateToggle({
     Name = " Motion prediction",
@@ -6689,7 +6689,7 @@ CombatTab:CreateToggle({
     end
 })
 
-CombatTab:CreateSection(" FOV DISTANCE")
+CombatTab:CreateSection("📏 FOV DISTANCE")
 
 CombatTab:CreateToggle({
     Name = " Auto-FOV by distance",
@@ -6721,7 +6721,7 @@ CombatTab:CreateSlider({
     end
 })
 
-CombatTab:CreateSection(" AIMBOT NOTIFICATIONS")
+CombatTab:CreateSection("🔔 AIMBOT NOTIFICATIONS")
 
 CombatTab:CreateToggle({
     Name = " Kill Notify",
@@ -6795,7 +6795,7 @@ CombatTab:CreateToggle({
     end
 })
 
-CombatTab:CreateSection(" TARGET LOCK")
+CombatTab:CreateSection("🔒 TARGET LOCK")
 
 CombatTab:CreateToggle({
     Name = " Persistent Lock ( )",
@@ -6805,7 +6805,7 @@ CombatTab:CreateToggle({
     end
 })
 
-CombatTab:CreateSection(" TEAMS (friends / enemies)")
+CombatTab:CreateSection("🤝 TEAMS (friends / enemies)")
 
 local myTeamLabel = CombatTab:CreateLabel(" Your team: ")
 local function UpdateMyTeamLabel()
@@ -6930,7 +6930,7 @@ CombatTab:CreateButton({
     end
 })
 
-CombatTab:CreateSection(" FRIENDS & TARGET (select from list)")
+CombatTab:CreateSection("👥 FRIENDS & TARGET (select from list)")
 
 local friendAddDD = nil
 local friendRmDD = nil
@@ -8320,7 +8320,7 @@ ESPTab:CreateSlider({
     end
 })
 
-ESPTab:CreateSection(" ARROWS (off-screen pointers)")
+ESPTab:CreateSection("⬅ ARROWS (off-screen pointers)")
 
 ESPTab:CreateToggle({
     Name = " Show arrows off-screen",
@@ -8341,7 +8341,7 @@ ESPTab:CreateColorPicker({
     end
 })
 
-ESPTab:CreateSection(" TEXT & TRACER COLORS")
+ESPTab:CreateSection("🎨 TEXT & TRACER COLORS")
 
 ESPTab:CreateColorPicker({
     Name = " Name color",
@@ -8363,7 +8363,7 @@ ESPTab:CreateColorPicker({
     end
 })
 
-ESPTab:CreateSection(" SNAP LINES (wallhack)")
+ESPTab:CreateSection("📸 SNAP LINES (wallhack)")
 
 ESPTab:CreateToggle({
     Name = " Enable snap lines",
@@ -8384,7 +8384,7 @@ ESPTab:CreateColorPicker({
     end
 })
 
-ESPTab:CreateSection(" AIMBOT TARGET HIGHLIGHT")
+ESPTab:CreateSection("🎯 AIMBOT TARGET HIGHLIGHT")
 
 ESPTab:CreateToggle({
     Name = " Highlight Aimbot target",
@@ -8402,7 +8402,7 @@ ESPTab:CreateColorPicker({
     end
 })
 
-ESPTab:CreateSection(" SKELETON")
+ESPTab:CreateSection("💀 SKELETON")
 
 ESPTab:CreateToggle({
     Name = " Show skeletons",
@@ -8444,7 +8444,7 @@ ESPTab:CreateDropdown({
     end
 })
 
-ESPTab:CreateSection(" EXTRA")
+ESPTab:CreateSection("➕ EXTRA")
 
 ESPTab:CreateToggle({
     Name = " Dots on heads",
@@ -8489,7 +8489,7 @@ ESPTab:CreateColorPicker({
     end
 })
 
-getgenv().ELITE_HUB_ChamsTab:CreateSection(" PLAYER CHAMS")
+getgenv().ELITE_HUB_ChamsTab:CreateSection("🎨 PLAYER CHAMS")
 
 task.spawn(function()
 getgenv().ELITE_HUB_ChamsTab:CreateToggle({
@@ -8572,7 +8572,7 @@ getgenv().ELITE_HUB_ChamsTab:CreateToggle({
 })
 end)
 
-getgenv().ELITE_HUB_ChamsTab:CreateSection(" RAINBOW CHAMS")
+getgenv().ELITE_HUB_ChamsTab:CreateSection("🌈 RAINBOW CHAMS")
 
 getgenv().ELITE_HUB_RainbowChams = false
 getgenv().ELITE_HUB_ChamsTab:CreateToggle({
@@ -8900,7 +8900,7 @@ Players.PlayerAdded:Connect(RefreshESPDD)
 Players.PlayerRemoving:Connect(RefreshESPDD)
 task.delay(1, RefreshESPDD)
 
-ESPTab:CreateSection(" ESP NOTIFICATIONS")
+ESPTab:CreateSection("🔔 ESP NOTIFICATIONS")
 
 ESPTab:CreateToggle({
     Name = " ESP: notifications on",
@@ -8935,7 +8935,7 @@ ESPTab:CreateToggle({
     end
 })
 
-ESPTab:CreateSection(" VISUAL FEATURES")
+ESPTab:CreateSection("👁 VISUAL FEATURES")
 
 ESPTab:CreateToggle({
     Name = " Low HP warning",
@@ -9290,7 +9290,7 @@ Rayfield:Notify({
     Р РђР—Р”Р•Р› РЈР‘РРўР¬ Р’РЎР•РҐ (РћР‘РќРћР’Р›Р•РќРќР«Р™)
     ==============================
 ]]--
-local KillAllSection = KillAllTab:CreateSection(" KILL ALL ENEMIES")
+local KillAllSection = KillAllTab:CreateSection("☠ KILL ALL ENEMIES")
 local safeZoneRadius = 20
 local isActive = false
 local killAllEnabled = true
@@ -9390,7 +9390,7 @@ end)
     РћР‘РќРћР’Р›Р•РќРќР«Р• Р”РћРџРћР›РќРРўР•Р›Р¬РќР«Р• РЎРљР РРџРўР«
     ==============================
 ]]--
-local ScriptsSection = MainTab:CreateSection(" EXTRA SCRIPTS")
+local ScriptsSection = MainTab:CreateSection("➕ EXTRA SCRIPTS")
 
 local function LoadImprovedFlight()
     local UserInputService = game:GetService("UserInputService")
@@ -9776,7 +9776,7 @@ local function SetupParticles(char)
     end)
 end
 
-VisualTab:CreateSection(" PARTICLES")
+VisualTab:CreateSection("✨ PARTICLES")
 
 VisualTab:CreateToggle({
     Name = " Enable particles",
@@ -9901,7 +9901,7 @@ end)
 
 getgenv().ELITE_HUB_NeonBody = false
 getgenv().ELITE_HUB_NeonBodyColor = Color3.fromRGB(0, 255, 255)
-VisualTab:CreateSection(" NEON BODY")
+VisualTab:CreateSection("💡 NEON BODY")
 VisualTab:CreateToggle({
     Name = " Neon Body",
     CurrentValue = false,
@@ -9978,7 +9978,7 @@ getgenv().ELITE_HUB_DamageNumbers = false
 getgenv().ELITE_HUB_DamageNumberColor = Color3.fromRGB(255, 255, 0)
 
 task.spawn(function()
-VisualTab:CreateSection(" HIT EFFECTS")
+VisualTab:CreateSection("💥 HIT EFFECTS")
 VisualTab:CreateToggle({
     Name = " Hit Markers",
     CurrentValue = false,
@@ -10105,7 +10105,7 @@ end)
 getgenv().ELITE_HUB_FireTrail = false
 getgenv().ELITE_HUB_FireTrailColor = Color3.fromRGB(255, 100, 0)
 task.spawn(function()
-VisualTab:CreateSection(" FIRE TRAIL")
+VisualTab:CreateSection("🔥 FIRE TRAIL")
 VisualTab:CreateToggle({
     Name = " Fire Trail",
     CurrentValue = false,
@@ -10187,7 +10187,7 @@ end)
 task.spawn(function()
 local MT = MovementTab
 getgenv().ELITE_HUB_Log("UI", "Section loaded: MOVEMENT")
-MT:CreateSection(" MOVEMENT")
+MT:CreateSection("🏃 MOVEMENT")
 
 getgenv().ELITE_HUB_JumpBoost = false
 MT:CreateToggle({
@@ -10225,7 +10225,7 @@ getgenv().ELITE_HUB_HitboxExpander = false
 getgenv().ELITE_HUB_HitboxSize = 10
 MT = CombatPlusTab
 getgenv().ELITE_HUB_Log("UI", "Section loaded: COMBAT+")
-MT:CreateSection(" COMBAT+")
+MT:CreateSection("⚔ COMBAT+")
 MT:CreateToggle({
     Name = " Hitbox Expander",
     CurrentValue = false,
@@ -10287,7 +10287,7 @@ end)
 
 MT = CameraTeleportTab
 getgenv().ELITE_HUB_Log("UI", "Section loaded: CAMERA")
-MT:CreateSection(" CAMERA & TELEPORT")
+MT:CreateSection("📷 CAMERA & TELEPORT")
 
 getgenv().ELITE_HUB_FreeCam = false
 MT:CreateToggle({
@@ -10379,7 +10379,7 @@ MT:CreateButton({
 
 MT = VisualTab
 getgenv().ELITE_HUB_Log("UI", "Section loaded: ENV")
-MT:CreateSection(" ENVIRONMENT")
+MT:CreateSection("🌳 ENVIRONMENT")
 
 getgenv().ELITE_HUB_NightMode = false
 getgenv().ELITE_HUB_NightOrigClock = nil
@@ -10447,7 +10447,7 @@ MT:CreateToggle({
 
 MT = VisualTab
 getgenv().ELITE_HUB_Log("UI", "Section loaded: VISUAL+")
-MT:CreateSection(" ESP+")
+MT:CreateSection("👁 ESP+")
 
 getgenv().ELITE_HUB_ItemESP = false
 MT:CreateToggle({
@@ -10498,7 +10498,7 @@ end)
 
 MT = UtilitiesTab
 getgenv().ELITE_HUB_Log("UI", "Section loaded: UTILS")
-MT:CreateSection(" UTILITIES")
+MT:CreateSection("🔧 UTILITIES")
 
 
 MT:CreateToggle({
@@ -10611,7 +10611,7 @@ local function ELITE_HUB_MusicPlayTrack(track)
     end)
 end
 
-MT:CreateSection(" MUSIC PLAYER")
+MT:CreateSection("🎵 MUSIC PLAYER")
 MT:CreateButton({
     Name = " Load Playlist",
     Callback = function()
@@ -10742,7 +10742,7 @@ MT:CreateButton({
 
 MT = CombatPlusTab
 getgenv().ELITE_HUB_Log("UI", "Section loaded: COMBAT+ (2)")
-MT:CreateSection(" COMBAT")
+MT:CreateSection("⚔ COMBAT")
 
 getgenv().ELITE_HUB_AutoParry = false
 MT:CreateToggle({
@@ -10923,7 +10923,7 @@ end)
 
 MT = VisualTab
 getgenv().ELITE_HUB_Log("UI", "Section loaded: VISUAL+ (2)")
-MT:CreateSection(" VISUAL+")
+MT:CreateSection("👁 VISUAL+")
 
 getgenv().ELITE_HUB_XRay = false
 MT:CreateToggle({
@@ -10989,7 +10989,7 @@ MT:CreateToggle({
 
 MT = MovementTab
 getgenv().ELITE_HUB_Log("UI", "Section loaded: MOVEMENT sliders")
-MT:CreateSection(" SPEED")
+MT:CreateSection("🏃 SPEED")
 
 MT:CreateSlider({
     Name = " WalkSpeed",
@@ -11041,7 +11041,7 @@ player.CharacterAdded:Connect(function(char)
 end)
 
 MT = VisualTab
-MT:CreateSection(" WORLD SLIDERS")
+MT:CreateSection("🌍 WORLD SLIDERS")
 MT:CreateSlider({
     Name = " Gravity",
     Range = {0, 300},
@@ -11065,7 +11065,7 @@ MT:CreateSlider({
 })
 
 MT = UtilitiesTab
-MT:CreateSection(" CHAT")
+MT:CreateSection("💬 CHAT")
 
 getgenv().ELITE_HUB_ChatSpammer = false
 getgenv().ELITE_HUB_ChatSpammerMsg = "ELITE HUB"
@@ -11101,7 +11101,7 @@ MT:CreateInput({
 })
 
 MT = UtilitiesTab
-MT:CreateSection(" SYSTEM")
+MT:CreateSection("⚙ SYSTEM")
 
 getgenv().ELITE_HUB_RejoinOnKick = false
 MT:CreateToggle({
@@ -11129,7 +11129,7 @@ MT:CreateToggle({
 })
 
 MT = CameraTeleportTab
-MT:CreateSection(" TELEPORT")
+MT:CreateSection("🌀 TELEPORT")
 MT:CreateButton({
     Name = " Teleport to Spawn",
     Callback = function()
@@ -11182,7 +11182,7 @@ MT:CreateToggle({
 })
 
 MT = MovementTab
-MT:CreateSection(" JUMP")
+MT:CreateSection("👟 JUMP")
 getgenv().ELITE_HUB_InfiniteJump = false
 MT:CreateToggle({
     Name = " Infinite Jump",
@@ -11344,7 +11344,7 @@ MT:CreateToggle({
 
 getgenv().ELITE_HUB_Waypoint = nil
 MT = CameraTeleportTab
-MT:CreateSection(" WAYPOINT")
+MT:CreateSection("📍 WAYPOINT")
 MT:CreateButton({
     Name = " Set Waypoint",
     Callback = function()
@@ -11375,7 +11375,7 @@ MT:CreateButton({
 })
 
 MT = UtilitiesTab
-MT:CreateSection(" SERVER")
+MT:CreateSection("📡 SERVER")
 MT:CreateButton({
     Name = " Rejoin Server",
     Callback = function()
@@ -11835,7 +11835,7 @@ local function clearEffects(char)
     end
 end
 
-local re1 = RangeTab:CreateSection(" EFFECTS")
+local re1 = RangeTab:CreateSection("✨ EFFECTS")
 
 RangeTab:CreateSlider({
     Name = " R",
@@ -11919,7 +11919,7 @@ RangeTab:CreateSlider({
     end
 })
 
-local re2 = RangeTab:CreateSection(" SPIN BOT")
+local re2 = RangeTab:CreateSection("🔄 SPIN BOT")
 
 local spinAngle = 0
 local spinConn = nil
@@ -12021,7 +12021,7 @@ RangeTab:CreateToggle({
     end
 })
 
-local re3 = RangeTab:CreateSection(" SPEED BOOST")
+local re3 = RangeTab:CreateSection("⚡ SPEED BOOST")
 
 getgenv().ELITE_HUB_RangeSpeed = false
 getgenv().ELITE_HUB_RangeSpeedVal = 24
@@ -12071,7 +12071,7 @@ task.spawn(function()
     end
 end)
 
-getgenv().ELITE_HUB_ChamsTab:CreateSection(" WEAPON CHAMS")
+getgenv().ELITE_HUB_ChamsTab:CreateSection("🗡 WEAPON CHAMS")
 
 getgenv().ELITE_HUB_RangeWeaponChams = false
 getgenv().ELITE_HUB_RangeWeaponColor = Color3.fromRGB(150, 70, 255)
