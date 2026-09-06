@@ -10414,6 +10414,205 @@ MT:CreateToggle({
     end
 })
 
+-- ═══════════════════════════════════════════════════════════════════
+-- CHINESE HAT — конусная шляпа (нon ла) на голове, ForceField, 3D
+-- ═══════════════════════════════════════════════════════════════════
+task.spawn(function()
+local MT = VisualPlusTab
+getgenv().ELITE_HUB_Log("UI", "Section loaded: CHINESE HAT")
+MT:CreateSection("🎩 CHINESE HAT")
+
+getgenv().ELITE_HUB_ChineseHatOn = false
+getgenv().ELITE_HUB_ChineseHatY = 0.25
+getgenv().ELITE_HUB_ChineseHatConeH = 1.4
+getgenv().ELITE_HUB_ChineseHatR = 1.6
+getgenv().ELITE_HUB_ChineseHatColor = Color3.fromRGB(222, 184, 135)
+getgenv().ELITE_HUB_ChineseHatSpin = false
+getgenv().ELITE_HUB_ChineseHatSpinSpeed = 50
+local hatConn = nil
+
+local function RemoveHat(char)
+    local old = char and char:FindFirstChild("ELITEHUB_CHINESE_HAT")
+    if old then pcall(function() old:Destroy() end) end
+end
+
+local function BuildHat(char)
+    if not getgenv().ELITE_HUB_ChineseHatOn then return end
+    if not char then return end
+    local head = char:FindFirstChild("Head")
+    if not head then return end
+
+    RemoveHat(char)
+
+    local hat = Instance.new("Model")
+    hat.Name = "ELITEHUB_CHINESE_HAT"
+    hat.Parent = char
+
+    local R = getgenv().ELITE_HUB_ChineseHatR
+    local H = getgenv().ELITE_HUB_ChineseHatConeH
+    local Y = getgenv().ELITE_HUB_ChineseHatY
+    local COL = getgenv().ELITE_HUB_ChineseHatColor
+    local STEPS = 40
+
+    local function weld(part)
+        part.CanCollide = false
+        part.Anchored = false
+        part.CastShadow = false
+        part.Parent = hat
+        local w = Instance.new("WeldConstraint")
+        w.Part0 = part
+        w.Part1 = head
+        w.Parent = part
+    end
+
+    for i = 0, STEPS do
+        local t = i / STEPS
+        local radius = R * (1 - t)
+        local yPos = Y + t * H
+        local thick = H / STEPS + 0.01
+        if radius < 0.05 then radius = 0.05 end
+
+        local disc = Instance.new("Part")
+        disc.Shape = Enum.PartType.Cylinder
+        disc.Size = Vector3.new(thick, radius * 2, radius * 2)
+        disc.Material = Enum.Material.ForceField
+        disc.Color = COL
+        disc.CFrame = head.CFrame
+            * CFrame.new(0, yPos, 0)
+            * CFrame.Angles(0, 0, math.pi / 2)
+        weld(disc)
+    end
+
+    local tip = Instance.new("Part")
+    tip.Shape = Enum.PartType.Ball
+    tip.Size = Vector3.new(0.15, 0.18, 0.15)
+    tip.Material = Enum.Material.ForceField
+    tip.Color = COL
+    tip.CFrame = head.CFrame * CFrame.new(0, Y + H + 0.05, 0)
+    weld(tip)
+
+    local brim = Instance.new("Part")
+    brim.Shape = Enum.PartType.Cylinder
+    brim.Size = Vector3.new(0.06, R * 2 + 0.4, R * 2 + 0.4)
+    brim.Material = Enum.Material.ForceField
+    brim.Color = COL
+    brim.CFrame = head.CFrame
+        * CFrame.new(0, Y - 0.02, 0)
+        * CFrame.Angles(0, 0, math.pi / 2)
+    weld(brim)
+
+    if hatConn then hatConn:Disconnect() hatConn = nil end
+    if getgenv().ELITE_HUB_ChineseHatSpin then
+        local RunService = game:GetService("RunService")
+        hatConn = RunService.Heartbeat:Connect(function(dt)
+            pcall(function()
+                if not getgenv().ELITE_HUB_ChineseHatSpin then
+                    if hatConn then hatConn:Disconnect() hatConn = nil end
+                    return
+                end
+                local h = char and char:FindFirstChild("ELITEHUB_CHINESE_HAT")
+                if not h then return end
+                local hrp = char:FindFirstChild("HumanoidRootPart")
+                if not hrp then return end
+                local spd = getgenv().ELITE_HUB_ChineseHatSpinSpeed or 50
+                h:SetPrimaryPartCFrame(hrp.CFrame * CFrame.Angles(0, math.rad(spd * dt * 3), 0))
+            end)
+        end)
+    end
+end
+
+MT:CreateToggle({
+    Name = "🎩 Chinese Hat",
+    CurrentValue = false,
+    Callback = function(value)
+        getgenv().ELITE_HUB_ChineseHatOn = value
+        getgenv().ELITE_HUB_Log("MODS", "Chinese Hat: " .. tostring(value))
+        if value then
+            BuildHat(player.Character)
+        else
+            RemoveHat(player.Character)
+            if hatConn then hatConn:Disconnect() hatConn = nil end
+        end
+    end
+})
+
+MT:CreateSlider({
+    Name = "⬆️ Hat Height (Y)",
+    Range = {0, 1.5},
+    Increment = 0.05,
+    CurrentValue = 0.25,
+    Callback = function(value)
+        getgenv().ELITE_HUB_ChineseHatY = value
+        if getgenv().ELITE_HUB_ChineseHatOn then BuildHat(player.Character) end
+    end
+})
+
+MT:CreateSlider({
+    Name = "🔺 Cone Height",
+    Range = {0.3, 3},
+    Increment = 0.1,
+    CurrentValue = 1.4,
+    Callback = function(value)
+        getgenv().ELITE_HUB_ChineseHatConeH = value
+        if getgenv().ELITE_HUB_ChineseHatOn then BuildHat(player.Character) end
+    end
+})
+
+MT:CreateSlider({
+    Name = "📏 Cone Radius",
+    Range = {0.5, 3},
+    Increment = 0.1,
+    CurrentValue = 1.6,
+    Callback = function(value)
+        getgenv().ELITE_HUB_ChineseHatR = value
+        if getgenv().ELITE_HUB_ChineseHatOn then BuildHat(player.Character) end
+    end
+})
+
+MT:CreateColorPicker({
+    Name = "🎨 Hat Color",
+    Color = Color3.fromRGB(222, 184, 135),
+    Callback = function(value)
+        getgenv().ELITE_HUB_ChineseHatColor = value
+        if getgenv().ELITE_HUB_ChineseHatOn then BuildHat(player.Character) end
+    end
+})
+
+MT:CreateToggle({
+    Name = "🔄 Spin",
+    CurrentValue = false,
+    Callback = function(value)
+        getgenv().ELITE_HUB_ChineseHatSpin = value
+        getgenv().ELITE_HUB_Log("MODS", "Chinese Hat Spin: " .. tostring(value))
+        if not value and hatConn then
+            hatConn:Disconnect()
+            hatConn = nil
+        elseif value and getgenv().ELITE_HUB_ChineseHatOn then
+            BuildHat(player.Character)
+        end
+    end
+})
+
+MT:CreateSlider({
+    Name = "🔄 Spin Speed",
+    Range = {10, 300},
+    Increment = 5,
+    CurrentValue = 50,
+    Callback = function(value)
+        getgenv().ELITE_HUB_ChineseHatSpinSpeed = value
+    end
+})
+
+player.CharacterAdded:Connect(function(char)
+    task.wait(0.6)
+    pcall(function()
+        if getgenv().ELITE_HUB_ChineseHatOn then
+            BuildHat(char)
+        end
+    end)
+end)
+end)
+
 MT = MovementTab
 getgenv().ELITE_HUB_Log("UI", "Section loaded: MOVEMENT sliders")
 MT:CreateSection("⚡ SPEED")
