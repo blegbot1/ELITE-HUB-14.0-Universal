@@ -1,4 +1,4 @@
-﻿local Rayfield = (function()
+local Rayfield = (function()
 -- EliteHubUI.lua вЂ” Custom UI library in mini-menu style
 -- Dark purple theme with tabs, buttons, toggles, sliders, inputs, dropdowns, color pickers
 
