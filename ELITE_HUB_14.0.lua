@@ -8394,10 +8394,16 @@ task.spawn(function()
         RestoreOriginals(plr)
     end)
 
-    local chamFrameCount = 0
+    Players.PlayerAdded:Connect(function(plr)
+        plr.CharacterAdded:Connect(function(char)
+            task.wait(1)
+            if ESPConfig.ChamsEnabled then
+                pcall(ApplyCham, plr)
+            end
+        end)
+    end)
+
     RunService.RenderStepped:Connect(function()
-        chamFrameCount = chamFrameCount + 1
-        if chamFrameCount % 10 ~= 0 then return end
         for _, plr in ipairs(Players:GetPlayers()) do
             pcall(ApplyCham, plr)
         end
