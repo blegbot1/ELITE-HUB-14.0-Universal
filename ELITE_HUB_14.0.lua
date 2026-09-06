@@ -12094,7 +12094,7 @@ RangeTab:CreateSlider({
     Increment = 5,
     CurrentValue = 150,
     Callback = function(value)
-        RC.Color1 = Color3.fromRGB(value, RC.Color1.G * 255, RC.Color1.B * 255)
+        RC.Color1 = Color3.new(value / 255, RC.Color1.G, RC.Color1.B)
     end
 })
 
@@ -12105,7 +12105,7 @@ RangeTab:CreateSlider({
     CurrentValue = 70,
     Callback = function(value)
         local c = RC.Color1
-        RC.Color1 = Color3.fromRGB(c.R * 255, value, c.B * 255)
+        RC.Color1 = Color3.new(c.R, value / 255, c.B)
     end
 })
 
@@ -12116,7 +12116,7 @@ RangeTab:CreateSlider({
     CurrentValue = 255,
     Callback = function(value)
         local c = RC.Color1
-        RC.Color1 = Color3.fromRGB(c.R * 255, c.G * 255, value)
+        RC.Color1 = Color3.new(c.R, c.G, value / 255)
     end
 })
 
