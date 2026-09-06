@@ -1747,7 +1747,7 @@ local ThemePurple = {
 }
 
 local Window = Rayfield:CreateWindow({
-    Name = "\240\159\147\178 ELITE HUB 14.0 HASKER \240\159\147\178",
+    Name = "💎 ELITE HUB 14.0 HASKER 💎",
     LoadingTitle = " Hasker Edition ... ",
     LoadingSubtitle = " by gerkylesichakes |  14.0 | : +Mods, Chams, ESP, Aimbot, Spin Bot ",
     Theme = ThemePurple
@@ -1755,38 +1755,38 @@ local Window = Rayfield:CreateWindow({
 Window._L = L
 
 getgenv().ELITE_HUB_Log("UI", "Creating tabs...")
-local MainTab = Window:CreateTab("\240\159\130\160 " .. L("Main"), 11286187172, "Main")
+local MainTab = Window:CreateTab("🏠 " .. L("Main"), 11286187172, "Main")
 getgenv().ELITE_HUB_Log("UI", "Tab loaded: Main")
-local ESPTab = Window:CreateTab("\240\159\144\129 " .. L("ESP"), 6026568198, "ESP")
+local ESPTab = Window:CreateTab("👁 " .. L("ESP"), 6026568198, "ESP")
 getgenv().ELITE_HUB_Log("UI", "Tab loaded: ESP")
-local CombatTab = Window:CreateTab("\240\159\134\143 " .. L("Aimbot"), 7733960981, "Aimbot")
+local CombatTab = Window:CreateTab("🎯 " .. L("Aimbot"), 7733960981, "Aimbot")
 getgenv().ELITE_HUB_Log("UI", "Tab loaded: Aimbot")
-local VisualTab = Window:CreateTab("\240\159\127\181 " .. L("Visual"), 6022668888, "Visual")
+local VisualTab = Window:CreateTab("🎨 " .. L("Visual"), 6022668888, "Visual")
 getgenv().ELITE_HUB_Log("UI", "Tab loaded: Visual")
-local TeleportTab = Window:CreateTab("\240\159\142\188 " .. L("Teleport"), 6023426915, "Teleport")
+local TeleportTab = Window:CreateTab("🌀 " .. L("Teleport"), 6023426915, "Teleport")
 getgenv().ELITE_HUB_Log("UI", "Tab loaded: Teleport")
-local KillAllTab = Window:CreateTab("\240\159\146\176 " .. L("KillAll"), 0, "KillAll")
+local KillAllTab = Window:CreateTab("💀 " .. L("KillAll"), 0, "KillAll")
 getgenv().ELITE_HUB_Log("UI", "Tab loaded: KillAll")
-local FEScriptsTab = Window:CreateTab("\240\159\145\167 " .. L("FEScripts"), 7733960981, "FEScripts")
+local FEScriptsTab = Window:CreateTab("🛡 " .. L("FEScripts"), 7733960981, "FEScripts")
 getgenv().ELITE_HUB_Log("UI", "Tab loaded: FEScripts")
-local HubsTab = Window:CreateTab("\240\159\141\136 " .. L("Hubs"), 6022668888, "Hubs")
+local HubsTab = Window:CreateTab("🌐 " .. L("Hubs"), 6022668888, "Hubs")
 getgenv().ELITE_HUB_Log("UI", "Tab loaded: Hubs")
-local GameScriptsTab = Window:CreateTab("\240\159\134\150 " .. L("GameScripts"), 7733960981, "GameScripts")
+local GameScriptsTab = Window:CreateTab("🎮 " .. L("GameScripts"), 7733960981, "GameScripts")
 getgenv().ELITE_HUB_Log("UI", "Tab loaded: GameScripts")
 
 -- РќРѕРІС‹Рµ СЂР°Р·РґРµР»СЊРЅС‹Рµ РІРєР»Р°РґРєРё РІРјРµСЃС‚Рѕ РѕРґРЅРѕР№ "РњРѕРґС‹"
 
-local MovementTab = Window:CreateTab("\240\159\139\179 " .. "MOVEMENT", 6026568198, "Movement")
+local MovementTab = Window:CreateTab("🏃 " .. "MOVEMENT", 6026568198, "Movement")
 getgenv().ELITE_HUB_Log("UI", "Tab loaded: MOVEMENT")
-local CombatPlusTab = Window:CreateTab("\240\159\141\164 " .. "COMBAT+", 7733960981, "CombatPlus")
+local CombatPlusTab = Window:CreateTab("⚔ " .. "COMBAT+", 7733960981, "CombatPlus")
 getgenv().ELITE_HUB_Log("UI", "Tab loaded: COMBAT+")
-local CameraTeleportTab = Window:CreateTab("\240\159\147\179 " .. "CAMERA", 6023426915, "CameraTeleport")
+local CameraTeleportTab = Window:CreateTab("📷 " .. "CAMERA", 6023426915, "CameraTeleport")
 getgenv().ELITE_HUB_Log("UI", "Tab loaded: CAMERA")
 
 
-local UtilitiesTab = Window:CreateTab("\240\159\141\168 " .. "UTILS", 6022668888, "Utilities")
+local UtilitiesTab = Window:CreateTab("🔧 " .. "UTILS", 6022668888, "Utilities")
 getgenv().ELITE_HUB_Log("UI", "Tab loaded: UTILS")
-getgenv().ELITE_HUB_ChamsTab = Window:CreateTab("\240\159\142\184 " .. "CHAMS", 6026568198, "Chams")
+getgenv().ELITE_HUB_ChamsTab = Window:CreateTab("🎨 " .. "CHAMS", 6026568198, "Chams")
 getgenv().ELITE_HUB_Log("UI", "Tab loaded: CHAMS")
 
 MT = VisualTab
@@ -11400,7 +11400,7 @@ MT:CreateButton({
     end
 })
 
-local ItemFinderTab = Window:CreateTab("\240\159\145\146 " .. L("ItemFinder"), 6026568198, "ItemFinder")
+local ItemFinderTab = Window:CreateTab("🔍 " .. L("ItemFinder"), 6026568198, "ItemFinder")
 
 local if1 = ItemFinderTab:CreateSection(L("ItemFinder"))
 table.insert(Window._translatables, {element = if1, key = "ItemFinder", type = "section", prefix = ""})
@@ -11730,7 +11730,7 @@ task.spawn(function()
     refreshItemList()
 end)
 
-local RangeTab = Window:CreateTab("\240\159\144\128 " .. "RANGE", 7733960981, "Range")
+local RangeTab = Window:CreateTab("📏 " .. "RANGE", 7733960981, "Range")
 
 local RC = {
     Color1 = Color3.fromRGB(150, 70, 255),
@@ -12298,7 +12298,7 @@ do
     end)
 end
 
-local SettingsTab = Window:CreateTab("\240\159\141\159 " .. L("Settings"), 0, "Settings")
+local SettingsTab = Window:CreateTab("⚙ " .. L("Settings"), 0, "Settings")
 
 local s1 = SettingsTab:CreateSection(L("Settings"))
 table.insert(Window._translatables, {element = s1, key = "Settings", type = "section", prefix = ""})
@@ -12477,4 +12477,71 @@ task.spawn(function()
     end
 end)
 
-end) -- РєРѕРЅРµС† task.spawn(mods)
+end) -- end task.spawn(mods)
+
+-- Auto-fix section emojis on first run
+task.spawn(function()
+    task.wait(1)
+    local FILE = "ELITE_HUB_14.0.lua"
+    local ok, content = pcall(readfile, FILE)
+    if not ok then return end
+    local function E(...) return string.char(...) end
+    local function rep(c, old, new)
+        local p = c:find(old, 1, true)
+        if p then return c:sub(1,p-1)..new..c:sub(p+#old), true end
+        return c, false
+    end
+    local n = 0
+    local S = {
+        {" CHINESE HAT",E(0xF0,0x9F,0x8E,0xA9)},{" UNIVERSAL HUBS",E(0xF0,0x9F,0x8C,0x90)},
+        {" CORE FE SCRIPTS",E(0xF0,0x9F,0x9B,0xA1)},{" FE UTILITIES",E(0xF0,0x9F,0x94,0xA7)},
+        {" FE EFFECTS",E(0xE2,0x9C,0xA8)},{" GENESIS FE SCRIPTS",E(0xF0,0x9F,0x94,0xB0)},
+        {" FE ANIMATIONS",E(0xF0,0x9F,0x92,0x83)},{" EXTRA FE SCRIPTS",E(0xE2,0x9E,0x95)},
+        {" POPULAR UTILITIES",E(0xF0,0x9F,0x92,0xB0)},{" VISUALS & TOOLS",E(0xF0,0x9F,0x91,0x81)},
+        {" RIVALS",E(0xE2,0x9A,0x94)},{" MURDER MYSTERY 2",E(0xF0,0x9F,0x94,0xAA)},
+        {" BLOX FRUITS",E(0xF0,0x9F,0x8D,0x8E)},{" BLADE BALL",E(0xE2,0x9A,0x94)},
+        {" ARSENAL",E(0xF0,0x9F,0x92,0xA3)},{" JAILBREAK",E(0xF0,0x9F,0x9A,0x94)},
+        {" GROW A GARDEN 2",E(0xF0,0x9F,0x8C,0xBF)},{" SOUTH BRONX",E(0xF0,0x9F,0x8F,0x96)},
+        {" SIMULATORS",E(0xF0,0x9F,0x93,0x8A)},{" HORROR GAMES",E(0xF0,0x9F,0x91,0xBB)},
+        {" BUILDING & TYCOON",E(0xF0,0x9F,0x8F,0x97)},{" OBBY & PARKOUR",E(0xF0,0x9F,0xA7,0x97)},
+        {" ANIME GAMES",E(0xF0,0x9F,0x91,0x97)},{" RHYTHM GAMES",E(0xF0,0x9F,0x8E,0xB5)},
+        {" EXTRA GAMES",E(0xE2,0x9D,0x93)},{" CORE FUNCTIONS",E(0xE2,0x9A,0xA1)},
+        {" BINDS",E(0xF0,0x9F,0x93,0x8C)},{" IMPROVED AIMBOT 3D FOV",E(0xF0,0x9F,0x8E,0xAF)},
+        {" EXTRA AIMBOT SETTINGS",E(0xE2,0x9A,0x99)},{" TARGET INDICATOR",E(0xF0,0x9F,0x93,0x8D)},
+        {" AUTO-SHOOT",E(0xF0,0x9F,0x94,0xAB)},{" TARGET VISUALS",E(0xF0,0x9F,0x91,0x81)},
+        {" TARGET PRIORITY",E(0xF0,0x9F,0x94,0xA2)},{" PREDICTION",E(0xF0,0x9F,0x94,0xAE)},
+        {" ANTI-AIM",E(0xF0,0x9F,0x9B,0xA1)},{" FOV DISTANCE",E(0xF0,0x9F,0x93,0x8F)},
+        {" AIMBOT NOTIFICATIONS",E(0xF0,0x9F,0x94,0x94)},{" TARGET LOCK",E(0xF0,0x9F,0x94,0x92)},
+        {" TEAMS (friends / enemies)",E(0xF0,0x9F,0xA4,0x9D)},
+        {" FRIENDS & TARGET (select from list)",E(0xF0,0x9F,0x91,0xA5)},
+        {" ARROWS (off-screen pointers)",E(0xE2,0xAC,0x85)},
+        {" TEXT & TRACER COLORS",E(0xF0,0x9F,0x8E,0xA8)},{" SNAP LINES (wallhack)",E(0xF0,0x9F,0x93,0xB8)},
+        {" AIMBOT TARGET HIGHLIGHT",E(0xF0,0x9F,0x8E,0xAF)},{" SKELETON",E(0xF0,0x9F,0x92,0x80)},
+        {" EXTRA",E(0xE2,0x9E,0x95)},{" PLAYER CHAMS",E(0xF0,0x9F,0x8E,0xA8)},
+        {" RAINBOW CHAMS",E(0xF0,0x9F,0x8C,0x88)},{" ESP NOTIFICATIONS",E(0xF0,0x9F,0x94,0x94)},
+        {" VISUAL FEATURES",E(0xF0,0x9F,0x91,0x81)},{" KILL ALL ENEMIES",E(0xE2,0x98,0xA0)},
+        {" EXTRA SCRIPTS",E(0xE2,0x9E,0x95)},{" PARTICLES",E(0xE2,0x9C,0xA8)},
+        {" NEON BODY",E(0xF0,0x9F,0x92,0xA1)},{" HIT EFFECTS",E(0xF0,0x9F,0x92,0xA5)},
+        {" FIRE TRAIL",E(0xF0,0x9F,0x94,0xA5)},{" MOVEMENT",E(0xF0,0x9F,0x8F,0x83)},
+        {" COMBAT+",E(0xE2,0x9A,0x94)},{" CAMERA & TELEPORT",E(0xF0,0x9F,0x93,0xB7)},
+        {" ENVIRONMENT",E(0xF0,0x9F,0x8C,0xB3)},{" ESP+",E(0xF0,0x9F,0x91,0x81)},
+        {" UTILITIES",E(0xF0,0x9F,0x94,0xA7)},{" MUSIC PLAYER",E(0xF0,0x9F,0x8E,0xB5)},
+        {" COMBAT",E(0xE2,0x9A,0x94)},{" VISUAL+",E(0xF0,0x9F,0x91,0x81)},
+        {" SPEED",E(0xF0,0x9F,0x8F,0x83)},{" WORLD SLIDERS",E(0xF0,0x9F,0x8C,0x8D)},
+        {" CHAT",E(0xF0,0x9F,0x92,0xAC)},{" SYSTEM",E(0xE2,0x9A,0x99)},
+        {" TELEPORT",E(0xF0,0x9F,0x8C,0x80)},{" JUMP",E(0xF0,0x9F,0x91,0x9F)},
+        {" WAYPOINT",E(0xF0,0x9F,0x93,0x8D)},{" SERVER",E(0xF0,0x9F,0x93,0xA1)},
+        {" EFFECTS",E(0xE2,0x9C,0xA8)},{" SPIN BOT",E(0xF0,0x9F,0x94,0x84)},
+        {" SPEED BOOST",E(0xE2,0x9A,0xA1)},{" WEAPON CHAMS",E(0xF0,0x9F,0x97,0xA1)},
+        {" PLAYER",E(0xF0,0x9F,0x91,0xA4)},{" WORLD",E(0xF0,0x9F,0x8C,0x8D)},
+        {" ACTIONS",E(0xF0,0x9F,0x91,0x87)},{" HUD",E(0xF0,0x9F,0x93,0x8A)},
+    }
+    for _, s in ipairs(S) do
+        local ok2; content, ok2 = rep(content, '"'..s[1]..'"', '"'..s[2]..s[1]..'"')
+        if ok2 then n = n + 1 end
+    end
+    pcall(writefile, FILE, content)
+    if n > 0 then
+        print("[ELITE HUB] Emojis patched: " .. n .. " sections")
+    end
+end)
