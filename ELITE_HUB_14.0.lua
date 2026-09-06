@@ -2437,7 +2437,7 @@ end
 
 local function DestroyScript()
     Rayfield:Notify({
-        Title = " Shutting down...",
+        Title = "⚡ Shutting down...",
         Content = "ELITE HUB is being unloaded",
         Duration = 1.5
     })
@@ -2577,7 +2577,7 @@ end
 local function LoadScript(name, url)
     task.spawn(function()
         Rayfield:Notify({
-            Title = " Loading...",
+            Title = "⏳ Loading...",
             Content = name .. " is launching",
             Duration = 2
         })
@@ -2592,14 +2592,14 @@ local function LoadScript(name, url)
         
         if success then
             Rayfield:Notify({
-                Title = " !",
-                Content = name .. " ",
+                Title = "✅ Done!",
+                Content = name .. " loaded",
                 Duration = 3
             })
         else
             Rayfield:Notify({
-                Title = " !",
-                Content = "   " .. name,
+                Title = "✅ Done!",
+                Content = "Failed to load " .. name,
                 Duration = 5
             })
             warn("Script Load Error:", name, err)
@@ -4582,8 +4582,8 @@ local function ToggleWallhop()
             performWallJump()
         end)
         Rayfield:Notify({
-            Title = " WallHop",
-            Content = "WallHop  (: " .. tostring(wallhopBindKey.Name) .. ")",
+            Title = "🦘 WallHop",
+            Content = "WallHop enabled" .. tostring(wallhopBindKey.Name) .. ")",
             Duration = 3
         })
     else
@@ -4592,8 +4592,8 @@ local function ToggleWallhop()
             wallhopConnection = nil
         end
         Rayfield:Notify({
-            Title = " WallHop",
-            Content = "WallHop ",
+            Title = "🦘 WallHop",
+            Content = "WallHop disabled",
             Duration = 3
         })
     end
@@ -5149,7 +5149,7 @@ function ToggleFly()
         end
 
         Rayfield:Notify({
-            Title = " Fly",
+            Title = "✈️ Fly",
             Content = "Fly  (: " .. speeds .. ")",
             Duration = 3
         })
@@ -5191,7 +5191,7 @@ function ToggleFly()
         end
 
         Rayfield:Notify({
-            Title = " Fly",
+            Title = "✈️ Fly",
             Content = "Fly ",
             Duration = 3
         })
@@ -5261,7 +5261,7 @@ function ToggleNoclip()
             end
         end)
         Rayfield:Notify({
-            Title = " Noclip",
+            Title = "👻 Noclip",
             Content = "Noclip ",
             Duration = 3
         })
@@ -5280,7 +5280,7 @@ function ToggleNoclip()
             end
         end
         Rayfield:Notify({
-            Title = " Noclip",
+            Title = "👻 Noclip",
             Content = "Noclip ",
             Duration = 3
         })
@@ -5322,8 +5322,8 @@ MainTab:CreateButton({
     Callback = function()
         speeds = speeds + 1
         Rayfield:Notify({
-            Title = "  Fly",
-            Content = ": " .. speeds,
+                Title = "⬇️ Fly Speed",
+                Content = "Speed: " .. speeds,
             Duration = 2
         })
     end
@@ -5335,14 +5335,14 @@ MainTab:CreateButton({
         if speeds > 1 then
             speeds = speeds - 1
             Rayfield:Notify({
-                Title = "  Fly",
-                Content = ": " .. speeds,
+                Title = "⬆️ Fly Speed",
+                Content = "Speed: " .. speeds,
                 Duration = 2
             })
         else
             Rayfield:Notify({
-                Title = " ",
-                Content = " : 1",
+                Title = "✅ Reset",
+                Content = "Speed: 1",
                 Duration = 2
             })
         end
@@ -5369,14 +5369,14 @@ MainTab:CreateInput({
         if success and keyEnum then
             wallhopBindKey = keyEnum
             Rayfield:Notify({
-                Title = "  ",
-                Content = " : " .. keyName,
+                Title = "✅ Bind Set",
+                Content = "Key: " .. keyName,
                 Duration = 3
             })
         else
             Rayfield:Notify({
-                Title = " ",
-                Content = "  !",
+                Title = "❌ Error",
+                Content = "Invalid key!",
                 Duration = 3
             })
         end
@@ -5394,9 +5394,9 @@ MainTab:CreateInput({
         local success, keyEnum = pcall(function() return Enum.KeyCode[keyName] end)
         if success and keyEnum then
             BindConfig.Fly = keyName
-            Rayfield:Notify({ Title = "  Fly", Content = " : " .. keyName, Duration = 2 })
+            Rayfield:Notify({ Title = "✅ Fly Bound", Content = "Key: " .. keyName, Duration = 2 })
         else
-            Rayfield:Notify({ Title = " ", Content = "  !", Duration = 2 })
+            Rayfield:Notify({ Title = "❌ Error", Content = "Invalid key!", Duration = 2 })
         end
     end
 })
@@ -5410,9 +5410,9 @@ MainTab:CreateInput({
         local success, keyEnum = pcall(function() return Enum.KeyCode[keyName] end)
         if success and keyEnum then
             BindConfig.Noclip = keyName
-            Rayfield:Notify({ Title = "  Noclip", Content = " : " .. keyName, Duration = 2 })
+            Rayfield:Notify({ Title = "✅ Noclip Bound", Content = "Key: " .. keyName, Duration = 2 })
         else
-            Rayfield:Notify({ Title = " ", Content = "  !", Duration = 2 })
+            Rayfield:Notify({ Title = "❌ Error", Content = "Invalid key!", Duration = 2 })
         end
     end
 })
@@ -5426,9 +5426,9 @@ MainTab:CreateInput({
         local success, keyEnum = pcall(function() return Enum.KeyCode[keyName] end)
         if success and keyEnum then
             BindConfig.SpeedBoost = keyName
-            Rayfield:Notify({ Title = "  Speed Boost", Content = " : " .. keyName, Duration = 2 })
+            Rayfield:Notify({ Title = "✅ Speed Bound", Content = "Key: " .. keyName, Duration = 2 })
         else
-            Rayfield:Notify({ Title = " ", Content = "  !", Duration = 2 })
+            Rayfield:Notify({ Title = "❌ Error", Content = "Invalid key!", Duration = 2 })
         end
     end
 })
@@ -5442,9 +5442,9 @@ MainTab:CreateInput({
         local success, keyEnum = pcall(function() return Enum.KeyCode[keyName] end)
         if success and keyEnum then
             BindConfig.SpinBot = keyName
-            Rayfield:Notify({ Title = "  Spin Bot", Content = " : " .. keyName, Duration = 2 })
+            Rayfield:Notify({ Title = "✅ Spin Bound", Content = "Key: " .. keyName, Duration = 2 })
         else
-            Rayfield:Notify({ Title = " ", Content = "  !", Duration = 2 })
+            Rayfield:Notify({ Title = "❌ Error", Content = "Invalid key!", Duration = 2 })
         end
     end
 })
@@ -5553,7 +5553,7 @@ local function SafeNotify(title, content, duration, category)
     local frame = Instance.new("Frame")
     frame.Name = "Notify_" .. id
     frame.Size = UDim2.new(0, 300, 0, 60)
-    frame.Position = UDim2.new(1, 320, 0.8, -70 * (id % 5))
+    frame.Position = UDim2.new(1, 320, 0, 14 + (id % 5) * 66)
     frame.BackgroundColor3 = Color3.fromRGB(25, 20, 40)
     frame.BackgroundTransparency = 0.1
     frame.BorderSizePixel = 0
@@ -5608,9 +5608,10 @@ local function SafeNotify(title, content, duration, category)
 
     task.spawn(function()
         local tweenService = game:GetService("TweenService")
-        frame.Position = UDim2.new(1, 0, 0.8, -70 * (id % 5))
+        local yPos = 14 + (id % 5) * 66
+        frame.Position = UDim2.new(1, 320, 0, yPos)
         local slideIn = tweenService:Create(frame, TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-            Position = UDim2.new(1, -310, 0.8, -70 * (id % 5))
+            Position = UDim2.new(1, -314, 0, yPos)
         })
         slideIn:Play()
         slideIn.Completed:Wait()
@@ -5622,7 +5623,7 @@ local function SafeNotify(title, content, duration, category)
         task.wait(duration)
 
         local fadeOut = tweenService:Create(frame, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
-            Position = UDim2.new(1, 0, 0.8, -70 * (id % 5)),
+            Position = UDim2.new(1, 320, 0, yPos),
             BackgroundTransparency = 1
         })
         local fadeTitle = tweenService:Create(titleLabel, TweenInfo.new(0.3), {TextTransparency = 1})
@@ -6335,8 +6336,8 @@ CombatTab:CreateToggle({
         if value then
             if FOVCircle then FOVCircle.Visible = true end
             Rayfield:Notify({
-                Title = " Aimbot ",
-                Content = "   ",
+                Title = "🎯 Aimbot",
+                Content = "Enabled",
                 Duration = 3
             })
         else
@@ -6344,8 +6345,8 @@ CombatTab:CreateToggle({
             Running = false
             LockedTarget = nil
             Rayfield:Notify({
-                Title = " Aimbot ",
-                Content = "- ",
+                Title = "🎯 Aimbot",
+                Content = "Disabled",
                 Duration = 2
             })
         end
@@ -6392,14 +6393,14 @@ CombatTab:CreateDropdown({
         AimbotConfig.Priority = option
         if option == "Distance" then
             Rayfield:Notify({
-                Title = " : ",
-                Content = "   ",
+                Title = "🎯 Target",
+                Content = "Enabled",
                 Duration = 3
             })
         else
             Rayfield:Notify({
-                Title = " : FOV",
-                Content = "    ",
+                Title = "🎯 FOV Lock",
+                Content = "Lock enabled",
                 Duration = 3
             })
         end
@@ -6463,8 +6464,8 @@ CombatTab:CreateDropdown({
     Callback = function(option)
         AimbotConfig.TriggerKey = option
         Rayfield:Notify({
-            Title = " Target key",
-            Content = " : " .. option,
+            Title = "🎯 Target Key",
+            Content = "Key: " .. option,
             Duration = 2
         })
     end
@@ -6886,14 +6887,14 @@ CombatTab:CreateButton({
     Callback = function()
         local n = selectedTeam
         if not n or n == "" then
-            Rayfield:Notify({ Title = " ", Content = "    ", Duration = 2 })
+            Rayfield:Notify({ Title = "👥 Friends", Content = "Lock enabled", Duration = 2 })
             return
         end
         local res = ToggleFriendTeam(n)
         if res == "added" then
-            Rayfield:Notify({ Title = " -", Content = n .. "   ", Duration = 2 })
+            Rayfield:Notify({ Title = " -", Content = n .. " added to friends", Duration = 2 })
         else
-            Rayfield:Notify({ Title = " ", Content = n .. "    ()", Duration = 2 })
+            Rayfield:Notify({ Title = "👥 Friends", Content = n .. " already friends", Duration = 2 })
         end
         pcall(RefreshTeamDD)
         pcall(UpdateESP)
@@ -6905,7 +6906,7 @@ CombatTab:CreateButton({
     Callback = function()
         local n = selectedTeam
         if not n or n == "" then
-            Rayfield:Notify({ Title = " ", Content = "    ", Duration = 2 })
+            Rayfield:Notify({ Title = "👥 Friends", Content = "Lock enabled", Duration = 2 })
             return
         end
         local list = getgenv().ELITE_HUB_FRIEND_TEAMS
@@ -6914,7 +6915,7 @@ CombatTab:CreateButton({
                 table.remove(list, i)
             end
         end
-        Rayfield:Notify({ Title = " -", Content = n .. "  ", Duration = 2 })
+        Rayfield:Notify({ Title = " -", Content = n .. " removed from friends", Duration = 2 })
         pcall(RefreshTeamDD)
         pcall(UpdateESP)
     end
@@ -6925,9 +6926,9 @@ CombatTab:CreateButton({
     Callback = function()
         local list = getgenv().ELITE_HUB_FRIEND_TEAMS
         if #list == 0 then
-            Rayfield:Notify({ Title = " ", Content = "   ( )", Duration = 2 })
+            Rayfield:Notify({ Title = "👥 Friends", Content = "Friend list is empty", Duration = 2 })
         else
-            Rayfield:Notify({ Title = " ", Content = table.concat(list, ", "), Duration = 5 })
+            Rayfield:Notify({ Title = "👥 Friends", Content = table.concat(list, ", "), Duration = 5 })
         end
     end
 })
@@ -6936,7 +6937,7 @@ CombatTab:CreateButton({
     Name = " All teams  enemies",
     Callback = function()
         getgenv().ELITE_HUB_FRIEND_TEAMS = {}
-        Rayfield:Notify({ Title = " ", Content = "   ", Duration = 2 })
+        Rayfield:Notify({ Title = "👥 Friends", Content = "Enabled", Duration = 2 })
         pcall(RefreshTeamDD)
         pcall(UpdateESP)
     end
@@ -6946,7 +6947,7 @@ CombatTab:CreateButton({
     Name = " Refresh team list",
     Callback = function()
         pcall(RefreshTeamDD)
-        Rayfield:Notify({ Title = " ", Content = "  ", Duration = 2 })
+        Rayfield:Notify({ Title = "👥 Friends", Content = "Lock disabled", Duration = 2 })
     end
 })
 
@@ -7010,7 +7011,7 @@ friendAddDD = CombatTab:CreateDropdown({
         if typeof(option) == "table" then n = option[1] end
         if not n or n == "" then return end
         if IsFriendName(n) then
-            Rayfield:Notify({ Title = " ", Content = n .. "   ", Duration = 2 })
+            Rayfield:Notify({ Title = "👥 Friends", Content = n .. " added to friends", Duration = 2 })
         else
             table.insert(getgenv().ELITE_HUB_FRIENDS, n)
             Rayfield:Notify({ Title = "  ", Content = n, Duration = 2 })
@@ -7046,7 +7047,7 @@ CombatTab:CreateButton({
     Callback = function()
         local cnt = #getgenv().ELITE_HUB_FRIENDS
         getgenv().ELITE_HUB_FRIENDS = {}
-        Rayfield:Notify({ Title = " ", Content = " : " .. cnt, Duration = 2 })
+        Rayfield:Notify({ Title = "👥 Friends", Content = " : " .. cnt, Duration = 2 })
         RefreshAimbotDD()
     end
 })
@@ -7056,7 +7057,7 @@ CombatTab:CreateButton({
     Callback = function()
         local list = getgenv().ELITE_HUB_FRIENDS
         if #list == 0 then
-            Rayfield:Notify({ Title = " ", Content = " ", Duration = 2 })
+            Rayfield:Notify({ Title = "👥 Friends", Content = "All friends cleared", Duration = 2 })
             return
         end
         Rayfield:Notify({ Title = "  ", Content = table.concat(list, ", "), Duration = 6 })
@@ -7072,7 +7073,7 @@ friendTargetDD = CombatTab:CreateDropdown({
         if typeof(option) == "table" then n = option[1] end
         if n == "()" or n == nil or n == "" then
             getgenv().ELITE_HUB_TARGET_NAME = ""
-            Rayfield:Notify({ Title = " ", Content = " ( )", Duration = 2 })
+            Rayfield:Notify({ Title = "👥 Friends", Content = " ( )", Duration = 2 })
         else
             getgenv().ELITE_HUB_TARGET_NAME = n
             Rayfield:Notify({ Title = "  ", Content = n, Duration = 2 })
@@ -8100,7 +8101,7 @@ ESPTab:CreateToggle({
             
             UpdateESP()
             Rayfield:Notify({
-                Title = " ESP ",
+                Title = "👁 ESP",
                 Content = "  ESP ",
                 Duration = 3
             })
@@ -8109,7 +8110,7 @@ ESPTab:CreateToggle({
                 ClearPlayerESP(targetPlayer)
             end
             Rayfield:Notify({
-                Title = " ESP ",
+                Title = "👁 ESP",
                 Content = "ESP ",
                 Duration = 2
             })
@@ -8694,14 +8695,14 @@ ESPTab:CreateButton({
     Callback = function()
         local n = espSelectedTeam
         if not n or n == "" then
-            Rayfield:Notify({ Title = " ", Content = "    ", Duration = 2 })
+            Rayfield:Notify({ Title = "👥 Friends", Content = "Lock enabled", Duration = 2 })
             return
         end
         local res = ToggleFriendTeam(n)
         if res == "added" then
-            Rayfield:Notify({ Title = " -", Content = n .. "   ", Duration = 2 })
+            Rayfield:Notify({ Title = " -", Content = n .. " added to friends", Duration = 2 })
         else
-            Rayfield:Notify({ Title = " ", Content = n .. "    ()", Duration = 2 })
+            Rayfield:Notify({ Title = "👥 Friends", Content = n .. " already friends", Duration = 2 })
         end
         pcall(RefreshEspTeamDD)
         UpdateESP()
@@ -8713,7 +8714,7 @@ ESPTab:CreateButton({
     Callback = function()
         local n = espSelectedTeam
         if not n or n == "" then
-            Rayfield:Notify({ Title = " ", Content = "    ", Duration = 2 })
+            Rayfield:Notify({ Title = "👥 Friends", Content = "Lock enabled", Duration = 2 })
             return
         end
         local list = getgenv().ELITE_HUB_FRIEND_TEAMS
@@ -8722,7 +8723,7 @@ ESPTab:CreateButton({
                 table.remove(list, i)
             end
         end
-        Rayfield:Notify({ Title = " -", Content = n .. "  ", Duration = 2 })
+        Rayfield:Notify({ Title = " -", Content = n .. " removed from friends", Duration = 2 })
         pcall(RefreshEspTeamDD)
         UpdateESP()
     end
@@ -8733,9 +8734,9 @@ ESPTab:CreateButton({
     Callback = function()
         local list = getgenv().ELITE_HUB_FRIEND_TEAMS
         if #list == 0 then
-            Rayfield:Notify({ Title = " ", Content = "   ( )", Duration = 2 })
+            Rayfield:Notify({ Title = "👥 Friends", Content = "Friend list is empty", Duration = 2 })
         else
-            Rayfield:Notify({ Title = " ", Content = table.concat(list, ", "), Duration = 5 })
+            Rayfield:Notify({ Title = "👥 Friends", Content = table.concat(list, ", "), Duration = 5 })
         end
     end
 })
@@ -8744,7 +8745,7 @@ ESPTab:CreateButton({
     Name = " All teams  enemies",
     Callback = function()
         getgenv().ELITE_HUB_FRIEND_TEAMS = {}
-        Rayfield:Notify({ Title = " ", Content = "   ", Duration = 2 })
+        Rayfield:Notify({ Title = "👥 Friends", Content = "Enabled", Duration = 2 })
         pcall(RefreshEspTeamDD)
         UpdateESP()
     end
@@ -8754,7 +8755,7 @@ ESPTab:CreateButton({
     Name = " Refresh team list",
     Callback = function()
         pcall(RefreshEspTeamDD)
-        Rayfield:Notify({ Title = " ", Content = "  ", Duration = 2 })
+        Rayfield:Notify({ Title = "👥 Friends", Content = "Lock disabled", Duration = 2 })
     end
 })
 
@@ -8836,7 +8837,7 @@ espFriendAddDD = ESPTab:CreateDropdown({
         if typeof(option) == "table" then n = option[1] end
         if not n or n == "" then return end
         if IsFriendName(n) then
-            Rayfield:Notify({ Title = " ", Content = n .. "   ", Duration = 2 })
+            Rayfield:Notify({ Title = "👥 Friends", Content = n .. " added to friends", Duration = 2 })
         else
             table.insert(getgenv().ELITE_HUB_FRIENDS, n)
             Rayfield:Notify({ Title = "  ", Content = n, Duration = 2 })
@@ -8874,7 +8875,7 @@ ESPTab:CreateButton({
     Callback = function()
         local cnt = #getgenv().ELITE_HUB_FRIENDS
         getgenv().ELITE_HUB_FRIENDS = {}
-        Rayfield:Notify({ Title = " ", Content = " : " .. cnt, Duration = 2 })
+        Rayfield:Notify({ Title = "👥 Friends", Content = " : " .. cnt, Duration = 2 })
         RefreshESPDD()
         UpdateESP()
     end
@@ -8885,7 +8886,7 @@ ESPTab:CreateButton({
     Callback = function()
         local list = getgenv().ELITE_HUB_FRIENDS
         if #list == 0 then
-            Rayfield:Notify({ Title = " ", Content = " ", Duration = 2 })
+            Rayfield:Notify({ Title = "👥 Friends", Content = "All friends cleared", Duration = 2 })
             return
         end
         Rayfield:Notify({ Title = "  ", Content = table.concat(list, ", "), Duration = 6 })
@@ -8901,7 +8902,7 @@ espTargetDD = ESPTab:CreateDropdown({
         if typeof(option) == "table" then n = option[1] end
         if n == "()" or n == nil or n == "" then
             getgenv().ELITE_HUB_TARGET_NAME = ""
-            Rayfield:Notify({ Title = " ", Content = " ( )", Duration = 2 })
+            Rayfield:Notify({ Title = "👥 Friends", Content = " ( )", Duration = 2 })
         else
             getgenv().ELITE_HUB_TARGET_NAME = n
             Rayfield:Notify({ Title = "  ", Content = n, Duration = 2 })
@@ -9175,7 +9176,7 @@ local onlineLabel = nil
 
 local function TeleportToPlayer(targetPlayer)
     if not targetPlayer or not targetPlayer:IsA("Player") then
-        Rayfield:Notify({ Title = " ", Content = " ", Duration = 2 })
+        Rayfield:Notify({ Title = "🚀 Teleport", Content = "No target!", Duration = 2 })
         return
     end
     local myChar = LocalPlayer.Character
@@ -9185,7 +9186,7 @@ local function TeleportToPlayer(targetPlayer)
         local targetRoot = targetChar:FindFirstChild("HumanoidRootPart")
         if myRoot and targetRoot then
             myRoot.CFrame = targetRoot.CFrame
-            Rayfield:Notify({ Title = " ", Content = "  " .. targetPlayer.Name, Duration = 2 })
+            Rayfield:Notify({ Title = "🚀 Teleport", Content = "Teleported to " .. targetPlayer.Name, Duration = 2 })
         end
     end
 end
@@ -9212,8 +9213,8 @@ local function UpdateDropdown()
         dropdown:Set("") -- СЃР±СЂРѕСЃ
         autoTp = false
         Rayfield:Notify({
-            Title = "  ",
-            Content = " ",
+            Title = "🚀 Teleport",
+            Content = "Player left!",
             Duration = 2
         })
     end
@@ -9239,7 +9240,7 @@ dropdown = TeleportTab:CreateDropdown({
         end
         if selectedPlayer then
             Rayfield:Notify({
-                Title = " ",
+                Title = "🚀 Selected",
                 Content = selectedPlayer.Name,
                 Duration = 1.5
             })
@@ -9251,7 +9252,7 @@ TeleportTab:CreateButton({
     Name = " Teleport to selected",
     Callback = function()
         if not selectedPlayer then
-            Rayfield:Notify({ Title = " ", Content = "  ", Duration = 2 })
+            Rayfield:Notify({ Title = "🚀 Teleport", Content = "No player selected!", Duration = 2 })
             return
         end
         TeleportToPlayer(selectedPlayer)
@@ -9264,9 +9265,9 @@ TeleportTab:CreateToggle({
     Callback = function(value)
         autoTp = value
         if value and selectedPlayer then
-            Rayfield:Notify({ Title = " - ", Content = "  " .. selectedPlayer.Name, Duration = 2 })
+            Rayfield:Notify({ Title = "🚀 Auto-TP", Content = "Following " .. selectedPlayer.Name, Duration = 2 })
         elseif not value then
-            Rayfield:Notify({ Title = " - ", Content = "", Duration = 2 })
+            Rayfield:Notify({ Title = "🚀 Auto-TP", Content = "Disabled", Duration = 2 })
         end
     end
 })
@@ -9514,8 +9515,8 @@ for i, scriptInfo in ipairs(newScripts) do
         Name = scriptInfo.Name,
         Callback = function()
             Rayfield:Notify({
-                Title = " ...",
-                Content = " "..scriptInfo.Name.." ",
+                Title = "⏳ Loading...",
+                Content = "Loading: "..scriptInfo.Name,
                 Duration = 3
             })
 
@@ -9529,14 +9530,14 @@ for i, scriptInfo in ipairs(newScripts) do
 
             if success then
                 Rayfield:Notify({
-                    Title = " !",
-                    Content = scriptInfo.Name.."  ",
+                    Title = "✅ Done!",
+                    Content = scriptInfo.Name.." loaded",
                     Duration = 4
                 })
             else
                 Rayfield:Notify({
-                    Title = " !",
-                    Content = "   "..scriptInfo.Name..":\n"..tostring(err),
+                    Title = "❌ Error",
+                    Content = "Error loading "..scriptInfo.Name..":\n"..tostring(err),
                     Duration = 6
                 })
             end
@@ -9568,8 +9569,8 @@ for i = 1, #scriptNames do
         Name = scriptNames[i],
         Callback = function()
             Rayfield:Notify({
-                Title = " ...",
-                Content = " "..scriptNames[i].." ",
+                Title = "⏳ Loading...",
+                Content = "Loading: "..scriptNames[i],
                 Duration = 3
             })
 
@@ -9579,8 +9580,8 @@ for i = 1, #scriptNames do
 
             if not success then
                 Rayfield:Notify({
-                    Title = " !",
-                    Content = "   :\n"..tostring(err),
+                    Title = "❌ Error",
+                    Content = "Error:\n"..tostring(err),
                     Duration = 6
                 })
             end
@@ -10611,7 +10612,7 @@ local function ELITE_HUB_MusicPlayTrack(track)
         local id, err = ELITE_HUB_MusicGetId(track.url)
         if not id then
             getgenv().ELITE_HUB_Log("MUSIC", "Load error: " .. tostring(err))
-            Rayfield:Notify({ Title = "Music", Content = "Failed: " .. tostring(err), Duration = 3 })
+            Rayfield:Notify({ Title = "🎵 Error", Content = "Failed: " .. tostring(err), Duration = 3 })
             return
         end
         local snd = ELITE_HUB_MusicEnsureSound()
@@ -10648,7 +10649,7 @@ MT:CreateButton({
                 musicDropdown:Refresh(names)
                 getgenv().ELITE_HUB_Log("MUSIC", "Loaded " .. #getgenv().ELITE_HUB_MusicPlaylist .. " tracks")
                 Rayfield:Notify({
-                    Title = " Playlist Loaded",
+                    Title = "🎵 Playlist Loaded",
                     Content = #getgenv().ELITE_HUB_MusicPlaylist .. " tracks available",
                     Duration = 3
                 })
@@ -12361,7 +12362,7 @@ local saveBtn = SettingsTab:CreateButton({
                 Lang = ES.Lang,
             })
             writefile("EliteHub_Config.json", data)
-            Rayfield:Notify({Title = "OK", Content = L("ConfigSaved"), Duration = 2})
+            Rayfield:Notify({Title = "✅ OK", Content = L("ConfigSaved"), Duration = 2})
         end)
     end
 })
@@ -12372,14 +12373,14 @@ local loadBtn = SettingsTab:CreateButton({
     Callback = function()
         pcall(function()
             if not isfile("EliteHub_Config.json") then
-                Rayfield:Notify({Title = "!", Content = L("NoConfig"), Duration = 2})
+                Rayfield:Notify({Title = "⚠️ Warning", Content = L("NoConfig"), Duration = 2})
                 return
             end
             local data = game:GetService("HttpService"):JSONDecode(readfile("EliteHub_Config.json"))
             if data.Animations ~= nil then ES.Animations = data.Animations end
             if data.Lang then ES.Lang = data.Lang end
             Window:_updateAll()
-            Rayfield:Notify({Title = "OK", Content = L("ConfigLoaded"), Duration = 2})
+            Rayfield:Notify({Title = "✅ OK", Content = L("ConfigLoaded"), Duration = 2})
         end)
     end
 })
@@ -12391,7 +12392,7 @@ local resetBtn = SettingsTab:CreateButton({
         ES.Animations = true
         ES.Lang = "RU"
         Window:_updateAll()
-        Rayfield:Notify({Title = "OK", Content = L("SettingsReset"), Duration = 2})
+        Rayfield:Notify({Title = "✅ OK", Content = L("SettingsReset"), Duration = 2})
     end
 })
 table.insert(Window._translatables, {element = resetBtn, key = "ResetSettings", type = "button"})
