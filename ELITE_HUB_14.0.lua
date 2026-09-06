@@ -5908,7 +5908,7 @@ local function UpdateTargetIndicator()
         AimLine.Visible = false
     end
 
-    if AimbotConfig.ShowTargetArrow and onScreen then
+    if false and AimbotConfig.ShowTargetArrow and onScreen then
         local dir = (vp - indicatorPos)
         local len = dir.Magnitude
         if len > 0.001 then
