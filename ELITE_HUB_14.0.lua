@@ -10236,6 +10236,138 @@ player.CharacterAdded:Connect(function(char)
     end
 end)
 
+getgenv().ELITE_HUB_HitMarkers = false
+getgenv().ELITE_HUB_HitMarkerColor = Color3.fromRGB(255, 0, 0)
+getgenv().ELITE_HUB_HitMarkerSize = 30
+getgenv().ELITE_HUB_HitMarkerDuration = 0.3
+getgenv().ELITE_HUB_DamageNumbers = false
+getgenv().ELITE_HUB_DamageNumberColor = Color3.fromRGB(255, 255, 0)
+
+task.spawn(function()
+VisualTab:CreateSection("💥 HIT EFFECTS")
+VisualTab:CreateToggle({
+    Name = "❌ Hit Markers",
+    CurrentValue = false,
+    Callback = function(value)
+        getgenv().ELITE_HUB_HitMarkers = value
+        getgenv().ELITE_HUB_Log("MODS", "Hit Markers: " .. tostring(value))
+    end
+})
+VisualTab:CreateColorPicker({
+    Name = "❌ Hit Marker Color",
+    CurrentColor = getgenv().ELITE_HUB_HitMarkerColor,
+    Callback = function(color)
+        getgenv().ELITE_HUB_HitMarkerColor = color
+    end
+})
+VisualTab:CreateSlider({
+    Name = "❌ Hit Marker Size",
+    Range = {10, 80},
+    Increment = 5,
+    CurrentValue = getgenv().ELITE_HUB_HitMarkerSize,
+    Callback = function(value)
+        getgenv().ELITE_HUB_HitMarkerSize = value
+    end
+})
+VisualTab:CreateToggle({
+    Name = "🔢 Damage Numbers",
+    CurrentValue = false,
+    Callback = function(value)
+        getgenv().ELITE_HUB_DamageNumbers = value
+        getgenv().ELITE_HUB_Log("MODS", "Damage Numbers: " .. tostring(value))
+    end
+})
+VisualTab:CreateColorPicker({
+    Name = "🔢 Damage Color",
+    CurrentColor = getgenv().ELITE_HUB_DamageNumberColor,
+    Callback = function(color)
+        getgenv().ELITE_HUB_DamageNumberColor = color
+    end
+})
+
+local oldHealth = {}
+local function hookCharacterDmg(plr, char)
+    task.wait(1)
+    local hum = char:FindFirstChildOfClass("Humanoid")
+    if not hum then return end
+    oldHealth[plr.Name] = hum.Health
+    hum.HealthChanged:Connect(function(newHP)
+        local prev = oldHealth[plr.Name] or newHP
+        local dmg = prev - newHP
+        oldHealth[plr.Name] = newHP
+        if dmg <= 0 then return end
+        local hrp = char:FindFirstChild("HumanoidRootPart")
+        if not hrp then return end
+        if getgenv().ELITE_HUB_HitMarkers and plr ~= player then
+            task.spawn(function()
+                local gui = Instance.new("ScreenGui")
+                gui.Name = "EliteHubHitMarker"
+                gui.ResetOnSpawn = false
+                gui.IgnoreGuiInset = true
+                gui.DisplayOrder = 99999
+                local s = getgenv().ELITE_HUB_HitMarkerSize
+                local col = getgenv().ELITE_HUB_HitMarkerColor
+                local offsets = {
+                    {1, 1}, {-1, 1}, {1, -1}, {-1, -1}
+                }
+                for _, off in ipairs(offsets) do
+                    local f = Instance.new("Frame")
+                    f.AnchorPoint = Vector2.new(0.5, 0.5)
+                    f.Size = UDim2.new(0, 2, 0, s)
+                    f.Position = UDim2.new(0.5 + off[1] * 0.015, 0, 0.5 + off[2] * 0.015, 0)
+                    f.BackgroundColor3 = col
+                    f.BorderSizePixel = 0
+                    f.Rotation = 45 * off[1] * off[2]
+                    f.Parent = gui
+                end
+                gui.Parent = game:GetService("CoreGui")
+                task.wait(getgenv().ELITE_HUB_HitMarkerDuration)
+                gui:Destroy()
+            end)
+        end
+        if getgenv().ELITE_HUB_DamageNumbers then
+            task.spawn(function()
+                local billboard = Instance.new("BillboardGui")
+                billboard.Name = "EliteHubDmgNum"
+                billboard.Adornee = hrp
+                billboard.Size = UDim2.new(0, 200, 0, 50)
+                billboard.StudsOffset = Vector3.new(math.random(-2, 2), 2 + math.random(), 0)
+                billboard.AlwaysOnTop = true
+                billboard.LightInfluence = 0
+                local text = Instance.new("TextLabel")
+                text.Size = UDim2.new(1, 0, 1, 0)
+                text.BackgroundTransparency = 1
+                text.Text = "-" .. math.floor(dmg)
+                text.TextColor3 = getgenv().ELITE_HUB_DamageNumberColor
+                text.TextStrokeTransparency = 0.3
+                text.TextStrokeColor3 = Color3.new(0, 0, 0)
+                text.TextScaled = true
+                text.Font = Enum.Font.GothamBold
+                text.Parent = billboard
+                billboard.Parent = game:GetService("CoreGui")
+                for i = 1, 30 do
+                    task.wait(0.02)
+                    billboard.StudsOffset = billboard.StudsOffset + Vector3.new(0, 0.05, 0)
+                    text.TextTransparency = i / 30
+                    text.TextStrokeTransparency = 0.3 + (i / 30) * 0.7
+                end
+                billboard:Destroy()
+            end)
+        end
+    end)
+end
+
+for _, plr in ipairs(game:GetService("Players"):GetPlayers()) do
+    if plr ~= player then
+        plr.CharacterAdded:Connect(function(char) hookCharacterDmg(plr, char) end)
+        if plr.Character then hookCharacterDmg(plr, plr.Character) end
+    end
+end
+game:GetService("Players").PlayerAdded:Connect(function(plr)
+    plr.CharacterAdded:Connect(function(char) hookCharacterDmg(plr, char) end)
+end)
+end)
+
 task.spawn(function()
 local MT = MovementTab
 getgenv().ELITE_HUB_Log("UI", "Section loaded: MOVEMENT")
@@ -10706,136 +10838,6 @@ task.spawn(function()
         end)
     end
 end)
-end)
-
-getgenv().ELITE_HUB_HitMarkers = false
-getgenv().ELITE_HUB_HitMarkerColor = Color3.fromRGB(255, 0, 0)
-getgenv().ELITE_HUB_HitMarkerSize = 30
-getgenv().ELITE_HUB_HitMarkerDuration = 0.3
-getgenv().ELITE_HUB_DamageNumbers = false
-getgenv().ELITE_HUB_DamageNumberColor = Color3.fromRGB(255, 255, 0)
-
-MT:CreateSection("💥 HIT EFFECTS")
-MT:CreateToggle({
-    Name = "❌ Hit Markers",
-    CurrentValue = false,
-    Callback = function(value)
-        getgenv().ELITE_HUB_HitMarkers = value
-        getgenv().ELITE_HUB_Log("MODS", "Hit Markers: " .. tostring(value))
-    end
-})
-MT:CreateColorPicker({
-    Name = "❌ Hit Marker Color",
-    CurrentColor = getgenv().ELITE_HUB_HitMarkerColor,
-    Callback = function(color)
-        getgenv().ELITE_HUB_HitMarkerColor = color
-    end
-})
-MT:CreateSlider({
-    Name = "❌ Hit Marker Size",
-    Range = {10, 80},
-    Increment = 5,
-    CurrentValue = getgenv().ELITE_HUB_HitMarkerSize,
-    Callback = function(value)
-        getgenv().ELITE_HUB_HitMarkerSize = value
-    end
-})
-MT:CreateToggle({
-    Name = "🔢 Damage Numbers",
-    CurrentValue = false,
-    Callback = function(value)
-        getgenv().ELITE_HUB_DamageNumbers = value
-        getgenv().ELITE_HUB_Log("MODS", "Damage Numbers: " .. tostring(value))
-    end
-})
-MT:CreateColorPicker({
-    Name = "🔢 Damage Color",
-    CurrentColor = getgenv().ELITE_HUB_DamageNumberColor,
-    Callback = function(color)
-        getgenv().ELITE_HUB_DamageNumberColor = color
-    end
-})
-
-local oldHealth = {}
-local function hookCharacterDmg(plr, char)
-    task.wait(1)
-    local hum = char:FindFirstChildOfClass("Humanoid")
-    if not hum then return end
-    oldHealth[plr.Name] = hum.Health
-    hum.HealthChanged:Connect(function(newHP)
-        local prev = oldHealth[plr.Name] or newHP
-        local dmg = prev - newHP
-        oldHealth[plr.Name] = newHP
-        if dmg <= 0 then return end
-        local hrp = char:FindFirstChild("HumanoidRootPart")
-        if not hrp then return end
-        if getgenv().ELITE_HUB_HitMarkers and plr ~= player then
-            task.spawn(function()
-                local gui = Instance.new("ScreenGui")
-                gui.Name = "EliteHubHitMarker"
-                gui.ResetOnSpawn = false
-                gui.IgnoreGuiInset = true
-                gui.DisplayOrder = 99999
-                local s = getgenv().ELITE_HUB_HitMarkerSize
-                local col = getgenv().ELITE_HUB_HitMarkerColor
-                local offsets = {
-                    {1, 1}, {-1, 1}, {1, -1}, {-1, -1}
-                }
-                for _, off in ipairs(offsets) do
-                    local f = Instance.new("Frame")
-                    f.AnchorPoint = Vector2.new(0.5, 0.5)
-                    f.Size = UDim2.new(0, 2, 0, s)
-                    f.Position = UDim2.new(0.5 + off[1] * 0.015, 0, 0.5 + off[2] * 0.015, 0)
-                    f.BackgroundColor3 = col
-                    f.BorderSizePixel = 0
-                    f.Rotation = 45 * off[1] * off[2]
-                    f.Parent = gui
-                end
-                gui.Parent = game:GetService("CoreGui")
-                task.wait(getgenv().ELITE_HUB_HitMarkerDuration)
-                gui:Destroy()
-            end)
-        end
-        if getgenv().ELITE_HUB_DamageNumbers then
-            task.spawn(function()
-                local billboard = Instance.new("BillboardGui")
-                billboard.Name = "EliteHubDmgNum"
-                billboard.Adornee = hrp
-                billboard.Size = UDim2.new(0, 200, 0, 50)
-                billboard.StudsOffset = Vector3.new(math.random(-2, 2), 2 + math.random(), 0)
-                billboard.AlwaysOnTop = true
-                billboard.LightInfluence = 0
-                local text = Instance.new("TextLabel")
-                text.Size = UDim2.new(1, 0, 1, 0)
-                text.BackgroundTransparency = 1
-                text.Text = "-" .. math.floor(dmg)
-                text.TextColor3 = getgenv().ELITE_HUB_DamageNumberColor
-                text.TextStrokeTransparency = 0.3
-                text.TextStrokeColor3 = Color3.new(0, 0, 0)
-                text.TextScaled = true
-                text.Font = Enum.Font.GothamBold
-                text.Parent = billboard
-                billboard.Parent = game:GetService("CoreGui")
-                for i = 1, 30 do
-                    task.wait(0.02)
-                    billboard.StudsOffset = billboard.StudsOffset + Vector3.new(0, 0.05, 0)
-                    text.TextTransparency = i / 30
-                    text.TextStrokeTransparency = 0.3 + (i / 30) * 0.7
-                end
-                billboard:Destroy()
-            end)
-        end
-    end)
-end
-
-for _, plr in ipairs(game:GetService("Players"):GetPlayers()) do
-    if plr ~= player then
-        plr.CharacterAdded:Connect(function(char) hookCharacterDmg(plr, char) end)
-        if plr.Character then hookCharacterDmg(plr, plr.Character) end
-    end
-end
-game:GetService("Players").PlayerAdded:Connect(function(plr)
-    plr.CharacterAdded:Connect(function(char) hookCharacterDmg(plr, char) end)
 end)
 
 MT = VisualTab
