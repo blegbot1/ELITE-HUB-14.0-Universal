@@ -1,6 +1,17 @@
--- ELITE HUB 14.0 — Init Module (Settings, Language, Loading, Window)
--- Extracted from ELITE_HUB_14.0.lua
+﻿-- ELITE HUB 14.0 loader: builds shared env, creates window+tabs, runs modules
+local function readModule(path)
+    assert(readfile, "ELITE HUB: executor lacks readfile")
+    local ok, src = pcall(readfile, path)
+    assert(ok and src and src ~= "", "ELITE HUB: cannot read " .. path)
+    return src
+end
+local function loadModuleChunk(path)
+    local chunk, err = loadstring(readModule(path), "@" .. path)
+    assert(chunk, "ELITE HUB: parse error in " .. path .. ": " .. tostring(err))
+    return chunk
+end
 
+local Rayfield = loadModuleChunk("modules/ui_library.lua")()
 local ES, L
 do
     ES = {
@@ -18,37 +29,37 @@ do
 
     local LangData = {
         RU = {
-            Settings = "НАСТРОЙКИ",
-            Language = "Язык",
-            Animations = "Анимации",
-            ResetSettings = "Сбросить настройки",
-            Main = "ОСНОВНОЕ",
+            Settings = "",
+            Language = "",
+            Animations = "",
+            ResetSettings = " ",
+            Main = "",
             ESP = "ESP",
             Aimbot = "AIMBOT",
-            Visual = "ВИЗУАЛ",
-            Teleport = "ТЕЛЕПОРТ",
-            KillAll = "УБИТЬ ВСЕХ",
-            FEScripts = "FE СКРИПТЫ",
-            Hubs = "ХАБЫ",
-            GameScripts = "СКРИПТЫ ДЛЯ ИГР",
-            Mods = "МОДЫ",
-            Config = "КОНФИГИ",
-            SaveConfig = "💾 Сохранить конфиг",
-            LoadConfig = "📂 Загрузить конфиг",
-            ConfigSaved = "Конфиг сохранён!",
-            ConfigLoaded = "Конфиг загружен!",
-            NoConfig = "Конфиг не найден",
-            SettingsReset = "Настройки сброшены",
+            Visual = "",
+            Teleport = "",
+            KillAll = " ",
+            FEScripts = "FE ",
+            Hubs = "",
+            GameScripts = "  ",
+            Mods = "",
+            Config = "",
+            SaveConfig = "  ",
+            LoadConfig = "  ",
+            ConfigSaved = " !",
+            ConfigLoaded = " !",
+            NoConfig = "  ",
+            SettingsReset = " ",
             Version = "ELITE HUB 14.0 HASKER | v14.0",
-            ON = "ВКЛ",
-            OFF = "ВЫКЛ",
-            ItemFinder = "ПОИСК ПРЕДМЕТОВ",
-            ItemFinderDesc = "Найти и телепортироваться к предметам",
-            Refresh = "🔄 Обновить",
-            SearchItem = "🔍 Поиск предмета",
-            NoItems = "Предметы не найдены",
-            Found = "Найдено",
-            items = "предметов",
+            ON = "",
+            OFF = "",
+            ItemFinder = " ",
+            ItemFinderDesc = "    ",
+            Refresh = " ",
+            SearchItem = "  ",
+            NoItems = "  ",
+            Found = "",
+            items = "",
         },
         EN = {
             Settings = "SETTINGS",
@@ -66,8 +77,8 @@ do
             GameScripts = "GAME SCRIPTS",
             Mods = "MODS",
             Config = "CONFIG",
-            SaveConfig = "💾 Save Config",
-            LoadConfig = "📂 Load Config",
+            SaveConfig = " Save Config",
+            LoadConfig = " Load Config",
             ConfigSaved = "Config saved!",
             ConfigLoaded = "Config loaded!",
             NoConfig = "No config found",
@@ -77,8 +88,8 @@ do
             OFF = "OFF",
             ItemFinder = "ITEM FINDER",
             ItemFinderDesc = "Find and teleport to items",
-            Refresh = "🔄 Refresh",
-            SearchItem = "🔍 Search Item",
+            Refresh = " Refresh",
+            SearchItem = " Search Item",
             NoItems = "No items found",
             Found = "Found",
             items = "items",
@@ -92,10 +103,10 @@ do
 end
 
 
-local debugMode = true  -- поставить false, чтобы выключить логи
+local debugMode = true  -- РїРѕСЃС‚Р°РІРёС‚СЊ false, С‡С‚РѕР±С‹ РІС‹РєР»СЋС‡РёС‚СЊ Р»РѕРіРё
 
 if getgenv().ELITE_HUB_HASKER_LOADED then
-    Rayfield:Notify({ Title = "⚠️ Already running", Content = "ELITE HUB is already loaded", Duration = 3 })
+    Rayfield:Notify({ Title = "Already running", Content = "ELITE HUB is already loaded", Duration = 3 })
     return
 end
 getgenv().ELITE_HUB_HASKER_LOADED = true
@@ -206,23 +217,23 @@ end
 getgenv().ELITE_HUB_Log = Log
 
 getgenv().ELITE_HUB_RUN_COUNT = (getgenv().ELITE_HUB_RUN_COUNT or 0) + 1
-Log("SYSTEM", "Скрипт запущен. Общий запуск #" .. tostring(getgenv().ELITE_HUB_RUN_COUNT))
+Log("SYSTEM", " .   #" .. tostring(getgenv().ELITE_HUB_RUN_COUNT))
 
--- ═══════════════════════════════════════════════════════════════════
--- LOADING CHECKLIST — консольная загрузка, проверяет всё по шагам
--- ═══════════════════════════════════════════════════════════════════
+-- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+-- LOADING CHECKLIST вЂ” РєРѕРЅСЃРѕР»СЊРЅР°СЏ Р·Р°РіСЂСѓР·РєР°, РїСЂРѕРІРµСЂСЏРµС‚ РІСЃС‘ РїРѕ С€Р°РіР°Рј
+-- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
 do
     local function Check(name, ok, info)
         if ok then
-            print("[" .. formatTime() .. "] [BOOT] ✅ " .. name .. (info and (" — " .. tostring(info)) or ""))
+            print("[" .. formatTime() .. "] [BOOT]  " .. name .. (info and ("  " .. tostring(info)) or ""))
         else
-            print("[" .. formatTime() .. "] [BOOT] ❌ " .. name .. (info and (" — " .. tostring(info)) or " (N/A)"))
+            print("[" .. formatTime() .. "] [BOOT]  " .. name .. (info and ("  " .. tostring(info)) or " (N/A)"))
         end
     end
 
     print("")
     print("======================================================")
-    print("         ELITE  HUB  14.0  —  HASKER")
+    print("         ELITE  HUB  14.0    HASKER")
     print("                loading...")
     print("======================================================")
 
@@ -279,7 +290,7 @@ do
         httpGetOk = true
     end)
     task.wait(0.1)
-    Check("game:HttpGet", httpGetOk, "для облака наметок")
+    Check("game:HttpGet", httpGetOk, "  ")
 
     task.wait(0.1)
     local reqNames = {}
@@ -300,7 +311,7 @@ do
 
     task.wait(0.1)
     print("======================================================")
-    print("     ALL CHECKS COMPLETE — initializing UI...")
+    print("     ALL CHECKS COMPLETE  initializing UI...")
     print("======================================================")
     print("")
 end
@@ -310,7 +321,7 @@ local DrawingSupported = pcall(function()
     d:Remove()
     return true
 end)
-Log("SYSTEM", "Поддержка Drawing: " .. tostring(DrawingSupported))
+Log("SYSTEM", " Drawing: " .. tostring(DrawingSupported))
 
 local ThemePurple = {
 	TextColor = Color3.fromRGB(245, 245, 255),
@@ -353,9 +364,8 @@ local ThemePurple = {
 	InputStroke = Color3.fromRGB(80, 60, 125),
 	PlaceholderColor = Color3.fromRGB(178, 168, 200)
 }
-
 local Window = Rayfield:CreateWindow({
-    Name = "🌟💎 ELITE HUB 14.0 HASKER 💎🌟",
+    Name = "💎 ELITE HUB 14.0 HASKER 💎",
     LoadingTitle = "⚡🔥 Hasker Edition загружается... 🔥⚡",
     LoadingSubtitle = "💜👑 by gerkylesichakes | Версия 14.0 | Обновлено: +Mods, Chams, ESP, Aimbot, Spin Bot 👑💜",
     Theme = ThemePurple
@@ -365,7 +375,7 @@ Window._L = L
 getgenv().ELITE_HUB_Log("UI", "Creating tabs...")
 local MainTab = Window:CreateTab("🏠 " .. L("Main"), 11286187172, "Main")
 getgenv().ELITE_HUB_Log("UI", "Tab loaded: Main")
-local ESPTab = Window:CreateTab("👁️ " .. L("ESP"), 6026568198, "ESP")
+local ESPTab = Window:CreateTab("👁 " .. L("ESP"), 6026568198, "ESP")
 getgenv().ELITE_HUB_Log("UI", "Tab loaded: ESP")
 local CombatTab = Window:CreateTab("🎯 " .. L("Aimbot"), 7733960981, "Aimbot")
 getgenv().ELITE_HUB_Log("UI", "Tab loaded: Aimbot")
@@ -373,28 +383,645 @@ local VisualTab = Window:CreateTab("🎨 " .. L("Visual"), 6022668888, "Visual")
 getgenv().ELITE_HUB_Log("UI", "Tab loaded: Visual")
 local TeleportTab = Window:CreateTab("🌀 " .. L("Teleport"), 6023426915, "Teleport")
 getgenv().ELITE_HUB_Log("UI", "Tab loaded: Teleport")
-local KillAllTab = Window:CreateTab("⚔️ " .. L("KillAll"), 0, "KillAll")
+local KillAllTab = Window:CreateTab("💀 " .. L("KillAll"), 0, "KillAll")
 getgenv().ELITE_HUB_Log("UI", "Tab loaded: KillAll")
-local FEScriptsTab = Window:CreateTab("🎭 " .. L("FEScripts"), 7733960981, "FEScripts")
+local FEScriptsTab = Window:CreateTab("🛡 " .. L("FEScripts"), 7733960981, "FEScripts")
 getgenv().ELITE_HUB_Log("UI", "Tab loaded: FEScripts")
-local HubsTab = Window:CreateTab("🚀 " .. L("Hubs"), 6022668888, "Hubs")
+local HubsTab = Window:CreateTab("🌐 " .. L("Hubs"), 6022668888, "Hubs")
 getgenv().ELITE_HUB_Log("UI", "Tab loaded: Hubs")
-local GameScriptsTab = Window:CreateTab("🎯 " .. L("GameScripts"), 7733960981, "GameScripts")
+local GameScriptsTab = Window:CreateTab("🎮 " .. L("GameScripts"), 7733960981, "GameScripts")
 getgenv().ELITE_HUB_Log("UI", "Tab loaded: GameScripts")
 
--- Новые раздельные вкладки вместо одной "Моды"
-local NametagTab = Window:CreateTab("🏷️ " .. "NAMETAG", 0, "Nametag")
-getgenv().ELITE_HUB_Log("UI", "Tab loaded: NAMETAG")
+-- РќРѕРІС‹Рµ СЂР°Р·РґРµР»СЊРЅС‹Рµ РІРєР»Р°РґРєРё РІРјРµСЃС‚Рѕ РѕРґРЅРѕР№ "РњРѕРґС‹"
+
 local MovementTab = Window:CreateTab("🏃 " .. "MOVEMENT", 6026568198, "Movement")
 getgenv().ELITE_HUB_Log("UI", "Tab loaded: MOVEMENT")
-local CombatPlusTab = Window:CreateTab("🥊 " .. "COMBAT+", 7733960981, "CombatPlus")
+local CombatPlusTab = Window:CreateTab("⚔ " .. "COMBAT+", 7733960981, "CombatPlus")
 getgenv().ELITE_HUB_Log("UI", "Tab loaded: COMBAT+")
 local CameraTeleportTab = Window:CreateTab("📷 " .. "CAMERA", 6023426915, "CameraTeleport")
 getgenv().ELITE_HUB_Log("UI", "Tab loaded: CAMERA")
-local EnvironmentTab = Window:CreateTab("🌙 " .. "ENV", 6022668888, "Environment")
-getgenv().ELITE_HUB_Log("UI", "Tab loaded: ENV")
-local VisualPlusTab = Window:CreateTab("🌈 " .. "VISUAL+", 6026568198, "VisualPlus")
-getgenv().ELITE_HUB_Log("UI", "Tab loaded: VISUAL+")
-local UtilitiesTab = Window:CreateTab("🎮 " .. "UTILS", 6022668888, "Utilities")
+
+
+local UtilitiesTab = Window:CreateTab("🔧 " .. "UTILS", 6022668888, "Utilities")
 getgenv().ELITE_HUB_Log("UI", "Tab loaded: UTILS")
-getgenv().ELITE_HUB_ChamsTab = Window:CreateTab("🌈 " .. "CHAMS", 6026568198, "Chams")
+local MusicTab = Window:CreateTab("🎵 " .. "MUSIC", 6022668888, "Music")
+getgenv().ELITE_HUB_Log("UI", "Tab loaded: MUSIC")
+getgenv().ELITE_HUB_ChamsTab = Window:CreateTab("🎨 " .. "CHAMS", 6026568198, "Chams")
+getgenv().ELITE_HUB_Log("UI", "Tab loaded: CHAMS")
+
+MT = VisualTab
+
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+
+-- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+-- CHINESE HAT вЂ” РєРѕРЅСѓСЃРЅР°СЏ С€Р»СЏРїР°, ForceField, 3D
+-- Р‘Р•Р— WeldConstraint вЂ” parts СЃР»РµРґСѓСЋС‚ Р·Р° РіРѕР»РѕРІРѕР№ С‡РµСЂРµР· Heartbeat
+-- Massless + PhysicalProperties = РЅРµС‚ С„РёР·. РІР·СЂС‹РІРѕРІ
+-- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+task.spawn(function()
+local MT = VisualTab
+getgenv().ELITE_HUB_Log("UI", "Section loaded: CHINESE HAT")
+MT:CreateSection("🎩 CHINESE HAT")
+
+getgenv().ELITE_HUB_ChineseHatOn = false
+getgenv().ELITE_HUB_ChineseHatY = 0.5
+getgenv().ELITE_HUB_ChineseHatConeH = 1.2
+getgenv().ELITE_HUB_ChineseHatR = 2.5
+getgenv().ELITE_HUB_ChineseHatColor = Color3.fromRGB(255, 0, 255)
+getgenv().ELITE_HUB_ChineseHatSpin = false
+getgenv().ELITE_HUB_ChineseHatSpinSpeed = 50
+getgenv().ELITE_HUB_ChineseHatMat = "ForceField"
+local hatConn = nil
+local hatParts = {}
+local hatSpinParts = {}
+
+local function RemoveHat(char)
+    if hatConn then hatConn:Disconnect() hatConn = nil end
+    hatParts = {}
+    hatSpinParts = {}
+    local old = char and char:FindFirstChild("ELITEHUB_CHINESE_HAT")
+    if old then pcall(function() old:Destroy() end) end
+end
+
+local function MakePart(props)
+    local p = Instance.new("Part")
+    p.Size = props.Size or Vector3.new(1,1,1)
+    p.Shape = props.Shape or Enum.PartType.Block
+    p.Material = Enum.Material[props.Material or getgenv().ELITE_HUB_ChineseHatMat or "ForceField"]
+    p.Color = props.Color or Color3.new(1,1,1)
+    p.CanCollide = false
+    p.Anchored = true
+    p.CastShadow = false
+    p.Massless = true
+    p.TopSurface = Enum.SurfaceType.Smooth
+    p.BottomSurface = Enum.SurfaceType.Smooth
+    p.FrontSurface = Enum.SurfaceType.Smooth
+    p.BackSurface = Enum.SurfaceType.Smooth
+    p.LeftSurface = Enum.SurfaceType.Smooth
+    p.RightSurface = Enum.SurfaceType.Smooth
+    p.CustomPhysicalProperties = PhysicalProperties.new(0.001, 0, 0, 1, 1)
+    return p
+end
+
+local function BuildHat(char)
+    if not getgenv().ELITE_HUB_ChineseHatOn then return end
+    if not char then return end
+    local head = char:FindFirstChild("Head")
+    if not head then return end
+
+    RemoveHat(char)
+    task.wait(0.2)
+
+    local hat = Instance.new("Model")
+    hat.Name = "ELITEHUB_CHINESE_HAT"
+    hat.Parent = char
+
+    local R = getgenv().ELITE_HUB_ChineseHatR
+    local H = getgenv().ELITE_HUB_ChineseHatConeH
+    local Y = getgenv().ELITE_HUB_ChineseHatY
+    local COL = getgenv().ELITE_HUB_ChineseHatColor
+    local N = 48
+    local headCF = head.CFrame
+
+    for i = 0, N - 1 do
+        local ang = (i / N) * math.pi * 2
+        local segW = 2 * R * math.tan(math.pi / N) * 1.08
+
+        local slat = MakePart({
+            Size = Vector3.new(segW, math.sqrt(R*R + H*H), 0.03),
+            Color = COL,
+        })
+
+        local bottomPos = Vector3.new(R * math.cos(ang), Y, R * math.sin(ang))
+        local apexPos = Vector3.new(0, Y + H, 0)
+        local center = (bottomPos + apexPos) / 2
+        local dir = (apexPos - bottomPos).Unit
+        local tangent = Vector3.new(-math.sin(ang), 0, math.cos(ang))
+
+        local localCF = CFrame.fromMatrix(center, tangent, dir)
+        local worldCF = headCF * localCF
+
+        slat.CFrame = worldCF
+        slat:BreakJoints()
+        slat.Parent = hat
+        hatParts[slat] = headCF:Inverse() * worldCF
+        hatSpinParts[slat] = localCF
+    end
+
+    local tip = MakePart({
+        Shape = Enum.PartType.Ball,
+        Size = Vector3.new(0.15, 0.18, 0.15),
+        Color = COL,
+    })
+    local tipLocal = CFrame.new(0, Y + H + 0.05, 0)
+    tip.CFrame = headCF * tipLocal
+    tip:BreakJoints()
+    tip.Parent = hat
+    hatParts[tip] = tipLocal
+    hatSpinParts[tip] = tipLocal
+
+    local brim = MakePart({
+        Shape = Enum.PartType.Cylinder,
+        Size = Vector3.new(0.06, R * 2 + 0.4, R * 2 + 0.4),
+        Color = COL,
+    })
+    local brimLocal = CFrame.new(0, Y, 0) * CFrame.Angles(0, 0, math.pi / 2)
+    brim.CFrame = headCF * brimLocal
+    brim:BreakJoints()
+    brim.Parent = hat
+    hatParts[brim] = brimLocal
+    hatSpinParts[brim] = brimLocal
+
+    for p, _ in pairs(hatParts) do
+        p.Anchored = false
+    end
+
+    if hatConn then hatConn:Disconnect() hatConn = nil end
+    local RunService = game:GetService("RunService")
+    local spinAngle = 0
+    hatConn = RunService.Heartbeat:Connect(function(dt)
+        pcall(function()
+            if not getgenv().ELITE_HUB_ChineseHatOn then
+                hatConn:Disconnect()
+                hatConn = nil
+                return
+            end
+            local h = char and char:FindFirstChild("ELITEHUB_CHINESE_HAT")
+            if not h then
+                local ch = player.Character
+                if ch and ch:FindFirstChild("Head") then
+                    task.spawn(function() BuildHat(ch) end)
+                end
+                return
+            end
+            local hd = char:FindFirstChild("Head")
+            if not hd then return end
+
+            if getgenv().ELITE_HUB_ChineseHatSpin then
+                spinAngle = spinAngle + (getgenv().ELITE_HUB_ChineseHatSpinSpeed or 50) * dt * 3
+            end
+
+            local spinCF = CFrame.Angles(0, math.rad(spinAngle), 0)
+            local hdCF = hd.CFrame
+            for p, localCF in pairs(hatSpinParts) do
+                if p and p.Parent then
+                    p.CanCollide = false
+                    p.Massless = true
+                    p.CFrame = hdCF * spinCF * localCF
+                end
+            end
+        end)
+    end)
+end
+
+MT:CreateToggle({
+    Name = " Chinese Hat",
+    CurrentValue = false,
+    Callback = function(value)
+        getgenv().ELITE_HUB_ChineseHatOn = value
+        getgenv().ELITE_HUB_Log("MODS", "Chinese Hat: " .. tostring(value))
+        if value then
+            task.spawn(function() BuildHat(player.Character) end)
+        else
+            RemoveHat(player.Character)
+        end
+    end
+})
+
+MT:CreateSlider({
+    Name = " Hat Height (Y)",
+    Range = {0, 1.5},
+    Increment = 0.05,
+    CurrentValue = 0.5,
+    Callback = function(value)
+        getgenv().ELITE_HUB_ChineseHatY = value
+        if getgenv().ELITE_HUB_ChineseHatOn then
+            task.spawn(function() BuildHat(player.Character) end)
+        end
+    end
+})
+
+MT:CreateSlider({
+    Name = " Cone Height",
+    Range = {0.3, 3},
+    Increment = 0.1,
+    CurrentValue = 1.2,
+    Callback = function(value)
+        getgenv().ELITE_HUB_ChineseHatConeH = value
+        if getgenv().ELITE_HUB_ChineseHatOn then
+            task.spawn(function() BuildHat(player.Character) end)
+        end
+    end
+})
+
+MT:CreateSlider({
+    Name = " Cone Radius",
+    Range = {0.5, 3},
+    Increment = 0.1,
+    CurrentValue = 2.5,
+    Callback = function(value)
+        getgenv().ELITE_HUB_ChineseHatR = value
+        if getgenv().ELITE_HUB_ChineseHatOn then
+            task.spawn(function() BuildHat(player.Character) end)
+        end
+    end
+})
+
+MT:CreateColorPicker({
+    Name = " Hat Color",
+    Color = Color3.fromRGB(255, 0, 255),
+    Callback = function(value)
+        getgenv().ELITE_HUB_ChineseHatColor = value
+        if getgenv().ELITE_HUB_ChineseHatOn then
+            task.spawn(function() BuildHat(player.Character) end)
+        end
+    end
+})
+
+MT:CreateToggle({
+    Name = " Spin",
+    CurrentValue = false,
+    Callback = function(value)
+        getgenv().ELITE_HUB_ChineseHatSpin = value
+        getgenv().ELITE_HUB_Log("MODS", "Chinese Hat Spin: " .. tostring(value))
+    end
+})
+
+MT:CreateSlider({
+    Name = " Spin Speed",
+    Range = {10, 300},
+    Increment = 5,
+    CurrentValue = 50,
+    Callback = function(value)
+        getgenv().ELITE_HUB_ChineseHatSpinSpeed = value
+    end
+})
+
+local hatMats = {"ForceField","Neon","Glass","SmoothPlastic","Metal","DiamondPlate","Wood","WoodPlanks","Grass","Slate","Marble","Granite","Cobblestone","Brick","Sand","CorrodedMetal","Foil","Ice","LeafyGrass","Mud","Sandstone","Asphalt","Basalt","Chalk","Clay","Rock","Limestone","Pavement","Plastic","Rubber","Fabric","Carpet","Foam","Cotton","Wool"}
+MT:CreateDropdown({
+    Name = " Material",
+    Options = hatMats,
+    CurrentOption = {"ForceField"},
+    Flag = "ChineseHatMat",
+    Callback = function(value)
+        getgenv().ELITE_HUB_ChineseHatMat = value
+        for p, _ in pairs(hatParts) do
+            pcall(function() p.Material = Enum.Material[value] end)
+        end
+    end
+})
+
+player.CharacterAdded:Connect(function(char)
+    task.wait(1)
+    pcall(function()
+        if getgenv().ELITE_HUB_ChineseHatOn then
+            BuildHat(char)
+        end
+    end)
+end)
+end)
+
+-- nametag moved to modules/nametag.lua
+
+local function DestroyScript()
+    Rayfield:Notify({
+        Title = "⚡ Shutting down...",
+        Content = "ELITE HUB is being unloaded",
+        Duration = 1.5
+    })
+
+    task.wait(0.5)
+
+    -- Stop Chinese Hat
+    pcall(function() if hatConn then hatConn:Disconnect() hatConn = nil end end)
+    pcall(function()
+        local ch = player.Character
+        if ch then
+            for _, obj in ipairs(ch:GetDescendants()) do
+                if obj.Name == "ELITEHUB_CHINESE_HAT" then obj:Destroy() end
+            end
+        end
+    end)
+
+    -- Stop Fly
+    pcall(function()
+        nowe = false
+        if flyBg then flyBg:Destroy() flyBg = nil end
+        if flyBv then flyBv:Destroy() flyBv = nil end
+        if _G.flyCtrl then _G.flyCtrl = nil end
+    end)
+
+    -- Stop Noclip
+    pcall(function() if noclipConnection then noclipConnection:Disconnect() noclipConnection = nil end end)
+    noclipActive = false
+
+    -- Stop SpinBot (Combat + Range)
+    pcall(function() if getgenv().ELITE_HUB_CombatSpinStop then getgenv().ELITE_HUB_CombatSpinStop() end end)
+    pcall(function() if getgenv().ELITE_HUB_RangeSpinStop then getgenv().ELITE_HUB_RangeSpinStop() end end)
+    pcall(function() if spinConn then spinConn:Disconnect() spinConn = nil end end)
+
+    -- Stop Music Player
+    pcall(function()
+        if getgenv().ELITE_HUB_MusicEndConn then
+            pcall(function() getgenv().ELITE_HUB_MusicEndConn:Disconnect() end)
+            getgenv().ELITE_HUB_MusicEndConn = nil
+        end
+        if getgenv().ELITE_HUB_MusicPlayer then
+            getgenv().ELITE_HUB_MusicPlayer:Stop()
+            getgenv().ELITE_HUB_MusicPlayer:Destroy()
+            getgenv().ELITE_HUB_MusicPlayer = nil
+        end
+    end)
+    pcall(function() getgenv().ELITE_HUB_MusicCache = {} end)
+
+    -- Stop FPS Overlay
+    pcall(function() getgenv().ELITE_HUB_FpsOverlay = false end)
+    pcall(function()
+        if getgenv().ELITE_HUB_FpsOverlayGui then
+            getgenv().ELITE_HUB_FpsOverlayGui:Destroy()
+            getgenv().ELITE_HUB_FpsOverlayGui = nil
+        end
+    end)
+
+    -- Stop Anti-AFK / Rejoin
+    pcall(function() if getgenv().ELITE_HUB_AntiAfkConn then getgenv().ELITE_HUB_AntiAfkConn:Disconnect() end end)
+    pcall(function() if getgenv().ELITE_HUB_RejoinConn then getgenv().ELITE_HUB_RejoinConn:Disconnect() end end)
+
+    -- Restore Chams (restore all originals, destroy highlights)
+    pcall(function()
+        for _, plr in ipairs(Players:GetPlayers()) do
+            pcall(function()
+                if getgenv().ELITE_HUB_RestoreChamOriginals then getgenv().ELITE_HUB_RestoreChamOriginals(plr) end
+            end)
+            pcall(function()
+                if getgenv().ELITE_HUB_ChamHighlights then
+                    local hl = getgenv().ELITE_HUB_ChamHighlights[plr]
+                    if hl then hl:Destroy() getgenv().ELITE_HUB_ChamHighlights[plr] = nil end
+                end
+            end)
+        end
+    end)
+
+    -- Restore Neon Body / Fire Trail
+    pcall(function()
+        local ch = player.Character
+        if ch then
+            for _, part in ipairs(ch:GetDescendants()) do
+                if part:IsA("BasePart") and part:GetAttribute("EliteHubOrigMaterial") then
+                    pcall(function()
+                        part.Material = Enum.Material[part:GetAttribute("EliteHubOrigMaterial")]
+                        part.Color = part:GetAttribute("EliteHubOrigColor")
+                    end)
+                end
+                if part.Name == "EliteHubFireTrail" then
+                    pcall(function() part:Destroy() end)
+                end
+            end
+        end
+    end)
+
+    -- Restore Speed Boost
+    pcall(function()
+        local ch = player.Character
+        local hum = ch and ch:FindFirstChildOfClass("Humanoid")
+        if hum then
+            hum.WalkSpeed = 16
+            hum.JumpPower = 50
+        end
+    end)
+
+    -- Restore Lighting (Night, Fog, Fullbright)
+    pcall(function()
+        local l = game:GetService("Lighting")
+        if getgenv().ELITE_HUB_NightOrigClock then l.ClockTime = getgenv().ELITE_HUB_NightOrigClock end
+        if getgenv().ELITE_HUB_NightOrigOutdoorAmbient then l.OutdoorAmbient = getgenv().ELITE_HUB_NightOrigOutdoorAmbient end
+        if getgenv().ELITE_HUB_NightOrigBrightness then l.Brightness = getgenv().ELITE_HUB_NightOrigBrightness end
+        if getgenv().ELITE_HUB_NoFogOrigFogEnd ~= nil then l.FogEnd = getgenv().ELITE_HUB_NoFogOrigFogEnd end
+        if getgenv().ELITE_HUB_NoFogOrigFogStart ~= nil then l.FogStart = getgenv().ELITE_HUB_NoFogOrigFogStart end
+        if getgenv().ELITE_HUB_NoFogOrigFogColor then l.FogColor = getgenv().ELITE_HUB_NoFogOrigFogColor end
+        if getgenv().ELITE_HUB_FullbrightBackup then
+            local b = getgenv().ELITE_HUB_FullbrightBackup
+            if b.FogEnd then l.FogEnd = b.FogEnd end
+            if b.Technology then l.Technology = b.Technology end
+        end
+    end)
+
+    -- Nil all ELITE_HUB_ globals
+    for name, _ in pairs(getgenv()) do
+        if string.sub(name, 1, 11) == "ELITE_HUB_" then
+            pcall(function() getgenv()[name] = nil end)
+        end
+    end
+
+    -- Destroy UI Screens
+    pcall(function()
+        local pg = player:FindFirstChild("PlayerGui")
+        if pg then
+            for _, gui in ipairs(pg:GetChildren()) do
+                if gui:IsA("ScreenGui") and (gui.Name == "EliteHubUI" or gui.Name == "ELITE_HUB_Overlay" or gui.Name == "EliteNotif") then
+                    gui:Destroy()
+                end
+            end
+        end
+    end)
+
+    -- Destroy CoreGui overlays
+    pcall(function()
+        local cg = game:GetService("CoreGui")
+        for _, gui in ipairs(cg:GetChildren()) do
+            if gui:IsA("ScreenGui") and gui.Name == "ELITE_HUB_Overlay" then
+                gui:Destroy()
+            end
+        end
+    end)
+
+    task.wait(0.5)
+end
+
+local function LoadScript(name, url)
+    task.spawn(function()
+        Rayfield:Notify({
+            Title = "⏳ Loading...",
+            Content = name .. " is launching",
+            Duration = 2
+        })
+        
+        task.wait(0.5)
+        
+        local success, err = pcall(function()
+            loadstring(game:HttpGet(url))()
+        end)
+        
+        task.wait(0.5)
+        
+        if success then
+            Rayfield:Notify({
+                Title = "✅ Done!",
+                Content = name .. " loaded",
+                Duration = 3
+            })
+        else
+            Rayfield:Notify({
+                Title = "✅ Done!",
+                Content = "Failed to load " .. name,
+                Duration = 5
+            })
+            warn("Script Load Error:", name, err)
+        end
+    end)
+end
+
+local NotifyCooldown = {}
+local NotifyScreenGui = Instance.new("ScreenGui")
+NotifyScreenGui.Name = "EliteHubNotify"
+NotifyScreenGui.ResetOnSpawn = false
+NotifyScreenGui.DisplayOrder = 999
+NotifyScreenGui.Parent = player:WaitForChild("PlayerGui")
+
+local NotifyCount = 0
+
+getgenv().ELITE_HUB_SafeNotify = function(title, content, duration, category)
+    if category and getgenv().ELITE_HUB_AimbotConfig and getgenv().ELITE_HUB_AimbotConfig["Notify" .. category] == false then return end
+    local key = title .. "|" .. content
+    local now = tick()
+    if NotifyCooldown[key] and (now - NotifyCooldown[key]) < 2 then return end
+    NotifyCooldown[key] = now
+    duration = duration or 2
+    NotifyCount = NotifyCount + 1
+    local id = NotifyCount
+
+    local frame = Instance.new("Frame")
+    frame.Name = "Notify_" .. id
+    frame.Size = UDim2.new(0, 300, 0, 60)
+    frame.Position = UDim2.new(1, 320, 0, 14 + (id % 5) * 66)
+    frame.BackgroundColor3 = Color3.fromRGB(25, 20, 40)
+    frame.BackgroundTransparency = 0.1
+    frame.BorderSizePixel = 0
+    frame.Parent = NotifyScreenGui
+    frame.ClipsDescendants = true
+
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 10)
+    corner.Parent = frame
+
+    local stroke = Instance.new("UIStroke")
+    stroke.Color = Color3.fromRGB(170, 0, 255)
+    stroke.Thickness = 1.5
+    stroke.Parent = frame
+
+    local gradient = Instance.new("UIGradient")
+    gradient.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(40, 30, 70)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(20, 15, 35))
+    })
+    gradient.Rotation = 90
+    gradient.Parent = frame
+
+    local titleLabel = Instance.new("TextLabel")
+    titleLabel.Size = UDim2.new(1, -20, 0, 25)
+    titleLabel.Position = UDim2.new(0, 10, 0, 5)
+    titleLabel.BackgroundTransparency = 1
+    titleLabel.Text = title
+    titleLabel.TextColor3 = Color3.fromRGB(170, 0, 255)
+    titleLabel.TextSize = 16
+    titleLabel.Font = Enum.Font.GothamBold
+    titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+    titleLabel.Parent = frame
+
+    local contentLabel = Instance.new("TextLabel")
+    contentLabel.Size = UDim2.new(1, -20, 0, 20)
+    contentLabel.Position = UDim2.new(0, 10, 0, 30)
+    contentLabel.BackgroundTransparency = 1
+    contentLabel.Text = content
+    contentLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+    contentLabel.TextSize = 13
+    contentLabel.Font = Enum.Font.Gotham
+    contentLabel.TextXAlignment = Enum.TextXAlignment.Left
+    contentLabel.Parent = frame
+
+    local bar = Instance.new("Frame")
+    bar.Size = UDim2.new(1, 0, 0, 3)
+    bar.Position = UDim2.new(0, 0, 1, -3)
+    bar.BackgroundColor3 = Color3.fromRGB(170, 0, 255)
+    bar.BorderSizePixel = 0
+    bar.Parent = frame
+
+    task.spawn(function()
+        local tweenService = game:GetService("TweenService")
+        local yPos = 14 + (id % 5) * 66
+        frame.Position = UDim2.new(1, 320, 0, yPos)
+        local slideIn = tweenService:Create(frame, TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+            Position = UDim2.new(1, -314, 0, yPos)
+        })
+        slideIn:Play()
+        slideIn.Completed:Wait()
+
+        local barTween = tweenService:Create(bar, TweenInfo.new(duration, Enum.EasingStyle.Linear), {
+            Size = UDim2.new(0, 0, 0, 3)
+        })
+        barTween:Play()
+        task.wait(duration)
+
+        local fadeOut = tweenService:Create(frame, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+            Position = UDim2.new(1, 320, 0, yPos),
+            BackgroundTransparency = 1
+        })
+        local fadeTitle = tweenService:Create(titleLabel, TweenInfo.new(0.3), {TextTransparency = 1})
+        local fadeContent = tweenService:Create(contentLabel, TweenInfo.new(0.3), {TextTransparency = 1})
+        fadeOut:Play()
+        fadeTitle:Play()
+        fadeContent:Play()
+        fadeOut.Completed:Wait()
+        frame:Destroy()
+    end)
+end
+-- publish shared environment (ELITE_HUB_ prefix)
+getgenv().ELITE_HUB_Rayfield = Rayfield
+getgenv().EliteHubSettings = ES
+getgenv().ELITE_HUB_L = L
+getgenv().ELITE_HUB_Players = Players
+getgenv().ELITE_HUB_Player = player
+getgenv().ELITE_HUB_DestroyScript = DestroyScript
+getgenv().ELITE_HUB_LoadScript = LoadScript
+getgenv().ELITE_HUB_Window = Window
+getgenv().ELITE_HUB_MainTab = MainTab
+getgenv().ELITE_HUB_ESPTab = ESPTab
+getgenv().ELITE_HUB_CombatTab = CombatTab
+getgenv().ELITE_HUB_VisualTab = VisualTab
+getgenv().ELITE_HUB_TeleportTab = TeleportTab
+getgenv().ELITE_HUB_KillAllTab = KillAllTab
+getgenv().ELITE_HUB_FEScriptsTab = FEScriptsTab
+getgenv().ELITE_HUB_HubsTab = HubsTab
+getgenv().ELITE_HUB_GameScriptsTab = GameScriptsTab
+getgenv().ELITE_HUB_MovementTab = MovementTab
+getgenv().ELITE_HUB_CombatPlusTab = CombatPlusTab
+getgenv().ELITE_HUB_CameraTeleportTab = CameraTeleportTab
+getgenv().ELITE_HUB_UtilitiesTab = UtilitiesTab
+getgenv().ELITE_HUB_MusicTab = MusicTab
+getgenv().ELITE_HUB_Log("UI", "Loading modules...")
+loadModuleChunk("modules/overlay.lua")()
+loadModuleChunk("modules/hubs.lua")()
+loadModuleChunk("modules/fe_scripts.lua")()
+loadModuleChunk("modules/game_scripts.lua")()
+loadModuleChunk("modules/main.lua")()
+loadModuleChunk("modules/aimbot.lua")()
+loadModuleChunk("modules/esp.lua")()
+loadModuleChunk("modules/chams.lua")()
+loadModuleChunk("modules/teleport.lua")()
+loadModuleChunk("modules/kill_all.lua")()
+loadModuleChunk("modules/visual.lua")()
+loadModuleChunk("modules/visual_plus.lua")()
+loadModuleChunk("modules/environment.lua")()
+loadModuleChunk("modules/movement.lua")()
+loadModuleChunk("modules/combat_plus.lua")()
+loadModuleChunk("modules/camera.lua")()
+loadModuleChunk("modules/utilities.lua")()
+loadModuleChunk("modules/music.lua")()
+loadModuleChunk("modules/range.lua")()
+loadModuleChunk("modules/item_finder.lua")()
+loadModuleChunk("modules/settings.lua")()
+loadModuleChunk("modules/anti_fling.lua")()
+loadModuleChunk("modules/watchdog.lua")()
+getgenv().ELITE_HUB_HASKER_LOADED = true
+getgenv().ELITE_HUB_Log("UI", "ELITE HUB modules loaded")

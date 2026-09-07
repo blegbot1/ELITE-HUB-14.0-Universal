@@ -1,8 +1,19 @@
--- ELITE HUB 14.0 — Anti-Fling Module
--- Extracted from ELITE_HUB_14.0.lua
--- ═══════════════════════════════════════════════════════════════════
--- 🛡️ ANTI-FLING — автоматически запускается при старте скрипта
--- ═══════════════════════════════════════════════════════════════════
+﻿-- source: ELITE_HUB_14.0.lua ANTI-FLING (lines 12470-12541)
+local _g = getgenv
+local Rayfield = _g().ELITE_HUB_Rayfield
+local Window = _g().ELITE_HUB_Window
+local ES = _g().EliteHubSettings
+local L = _g().ELITE_HUB_L
+local Log = _g().ELITE_HUB_Log
+local Players = _g().ELITE_HUB_Players
+local player = _g().ELITE_HUB_Player
+local OverlayGui = _g().ELITE_HUB_OverlayGui
+local LoadScript = _g().ELITE_HUB_LoadScript
+local SafeNotify = _g().ELITE_HUB_SafeNotify
+local DestroyScript = _g().ELITE_HUB_DestroyScript
+local MT = Window
+-- рџ›ЎпёЏ ANTI-FLING вЂ” Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРё Р·Р°РїСѓСЃРєР°РµС‚СЃСЏ РїСЂРё СЃС‚Р°СЂС‚Рµ СЃРєСЂРёРїС‚Р°
+-- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
 do
     local AF_VELOCITY_THRESHOLD = 150
     local AF_ANGULAR_THRESHOLD = 20

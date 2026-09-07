@@ -1,7 +1,18 @@
--- ELITE HUB 14.0 — Settings Module
--- Extracted from ELITE_HUB_14.0.lua
-
-local SettingsTab = Window:CreateTab("⚙️ " .. L("Settings"), 0, "Settings")
+﻿-- source: ELITE_HUB_14.0.lua SETTINGS (lines 12543-12622)
+local _g = getgenv
+local Rayfield = _g().ELITE_HUB_Rayfield
+local Window = _g().ELITE_HUB_Window
+local ES = _g().EliteHubSettings
+local L = _g().ELITE_HUB_L
+local Log = _g().ELITE_HUB_Log
+local Players = _g().ELITE_HUB_Players
+local player = _g().ELITE_HUB_Player
+local OverlayGui = _g().ELITE_HUB_OverlayGui
+local LoadScript = _g().ELITE_HUB_LoadScript
+local SafeNotify = _g().ELITE_HUB_SafeNotify
+local DestroyScript = _g().ELITE_HUB_DestroyScript
+local MT = Window
+local SettingsTab = Window:CreateTab("⚙ " .. L("Settings"), 0, "Settings")
 
 local s1 = SettingsTab:CreateSection(L("Settings"))
 table.insert(Window._translatables, {element = s1, key = "Settings", type = "section", prefix = ""})
@@ -44,7 +55,7 @@ local saveBtn = SettingsTab:CreateButton({
                 Lang = ES.Lang,
             })
             writefile("EliteHub_Config.json", data)
-            Rayfield:Notify({Title = "OK", Content = L("ConfigSaved"), Duration = 2})
+            Rayfield:Notify({Title = "✅ OK", Content = L("ConfigSaved"), Duration = 2})
         end)
     end
 })
@@ -55,14 +66,14 @@ local loadBtn = SettingsTab:CreateButton({
     Callback = function()
         pcall(function()
             if not isfile("EliteHub_Config.json") then
-                Rayfield:Notify({Title = "!", Content = L("NoConfig"), Duration = 2})
+                Rayfield:Notify({Title = "⚠️ Warning", Content = L("NoConfig"), Duration = 2})
                 return
             end
             local data = game:GetService("HttpService"):JSONDecode(readfile("EliteHub_Config.json"))
             if data.Animations ~= nil then ES.Animations = data.Animations end
             if data.Lang then ES.Lang = data.Lang end
             Window:_updateAll()
-            Rayfield:Notify({Title = "OK", Content = L("ConfigLoaded"), Duration = 2})
+            Rayfield:Notify({Title = "✅ OK", Content = L("ConfigLoaded"), Duration = 2})
         end)
     end
 })
@@ -74,12 +85,10 @@ local resetBtn = SettingsTab:CreateButton({
         ES.Animations = true
         ES.Lang = "RU"
         Window:_updateAll()
-        Rayfield:Notify({Title = "OK", Content = L("SettingsReset"), Duration = 2})
+        Rayfield:Notify({Title = "✅ OK", Content = L("SettingsReset"), Duration = 2})
     end
 })
 table.insert(Window._translatables, {element = resetBtn, key = "ResetSettings", type = "button"})
 
 local verLabel = SettingsTab:CreateLabel(L("Version"))
 table.insert(Window._translatables, {element = verLabel.Frame, key = "Version", type = "label"})
-
-end) -- конец task.spawn(mods)

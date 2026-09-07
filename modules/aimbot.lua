@@ -1,9 +1,24 @@
--- ELITE HUB 14.0 — Aimbot Module
--- Extracted from ELITE_HUB_14.0.lua
+-- source: ELITE_HUB_14.0.lua Aimbot (lines 5469-7109)
+local _g = getgenv
+local Rayfield = _g().ELITE_HUB_Rayfield
+local Window = _g().ELITE_HUB_Window
+local ES = _g().EliteHubSettings
+local L = _g().ELITE_HUB_L
+local Log = _g().ELITE_HUB_Log
+local Players = _g().ELITE_HUB_Players
+local player = _g().ELITE_HUB_Player
+local OverlayGui = _g().ELITE_HUB_OverlayGui
+local LoadScript = _g().ELITE_HUB_LoadScript
+local SafeNotify = _g().ELITE_HUB_SafeNotify
+local DestroyScript = _g().ELITE_HUB_DestroyScript
+local MT = Window
+local CombatTab = _g().ELITE_HUB_CombatTab
+local NewOverlayCircle = _g().ELITE_HUB_NewOverlayCircle
+local NewOverlayLine = _g().ELITE_HUB_NewOverlayLine
 
 --[[
     ==============================
-    УЛУЧШЕННЫЙ AIMBOT С ПРИОРИТЕТОМ ПО ДИСТАНЦИИ
+    РЈР›РЈР§РЁР•РќРќР«Р™ AIMBOT РЎ РџР РРћР РРўР•РўРћРњ РџРћ Р”РРЎРўРђРќР¦РР
     ==============================
 ]]--
 local AimbotSection = CombatTab:CreateSection("🎯 IMPROVED AIMBOT 3D FOV")
@@ -67,6 +82,7 @@ local AimbotConfig = {
     TargetHealthBarMounted = false,
     IsAiming = false
 }
+getgenv().ELITE_HUB_AimbotConfig = AimbotConfig
 
 local FOVCircle = NewOverlayCircle()
 FOVCircle.Visible = AimbotConfig.ShowFOV
@@ -76,8 +92,8 @@ FOVCircle.Thickness = 5
 FOVCircle.Filled = false
 FOVCircle.Position = Vector2.new(workspace.CurrentCamera.ViewportSize.X / 2, workspace.CurrentCamera.ViewportSize.Y / 2)
 local Running = false
-local LockedTarget = nil
-local LockedTargetPlayer = nil
+LockedTarget = nil
+LockedTargetPlayer = nil
 
 local PredictionLastPos = {}
 local PredictionLastTime = {}
@@ -92,100 +108,7 @@ NotifyScreenGui.DisplayOrder = 999
 NotifyScreenGui.Parent = player:WaitForChild("PlayerGui")
 
 local NotifyCount = 0
-local function SafeNotify(title, content, duration, category)
-    if category and AimbotConfig and AimbotConfig["Notify" .. category] == false then return end
-    local key = title .. "|" .. content
-    local now = tick()
-    if NotifyCooldown[key] and (now - NotifyCooldown[key]) < 2 then return end
-    NotifyCooldown[key] = now
-    duration = duration or 2
-    NotifyCount = NotifyCount + 1
-    local id = NotifyCount
-
-    local frame = Instance.new("Frame")
-    frame.Name = "Notify_" .. id
-    frame.Size = UDim2.new(0, 300, 0, 60)
-    frame.Position = UDim2.new(1, 320, 0.8, -70 * (id % 5))
-    frame.BackgroundColor3 = Color3.fromRGB(25, 20, 40)
-    frame.BackgroundTransparency = 0.1
-    frame.BorderSizePixel = 0
-    frame.Parent = NotifyScreenGui
-    frame.ClipsDescendants = true
-
-    local corner = Instance.new("UICorner")
-    corner.CornerRadius = UDim.new(0, 10)
-    corner.Parent = frame
-
-    local stroke = Instance.new("UIStroke")
-    stroke.Color = Color3.fromRGB(170, 0, 255)
-    stroke.Thickness = 1.5
-    stroke.Parent = frame
-
-    local gradient = Instance.new("UIGradient")
-    gradient.Color = ColorSequence.new({
-        ColorSequenceKeypoint.new(0, Color3.fromRGB(40, 30, 70)),
-        ColorSequenceKeypoint.new(1, Color3.fromRGB(20, 15, 35))
-    })
-    gradient.Rotation = 90
-    gradient.Parent = frame
-
-    local titleLabel = Instance.new("TextLabel")
-    titleLabel.Size = UDim2.new(1, -20, 0, 25)
-    titleLabel.Position = UDim2.new(0, 10, 0, 5)
-    titleLabel.BackgroundTransparency = 1
-    titleLabel.Text = title
-    titleLabel.TextColor3 = Color3.fromRGB(170, 0, 255)
-    titleLabel.TextSize = 16
-    titleLabel.Font = Enum.Font.GothamBold
-    titleLabel.TextXAlignment = Enum.TextXAlignment.Left
-    titleLabel.Parent = frame
-
-    local contentLabel = Instance.new("TextLabel")
-    contentLabel.Size = UDim2.new(1, -20, 0, 20)
-    contentLabel.Position = UDim2.new(0, 10, 0, 30)
-    contentLabel.BackgroundTransparency = 1
-    contentLabel.Text = content
-    contentLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
-    contentLabel.TextSize = 13
-    contentLabel.Font = Enum.Font.Gotham
-    contentLabel.TextXAlignment = Enum.TextXAlignment.Left
-    contentLabel.Parent = frame
-
-    local bar = Instance.new("Frame")
-    bar.Size = UDim2.new(1, 0, 0, 3)
-    bar.Position = UDim2.new(0, 0, 1, -3)
-    bar.BackgroundColor3 = Color3.fromRGB(170, 0, 255)
-    bar.BorderSizePixel = 0
-    bar.Parent = frame
-
-    task.spawn(function()
-        local tweenService = game:GetService("TweenService")
-        frame.Position = UDim2.new(1, 0, 0.8, -70 * (id % 5))
-        local slideIn = tweenService:Create(frame, TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-            Position = UDim2.new(1, -310, 0.8, -70 * (id % 5))
-        })
-        slideIn:Play()
-        slideIn.Completed:Wait()
-
-        local barTween = tweenService:Create(bar, TweenInfo.new(duration, Enum.EasingStyle.Linear), {
-            Size = UDim2.new(0, 0, 0, 3)
-        })
-        barTween:Play()
-        task.wait(duration)
-
-        local fadeOut = tweenService:Create(frame, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
-            Position = UDim2.new(1, 0, 0.8, -70 * (id % 5)),
-            BackgroundTransparency = 1
-        })
-        local fadeTitle = tweenService:Create(titleLabel, TweenInfo.new(0.3), {TextTransparency = 1})
-        local fadeContent = tweenService:Create(contentLabel, TweenInfo.new(0.3), {TextTransparency = 1})
-        fadeOut:Play()
-        fadeTitle:Play()
-        fadeContent:Play()
-        fadeOut.Completed:Wait()
-        frame:Destroy()
-    end)
-end
+-- Monolith 'local function SafeNotify' omitted; core ELITE_HUB_SafeNotify used instead
 
 
 local SkeletonLinksSimple = {
@@ -228,8 +151,8 @@ local SkeletonLinksR6 = {
     {"Torso", "Right Arm"},
     {"Torso", "Left Leg"},
     {"Torso", "Right Leg"},
-    {"Left Leg", "LeftFoot"},
-    {"Right Leg", "RightFoot"},
+    {"Left Leg", "Left Hip"},
+    {"Right Leg", "Right Hip"},
 }
 local SKELETON_MAX_LINES = 20
 
@@ -292,6 +215,8 @@ local function UpdateSkeletonLines(character, lines, color, thickness, skeletonT
         end
     end
 end
+
+_g().ELITE_HUB_UpdateSkeletonLines = UpdateSkeletonLines
 
 local TargetIndicatorGui = Instance.new("ScreenGui")
 TargetIndicatorGui.Name = "ELITE_HUB_TargetGUI"
@@ -381,7 +306,7 @@ local function UpdateTargetIndicator()
     if AimbotConfig.ShowTargetIndicator then
         TargetNameLabel.Visible = true
         TargetNameLabel.Position = UDim2.new(0, indicatorPos.X, 0, indicatorPos.Y + 30)
-        TargetNameLabel.Text = "🔴 " .. name .. hpText .. distText
+        TargetNameLabel.Text = " " .. name .. hpText .. distText
         TargetNameLabel.TextColor3 = AimbotConfig.TargetCircleColor
     else
         TargetNameLabel.Visible = false
@@ -389,7 +314,7 @@ local function UpdateTargetIndicator()
 
     if AimbotConfig.ShowTargetNameBig then
         TargetBigNameLabel.Visible = true
-        TargetBigNameLabel.Text = "🎯 " .. name .. hpText .. distText
+        TargetBigNameLabel.Text = " " .. name .. hpText .. distText
         TargetBigNameLabel.TextColor3 = AimbotConfig.TargetCircleColor
     else
         TargetBigNameLabel.Visible = false
@@ -493,6 +418,9 @@ local function IsFriend(targetPlayer)
     return IsFriendName(targetPlayer.Name)
 end
 
+_g().ELITE_HUB_IsFriendName = IsFriendName
+_g().ELITE_HUB_IsFriend = IsFriend
+
 local function GetTargetPlayer()
     local targetName = tostring(getgenv().ELITE_HUB_TARGET_NAME or "")
     if targetName == "" then return nil end
@@ -504,7 +432,7 @@ end
 
 getgenv().ELITE_HUB_FRIEND_TEAMS = getgenv().ELITE_HUB_FRIEND_TEAMS or {}
 
-local function GetTeamName(p)
+function GetTeamName(p)
     if not p then return nil end
     local t = p.Team
     if t and t.Name and t.Name ~= "" then return tostring(t.Name) end
@@ -517,7 +445,7 @@ local function GetTeamName(p)
     return nil
 end
 
-local function IsFriendlyTeamName(teamName)
+function IsFriendlyTeamName(teamName)
     teamName = tostring(teamName or "")
     if teamName == "" then return false end
     for _, tn in ipairs(getgenv().ELITE_HUB_FRIEND_TEAMS) do
@@ -526,13 +454,13 @@ local function IsFriendlyTeamName(teamName)
     return false
 end
 
-local function IsFriendlyTeam(p)
+function IsFriendlyTeam(p)
     if not p then return false end
     if p == player then return true end
     return IsFriendlyTeamName(GetTeamName(p))
 end
 
-local function IsSameTeam(p)
+function IsSameTeam(p)
     if not p then return false end
     local my = GetTeamName(player)
     local theirs = GetTeamName(p)
@@ -540,7 +468,7 @@ local function IsSameTeam(p)
     return false
 end
 
-local function GetTeamRelation(p)
+function GetTeamRelation(p)
     if not p then return "none" end
     if p == player then return "my" end
     local tn = GetTeamName(p)
@@ -550,7 +478,7 @@ local function GetTeamRelation(p)
     return "enemy"
 end
 
-local function GetAllTeamNames()
+function GetAllTeamNames()
     local seen = {}
     local res = {}
     local my = GetTeamName(player)
@@ -646,7 +574,7 @@ local function GetClosestPlayer()
         if ok and part then
             return part
         end
-        LockedTargetPlayer = nil -- цель умерла / ушла с экрана -> отпускаем
+        LockedTargetPlayer = nil -- С†РµР»СЊ СѓРјРµСЂР»Р° / СѓС€Р»Р° СЃ СЌРєСЂР°РЅР° -> РѕС‚РїСѓСЃРєР°РµРј
     end
 
     local prioPlayer = GetTargetPlayer()
@@ -723,7 +651,7 @@ local function GetClosestPlayer()
 end
 
 task.spawn(function()
-    Log("AIMBOT", "Цикл аимбота запущен")
+    Log("AIMBOT", "  ")
     while task.wait() do
         pcall(function()
             local camera = workspace.CurrentCamera
@@ -753,7 +681,7 @@ task.spawn(function()
                 if target then
                     local isNewTarget = LockedTargetPlayer ~= nil and LockedTargetPlayer ~= LockedTargetPlayer
                     if LockedTarget == nil then
-                        SafeNotify("🎯 LOCK", LockedTargetPlayer.Name, 1.5, "Lock")
+                        SafeNotify(" LOCK", LockedTargetPlayer.Name, 1.5, "Lock")
                     end
                     LockedTarget = target
                     local targetPosition = target.Position + Vector3.new(0, AimbotConfig.AimOffset, 0)
@@ -785,7 +713,7 @@ task.spawn(function()
                             local toCamera = (camPos - hrp.Position).Unit
                             local dot = lookDir:Dot(toCamera)
                             if dot < -0.3 then
-                                SafeNotify("🧠 ANTI-AIM", LockedTargetPlayer.Name .. " повёрнут спиной!", 2, "AntiAim")
+                                SafeNotify("🛡 ANTI-AIM", LockedTargetPlayer.Name .. "  !", 2, "AntiAim")
                             end
                         end
                     end
@@ -794,7 +722,7 @@ task.spawn(function()
                         local ch = LockedTargetPlayer.Character
                         local hum = ch and ch:FindFirstChildOfClass("Humanoid")
                         if hum and hum.Health > 0 and hum.Health < 30 then
-                            SafeNotify("💥 LOW HP", LockedTargetPlayer.Name .. " — " .. math.floor(hum.Health) .. " HP!", 1, "LowHP")
+                            SafeNotify(" LOW HP", LockedTargetPlayer.Name .. "  " .. math.floor(hum.Health) .. " HP!", 1, "LowHP")
                         end
                     end
 
@@ -804,7 +732,7 @@ task.spawn(function()
                         if hum then
                             local oldHP = PreviousTargetHP[LockedTargetPlayer]
                             if oldHP and oldHP > 0 and hum.Health <= 0 then
-                                SafeNotify("💀 KILL", LockedTargetPlayer.Name .. " убит!", 2, "Kill")
+                                SafeNotify(" KILL", LockedTargetPlayer.Name .. " !", 2, "Kill")
                             end
                             PreviousTargetHP[LockedTargetPlayer] = hum.Health
                         end
@@ -816,7 +744,7 @@ task.spawn(function()
                             local screenCenter = Vector2.new(camera.ViewportSize.X / 2, camera.ViewportSize.Y / 2)
                             local screenDist = (Vector2.new(screenPos2.X, screenPos2.Y) - screenCenter).Magnitude
                             if screenDist < 30 then
-                                SafeNotify("🔫 SHOT", LockedTargetPlayer.Name, 0.5, "Shot")
+                                SafeNotify(" SHOT", LockedTargetPlayer.Name, 0.5, "Shot")
                                 task.delay(AimbotConfig.AutoShootDelay, function()
                                     pcall(function()
                                         local vup = game:GetService("VirtualUser")
@@ -830,7 +758,7 @@ task.spawn(function()
                     end
                 else
                     if LockedTargetPlayer then
-                        SafeNotify("❌ UNLOCK", "Цель потеряна", 1.5, "Unlock")
+                        SafeNotify(" UNLOCK", " ", 1.5, "Unlock")
                         PredictionLastPos[LockedTargetPlayer] = nil
                         PredictionLastTime[LockedTargetPlayer] = nil
                         PreviousTargetHP[LockedTargetPlayer] = nil
@@ -877,18 +805,18 @@ game:GetService("UserInputService").InputEnded:Connect(function(input)
 end)
 
 CombatTab:CreateToggle({
-    Name = "🎯 Enable Aimbot",
+    Name = " Enable Aimbot",
     CurrentValue = AimbotConfig.Enabled,
     Flag = "AimbotEnabled",
     Callback = function(value)
         AimbotConfig.Enabled = value
         getgenv().ELITE_HUB_AimbotEnabled = value
-        Log("AIMBOT", "Aimbot включен: " .. tostring(value))
+        Log("AIMBOT", "Aimbot : " .. tostring(value))
         if value then
             if FOVCircle then FOVCircle.Visible = true end
             Rayfield:Notify({
-                Title = "🎯 Aimbot ВКЛЮЧЁН",
-                Content = "Зажмите ПКМ для прицеливания",
+                Title = "🎯 Aimbot",
+                Content = "Enabled",
                 Duration = 3
             })
         else
@@ -896,8 +824,8 @@ CombatTab:CreateToggle({
             Running = false
             LockedTarget = nil
             Rayfield:Notify({
-                Title = "🎯 Aimbot ВЫКЛЮЧЕН",
-                Content = "Авто-прицеливание отключено",
+                Title = "🎯 Aimbot",
+                Content = "Disabled",
                 Duration = 2
             })
         end
@@ -905,7 +833,7 @@ CombatTab:CreateToggle({
 })
 
 CombatTab:CreateToggle({
-    Name = "👥 Ignore team",
+    Name = " Ignore team",
     CurrentValue = AimbotConfig.TeamCheck,
     Callback = function(value)
         AimbotConfig.TeamCheck = value
@@ -913,7 +841,7 @@ CombatTab:CreateToggle({
 })
 
 CombatTab:CreateToggle({
-    Name = "💀 Don't aim at dead",
+    Name = " Don't aim at dead",
     CurrentValue = AimbotConfig.AliveCheck,
     Callback = function(value)
         AimbotConfig.AliveCheck = value
@@ -921,7 +849,7 @@ CombatTab:CreateToggle({
 })
 
 CombatTab:CreateToggle({
-    Name = "🧱 Don't aim through walls",
+    Name = " Don't aim through walls",
     CurrentValue = AimbotConfig.WallCheck,
     Callback = function(value)
         AimbotConfig.WallCheck = value
@@ -929,7 +857,7 @@ CombatTab:CreateToggle({
 })
 
 CombatTab:CreateToggle({
-    Name = "👁️ First-person fix",
+    Name = " First-person fix",
     CurrentValue = AimbotConfig.ThirdPersonFix,
     Callback = function(value)
         AimbotConfig.ThirdPersonFix = value
@@ -937,21 +865,21 @@ CombatTab:CreateToggle({
 })
 
 CombatTab:CreateDropdown({
-    Name = "🎯 Target priority",
+    Name = " Target priority",
     Options = {"Distance", "FOV", "Health"},
     CurrentOption = AimbotConfig.Priority,
     Callback = function(option)
         AimbotConfig.Priority = option
         if option == "Distance" then
             Rayfield:Notify({
-                Title = "🎯 Приоритет: ДИСТАНЦИЯ",
-                Content = "Целится в ближайшего игрока",
+                Title = "🎯 Target",
+                Content = "Enabled",
                 Duration = 3
             })
         else
             Rayfield:Notify({
-                Title = "🎯 Приоритет: FOV",
-                Content = "Целится в ближайшего к курсору",
+                Title = "🎯 FOV Lock",
+                Content = "Lock enabled",
                 Duration = 3
             })
         end
@@ -959,7 +887,7 @@ CombatTab:CreateDropdown({
 })
 
 CombatTab:CreateSlider({
-    Name = "🔘 FOV Size",
+    Name = " FOV Size",
     Range = {50, 300},
     Increment = 10,
     CurrentValue = AimbotConfig.FOV,
@@ -969,7 +897,7 @@ CombatTab:CreateSlider({
 })
 
 CombatTab:CreateColorPicker({
-    Name = "💜 FOV Color",
+    Name = " FOV Color",
     Color = AimbotConfig.FOVColor,
     Callback = function(value)
         AimbotConfig.FOVColor = value
@@ -977,17 +905,17 @@ CombatTab:CreateColorPicker({
 })
 
 CombatTab:CreateColorPicker({
-    Name = "🔴 Lock Color",
+    Name = " Lock Color",
     Color = AimbotConfig.LockedColor,
     Callback = function(value)
         AimbotConfig.LockedColor = value
     end
 })
 
-CombatTab:CreateSection("⚙️ EXTRA AIMBOT SETTINGS")
+CombatTab:CreateSection("⚙ EXTRA AIMBOT SETTINGS")
 
 CombatTab:CreateToggle({
-    Name = "👁️ Show FOV circle",
+    Name = " Show FOV circle",
     CurrentValue = AimbotConfig.ShowFOV,
     Flag = "AimbotShowFOV",
     Callback = function(value)
@@ -997,7 +925,7 @@ CombatTab:CreateToggle({
 })
 
 CombatTab:CreateToggle({
-    Name = "🔁 Mode: Toggle / Hold",
+    Name = " Mode: Toggle / Hold",
     CurrentValue = AimbotConfig.Toggle,
     Flag = "AimbotToggle",
     Callback = function(value)
@@ -1009,21 +937,21 @@ CombatTab:CreateToggle({
 })
 
 CombatTab:CreateDropdown({
-    Name = "🖱️ Target key",
+    Name = " Target key",
     Options = {"MouseButton2", "MouseButton1", "LeftControl", "X", "C", "F", "V", "Shift"},
     CurrentOption = AimbotConfig.TriggerKey,
     Callback = function(option)
         AimbotConfig.TriggerKey = option
         Rayfield:Notify({
-            Title = "🖱️ Target key",
-            Content = "Новая клавиша: " .. option,
+            Title = "🎯 Target Key",
+            Content = "Key: " .. option,
             Duration = 2
         })
     end
 })
 
 CombatTab:CreateSlider({
-    Name = "📏 Max target distance (studs)",
+    Name = " Max target distance (studs)",
     Range = {10, 1000},
     Increment = 10,
     Suffix = " studs",
@@ -1034,7 +962,7 @@ CombatTab:CreateSlider({
 })
 
 CombatTab:CreateSlider({
-    Name = "📍 Min target distance (studs)",
+    Name = " Min target distance (studs)",
     Range = {0, 50},
     Increment = 1,
     Suffix = " studs",
@@ -1045,7 +973,7 @@ CombatTab:CreateSlider({
 })
 
 CombatTab:CreateSlider({
-    Name = "⚖️ Aim offset Y",
+    Name = " Aim offset Y",
     Range = {-3, 3},
     Increment = 0.1,
     Suffix = " studs",
@@ -1056,7 +984,7 @@ CombatTab:CreateSlider({
 })
 
 CombatTab:CreateSlider({
-    Name = "🪶 FOV circle thickness",
+    Name = " FOV circle thickness",
     Range = {1, 10},
     Increment = 1,
     Suffix = " px",
@@ -1067,7 +995,7 @@ CombatTab:CreateSlider({
 })
 
 CombatTab:CreateSlider({
-    Name = "🎯 Precise FOV size",
+    Name = " Precise FOV size",
     Range = {1, 400},
     Increment = 1,
     Suffix = " px",
@@ -1078,7 +1006,7 @@ CombatTab:CreateSlider({
 })
 
 CombatTab:CreateDropdown({
-    Name = "🎯 Body part to aim at",
+    Name = " Body part to aim at",
     Options = {"Head", "HumanoidRootPart", "UpperTorso"},
     CurrentOption = AimbotConfig.LockPart,
     Callback = function(option)
@@ -1086,10 +1014,10 @@ CombatTab:CreateDropdown({
     end
 })
 
-CombatTab:CreateSection("🎯 TARGET INDICATOR")
+CombatTab:CreateSection("📍 TARGET INDICATOR")
 
 CombatTab:CreateToggle({
-    Name = "🔴 Show target name & HP",
+    Name = " Show target name & HP",
     CurrentValue = AimbotConfig.ShowTargetIndicator,
     Callback = function(value)
         AimbotConfig.ShowTargetIndicator = value
@@ -1097,7 +1025,7 @@ CombatTab:CreateToggle({
 })
 
 CombatTab:CreateToggle({
-    Name = "➡️ Show arrow to target",
+    Name = " Show arrow to target",
     CurrentValue = AimbotConfig.ShowTargetArrow,
     Callback = function(value)
         AimbotConfig.ShowTargetArrow = value
@@ -1105,7 +1033,7 @@ CombatTab:CreateToggle({
 })
 
 CombatTab:CreateToggle({
-    Name = "❤️ Show target HP",
+    Name = " Show target HP",
     CurrentValue = AimbotConfig.ShowTargetHP,
     Callback = function(value)
         AimbotConfig.ShowTargetHP = value
@@ -1113,7 +1041,7 @@ CombatTab:CreateToggle({
 })
 
 CombatTab:CreateSlider({
-    Name = "🔤 Target text size",
+    Name = " Target text size",
     Range = {10, 24},
     Increment = 1,
     Suffix = " pt",
@@ -1125,7 +1053,7 @@ CombatTab:CreateSlider({
 })
 
 CombatTab:CreateColorPicker({
-    Name = "🎨 Target indicator color",
+    Name = " Target indicator color",
     Color = AimbotConfig.TargetCircleColor,
     Callback = function(value)
         AimbotConfig.TargetCircleColor = value
@@ -1133,7 +1061,7 @@ CombatTab:CreateColorPicker({
 })
 
 CombatTab:CreateToggle({
-    Name = "🦴 Show target skeleton",
+    Name = " Show target skeleton",
     CurrentValue = AimbotConfig.ShowTargetSkeleton,
     Callback = function(value)
         AimbotConfig.ShowTargetSkeleton = value
@@ -1141,7 +1069,7 @@ CombatTab:CreateToggle({
 })
 
 CombatTab:CreateColorPicker({
-    Name = "🎨 Target skeleton color",
+    Name = " Target skeleton color",
     Color = AimbotConfig.TargetSkeletonColor,
     Callback = function(value)
         AimbotConfig.TargetSkeletonColor = value
@@ -1149,7 +1077,7 @@ CombatTab:CreateColorPicker({
 })
 
 CombatTab:CreateSlider({
-    Name = "📏 Target skeleton thickness",
+    Name = " Target skeleton thickness",
     Range = {1, 4},
     Increment = 1,
     CurrentValue = AimbotConfig.TargetSkeletonThickness,
@@ -1159,7 +1087,7 @@ CombatTab:CreateSlider({
 })
 
 CombatTab:CreateDropdown({
-    Name = "🦴 Target skeleton type",
+    Name = " Target skeleton type",
     Options = {"1 - Simple", "2 - Full"},
     CurrentOption = "1 - Simple",
     Callback = function(value)
@@ -1175,7 +1103,7 @@ CombatTab:CreateDropdown({
 CombatTab:CreateSection("🔫 AUTO-SHOOT")
 
 CombatTab:CreateToggle({
-    Name = "🔫 Auto-shoot",
+    Name = " Auto-shoot",
     CurrentValue = AimbotConfig.AutoShoot,
     Callback = function(value)
         AimbotConfig.AutoShoot = value
@@ -1183,7 +1111,7 @@ CombatTab:CreateToggle({
 })
 
 CombatTab:CreateSlider({
-    Name = "⏱️ Shot delay (sec)",
+    Name = " Shot delay (sec)",
     Range = {0.05, 0.5},
     Increment = 0.05,
     Suffix = " sec",
@@ -1193,10 +1121,10 @@ CombatTab:CreateSlider({
     end
 })
 
-CombatTab:CreateSection("📊 TARGET VISUALS")
+CombatTab:CreateSection("👁 TARGET VISUALS")
 
 CombatTab:CreateToggle({
-    Name = "📐 Aim line to target",
+    Name = " Aim line to target",
     CurrentValue = AimbotConfig.ShowAimLine,
     Callback = function(value)
         AimbotConfig.ShowAimLine = value
@@ -1204,7 +1132,7 @@ CombatTab:CreateToggle({
 })
 
 CombatTab:CreateColorPicker({
-    Name = "🎨 Aim line color",
+    Name = " Aim line color",
     Color = AimbotConfig.AimLineColor,
     Callback = function(value)
         AimbotConfig.AimLineColor = value
@@ -1212,17 +1140,17 @@ CombatTab:CreateColorPicker({
 })
 
 CombatTab:CreateToggle({
-    Name = "🏷️ Large target name (top of screen)",
+    Name = " Large target name (top of screen)",
     CurrentValue = AimbotConfig.ShowTargetNameBig,
     Callback = function(value)
         AimbotConfig.ShowTargetNameBig = value
     end
 })
 
-CombatTab:CreateSection("🎯 TARGET PRIORITY")
+CombatTab:CreateSection("🔢 TARGET PRIORITY")
 
 CombatTab:CreateDropdown({
-    Name = "🎯 Target selection priority",
+    Name = " Target selection priority",
     Options = {"Distance", "Health"},
     CurrentOption = "Distance",
     Callback = function(value)
@@ -1233,7 +1161,7 @@ CombatTab:CreateDropdown({
 CombatTab:CreateSection("🔮 PREDICTION")
 
 CombatTab:CreateToggle({
-    Name = "🔮 Motion prediction",
+    Name = " Motion prediction",
     CurrentValue = AimbotConfig.Prediction,
     Callback = function(value)
         AimbotConfig.Prediction = value
@@ -1241,7 +1169,7 @@ CombatTab:CreateToggle({
 })
 
 CombatTab:CreateSlider({
-    Name = "🔮 Сила предсказания",
+    Name = "  ",
     Range = {0.05, 0.5},
     Increment = 0.05,
     Suffix = "x",
@@ -1251,20 +1179,20 @@ CombatTab:CreateSlider({
     end
 })
 
-CombatTab:CreateSection("🧠 ANTI-AIM")
+CombatTab:CreateSection(" ANTI-AIM")
 
 CombatTab:CreateToggle({
-    Name = "🧠 Anti-Aim Detection",
+    Name = " Anti-Aim Detection",
     CurrentValue = AimbotConfig.AntiAimDetect,
     Callback = function(value)
         AimbotConfig.AntiAimDetect = value
     end
 })
 
-CombatTab:CreateSection("📐 FOV DISTANCE")
+CombatTab:CreateSection("📏 FOV DISTANCE")
 
 CombatTab:CreateToggle({
-    Name = "📐 Auto-FOV by distance",
+    Name = " Auto-FOV by distance",
     CurrentValue = AimbotConfig.DistanceFOV,
     Callback = function(value)
         AimbotConfig.DistanceFOV = value
@@ -1272,7 +1200,7 @@ CombatTab:CreateToggle({
 })
 
 CombatTab:CreateSlider({
-    Name = "📐 Мин. FOV (далеко)",
+    Name = " . FOV ()",
     Range = {30, 100},
     Increment = 5,
     Suffix = "",
@@ -1283,7 +1211,7 @@ CombatTab:CreateSlider({
 })
 
 CombatTab:CreateSlider({
-    Name = "📐 Макс. FOV (близко)",
+    Name = " . FOV ()",
     Range = {100, 400},
     Increment = 10,
     Suffix = "",
@@ -1293,10 +1221,10 @@ CombatTab:CreateSlider({
     end
 })
 
-CombatTab:CreateSection("💀 AIMBOT NOTIFICATIONS")
+CombatTab:CreateSection("🔔 AIMBOT NOTIFICATIONS")
 
 CombatTab:CreateToggle({
-    Name = "💀 Kill Notify",
+    Name = " Kill Notify",
     CurrentValue = AimbotConfig.KillNotify,
     Callback = function(value)
         AimbotConfig.KillNotify = value
@@ -1304,7 +1232,7 @@ CombatTab:CreateToggle({
 })
 
 CombatTab:CreateToggle({
-    Name = "🎯 Lock Notify (захват цели)",
+    Name = " Lock Notify ( )",
     CurrentValue = AimbotConfig.NotifyLock,
     Callback = function(value)
         AimbotConfig.NotifyLock = value
@@ -1312,7 +1240,7 @@ CombatTab:CreateToggle({
 })
 
 CombatTab:CreateToggle({
-    Name = "❌ Unlock Notify (потеря цели)",
+    Name = " Unlock Notify ( )",
     CurrentValue = AimbotConfig.NotifyUnlock,
     Callback = function(value)
         AimbotConfig.NotifyUnlock = value
@@ -1320,7 +1248,7 @@ CombatTab:CreateToggle({
 })
 
 CombatTab:CreateToggle({
-    Name = "🧠 Anti-Aim Detect Notify",
+    Name = " Anti-Aim Detect Notify",
     CurrentValue = AimbotConfig.NotifyAntiAim,
     Callback = function(value)
         AimbotConfig.NotifyAntiAim = value
@@ -1328,7 +1256,7 @@ CombatTab:CreateToggle({
 })
 
 CombatTab:CreateToggle({
-    Name = "💥 Low HP Notify (цель < 30 HP)",
+    Name = " Low HP Notify ( < 30 HP)",
     CurrentValue = AimbotConfig.NotifyLowHP,
     Callback = function(value)
         AimbotConfig.NotifyLowHP = value
@@ -1336,7 +1264,7 @@ CombatTab:CreateToggle({
 })
 
 CombatTab:CreateToggle({
-    Name = "🔫 Auto-Shot Notify (выстрел)",
+    Name = " Auto-Shot Notify ()",
     CurrentValue = AimbotConfig.NotifyShot,
     Callback = function(value)
         AimbotConfig.NotifyShot = value
@@ -1344,7 +1272,7 @@ CombatTab:CreateToggle({
 })
 
 CombatTab:CreateToggle({
-    Name = "👋 Player Join Notify",
+    Name = " Player Join Notify",
     CurrentValue = AimbotConfig.NotifyPlayerJoin,
     Callback = function(value)
         AimbotConfig.NotifyPlayerJoin = value
@@ -1352,7 +1280,7 @@ CombatTab:CreateToggle({
 })
 
 CombatTab:CreateToggle({
-    Name = "👋 Player Leave Notify",
+    Name = " Player Leave Notify",
     CurrentValue = AimbotConfig.NotifyPlayerLeave,
     Callback = function(value)
         AimbotConfig.NotifyPlayerLeave = value
@@ -1360,7 +1288,7 @@ CombatTab:CreateToggle({
 })
 
 CombatTab:CreateToggle({
-    Name = "❌ Target Left Server Notify",
+    Name = " Target Left Server Notify",
     CurrentValue = AimbotConfig.NotifyTargetLost,
     Callback = function(value)
         AimbotConfig.NotifyTargetLost = value
@@ -1370,20 +1298,20 @@ CombatTab:CreateToggle({
 CombatTab:CreateSection("🔒 TARGET LOCK")
 
 CombatTab:CreateToggle({
-    Name = "🔒 Persistent Lock (до смерти)",
+    Name = " Persistent Lock ( )",
     CurrentValue = AimbotConfig.PersistentLock,
     Callback = function(value)
         AimbotConfig.PersistentLock = value
     end
 })
 
-CombatTab:CreateSection("👥 TEAMS (friends / enemies)")
+CombatTab:CreateSection("🤝 TEAMS (friends / enemies)")
 
-local myTeamLabel = CombatTab:CreateLabel("🎖️ Your team: —")
+local myTeamLabel = CombatTab:CreateLabel(" Your team: ")
 local function UpdateMyTeamLabel()
     local tn = GetTeamName(player)
     pcall(function()
-        myTeamLabel:Set("🎖️ Ваша команда: " .. (tn or "нет"))
+        myTeamLabel:Set("  : " .. (tn or ""))
     end)
 end
 
@@ -1397,7 +1325,7 @@ local function RefreshTeamDD()
 end
 
 teamDD = CombatTab:CreateDropdown({
-    Name = "🎖️ Team",
+    Name = " Team",
     Options = GetAllTeamNames(),
     CurrentOption = "",
     Callback = function(option)
@@ -1425,7 +1353,7 @@ task.spawn(function()
 end)
 
 CombatTab:CreateToggle({
-    Name = "🎯 Don't aim at friendlies",
+    Name = " Don't aim at friendlies",
     CurrentValue = AimbotConfig.TeamFilter,
     Flag = "AimbotTeamFilter",
     Callback = function(value)
@@ -1434,18 +1362,18 @@ CombatTab:CreateToggle({
 })
 
 CombatTab:CreateButton({
-    Name = "✅ Make team friendly",
+    Name = " Make team friendly",
     Callback = function()
         local n = selectedTeam
         if not n or n == "" then
-            Rayfield:Notify({ Title = "👥 Команды", Content = "Сначала выберите команду в списке", Duration = 2 })
+            Rayfield:Notify({ Title = "👥 Friends", Content = "Lock enabled", Duration = 2 })
             return
         end
         local res = ToggleFriendTeam(n)
         if res == "added" then
-            Rayfield:Notify({ Title = "🤝 Команда-друг", Content = n .. " теперь в дружественных", Duration = 2 })
+            Rayfield:Notify({ Title = " -", Content = n .. " added to friends", Duration = 2 })
         else
-            Rayfield:Notify({ Title = "👥 Команда", Content = n .. " убрана из дружественных (враг)", Duration = 2 })
+            Rayfield:Notify({ Title = "👥 Friends", Content = n .. " already friends", Duration = 2 })
         end
         pcall(RefreshTeamDD)
         pcall(UpdateESP)
@@ -1453,11 +1381,11 @@ CombatTab:CreateButton({
 })
 
 CombatTab:CreateButton({
-    Name = "❌ Remove team from friends (enemy)",
+    Name = " Remove team from friends (enemy)",
     Callback = function()
         local n = selectedTeam
         if not n or n == "" then
-            Rayfield:Notify({ Title = "👥 Команды", Content = "Сначала выберите команду в списке", Duration = 2 })
+            Rayfield:Notify({ Title = "👥 Friends", Content = "Lock enabled", Duration = 2 })
             return
         end
         local list = getgenv().ELITE_HUB_FRIEND_TEAMS
@@ -1466,43 +1394,43 @@ CombatTab:CreateButton({
                 table.remove(list, i)
             end
         end
-        Rayfield:Notify({ Title = "⚔️ Команда-враг", Content = n .. " теперь вражеская", Duration = 2 })
+        Rayfield:Notify({ Title = " -", Content = n .. " removed from friends", Duration = 2 })
         pcall(RefreshTeamDD)
         pcall(UpdateESP)
     end
 })
 
 CombatTab:CreateButton({
-    Name = "📜 Friendly teams",
+    Name = " Friendly teams",
     Callback = function()
         local list = getgenv().ELITE_HUB_FRIEND_TEAMS
         if #list == 0 then
-            Rayfield:Notify({ Title = "👥 Команды", Content = "Нет дружественных команд (все враги)", Duration = 2 })
+            Rayfield:Notify({ Title = "👥 Friends", Content = "Friend list is empty", Duration = 2 })
         else
-            Rayfield:Notify({ Title = "🤝 Дружественные", Content = table.concat(list, ", "), Duration = 5 })
+            Rayfield:Notify({ Title = "👥 Friends", Content = table.concat(list, ", "), Duration = 5 })
         end
     end
 })
 
 CombatTab:CreateButton({
-    Name = "🚫 All teams — enemies",
+    Name = " All teams  enemies",
     Callback = function()
         getgenv().ELITE_HUB_FRIEND_TEAMS = {}
-        Rayfield:Notify({ Title = "⚔️ Готово", Content = "Все команды теперь враги", Duration = 2 })
+        Rayfield:Notify({ Title = "👥 Friends", Content = "Enabled", Duration = 2 })
         pcall(RefreshTeamDD)
         pcall(UpdateESP)
     end
 })
 
 CombatTab:CreateButton({
-    Name = "🔄 Refresh team list",
+    Name = " Refresh team list",
     Callback = function()
         pcall(RefreshTeamDD)
-        Rayfield:Notify({ Title = "👥 Команды", Content = "Список команд обновлён", Duration = 2 })
+        Rayfield:Notify({ Title = "👥 Friends", Content = "Lock disabled", Duration = 2 })
     end
 })
 
-CombatTab:CreateSection("🤝 FRIENDS & TARGET (select from list)")
+CombatTab:CreateSection("👥 FRIENDS & TARGET (select from list)")
 
 local friendAddDD = nil
 local friendRmDD = nil
@@ -1524,7 +1452,7 @@ local function RefreshAimbotDD()
         pcall(function() friendRmDD:Refresh(opts) end)
     end
     if friendTargetDD then
-        local opts = {"(Авто)"}
+        local opts = {"()"}
         local playersList = {}
         for _, p in ipairs(Players:GetPlayers()) do
             if p ~= player then table.insert(playersList, p.Name) end
@@ -1536,7 +1464,7 @@ local function RefreshAimbotDD()
 end
 
 CombatTab:CreateToggle({
-    Name = "🚫 Don't aim at friends",
+    Name = " Don't aim at friends",
     CurrentValue = AimbotConfig.FriendCheck,
     Flag = "AimbotFriendCheck",
     Callback = function(value)
@@ -1545,7 +1473,7 @@ CombatTab:CreateToggle({
 })
 
 CombatTab:CreateToggle({
-    Name = "🛡️ Don't aim at spawning (shield)",
+    Name = " Don't aim at spawning (shield)",
     CurrentValue = AimbotConfig.SpawnCheck,
     Flag = "AimbotSpawnCheck",
     Callback = function(value)
@@ -1554,7 +1482,7 @@ CombatTab:CreateToggle({
 })
 
 friendAddDD = CombatTab:CreateDropdown({
-    Name = "➕ Add player to friends",
+    Name = " Add player to friends",
     Options = {},
     CurrentOption = "",
     Callback = function(option)
@@ -1562,10 +1490,10 @@ friendAddDD = CombatTab:CreateDropdown({
         if typeof(option) == "table" then n = option[1] end
         if not n or n == "" then return end
         if IsFriendName(n) then
-            Rayfield:Notify({ Title = "🤝 Друзья", Content = n .. " уже в списке", Duration = 2 })
+            Rayfield:Notify({ Title = "👥 Friends", Content = n .. " added to friends", Duration = 2 })
         else
             table.insert(getgenv().ELITE_HUB_FRIENDS, n)
-            Rayfield:Notify({ Title = "✅ Друг добавлен", Content = n, Duration = 2 })
+            Rayfield:Notify({ Title = "  ", Content = n, Duration = 2 })
         end
         if friendAddDD then pcall(function() friendAddDD:Clear() end) end
         RefreshAimbotDD()
@@ -1573,7 +1501,7 @@ friendAddDD = CombatTab:CreateDropdown({
 })
 
 friendRmDD = CombatTab:CreateDropdown({
-    Name = "➖ Remove friend (select)",
+    Name = " Remove friend (select)",
     Options = {},
     CurrentOption = "",
     Callback = function(option)
@@ -1584,7 +1512,7 @@ friendRmDD = CombatTab:CreateDropdown({
         for i = #list, 1, -1 do
             if tostring(list[i]):lower() == n:lower() then
                 table.remove(list, i)
-                Rayfield:Notify({ Title = "🗑️ Друг удалён", Content = n, Duration = 2 })
+                Rayfield:Notify({ Title = "  ", Content = n, Duration = 2 })
                 break
             end
         end
@@ -1594,40 +1522,40 @@ friendRmDD = CombatTab:CreateDropdown({
 })
 
 CombatTab:CreateButton({
-    Name = "🧹 Clear friends list",
+    Name = " Clear friends list",
     Callback = function()
         local cnt = #getgenv().ELITE_HUB_FRIENDS
         getgenv().ELITE_HUB_FRIENDS = {}
-        Rayfield:Notify({ Title = "🧹 Готово", Content = "Удалено друзей: " .. cnt, Duration = 2 })
+        Rayfield:Notify({ Title = "👥 Friends", Content = " : " .. cnt, Duration = 2 })
         RefreshAimbotDD()
     end
 })
 
 CombatTab:CreateButton({
-    Name = "📜 Show friends list",
+    Name = " Show friends list",
     Callback = function()
         local list = getgenv().ELITE_HUB_FRIENDS
         if #list == 0 then
-            Rayfield:Notify({ Title = "🤝 Друзья", Content = "Список пуст", Duration = 2 })
+            Rayfield:Notify({ Title = "👥 Friends", Content = "All friends cleared", Duration = 2 })
             return
         end
-        Rayfield:Notify({ Title = "🤝 Список друзей", Content = table.concat(list, ", "), Duration = 6 })
+        Rayfield:Notify({ Title = "  ", Content = table.concat(list, ", "), Duration = 6 })
     end
 })
 
 friendTargetDD = CombatTab:CreateDropdown({
-    Name = "🎯 Main target (always first)",
-    Options = {"(Авто)"},
+    Name = " Main target (always first)",
+    Options = {"()"},
     CurrentOption = "",
     Callback = function(option)
         local n = option
         if typeof(option) == "table" then n = option[1] end
-        if n == "(Авто)" or n == nil or n == "" then
+        if n == "()" or n == nil or n == "" then
             getgenv().ELITE_HUB_TARGET_NAME = ""
-            Rayfield:Notify({ Title = "🎯 Цель", Content = "Авто (нет приоритета)", Duration = 2 })
+            Rayfield:Notify({ Title = "👥 Friends", Content = " ( )", Duration = 2 })
         else
             getgenv().ELITE_HUB_TARGET_NAME = n
-            Rayfield:Notify({ Title = "🎯 Цель установлена", Content = n, Duration = 2 })
+            Rayfield:Notify({ Title = "  ", Content = n, Duration = 2 })
         end
     end
 })

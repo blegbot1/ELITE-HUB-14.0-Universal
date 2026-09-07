@@ -1,10 +1,22 @@
--- ELITE HUB 14.0 — Main Module (WallHop, Fly, Noclip, Speed Boost, Mini GUI, Extra Scripts)
--- Extracted from ELITE_HUB_14.0.lua
+-- source: ELITE_HUB_14.0.lua MAIN (lines 4445-5467, 9569-9670)
+local _g = getgenv
+local Rayfield = _g().ELITE_HUB_Rayfield
+local Window = _g().ELITE_HUB_Window
+local ES = _g().EliteHubSettings
+local L = _g().ELITE_HUB_L
+local Log = _g().ELITE_HUB_Log
+local Players = _g().ELITE_HUB_Players
+local player = _g().ELITE_HUB_Player
+local OverlayGui = _g().ELITE_HUB_OverlayGui
+local LoadScript = _g().ELITE_HUB_LoadScript
+local SafeNotify = _g().ELITE_HUB_SafeNotify
+local DestroyScript = _g().ELITE_HUB_DestroyScript
+local MT = Window
 
-local AdventureSection = MainTab:CreateSection("🚀 CORE FUNCTIONS")
+local MainTab = _g().ELITE_HUB_MainTab
+local AdventureSection = MainTab:CreateSection("⚡ CORE FUNCTIONS")
 
-local noclipActive = false
-local noclipConnection = nil
+noclipActive = false
 local BindConfig = {
     Fly = "F",
     Noclip = "N",
@@ -16,23 +28,23 @@ local wallhopConnection = nil
 local wallhopBindKey = Enum.KeyCode.LeftControl
 
 local speeds = 1
-local nowe = false
+nowe = false
 local tpwalking = false
-local flyBg = nil
-local flyBv = nil
+flyBg = nil
+flyBv = nil
 
 _G.flyCtrl = {f = 0, b = 0, l = 0, r = 0}
 local ctrl = _G.flyCtrl
 
-local noclipConnection = nil
+noclipConnection = nil
 
 local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 local RunService = game:GetService("RunService")
 
 local raycastParams = RaycastParams.new()
-raycastParams.FilterType = Enum.RaycastFilterType.Blacklist
-local InfiniteJumpEnabled = true -- Debounce для основного wallhop
+raycastParams.FilterType = Enum.RaycastFilterType.Exclude
+local InfiniteJumpEnabled = true -- Debounce РґР»СЏ РѕСЃРЅРѕРІРЅРѕРіРѕ wallhop
 
 local function getWallRaycastResult()
     local player = Players.LocalPlayer
@@ -159,8 +171,8 @@ local function ToggleWallhop()
             performWallJump()
         end)
         Rayfield:Notify({
-            Title = "✅ WallHop",
-            Content = "WallHop включён (Бинд: " .. tostring(wallhopBindKey.Name) .. ")",
+            Title = "🦘 WallHop",
+            Content = "WallHop enabled" .. tostring(wallhopBindKey.Name) .. ")",
             Duration = 3
         })
     else
@@ -169,8 +181,8 @@ local function ToggleWallhop()
             wallhopConnection = nil
         end
         Rayfield:Notify({
-            Title = "❌ WallHop",
-            Content = "WallHop выключен",
+            Title = "🦘 WallHop",
+            Content = "WallHop disabled",
             Duration = 3
         })
     end
@@ -199,24 +211,6 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
         getgenv().ELITE_HUB_SpinBot = not getgenv().ELITE_HUB_SpinBot
         getgenv().ELITE_HUB_Log("MODS", "Spin Bot: " .. tostring(getgenv().ELITE_HUB_SpinBot))
         pcall(updateMiniGuiButtons)
-        if getgenv().ELITE_HUB_SpinBot then
-            task.spawn(function()
-                while getgenv().ELITE_HUB_SpinBot do
-                    task.wait(0.016)
-                    pcall(function()
-                        if not flyBg then
-                            local ch = player.Character
-                            if ch then
-                                local hrp = ch:FindFirstChild("HumanoidRootPart")
-                                if hrp then
-                                    hrp.CFrame = hrp.CFrame * CFrame.Angles(0, math.rad(getgenv().ELITE_HUB_SpinSpeed * 0.1), 0)
-                                end
-                            end
-                        end
-                    end)
-                end
-            end)
-        end
     end
 end)
 
@@ -302,15 +296,15 @@ local function CreateMiniButton(name, text, order, callback)
     return btn
 end
 
-local wallhopBtn = CreateMiniButton("WallhopBtn", "🧱 WallHop", 0, function() ToggleWallhop() end)
-local flyBtn = CreateMiniButton("FlyBtn", "✈️ Fly", 1, function() ToggleFly() end)
-local noclipBtn = CreateMiniButton("NoclipBtn", "👻 Noclip", 2, function() ToggleNoclip() end)
+local wallhopBtn = CreateMiniButton("WallhopBtn", " WallHop", 0, function() ToggleWallhop() end)
+local flyBtn = CreateMiniButton("FlyBtn", " Fly", 1, function() ToggleFly() end)
+local noclipBtn = CreateMiniButton("NoclipBtn", " Noclip", 2, function() ToggleNoclip() end)
 
-getgenv().ELITE_HUB_SpeedBtn = CreateMiniButton("SpeedBoostBtn", "⚡ Speed Boost", 3, function()
+getgenv().ELITE_HUB_SpeedBtn = CreateMiniButton("SpeedBoostBtn", " Speed Boost", 3, function()
     ActivateSpeedBoost()
 end)
 
-getgenv().ELITE_HUB_SpinBtn = CreateMiniButton("SpinBotBtn", "🔄 Spin Bot", 4, function()
+getgenv().ELITE_HUB_SpinBtn = CreateMiniButton("SpinBotBtn", " Spin Bot", 4, function()
     getgenv().ELITE_HUB_SpinBot = not getgenv().ELITE_HUB_SpinBot
     getgenv().ELITE_HUB_Log("MODS", "Spin Bot: " .. tostring(getgenv().ELITE_HUB_SpinBot))
     updateMiniGuiButtons()
@@ -336,48 +330,48 @@ end)
 
 function updateMiniGuiButtons()
     if wallhopActive then
-        wallhopBtn.Text = "  🧱 WallHop: ON"
+        wallhopBtn.Text = "   WallHop: ON"
         wallhopBtn.BackgroundColor3 = Color3.fromRGB(30, 100, 50)
         wallhopBtn.TextColor3 = Color3.fromRGB(120, 255, 140)
         wallhopBtn.Indicator.BackgroundColor3 = Color3.fromRGB(0, 255, 80)
     else
-        wallhopBtn.Text = "  🧱 WallHop: OFF"
+        wallhopBtn.Text = "   WallHop: OFF"
         wallhopBtn.BackgroundColor3 = Color3.fromRGB(40, 28, 65)
         wallhopBtn.TextColor3 = Color3.fromRGB(170, 170, 170)
         wallhopBtn.Indicator.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
     end
 
     if nowe then
-        flyBtn.Text = "  ✈️ Fly: ON"
+        flyBtn.Text = "   Fly: ON"
         flyBtn.BackgroundColor3 = Color3.fromRGB(30, 60, 120)
         flyBtn.TextColor3 = Color3.fromRGB(120, 180, 255)
         flyBtn.Indicator.BackgroundColor3 = Color3.fromRGB(60, 140, 255)
     else
-        flyBtn.Text = "  ✈️ Fly: OFF"
+        flyBtn.Text = "   Fly: OFF"
         flyBtn.BackgroundColor3 = Color3.fromRGB(40, 28, 65)
         flyBtn.TextColor3 = Color3.fromRGB(170, 170, 170)
         flyBtn.Indicator.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
     end
 
     if noclipActive then
-        noclipBtn.Text = "  👻 Noclip: ON"
+        noclipBtn.Text = "   Noclip: ON"
         noclipBtn.BackgroundColor3 = Color3.fromRGB(100, 40, 100)
         noclipBtn.TextColor3 = Color3.fromRGB(255, 140, 255)
         noclipBtn.Indicator.BackgroundColor3 = Color3.fromRGB(200, 80, 255)
     else
-        noclipBtn.Text = "  👻 Noclip: OFF"
+        noclipBtn.Text = "   Noclip: OFF"
         noclipBtn.BackgroundColor3 = Color3.fromRGB(40, 28, 65)
         noclipBtn.TextColor3 = Color3.fromRGB(170, 170, 170)
         noclipBtn.Indicator.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
     end
 
     if getgenv().ELITE_HUB_SpinBot then
-        getgenv().ELITE_HUB_SpinBtn.Text = "  🔄 Spin Bot: ON"
+        getgenv().ELITE_HUB_SpinBtn.Text = "   Spin Bot: ON"
         getgenv().ELITE_HUB_SpinBtn.BackgroundColor3 = Color3.fromRGB(120, 40, 40)
         getgenv().ELITE_HUB_SpinBtn.TextColor3 = Color3.fromRGB(255, 140, 140)
         getgenv().ELITE_HUB_SpinBtn.Indicator.BackgroundColor3 = Color3.fromRGB(255, 80, 80)
     else
-        getgenv().ELITE_HUB_SpinBtn.Text = "  🔄 Spin Bot: OFF"
+        getgenv().ELITE_HUB_SpinBtn.Text = "   Spin Bot: OFF"
         getgenv().ELITE_HUB_SpinBtn.BackgroundColor3 = Color3.fromRGB(40, 28, 65)
         getgenv().ELITE_HUB_SpinBtn.TextColor3 = Color3.fromRGB(170, 170, 170)
         getgenv().ELITE_HUB_SpinBtn.Indicator.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
@@ -416,9 +410,16 @@ function ActivateSpeedBoost()
     getgenv().ELITE_HUB_SpeedOldSpeed = hum.WalkSpeed
     hum.WalkSpeed = 50
 
+    pcall(function()
+        local old = getgenv().ELITE_HUB_SpeedTrail
+        if old then
+            for _, v in pairs(old) do if v and v.Parent then v:Destroy() end end
+        end
+    end)
+
     local sb = getgenv().ELITE_HUB_SpeedBtn
     if sb then
-        sb.Text = "  ⚡ Speed: ON"
+        sb.Text = "   Speed: ON"
         sb.BackgroundColor3 = Color3.fromRGB(120, 30, 150)
         sb.TextColor3 = Color3.fromRGB(255, 100, 255)
         sb.Indicator.BackgroundColor3 = Color3.fromRGB(200, 50, 255)
@@ -490,7 +491,7 @@ function DeactivateSpeedBoost()
 
     local sb = getgenv().ELITE_HUB_SpeedBtn
     if sb then
-        sb.Text = "  ⚡ Speed: OFF"
+        sb.Text = "   Speed: OFF"
         sb.BackgroundColor3 = Color3.fromRGB(40, 28, 65)
         sb.TextColor3 = Color3.fromRGB(170, 170, 170)
         sb.Indicator.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
@@ -506,6 +507,14 @@ function DeactivateSpeedBoost()
 end
 
 player.CharacterAdded:Connect(function()
+    task.wait(1)
+    if nowe then
+        nowe = false
+        pcall(function()
+            if flyBg then flyBg:Destroy() flyBg = nil end
+            if flyBv then flyBv:Destroy() flyBv = nil end
+        end)
+    end
     if getgenv().ELITE_HUB_SpeedActive then
         task.wait(0.5)
         DeactivateSpeedBoost()
@@ -602,10 +611,10 @@ function ToggleFly()
 
                     if flyBv then
                         if (_G.flyCtrl.l + _G.flyCtrl.r) ~= 0 or (_G.flyCtrl.f + _G.flyCtrl.b) ~= 0 then
-                            flyBv.velocity = ((game.Workspace.CurrentCamera.CoordinateFrame.lookVector * (_G.flyCtrl.f + _G.flyCtrl.b)) + ((game.Workspace.CurrentCamera.CoordinateFrame * CFrame.new(_G.flyCtrl.l + _G.flyCtrl.r, (_G.flyCtrl.f + _G.flyCtrl.b) * 0.2, 0).p) - game.Workspace.CurrentCamera.CoordinateFrame.p)) * speed
+                            flyBv.velocity = ((workspace.CurrentCamera.CFrame.lookVector * (_G.flyCtrl.f + _G.flyCtrl.b)) + ((workspace.CurrentCamera.CFrame * CFrame.new(_G.flyCtrl.l + _G.flyCtrl.r, (_G.flyCtrl.f + _G.flyCtrl.b) * 0.2, 0).p) - workspace.CurrentCamera.CFrame.p)) * speed
                             lastctrl = {f = _G.flyCtrl.f, b = _G.flyCtrl.b, l = _G.flyCtrl.l, r = _G.flyCtrl.r}
                         elseif (_G.flyCtrl.l + _G.flyCtrl.r) == 0 and (_G.flyCtrl.f + _G.flyCtrl.b) == 0 and speed ~= 0 then
-                            flyBv.velocity = ((game.Workspace.CurrentCamera.CoordinateFrame.lookVector * (lastctrl.f + lastctrl.b)) + ((game.Workspace.CurrentCamera.CoordinateFrame * CFrame.new(lastctrl.l + lastctrl.r, (lastctrl.f + lastctrl.b) * 0.2, 0).p) - game.Workspace.CurrentCamera.CoordinateFrame.p)) * speed
+                            flyBv.velocity = ((workspace.CurrentCamera.CFrame.lookVector * (lastctrl.f + lastctrl.b)) + ((workspace.CurrentCamera.CFrame * CFrame.new(lastctrl.l + lastctrl.r, (lastctrl.f + lastctrl.b) * 0.2, 0).p) - workspace.CurrentCamera.CFrame.p)) * speed
                         else
                             flyBv.velocity = Vector3.new(0, 0, 0)
                         end
@@ -616,7 +625,7 @@ function ToggleFly()
                         if getgenv().ELITE_HUB_SpinBot then
                             spinY = math.rad(getgenv().ELITE_HUB_SpinSpeed * 0.1)
                         end
-                        flyBg.cframe = game.Workspace.CurrentCamera.CoordinateFrame * CFrame.Angles(-math.rad((_G.flyCtrl.f + _G.flyCtrl.b) * 50 * speed / maxspeed), spinY, 0)
+                        flyBg.cframe = workspace.CurrentCamera.CFrame * CFrame.Angles(-math.rad((_G.flyCtrl.f + _G.flyCtrl.b) * 50 * speed / maxspeed), spinY, 0)
                     end
                 end
 
@@ -684,10 +693,10 @@ function ToggleFly()
 
                     if flyBv then
                         if (_G.flyCtrl.l + _G.flyCtrl.r) ~= 0 or (_G.flyCtrl.f + _G.flyCtrl.b) ~= 0 then
-                            flyBv.velocity = ((game.Workspace.CurrentCamera.CoordinateFrame.lookVector * (_G.flyCtrl.f + _G.flyCtrl.b)) + ((game.Workspace.CurrentCamera.CoordinateFrame * CFrame.new(_G.flyCtrl.l + _G.flyCtrl.r, (_G.flyCtrl.f + _G.flyCtrl.b) * 0.2, 0).p) - game.Workspace.CurrentCamera.CoordinateFrame.p)) * speed
+                            flyBv.velocity = ((workspace.CurrentCamera.CFrame.lookVector * (_G.flyCtrl.f + _G.flyCtrl.b)) + ((workspace.CurrentCamera.CFrame * CFrame.new(_G.flyCtrl.l + _G.flyCtrl.r, (_G.flyCtrl.f + _G.flyCtrl.b) * 0.2, 0).p) - workspace.CurrentCamera.CFrame.p)) * speed
                             lastctrl = {f = _G.flyCtrl.f, b = _G.flyCtrl.b, l = _G.flyCtrl.l, r = _G.flyCtrl.r}
                         elseif (_G.flyCtrl.l + _G.flyCtrl.r) == 0 and (_G.flyCtrl.f + _G.flyCtrl.b) == 0 and speed ~= 0 then
-                            flyBv.velocity = ((game.Workspace.CurrentCamera.CoordinateFrame.lookVector * (lastctrl.f + lastctrl.b)) + ((game.Workspace.CurrentCamera.CoordinateFrame * CFrame.new(lastctrl.l + lastctrl.r, (lastctrl.f + lastctrl.b) * 0.2, 0).p) - game.Workspace.CurrentCamera.CoordinateFrame.p)) * speed
+                            flyBv.velocity = ((workspace.CurrentCamera.CFrame.lookVector * (lastctrl.f + lastctrl.b)) + ((workspace.CurrentCamera.CFrame * CFrame.new(lastctrl.l + lastctrl.r, (lastctrl.f + lastctrl.b) * 0.2, 0).p) - workspace.CurrentCamera.CFrame.p)) * speed
                         else
                             flyBv.velocity = Vector3.new(0, 0, 0)
                         end
@@ -698,7 +707,7 @@ function ToggleFly()
                         if getgenv().ELITE_HUB_SpinBot then
                             spinY = math.rad(getgenv().ELITE_HUB_SpinSpeed * 0.1)
                         end
-                        flyBg.cframe = game.Workspace.CurrentCamera.CoordinateFrame * CFrame.Angles(-math.rad((_G.flyCtrl.f + _G.flyCtrl.b) * 50 * speed / maxspeed), spinY, 0)
+                        flyBg.cframe = workspace.CurrentCamera.CFrame * CFrame.Angles(-math.rad((_G.flyCtrl.f + _G.flyCtrl.b) * 50 * speed / maxspeed), spinY, 0)
                     end
                 end
 
@@ -729,8 +738,8 @@ function ToggleFly()
         end
 
         Rayfield:Notify({
-            Title = "✅ Fly",
-            Content = "Fly включён (Скорость: " .. speeds .. ")",
+            Title = "✈️ Fly",
+            Content = "Fly  (: " .. speeds .. ")",
             Duration = 3
         })
     else
@@ -771,8 +780,8 @@ function ToggleFly()
         end
 
         Rayfield:Notify({
-            Title = "❌ Fly",
-            Content = "Fly выключен",
+            Title = "✈️ Fly",
+            Content = "Fly ",
             Duration = 3
         })
     end
@@ -841,8 +850,8 @@ function ToggleNoclip()
             end
         end)
         Rayfield:Notify({
-            Title = "✅ Noclip",
-            Content = "Noclip включён",
+            Title = "👻 Noclip",
+            Content = "Noclip ",
             Duration = 3
         })
     else
@@ -860,8 +869,8 @@ function ToggleNoclip()
             end
         end
         Rayfield:Notify({
-            Title = "❌ Noclip",
-            Content = "Noclip выключен",
+            Title = "👻 Noclip",
+            Content = "Noclip ",
             Duration = 3
         })
     end
@@ -870,59 +879,59 @@ end
 updateMiniGuiButtons()
 
 MainTab:CreateButton({
-    Name = "🛑 SHUTDOWN SCRIPT",
+    Name = " SHUTDOWN SCRIPT",
     Callback = function()
         DestroyScript()
     end
 })
 
 MainTab:CreateButton({
-    Name = "🧱 WALLHOP",
+    Name = " WALLHOP",
     Callback = function()
         ToggleWallhop()
     end
 })
 
 MainTab:CreateButton({
-    Name = "✈️ FLY",
+    Name = " FLY",
     Callback = function()
         ToggleFly()
     end
 })
 
 MainTab:CreateButton({
-    Name = "👻 NOCLIP",
+    Name = " NOCLIP",
     Callback = function()
         ToggleNoclip()
     end
 })
 
 MainTab:CreateButton({
-    Name = "➕ Increase Fly Speed",
+    Name = " Increase Fly Speed",
     Callback = function()
         speeds = speeds + 1
         Rayfield:Notify({
-            Title = "✅ Скорость Fly",
-            Content = "Скорость: " .. speeds,
+                Title = "⬇️ Fly Speed",
+                Content = "Speed: " .. speeds,
             Duration = 2
         })
     end
 })
 
 MainTab:CreateButton({
-    Name = "➖ Decrease Fly Speed",
+    Name = " Decrease Fly Speed",
     Callback = function()
         if speeds > 1 then
             speeds = speeds - 1
             Rayfield:Notify({
-                Title = "✅ Скорость Fly",
-                Content = "Скорость: " .. speeds,
+                Title = "⬆️ Fly Speed",
+                Content = "Speed: " .. speeds,
                 Duration = 2
             })
         else
             Rayfield:Notify({
-                Title = "❌ Ошибка",
-                Content = "Минимальная скорость: 1",
+                Title = "✅ Reset",
+                Content = "Speed: 1",
                 Duration = 2
             })
         end
@@ -930,7 +939,7 @@ MainTab:CreateButton({
 })
 
 MainTab:CreateButton({
-    Name = "📱 OPEN MINI-MENU",
+    Name = " OPEN MINI-MENU",
     Callback = function()
         ToggleMiniMenu()
     end
@@ -938,8 +947,8 @@ MainTab:CreateButton({
 
 local currentBind = wallhopBindKey.Name
 MainTab:CreateInput({
-    Name = "🔑 WallHop Bind",
-    PlaceholderText = "Текущий: " .. currentBind,
+    Name = " WallHop Bind",
+    PlaceholderText = ": " .. currentBind,
     RemoveTextAfterFocusLost = false,
     Callback = function(Text)
         local keyName = Text:upper()
@@ -949,362 +958,82 @@ MainTab:CreateInput({
         if success and keyEnum then
             wallhopBindKey = keyEnum
             Rayfield:Notify({
-                Title = "✅ Бинд изменён",
-                Content = "Новый бинд: " .. keyName,
+                Title = "✅ Bind Set",
+                Content = "Key: " .. keyName,
                 Duration = 3
             })
         else
             Rayfield:Notify({
-                Title = "❌ Ошибка",
-                Content = "Неверное название клавиши!",
+                Title = "❌ Error",
+                Content = "Invalid key!",
                 Duration = 3
             })
         end
     end
 })
 
-MainTab:CreateSection("⌨️ BINDS")
+MainTab:CreateSection("📌 BINDS")
 
 MainTab:CreateInput({
-    Name = "✈️ Fly Bind",
-    PlaceholderText = "Текущий: " .. BindConfig.Fly,
+    Name = " Fly Bind",
+    PlaceholderText = ": " .. BindConfig.Fly,
     RemoveTextAfterFocusLost = false,
     Callback = function(Text)
         local keyName = Text:upper()
         local success, keyEnum = pcall(function() return Enum.KeyCode[keyName] end)
         if success and keyEnum then
             BindConfig.Fly = keyName
-            Rayfield:Notify({ Title = "✅ Бинд Fly", Content = "Новый бинд: " .. keyName, Duration = 2 })
+            Rayfield:Notify({ Title = "✅ Fly Bound", Content = "Key: " .. keyName, Duration = 2 })
         else
-            Rayfield:Notify({ Title = "❌ Ошибка", Content = "Неверное название клавиши!", Duration = 2 })
+            Rayfield:Notify({ Title = "❌ Error", Content = "Invalid key!", Duration = 2 })
         end
     end
 })
 
 MainTab:CreateInput({
-    Name = "👻 Noclip Bind",
-    PlaceholderText = "Текущий: " .. BindConfig.Noclip,
+    Name = " Noclip Bind",
+    PlaceholderText = ": " .. BindConfig.Noclip,
     RemoveTextAfterFocusLost = false,
     Callback = function(Text)
         local keyName = Text:upper()
         local success, keyEnum = pcall(function() return Enum.KeyCode[keyName] end)
         if success and keyEnum then
             BindConfig.Noclip = keyName
-            Rayfield:Notify({ Title = "✅ Бинд Noclip", Content = "Новый бинд: " .. keyName, Duration = 2 })
+            Rayfield:Notify({ Title = "✅ Noclip Bound", Content = "Key: " .. keyName, Duration = 2 })
         else
-            Rayfield:Notify({ Title = "❌ Ошибка", Content = "Неверное название клавиши!", Duration = 2 })
+            Rayfield:Notify({ Title = "❌ Error", Content = "Invalid key!", Duration = 2 })
         end
     end
 })
 
 MainTab:CreateInput({
-    Name = "⚡ Speed Boost Bind",
-    PlaceholderText = "Текущий: " .. BindConfig.SpeedBoost,
+    Name = " Speed Boost Bind",
+    PlaceholderText = ": " .. BindConfig.SpeedBoost,
     RemoveTextAfterFocusLost = false,
     Callback = function(Text)
         local keyName = Text:upper()
         local success, keyEnum = pcall(function() return Enum.KeyCode[keyName] end)
         if success and keyEnum then
             BindConfig.SpeedBoost = keyName
-            Rayfield:Notify({ Title = "✅ Бинд Speed Boost", Content = "Новый бинд: " .. keyName, Duration = 2 })
+            Rayfield:Notify({ Title = "✅ Speed Bound", Content = "Key: " .. keyName, Duration = 2 })
         else
-            Rayfield:Notify({ Title = "❌ Ошибка", Content = "Неверное название клавиши!", Duration = 2 })
+            Rayfield:Notify({ Title = "❌ Error", Content = "Invalid key!", Duration = 2 })
         end
     end
 })
 
 MainTab:CreateInput({
-    Name = "🔄 Spin Bot Bind",
-    PlaceholderText = "Текущий: " .. BindConfig.SpinBot,
+    Name = " Spin Bot Bind",
+    PlaceholderText = ": " .. BindConfig.SpinBot,
     RemoveTextAfterFocusLost = false,
     Callback = function(Text)
         local keyName = Text:upper()
         local success, keyEnum = pcall(function() return Enum.KeyCode[keyName] end)
         if success and keyEnum then
             BindConfig.SpinBot = keyName
-            Rayfield:Notify({ Title = "✅ Бинд Spin Bot", Content = "Новый бинд: " .. keyName, Duration = 2 })
+            Rayfield:Notify({ Title = "✅ Spin Bound", Content = "Key: " .. keyName, Duration = 2 })
         else
-            Rayfield:Notify({ Title = "❌ Ошибка", Content = "Неверное название клавиши!", Duration = 2 })
+            Rayfield:Notify({ Title = "❌ Error", Content = "Invalid key!", Duration = 2 })
         end
     end
 })
-
---[[
-    ==============================
-    УЛУЧШЕННЫЙ AIMBOT С ПРИОРИТЕТОМ ПО ДИСТАНЦИИ
-    ==============================
-]]--
-local AimbotSection = CombatTab:CreateSection("🎯 IMPROVED AIMBOT 3D FOV")
-local AimbotConfig = {
-    Enabled = false,
-    TeamCheck = true,
-    AliveCheck = true,
-    WallCheck = true,
-    FOV = 120,
-    ShowFOV = true,
-    FOVColor = Color3.fromRGB(170, 0, 255),
-    LockedColor = Color3.fromRGB(255, 50, 50),
-    TriggerKey = "MouseButton2",
-    Toggle = false,
-    LockPart = "Head",
-    ThirdPersonFix = true,
-    Priority = "Distance",
-    MaxDistance = 999,
-    MinDistance = 0,
-    AimOffset = 0,
-    FOVThickness = 5,
-    FriendCheck = true,
-    SpawnCheck = true,
-    TeamFilter = true,
-    ShowTargetIndicator = true,
-    ShowTargetArrow = false,
-    ShowTargetHP = true,
-    TargetIndicatorSize = 14,
-    LockPartIndex = 1,
-    TargetCircleColor = Color3.fromRGB(255, 200, 0),
-    ShowTargetSkeleton = true,
-    TargetSkeletonColor = Color3.fromRGB(255, 200, 0),
-    TargetSkeletonThickness = 2,
-    TargetSkeletonType = 1,
-    AutoShoot = false,
-    AutoShootDelay = 0.15,
-    ShowAimLine = false,
-    AimLineColor = Color3.fromRGB(255, 50, 50),
-    ShowTargetNameBig = false,
-    Prediction = false,
-    PredictionFactor = 0.15,
-    AntiAimDetect = false,
-    DistanceFOV = false,
-    DistanceFOVMin = 60,
-    DistanceFOVMax = 200,
-    KillNotify = true,
-    NotifyLock = true,
-    NotifyUnlock = true,
-    NotifyAntiAim = true,
-    NotifyLowHP = true,
-    NotifyShot = false,
-    NotifyPlayerJoin = true,
-    NotifyPlayerLeave = true,
-    NotifyTargetLost = true,
-    PersistentLock = true,
-    PulseTarget = false,
-    PulseColor = Color3.fromRGB(255, 0, 255),
-    PulseSize = 8,
-    PulseSpeed = 5,
-    TargetHealthBarTop = true,
-    TargetHealthBarMounted = false,
-    IsAiming = false
-}
-
-local FOVCircle = NewOverlayCircle()
-FOVCircle.Visible = AimbotConfig.ShowFOV
-FOVCircle.Radius = AimbotConfig.FOV
-FOVCircle.Color = AimbotConfig.FOVColor
-FOVCircle.Thickness = 5
-FOVCircle.Filled = false
-
---[[
-    ==============================
-    ОБНОВЛЕННЫЕ ДОПОЛНИТЕЛЬНЫЕ СКРИПТЫ
-    ==============================
-]]--
-local ScriptsSection = MainTab:CreateSection("📜 EXTRA SCRIPTS")
-
-local function LoadImprovedFlight()
-    local UserInputService = game:GetService("UserInputService")
-    local isMobile = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
-    
-    if isMobile then
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/396abc/Script/refs/heads/main/MobileFly.lua"))()
-    else
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/396abc/Script/refs/heads/main/FlyR15.lua"))()
-    end
-end
-
-local function LoadRakeAnimation()
-    local animationId = "rbxassetid://252557606"
-    local player = game.Players.LocalPlayer
-    local character = player.Character or player.CharacterAdded:Wait()
-    local humanoid = character:WaitForChild("Humanoid")
-
-    local animation = Instance.new("Animation")
-    animation.AnimationId = animationId
-
-    local animationTrack = humanoid:LoadAnimation(animation)
-    local defaultWalkSpeed = 50
-    humanoid.WalkSpeed = defaultWalkSpeed
-
-    local function onWalking(speed)
-        if speed > 0 then
-            humanoid.WalkSpeed = 50
-            animationTrack:Play()
-        else
-            humanoid.WalkSpeed = defaultWalkSpeed
-            animationTrack:Stop()
-        end
-    end
-
-    humanoid.Running:Connect(onWalking)
-
-    local backpack = player:WaitForChild("Backpack")
-    
-    local tool1 = Instance.new("Tool")
-    tool1.Name = "double slash"
-    tool1.RequiresHandle = false
-    tool1.CanBeDropped = false
-
-    local animation1 = Instance.new("Animation")
-    animation1.AnimationId = "rbxassetid://105211514"
-
-    tool1.Activated:Connect(function()
-        local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
-        if humanoid then
-            local animTrack = humanoid:LoadAnimation(animation1)
-            animTrack:Play()
-        end
-    end)
-    tool1.Parent = backpack
-
-    local tool2 = Instance.new("Tool")
-    tool2.Name = "enrage"
-    tool2.RequiresHandle = false
-    tool2.CanBeDropped = false
-
-    local animation2 = Instance.new("Animation")
-    animation2.AnimationId = "rbxassetid://93648331"
-
-    tool2.Activated:Connect(function()
-        local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
-        if humanoid then
-            local animTrack = humanoid:LoadAnimation(animation2)
-            animTrack:Play()
-        end
-    end)
-    tool2.Parent = backpack
-end
-
-local newScripts = {
-    {
-        Name = "⚔️ FE Seraphic Blade",
-        Url = "https://pastefy.app/59mJGQGe/raw"
-    },
-    {
-        Name = "💃 FE Animations",
-        Url = "https://raw.githubusercontent.com/7yd7/Hub/refs/heads/Branch/GUIS/Emotes.lua"
-    },
-    {
-        Name = "🛫 Enhanced Flight",
-        Callback = LoadImprovedFlight
-    },
-    {
-        Name = "👹 The Rake Animation",
-        Callback = LoadRakeAnimation
-    },
-    {
-        Name = "🌀 Touch Fling",
-        Url = "https://rawscripts.net/raw/Universal-Script-TOUCH-FLING-30401"
-    }
-}
-
-
-for i, scriptInfo in ipairs(newScripts) do
-    MainTab:CreateButton({
-        Name = scriptInfo.Name,
-        Callback = function()
-            Rayfield:Notify({
-                Title = "⏳ Загрузка...",
-                Content = "📥 "..scriptInfo.Name.." запускается",
-                Duration = 3
-            })
-
-            local success, err = pcall(function()
-                if scriptInfo.Callback then
-                    scriptInfo.Callback()
-                else
-                    loadstring(game:HttpGet(scriptInfo.Url, true))()
-                end
-            end)
-
-            if success then
-                Rayfield:Notify({
-                    Title = "✅ Успех!",
-                    Content = scriptInfo.Name.." успешно загружен",
-                    Duration = 4
-                })
-            else
-                Rayfield:Notify({
-                    Title = "❌ Ошибка!",
-                    Content = "Не удалось загрузить "..scriptInfo.Name..":\n"..tostring(err),
-                    Duration = 6
-                })
-            end
-        end
-    })
-end
-
-local scriptUrls = {
-    "https://pastefy.app/YsJgITXR/raw",
-    "https://pastebin.com/raw/3Rnd9rHf",
-    "https://pastefy.app/JOWniO6o/raw",
-    "https://pastebin.com/raw/LgZwZ7ZB",
-    "https://pastefy.app/w7KnPY70/raw",
-    "https://raw.githubusercontent.com/GenesisFE/Genesis/main/Obfuscations/Gale%20Fighter",
-    "https://raw.githubusercontent.com/GenesisFE/Genesis/main/Obfuscations/Neptunian%20V"
-}
-local scriptNames = {
-    "👹 SCP-096 Mode",
-    "👻 Invisibility PRO",
-    "🧟 Zombie Hacks",
-    "🏎️ Fling+",
-    "🧟 Simple Zombie Companion",
-    "⚔️ FE GALE FIGHTER",
-    "🌊 FE Neptunian V"
-}
-
-for i = 1, #scriptNames do
-    MainTab:CreateButton({
-        Name = scriptNames[i],
-        Callback = function()
-            Rayfield:Notify({
-                Title = "⏳ Загрузка...",
-                Content = "📥 "..scriptNames[i].." запускается",
-                Duration = 3
-            })
-
-            local success, err = pcall(function()
-                loadstring(game:HttpGet(scriptUrls[i], true))()
-            end)
-
-            if not success then
-                Rayfield:Notify({
-                    Title = "❌ Ошибка!",
-                    Content = "⚠️ Не удалось загрузить:\n"..tostring(err),
-                    Duration = 6
-                })
-            end
-        end
-    })
-end
-
---[[
-    ==============================
-    ОСНОВНЫЕ ОБРАБОТЧИКИ
-    ==============================
-]]--
-game:GetService("RunService").Stepped:Connect(function()
-    if noclipActive and player.Character then
-        for _, part in ipairs(player.Character:GetDescendants()) do
-            if part:IsA("BasePart") then
-                part.CanCollide = false
-            end
-        end
-    end
-end)
-
-player.CharacterAdded:Connect(function(character)
-
-    if ESPConfig.Enabled then
-        task.wait(2)
-        UpdateESP()
-    end
-end)

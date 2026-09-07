@@ -2467,8 +2467,11 @@ local function DestroyScript()
 
     -- Stop Noclip
     pcall(function() if noclipConnection then noclipConnection:Disconnect() noclipConnection = nil end end)
+    noclipActive = false
 
-    -- Stop SpinBot
+    -- Stop SpinBot (Combat + Range)
+    pcall(function() if getgenv().ELITE_HUB_CombatSpinStop then getgenv().ELITE_HUB_CombatSpinStop() end end)
+    pcall(function() if getgenv().ELITE_HUB_RangeSpinStop then getgenv().ELITE_HUB_RangeSpinStop() end end)
     pcall(function() if spinConn then spinConn:Disconnect() spinConn = nil end end)
 
     -- Stop Music Player
@@ -2485,6 +2488,15 @@ local function DestroyScript()
     end)
     pcall(function() getgenv().ELITE_HUB_MusicCache = {} end)
 
+    -- Stop FPS Overlay
+    pcall(function() getgenv().ELITE_HUB_FpsOverlay = false end)
+    pcall(function()
+        if getgenv().ELITE_HUB_FpsOverlayGui then
+            getgenv().ELITE_HUB_FpsOverlayGui:Destroy()
+            getgenv().ELITE_HUB_FpsOverlayGui = nil
+        end
+    end)
+
     -- Stop Anti-AFK / Rejoin
     pcall(function() if getgenv().ELITE_HUB_AntiAfkConn then getgenv().ELITE_HUB_AntiAfkConn:Disconnect() end end)
     pcall(function() if getgenv().ELITE_HUB_RejoinConn then getgenv().ELITE_HUB_RejoinConn:Disconnect() end end)
@@ -2492,10 +2504,14 @@ local function DestroyScript()
     -- Restore Chams (restore all originals, destroy highlights)
     pcall(function()
         for _, plr in ipairs(Players:GetPlayers()) do
-            pcall(function() RestoreOriginals(plr) end)
             pcall(function()
-                local hl = chamHighlights[plr]
-                if hl then hl:Destroy() chamHighlights[plr] = nil end
+                if getgenv().ELITE_HUB_RestoreChamOriginals then getgenv().ELITE_HUB_RestoreChamOriginals(plr) end
+            end)
+            pcall(function()
+                if getgenv().ELITE_HUB_ChamHighlights then
+                    local hl = getgenv().ELITE_HUB_ChamHighlights[plr]
+                    if hl then hl:Destroy() getgenv().ELITE_HUB_ChamHighlights[plr] = nil end
+                end
             end)
         end
     end)
@@ -4428,8 +4444,7 @@ GameScriptsTab:CreateButton({
 ]]--
 local AdventureSection = MainTab:CreateSection("⚡ CORE FUNCTIONS")
 
-local noclipActive = false
-local noclipConnection = nil
+noclipActive = false
 local BindConfig = {
     Fly = "F",
     Noclip = "N",
@@ -4441,22 +4456,22 @@ local wallhopConnection = nil
 local wallhopBindKey = Enum.KeyCode.LeftControl
 
 local speeds = 1
-local nowe = false
+nowe = false
 local tpwalking = false
-local flyBg = nil
-local flyBv = nil
+flyBg = nil
+flyBv = nil
 
 _G.flyCtrl = {f = 0, b = 0, l = 0, r = 0}
 local ctrl = _G.flyCtrl
 
-local noclipConnection = nil
+noclipConnection = nil
 
 local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 local RunService = game:GetService("RunService")
 
 local raycastParams = RaycastParams.new()
-raycastParams.FilterType = Enum.RaycastFilterType.Blacklist
+raycastParams.FilterType = Enum.RaycastFilterType.Exclude
 local InfiniteJumpEnabled = true -- Debounce РґР»СЏ РѕСЃРЅРѕРІРЅРѕРіРѕ wallhop
 
 local function getWallRaycastResult()
@@ -5024,10 +5039,10 @@ function ToggleFly()
 
                     if flyBv then
                         if (_G.flyCtrl.l + _G.flyCtrl.r) ~= 0 or (_G.flyCtrl.f + _G.flyCtrl.b) ~= 0 then
-                            flyBv.velocity = ((game.Workspace.CurrentCamera.CoordinateFrame.lookVector * (_G.flyCtrl.f + _G.flyCtrl.b)) + ((game.Workspace.CurrentCamera.CoordinateFrame * CFrame.new(_G.flyCtrl.l + _G.flyCtrl.r, (_G.flyCtrl.f + _G.flyCtrl.b) * 0.2, 0).p) - game.Workspace.CurrentCamera.CoordinateFrame.p)) * speed
+                            flyBv.velocity = ((workspace.CurrentCamera.CFrame.lookVector * (_G.flyCtrl.f + _G.flyCtrl.b)) + ((workspace.CurrentCamera.CFrame * CFrame.new(_G.flyCtrl.l + _G.flyCtrl.r, (_G.flyCtrl.f + _G.flyCtrl.b) * 0.2, 0).p) - workspace.CurrentCamera.CFrame.p)) * speed
                             lastctrl = {f = _G.flyCtrl.f, b = _G.flyCtrl.b, l = _G.flyCtrl.l, r = _G.flyCtrl.r}
                         elseif (_G.flyCtrl.l + _G.flyCtrl.r) == 0 and (_G.flyCtrl.f + _G.flyCtrl.b) == 0 and speed ~= 0 then
-                            flyBv.velocity = ((game.Workspace.CurrentCamera.CoordinateFrame.lookVector * (lastctrl.f + lastctrl.b)) + ((game.Workspace.CurrentCamera.CoordinateFrame * CFrame.new(lastctrl.l + lastctrl.r, (lastctrl.f + lastctrl.b) * 0.2, 0).p) - game.Workspace.CurrentCamera.CoordinateFrame.p)) * speed
+                            flyBv.velocity = ((workspace.CurrentCamera.CFrame.lookVector * (lastctrl.f + lastctrl.b)) + ((workspace.CurrentCamera.CFrame * CFrame.new(lastctrl.l + lastctrl.r, (lastctrl.f + lastctrl.b) * 0.2, 0).p) - workspace.CurrentCamera.CFrame.p)) * speed
                         else
                             flyBv.velocity = Vector3.new(0, 0, 0)
                         end
@@ -5038,7 +5053,7 @@ function ToggleFly()
                         if getgenv().ELITE_HUB_SpinBot then
                             spinY = math.rad(getgenv().ELITE_HUB_SpinSpeed * 0.1)
                         end
-                        flyBg.cframe = game.Workspace.CurrentCamera.CoordinateFrame * CFrame.Angles(-math.rad((_G.flyCtrl.f + _G.flyCtrl.b) * 50 * speed / maxspeed), spinY, 0)
+                        flyBg.cframe = workspace.CurrentCamera.CFrame * CFrame.Angles(-math.rad((_G.flyCtrl.f + _G.flyCtrl.b) * 50 * speed / maxspeed), spinY, 0)
                     end
                 end
 
@@ -5106,10 +5121,10 @@ function ToggleFly()
 
                     if flyBv then
                         if (_G.flyCtrl.l + _G.flyCtrl.r) ~= 0 or (_G.flyCtrl.f + _G.flyCtrl.b) ~= 0 then
-                            flyBv.velocity = ((game.Workspace.CurrentCamera.CoordinateFrame.lookVector * (_G.flyCtrl.f + _G.flyCtrl.b)) + ((game.Workspace.CurrentCamera.CoordinateFrame * CFrame.new(_G.flyCtrl.l + _G.flyCtrl.r, (_G.flyCtrl.f + _G.flyCtrl.b) * 0.2, 0).p) - game.Workspace.CurrentCamera.CoordinateFrame.p)) * speed
+                            flyBv.velocity = ((workspace.CurrentCamera.CFrame.lookVector * (_G.flyCtrl.f + _G.flyCtrl.b)) + ((workspace.CurrentCamera.CFrame * CFrame.new(_G.flyCtrl.l + _G.flyCtrl.r, (_G.flyCtrl.f + _G.flyCtrl.b) * 0.2, 0).p) - workspace.CurrentCamera.CFrame.p)) * speed
                             lastctrl = {f = _G.flyCtrl.f, b = _G.flyCtrl.b, l = _G.flyCtrl.l, r = _G.flyCtrl.r}
                         elseif (_G.flyCtrl.l + _G.flyCtrl.r) == 0 and (_G.flyCtrl.f + _G.flyCtrl.b) == 0 and speed ~= 0 then
-                            flyBv.velocity = ((game.Workspace.CurrentCamera.CoordinateFrame.lookVector * (lastctrl.f + lastctrl.b)) + ((game.Workspace.CurrentCamera.CoordinateFrame * CFrame.new(lastctrl.l + lastctrl.r, (lastctrl.f + lastctrl.b) * 0.2, 0).p) - game.Workspace.CurrentCamera.CoordinateFrame.p)) * speed
+                            flyBv.velocity = ((workspace.CurrentCamera.CFrame.lookVector * (lastctrl.f + lastctrl.b)) + ((workspace.CurrentCamera.CFrame * CFrame.new(lastctrl.l + lastctrl.r, (lastctrl.f + lastctrl.b) * 0.2, 0).p) - workspace.CurrentCamera.CFrame.p)) * speed
                         else
                             flyBv.velocity = Vector3.new(0, 0, 0)
                         end
@@ -5120,7 +5135,7 @@ function ToggleFly()
                         if getgenv().ELITE_HUB_SpinBot then
                             spinY = math.rad(getgenv().ELITE_HUB_SpinSpeed * 0.1)
                         end
-                        flyBg.cframe = game.Workspace.CurrentCamera.CoordinateFrame * CFrame.Angles(-math.rad((_G.flyCtrl.f + _G.flyCtrl.b) * 50 * speed / maxspeed), spinY, 0)
+                        flyBg.cframe = workspace.CurrentCamera.CFrame * CFrame.Angles(-math.rad((_G.flyCtrl.f + _G.flyCtrl.b) * 50 * speed / maxspeed), spinY, 0)
                     end
                 end
 
@@ -7142,6 +7157,7 @@ local ESPConfig = {
     HeadDots = false,
     HeadDotColor = Color3.fromRGB(255, 0, 0),
     HeadDotSize = 6,
+    MaxESPDistance = 0,
     ShowScriptUserTag = true,
     ScriptUserTagColor = Color3.fromRGB(200, 100, 255),
     ShowHealthBar = false,
@@ -7838,9 +7854,24 @@ local function UpdateESP()
     end
 
     if not ESPConfig.Enabled then return end
+    local maxDist = ESPConfig.MaxESPDistance or 0
+    local myChar = player.Character
+    local myRoot = myChar and myChar:FindFirstChild("HumanoidRootPart")
     for _, targetPlayer in ipairs(Players:GetPlayers()) do
         if targetPlayer ~= player then
-            CreatePlayerESP(targetPlayer)
+            local skip = false
+            if maxDist > 0 and myRoot then
+                local char = targetPlayer.Character
+                local root = char and char:FindFirstChild("HumanoidRootPart")
+                if root and (root.Position - myRoot.Position).Magnitude > maxDist then
+                    skip = true
+                end
+            end
+            if skip then
+                ClearPlayerESP(targetPlayer)
+            else
+                CreatePlayerESP(targetPlayer)
+            end
         end
     end
 end
@@ -7984,6 +8015,11 @@ task.spawn(function()
             origMats[plr] = nil
         end
     end
+
+    getgenv().ELITE_HUB_ChamHighlights = chamHighlights
+    getgenv().ELITE_HUB_OrigMats = origMats
+    getgenv().ELITE_HUB_SaveChamOriginals = SaveOriginals
+    getgenv().ELITE_HUB_RestoreChamOriginals = RestoreOriginals
 
     local function ApplyCham(plr)
         local ch = plr.Character
@@ -8487,6 +8523,18 @@ ESPTab:CreateDropdown({
 })
 
 ESPTab:CreateSection("➕ EXTRA")
+
+ESPTab:CreateSlider({
+    Name = " Max ESP distance",
+    Range = {0, 1000},
+    Increment = 25,
+    Suffix = " studs (0 = ∞)",
+    CurrentValue = ESPConfig.MaxESPDistance,
+    Callback = function(value)
+        ESPConfig.MaxESPDistance = value
+        UpdateESP()
+    end
+})
 
 ESPTab:CreateToggle({
     Name = " Dots on heads",
@@ -10553,6 +10601,77 @@ MT = UtilitiesTab
 getgenv().ELITE_HUB_Log("UI", "Section loaded: UTILS")
 MT:CreateSection("🔧 UTILITIES")
 
+getgenv().ELITE_HUB_FpsOverlay = false
+MT:CreateToggle({
+    Name = " FPS / Ping Overlay",
+    CurrentValue = false,
+    Callback = function(value)
+        getgenv().ELITE_HUB_FpsOverlay = value
+        getgenv().ELITE_HUB_Log("MODS", "FPS Overlay: " .. tostring(value))
+        if value then
+            task.spawn(function()
+                if getgenv().ELITE_HUB_FpsOverlayGui then
+                    pcall(function() getgenv().ELITE_HUB_FpsOverlayGui:Destroy() end)
+                    getgenv().ELITE_HUB_FpsOverlayGui = nil
+                end
+                local gui = Instance.new("ScreenGui")
+                gui.Name = "EliteHubFpsOverlay"
+                gui.ResetOnSpawn = false
+                gui.IgnoreGuiInset = true
+                gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+                gui.Parent = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
+                getgenv().ELITE_HUB_FpsOverlayGui = gui
+                local lbl = Instance.new("TextLabel")
+                lbl.Size = UDim2.new(0, 220, 0, 30)
+                lbl.Position = UDim2.new(0, 15, 0, 8)
+                lbl.BackgroundColor3 = Color3.fromRGB(30, 20, 50)
+                lbl.BackgroundTransparency = 0.3
+                lbl.TextColor3 = Color3.fromRGB(220, 180, 255)
+                lbl.TextSize = 13
+                lbl.Font = Enum.Font.GothamBold
+                lbl.TextStrokeTransparency = 0.6
+                Instance.new("UICorner", lbl).CornerRadius = UDim.new(0, 8)
+                lbl.Parent = gui
+                task.spawn(function()
+                    local fpsAcc = 0
+                    local fpsFrames = 0
+                    local conn = game:GetService("RunService").RenderStepped:Connect(function(dt)
+                        fpsAcc = fpsAcc + dt
+                        fpsFrames = fpsFrames + 1
+                    end)
+                    while getgenv().ELITE_HUB_FpsOverlay and gui and gui.Parent do
+                        task.wait(0.5)
+                        pcall(function()
+                            local ping = 0
+                            pcall(function()
+                                ping = math.round(game:GetService("Stats").Network.ServerStats["Data Ping"]:GetValue())
+                            end)
+                            local online = 0
+                            for _, p in ipairs(game:GetService("Players"):GetPlayers()) do
+                                online = online + 1
+                            end
+                            local fps = fpsFrames / math.max(fpsAcc, 0.0001)
+                            lbl.Text = "🌟 ELITE HUB 14.0 | FPS: " .. math.round(fps) .. " | Ping: " .. ping .. "ms | Players: " .. online
+                            fpsAcc = 0
+                            fpsFrames = 0
+                        end)
+                    end
+                    conn:Disconnect()
+                    pcall(function()
+                        if gui and gui.Parent then gui:Destroy() end
+                    end)
+                    if getgenv().ELITE_HUB_FpsOverlayGui == gui then getgenv().ELITE_HUB_FpsOverlayGui = nil end
+                end)
+            end)
+        else
+            if getgenv().ELITE_HUB_FpsOverlayGui then
+                pcall(function() getgenv().ELITE_HUB_FpsOverlayGui:Destroy() end)
+                getgenv().ELITE_HUB_FpsOverlayGui = nil
+            end
+        end
+    end
+})
+
 
 MT:CreateToggle({
     Name = " Anti-AFK",
@@ -10632,6 +10751,7 @@ local function ELITE_HUB_MusicEnsureSound()
         s.Name = "EliteHubMusic"
         s.Volume = getgenv().ELITE_HUB_MusicVolume
         s.Looped = true
+        s.PlaybackSpeed = getgenv().ELITE_HUB_MusicPlaybackSpeed or 1
         s.Parent = game:GetService("SoundService")
         getgenv().ELITE_HUB_MusicPlayer = s
     end
@@ -10650,6 +10770,7 @@ local function ELITE_HUB_MusicPlayTrack(track)
         local snd = ELITE_HUB_MusicEnsureSound()
         snd.Looped = false
         snd.SoundId = id
+        snd.PlaybackSpeed = getgenv().ELITE_HUB_MusicPlaybackSpeed or 1
         snd:Play()
         getgenv().ELITE_HUB_MusicPlaying = true
         getgenv().ELITE_HUB_Log("MUSIC", "Playing: " .. track.name)
@@ -10657,12 +10778,24 @@ local function ELITE_HUB_MusicPlayTrack(track)
             getgenv().ELITE_HUB_MusicEndConn = snd.Ended:Connect(function()
                 local pl = getgenv().ELITE_HUB_MusicPlaylist
                 if not getgenv().ELITE_HUB_MusicPlaying or #pl == 0 then return end
-                getgenv().ELITE_HUB_MusicIndex = (getgenv().ELITE_HUB_MusicIndex % #pl) + 1
+                if getgenv().ELITE_HUB_MusicRepeatOne then
+                    ELITE_HUB_MusicPlayTrack(pl[getgenv().ELITE_HUB_MusicIndex])
+                    return
+                end
+                if getgenv().ELITE_HUB_MusicShuffle and #pl > 1 then
+                    getgenv().ELITE_HUB_MusicIndex = math.random(1, #pl)
+                else
+                    getgenv().ELITE_HUB_MusicIndex = (getgenv().ELITE_HUB_MusicIndex % #pl) + 1
+                end
                 ELITE_HUB_MusicPlayTrack(pl[getgenv().ELITE_HUB_MusicIndex])
             end)
         end
     end)
 end
+
+getgenv().ELITE_HUB_MusicShuffle = false
+getgenv().ELITE_HUB_MusicRepeatOne = false
+getgenv().ELITE_HUB_MusicPlaybackSpeed = 1
 
 MusicTab:CreateSection("🎵 MUSIC PLAYER")
 MusicTab:CreateButton({
@@ -10733,7 +10866,11 @@ MusicTab:CreateButton({
     Callback = function()
         local playlist = getgenv().ELITE_HUB_MusicPlaylist
         if #playlist == 0 then return end
-        getgenv().ELITE_HUB_MusicIndex = (getgenv().ELITE_HUB_MusicIndex % #playlist) + 1
+        if getgenv().ELITE_HUB_MusicShuffle and #playlist > 1 then
+            getgenv().ELITE_HUB_MusicIndex = math.random(1, #playlist)
+        else
+            getgenv().ELITE_HUB_MusicIndex = (getgenv().ELITE_HUB_MusicIndex % #playlist) + 1
+        end
         local track = playlist[getgenv().ELITE_HUB_MusicIndex]
         if ELITE_HUB_MusicPlaying or ELITE_HUB_MusicPlayer then
             ELITE_HUB_MusicPlayTrack(track)
@@ -10767,6 +10904,38 @@ MusicTab:CreateSlider({
         if getgenv().ELITE_HUB_MusicPlayer then
             getgenv().ELITE_HUB_MusicPlayer.Volume = value
         end
+    end
+})
+
+MusicTab:CreateSlider({
+    Name = " Speed",
+    Range = {0.5, 2},
+    Increment = 0.05,
+    CurrentValue = 1,
+    Callback = function(value)
+        getgenv().ELITE_HUB_MusicPlaybackSpeed = value
+        if getgenv().ELITE_HUB_MusicPlayer then
+            getgenv().ELITE_HUB_MusicPlayer.PlaybackSpeed = value
+        end
+        getgenv().ELITE_HUB_Log("MUSIC", "Speed: " .. value)
+    end
+})
+
+MusicTab:CreateToggle({
+    Name = " Shuffle",
+    CurrentValue = false,
+    Callback = function(value)
+        getgenv().ELITE_HUB_MusicShuffle = value
+        getgenv().ELITE_HUB_Log("MUSIC", "Shuffle: " .. tostring(value))
+    end
+})
+
+MusicTab:CreateToggle({
+    Name = " Repeat One",
+    CurrentValue = false,
+    Callback = function(value)
+        getgenv().ELITE_HUB_MusicRepeatOne = value
+        getgenv().ELITE_HUB_Log("MUSIC", "Repeat One: " .. tostring(value))
     end
 })
 
@@ -10935,6 +11104,7 @@ local function stopSpin()
         end
     end)
 end
+getgenv().ELITE_HUB_CombatSpinStop = stopSpin
 
 getgenv().ELITE_HUB_SpinBot = false
 getgenv().ELITE_HUB_SpinSpeed = 50
@@ -11796,7 +11966,7 @@ local RC = {
     ParticleSize = 2,
 }
 
-local function createTrail(parent, c1, c2)
+local function createTrail(parent, c1, c2, src)
     pcall(function()
         local a0 = Instance.new("Attachment")
         a0.Position = Vector3.new(0, 0.5, 0)
@@ -11816,15 +11986,17 @@ local function createTrail(parent, c1, c2)
         trail.MinLength = 0.1
         trail.LightEmission = 1
         trail.FaceCamera = true
+        trail:SetAttribute("EliteHubEffectSource", src or "RANGE")
         trail.Parent = parent
         return trail
     end)
 end
 
-local function createSparkles(parent, color)
+local function createSparkles(parent, color, src)
     pcall(function()
         local s = Instance.new("Sparkles")
         s.SparkleColor = color or RC.Color3
+        s:SetAttribute("EliteHubEffectSource", src or "RANGE")
         s.Parent = parent
         return s
     end)
@@ -11847,12 +12019,13 @@ local function createBurstParticles(parent, color)
         pe.SpreadAngle = Vector2.new(360, 360)
         pe.Rate = 0
         pe.LightEmission = 1
+        pe:SetAttribute("EliteHubEffectSource", "RANGE")
         pe.Parent = parent
         return pe
     end)
 end
 
-local function createAuraParticles(parent, color)
+local function createAuraParticles(parent, color, src)
     pcall(function()
         local pe = Instance.new("ParticleEmitter")
         pe.Color = ColorSequence.new(color or RC.Color1)
@@ -11871,18 +12044,21 @@ local function createAuraParticles(parent, color)
         pe.Rate = RC.SparkleRate
         pe.LightEmission = 1
         pe.RotSpeed = NumberRange.new(-100, 100)
+        pe:SetAttribute("EliteHubEffectSource", src or "RANGE")
         pe.Parent = parent
         return pe
     end)
 end
 
-local function clearEffects(char)
+local function clearEffects(char, source)
     if not char then return end
     local hrp = char:FindFirstChild("HumanoidRootPart")
     if hrp then
         for _, v in ipairs(hrp:GetChildren()) do
             if v:IsA("Trail") or v:IsA("Sparkles") or v:IsA("ParticleEmitter") then
-                v:Destroy()
+                if source == nil or v:GetAttribute("EliteHubEffectSource") == source then
+                    v:Destroy()
+                end
             end
         end
     end
@@ -11999,6 +12175,15 @@ local function startSpin()
             local hrp = ch:FindFirstChild("HumanoidRootPart")
             if not hrp then return end
 
+            if getgenv().ELITE_HUB_RangeSpinDuringMove == false then
+                local moving = false
+                pcall(function()
+                    local hum = ch:FindFirstChildOfClass("Humanoid")
+                    moving = hum and hum.MoveDirection.Magnitude > 0.1
+                end)
+                if moving then return end
+            end
+
             local speed = getgenv().ELITE_HUB_RangeSpinSpeed or 50
             local delta = speed * dt * 3
             hrp.CFrame = hrp.CFrame * CFrame.Angles(0, math.rad(delta), 0)
@@ -12022,6 +12207,7 @@ local function stopSpin()
         end
     end)
 end
+getgenv().ELITE_HUB_RangeSpinStop = stopSpin
 
 getgenv().ELITE_HUB_RangeSpin = false
 getgenv().ELITE_HUB_RangeSpinSpeed = 50
@@ -12044,12 +12230,12 @@ RangeTab:CreateToggle({
                 if value then
                     local hrp = ch:FindFirstChild("HumanoidRootPart")
                     if hrp then
-                        createTrail(hrp, RC.Color1, RC.Color2)
-                        createSparkles(hrp, RC.Color3)
-                        createAuraParticles(hrp, RC.Color1)
+                        createTrail(hrp, RC.Color1, RC.Color2, "SPIN")
+                        createSparkles(hrp, RC.Color3, "SPIN")
+                        createAuraParticles(hrp, RC.Color1, "SPIN")
                     end
                 else
-                    clearEffects(ch)
+                    clearEffects(ch, "SPIN")
                 end
             end
         end)
@@ -12091,11 +12277,11 @@ RangeTab:CreateToggle({
                 if value then
                     local hrp = ch:FindFirstChild("HumanoidRootPart")
                     if hrp then
-                        createTrail(hrp, RC.Color1, RC.Color2)
-                        createAuraParticles(hrp, RC.Color3)
+                        createTrail(hrp, RC.Color1, RC.Color2, "SPEED")
+                        createAuraParticles(hrp, RC.Color3, "SPEED")
                     end
                 else
-                    clearEffects(ch)
+                    clearEffects(ch, "SPEED")
                     local hum = ch:FindFirstChildOfClass("Humanoid")
                     if hum then hum.WalkSpeed = 16 end
                 end
@@ -12143,7 +12329,10 @@ getgenv().ELITE_HUB_ChamsTab:CreateToggle({
                         local origMat = part:GetAttribute("EliteHubWCOrigMat")
                         local origCol = part:GetAttribute("EliteHubWCOrigCol")
                         local origTrans = part:GetAttribute("EliteHubWCOrigTrans")
-                        if origMat then part.Material = origMat end
+                        if origMat then
+                            local m = Enum.Material[origMat]
+                            if m then part.Material = m end
+                        end
                         if origCol then part.Color = origCol end
                         if origTrans then part.Transparency = origTrans end
                         part:SetAttribute("EliteHubWC", nil)
@@ -12222,7 +12411,7 @@ task.spawn(function()
                     if part:IsA("BasePart") then
                         if not part:GetAttribute("EliteHubWC") then
                             part:SetAttribute("EliteHubWC", true)
-                            part:SetAttribute("EliteHubWCOrigMat", part.Material)
+                            part:SetAttribute("EliteHubWCOrigMat", tostring(part.Material.Name))
                             part:SetAttribute("EliteHubWCOrigCol", part.Color)
                             part:SetAttribute("EliteHubWCOrigTrans", part.Transparency)
                         end
@@ -12491,7 +12680,7 @@ task.spawn(function()
             end
 
             -- Noclip
-            if getgenv().ELITE_HUB_NoclipActive then
+            if noclipActive then
                 for _, part in ipairs(ch:GetDescendants()) do
                     if part:IsA("BasePart") then
                         pcall(function() part.CanCollide = false end)
@@ -12499,17 +12688,19 @@ task.spawn(function()
                 end
             end
 
-            -- Speed Boost
-            if getgenv().ELITE_HUB_SpeedBoost then
-                if hum.WalkSpeed ~= 32 then
-                    hum.WalkSpeed = 32
+            -- Speed Boost (Range tab)
+            if getgenv().ELITE_HUB_RangeSpeed then
+                local spd = getgenv().ELITE_HUB_RangeSpeedVal or 24
+                if hum.WalkSpeed ~= spd then
+                    hum.WalkSpeed = spd
                 end
             end
 
             -- Jump Boost
             if getgenv().ELITE_HUB_JumpBoost then
+                local jp = getgenv().ELITE_HUB_JumpPower or 120
                 if hum.UseJumpPower ~= true then hum.UseJumpPower = true end
-                if hum.JumpPower ~= 120 then hum.JumpPower = 120 end
+                if hum.JumpPower ~= jp then hum.JumpPower = jp end
             end
 
             -- WalkSpeed

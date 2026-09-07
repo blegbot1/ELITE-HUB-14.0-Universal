@@ -1,6 +1,19 @@
--- ELITE HUB 14.0 — Range Module (Effects, Spin Bot, Speed Boost)
--- Extracted from ELITE_HUB_14.0.lua
-local RangeTab = Window:CreateTab("🎯 " .. "RANGE", 7733960981, "Range")
+-- source: ELITE_HUB_14.0.lua Range (lines 11956-12467)
+local _g = getgenv
+local Rayfield = _g().ELITE_HUB_Rayfield
+local Window = _g().ELITE_HUB_Window
+local ES = _g().EliteHubSettings
+local L = _g().ELITE_HUB_L
+local Log = _g().ELITE_HUB_Log
+local Players = _g().ELITE_HUB_Players
+local player = _g().ELITE_HUB_Player
+local OverlayGui = _g().ELITE_HUB_OverlayGui
+local LoadScript = _g().ELITE_HUB_LoadScript
+local SafeNotify = _g().ELITE_HUB_SafeNotify
+local DestroyScript = _g().ELITE_HUB_DestroyScript
+local MT = Window
+
+local RangeTab = Window:CreateTab("📏 " .. "RANGE", 7733960981, "Range")
 
 local RC = {
     Color1 = Color3.fromRGB(150, 70, 255),
@@ -13,7 +26,7 @@ local RC = {
     ParticleSize = 2,
 }
 
-local function createTrail(parent, c1, c2)
+local function createTrail(parent, c1, c2, src)
     pcall(function()
         local a0 = Instance.new("Attachment")
         a0.Position = Vector3.new(0, 0.5, 0)
@@ -33,15 +46,17 @@ local function createTrail(parent, c1, c2)
         trail.MinLength = 0.1
         trail.LightEmission = 1
         trail.FaceCamera = true
+        trail:SetAttribute("EliteHubEffectSource", src or "RANGE")
         trail.Parent = parent
         return trail
     end)
 end
 
-local function createSparkles(parent, color)
+local function createSparkles(parent, color, src)
     pcall(function()
         local s = Instance.new("Sparkles")
         s.SparkleColor = color or RC.Color3
+        s:SetAttribute("EliteHubEffectSource", src or "RANGE")
         s.Parent = parent
         return s
     end)
@@ -64,12 +79,13 @@ local function createBurstParticles(parent, color)
         pe.SpreadAngle = Vector2.new(360, 360)
         pe.Rate = 0
         pe.LightEmission = 1
+        pe:SetAttribute("EliteHubEffectSource", "RANGE")
         pe.Parent = parent
         return pe
     end)
 end
 
-local function createAuraParticles(parent, color)
+local function createAuraParticles(parent, color, src)
     pcall(function()
         local pe = Instance.new("ParticleEmitter")
         pe.Color = ColorSequence.new(color or RC.Color1)
@@ -88,59 +104,62 @@ local function createAuraParticles(parent, color)
         pe.Rate = RC.SparkleRate
         pe.LightEmission = 1
         pe.RotSpeed = NumberRange.new(-100, 100)
+        pe:SetAttribute("EliteHubEffectSource", src or "RANGE")
         pe.Parent = parent
         return pe
     end)
 end
 
-local function clearEffects(char)
+local function clearEffects(char, source)
     if not char then return end
     local hrp = char:FindFirstChild("HumanoidRootPart")
     if hrp then
         for _, v in ipairs(hrp:GetChildren()) do
             if v:IsA("Trail") or v:IsA("Sparkles") or v:IsA("ParticleEmitter") then
-                v:Destroy()
+                if source == nil or v:GetAttribute("EliteHubEffectSource") == source then
+                    v:Destroy()
+                end
             end
         end
     end
 end
 
-local re1 = RangeTab:CreateSection("🎨 EFFECTS")
+local re1 = RangeTab:CreateSection("✨ EFFECTS")
 
 RangeTab:CreateSlider({
-    Name = "🎨 R",
+    Name = " R",
     Range = {0, 255},
     Increment = 5,
     CurrentValue = 150,
     Callback = function(value)
-        RC.Color1 = Color3.fromRGB(value, RC.Color1.G * 255, RC.Color1.B * 255)
+        RC.Color1 = Color3.new(value / 255, RC.Color1.G, RC.Color1.B)
     end
 })
 
 RangeTab:CreateSlider({
-    Name = "🎨 G",
+    Name = " G",
     Range = {0, 255},
     Increment = 5,
     CurrentValue = 70,
     Callback = function(value)
         local c = RC.Color1
-        RC.Color1 = Color3.fromRGB(c.R * 255, value, c.B * 255)
+        RC.Color1 = Color3.new(c.R, value / 255, c.B)
     end
 })
 
 RangeTab:CreateSlider({
-    Name = "🎨 B",
+    Name = " B",
     Range = {0, 255},
     Increment = 5,
     CurrentValue = 255,
     Callback = function(value)
         local c = RC.Color1
-        RC.Color1 = Color3.fromRGB(c.R * 255, c.G * 255, value)
+        RC.Color1 = Color3.new(c.R, c.G, value / 255)
     end
 })
 
 RangeTab:CreateSlider({
-    Name = "⏱️ Trail Lifetime",
+    Name = " Trail Lifetime",
     Range = {0.2, 2},
     Increment = 0.1,
     CurrentValue = 0.8,
@@ -150,7 +169,7 @@ RangeTab:CreateSlider({
 })
 
 RangeTab:CreateSlider({
-    Name = "✨ Sparkle Rate",
+    Name = " Sparkle Rate",
     Range = {1, 50},
     Increment = 1,
     CurrentValue = 10,
@@ -160,7 +179,7 @@ RangeTab:CreateSlider({
 })
 
 RangeTab:CreateSlider({
-    Name = "💨 Particle Speed",
+    Name = " Particle Speed",
     Range = {1, 30},
     Increment = 1,
     CurrentValue = 10,
@@ -170,7 +189,7 @@ RangeTab:CreateSlider({
 })
 
 RangeTab:CreateSlider({
-    Name = "⏱️ Particle Life",
+    Name = " Particle Life",
     Range = {0.1, 2},
     Increment = 0.1,
     CurrentValue = 0.6,
@@ -180,7 +199,7 @@ RangeTab:CreateSlider({
 })
 
 RangeTab:CreateSlider({
-    Name = "📦 Particle Size",
+    Name = " Particle Size",
     Range = {0.5, 5},
     Increment = 0.5,
     CurrentValue = 2,
@@ -216,6 +235,15 @@ local function startSpin()
             local hrp = ch:FindFirstChild("HumanoidRootPart")
             if not hrp then return end
 
+            if getgenv().ELITE_HUB_RangeSpinDuringMove == false then
+                local moving = false
+                pcall(function()
+                    local hum = ch:FindFirstChildOfClass("Humanoid")
+                    moving = hum and hum.MoveDirection.Magnitude > 0.1
+                end)
+                if moving then return end
+            end
+
             local speed = getgenv().ELITE_HUB_RangeSpinSpeed or 50
             local delta = speed * dt * 3
             hrp.CFrame = hrp.CFrame * CFrame.Angles(0, math.rad(delta), 0)
@@ -239,13 +267,14 @@ local function stopSpin()
         end
     end)
 end
+getgenv().ELITE_HUB_RangeSpinStop = stopSpin
 
 getgenv().ELITE_HUB_RangeSpin = false
 getgenv().ELITE_HUB_RangeSpinSpeed = 50
 getgenv().ELITE_HUB_RangeSpinDuringMove = true
 
 RangeTab:CreateToggle({
-    Name = "🔄 Spin Bot",
+    Name = " Spin Bot",
     CurrentValue = false,
     Callback = function(value)
         getgenv().ELITE_HUB_RangeSpin = value
@@ -261,12 +290,12 @@ RangeTab:CreateToggle({
                 if value then
                     local hrp = ch:FindFirstChild("HumanoidRootPart")
                     if hrp then
-                        createTrail(hrp, RC.Color1, RC.Color2)
-                        createSparkles(hrp, RC.Color3)
-                        createAuraParticles(hrp, RC.Color1)
+                        createTrail(hrp, RC.Color1, RC.Color2, "SPIN")
+                        createSparkles(hrp, RC.Color3, "SPIN")
+                        createAuraParticles(hrp, RC.Color1, "SPIN")
                     end
                 else
-                    clearEffects(ch)
+                    clearEffects(ch, "SPIN")
                 end
             end
         end)
@@ -274,7 +303,7 @@ RangeTab:CreateToggle({
 })
 
 RangeTab:CreateSlider({
-    Name = "🔄 Spin Speed",
+    Name = " Spin Speed",
     Range = {10, 300},
     Increment = 5,
     CurrentValue = 50,
@@ -284,20 +313,20 @@ RangeTab:CreateSlider({
 })
 
 RangeTab:CreateToggle({
-    Name = "🏃 Spin During Movement",
+    Name = " Spin During Movement",
     CurrentValue = true,
     Callback = function(value)
         getgenv().ELITE_HUB_RangeSpinDuringMove = value
     end
 })
 
-local re3 = RangeTab:CreateSection("🏃 SPEED BOOST")
+local re3 = RangeTab:CreateSection("⚡ SPEED BOOST")
 
 getgenv().ELITE_HUB_RangeSpeed = false
 getgenv().ELITE_HUB_RangeSpeedVal = 24
 
 RangeTab:CreateToggle({
-    Name = "🏃 Speed Boost",
+    Name = " Speed Boost",
     CurrentValue = false,
     Callback = function(value)
         getgenv().ELITE_HUB_RangeSpeed = value
@@ -308,11 +337,11 @@ RangeTab:CreateToggle({
                 if value then
                     local hrp = ch:FindFirstChild("HumanoidRootPart")
                     if hrp then
-                        createTrail(hrp, RC.Color1, RC.Color2)
-                        createAuraParticles(hrp, RC.Color3)
+                        createTrail(hrp, RC.Color1, RC.Color2, "SPEED")
+                        createAuraParticles(hrp, RC.Color3, "SPEED")
                     end
                 else
-                    clearEffects(ch)
+                    clearEffects(ch, "SPEED")
                     local hum = ch:FindFirstChildOfClass("Humanoid")
                     if hum then hum.WalkSpeed = 16 end
                 end
@@ -322,7 +351,7 @@ RangeTab:CreateToggle({
 })
 
 RangeTab:CreateSlider({
-    Name = "🏃 Speed Value",
+    Name = " Speed Value",
     Range = {16, 200},
     Increment = 1,
     CurrentValue = 24,
@@ -339,4 +368,27 @@ task.spawn(function()
             if hum then hum.WalkSpeed = getgenv().ELITE_HUB_RangeSpeedVal end
         end)
     end
+end)
+player.CharacterAdded:Connect(function(char)
+    task.wait(0.5)
+    pcall(function()
+        if getgenv().ELITE_HUB_RangeSpin then
+            local hrp = char:FindFirstChild("HumanoidRootPart")
+            if hrp then
+                createTrail(hrp, RC.Color1, RC.Color2)
+                createSparkles(hrp, RC.Color3)
+                createAuraParticles(hrp, RC.Color1)
+            end
+            startSpin()
+        end
+    end)
+    pcall(function()
+        if getgenv().ELITE_HUB_RangeSpeed then
+            local hrp = char:FindFirstChild("HumanoidRootPart")
+            if hrp then
+                createTrail(hrp, RC.Color1, RC.Color2)
+                createAuraParticles(hrp, RC.Color3)
+            end
+        end
+    end)
 end)

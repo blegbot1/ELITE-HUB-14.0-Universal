@@ -1,6 +1,19 @@
--- ELITE HUB 14.0 — Overlay Module (Status bar, drawing primitives, utilities)
--- Extracted from ELITE_HUB_14.0.lua
+﻿-- source: ELITE_HUB_14.0.lua OVERLAY/STATUSBAR (lines 2090-2438)
+local _g = getgenv
+local Rayfield = _g().ELITE_HUB_Rayfield
+local Window = _g().ELITE_HUB_Window
+local ES = _g().EliteHubSettings
+local L = _g().ELITE_HUB_L
+local Log = _g().ELITE_HUB_Log
+local Players = _g().ELITE_HUB_Players
+local player = _g().ELITE_HUB_Player
+local OverlayGui = _g().ELITE_HUB_OverlayGui
+local LoadScript = _g().ELITE_HUB_LoadScript
+local SafeNotify = _g().ELITE_HUB_SafeNotify
+local DestroyScript = _g().ELITE_HUB_DestroyScript
+local MT = Window
 local OverlayGui = Instance.new("ScreenGui")
+_g().ELITE_HUB_OverlayGui = OverlayGui
 OverlayGui.Name = "ELITE_HUB_Overlay"
 OverlayGui.ResetOnSpawn = false
 OverlayGui.IgnoreGuiInset = true
@@ -8,9 +21,9 @@ OverlayGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 local _ogParent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 OverlayGui.Parent = _ogParent
 
--- ═══════════════════════════════════════════════════════════════════
--- TOP STATUS BAR — FPS / Ping / Time / Server + ELITE HUB subtitle
--- ═══════════════════════════════════════════════════════════════════
+-- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+-- TOP STATUS BAR вЂ” FPS / Ping / Time / Server + ELITE HUB subtitle
+-- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
 do
     local holder = Instance.new("Frame")
     holder.Name = "EliteHub_TopHolder"
@@ -163,9 +176,9 @@ do
     end)
 end
 
--- ═══════════════════════════════════════════════════════════════════
+-- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
 -- MOBILE AIMBOT BUTTON (bottom-right, only on touch devices)
--- ═══════════════════════════════════════════════════════════════════
+-- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
 do
     local UserInputService = game:GetService("UserInputService")
     if UserInputService.TouchEnabled then
@@ -288,6 +301,8 @@ local function NewOverlayLine()
     return setmetatable({}, mt)
 end
 
+_g().ELITE_HUB_NewOverlayLine = NewOverlayLine
+
 local function NewOverlayCircle()
     local segmentCount = 48
     local segments = {}
@@ -350,62 +365,4 @@ local function NewOverlayCircle()
     return setmetatable({}, mt)
 end
 
-local function DestroyScript()
-    Rayfield:Notify({
-        Title = "🛑 Shutting down...",
-        Content = "ELITE HUB is being unloaded",
-        Duration = 1.5
-    })
-
-    task.wait(0.5)
-
-    for name, _ in pairs(getgenv()) do
-        if string.sub(name, 1, 11) == "ELITE_HUB_" then
-            pcall(function() getgenv()[name] = nil end)
-        end
-    end
-
-    local pg = game:GetService("Players").LocalPlayer:FindFirstChild("PlayerGui")
-    if pg then
-        for _, gui in ipairs(pg:GetChildren()) do
-            if gui:IsA("ScreenGui") and (gui.Name == "EliteHubUI" or gui.Name == "ELITE_HUB_Overlay" or gui.Name == "EliteNotif") then
-                gui:Destroy()
-            end
-        end
-    end
-
-    task.wait(0.5)
-end
-
-local function LoadScript(name, url)
-    task.spawn(function()
-        Rayfield:Notify({
-            Title = "⏳ Loading...",
-            Content = name .. " is launching",
-            Duration = 2
-        })
-        
-        task.wait(0.5)
-        
-        local success, err = pcall(function()
-            loadstring(game:HttpGet(url))()
-        end)
-        
-        task.wait(0.5)
-        
-        if success then
-            Rayfield:Notify({
-                Title = "✅ Успешно!",
-                Content = name .. " загружен",
-                Duration = 3
-            })
-        else
-            Rayfield:Notify({
-                Title = "❌ Ошибка!",
-                Content = "Не удалось загрузить " .. name,
-                Duration = 5
-            })
-            warn("Script Load Error:", name, err)
-        end
-    end)
-end
+_g().ELITE_HUB_NewOverlayCircle = NewOverlayCircle

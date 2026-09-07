@@ -1,7 +1,5 @@
--- ELITE HUB 14.0 — UI Library Module
--- Extracted from ELITE_HUB_14.0.lua
-local Rayfield = (function()
--- EliteHubUI.lua — Custom UI library in mini-menu style
+﻿local Rayfield = (function()
+-- EliteHubUI.lua вЂ” Custom UI library in mini-menu style
 -- Dark purple theme with tabs, buttons, toggles, sliders, inputs, dropdowns, color pickers
 
 local EliteHubUI = {}
@@ -142,31 +140,54 @@ function EliteHubUI:CreateWindow(config)
         }):Play()
     end
 
-    local fab = Instance.new("TextButton")
+    local fab = Instance.new("ImageButton")
     fab.Name = "FAB"
     fab.Parent = gui
     fab.Size = UDim2.new(0, 54, 0, 54)
     fab.Position = UDim2.new(1, -74, 1, -74)
     fab.AnchorPoint = Vector2.new(0, 0)
     fab.BackgroundColor3 = C.Accent
-    fab.Text = ""
     fab.BorderSizePixel = 0
     fab.Visible = false
     fab.ZIndex = 50
     fab.AutoButtonColor = false
-    newCorner(fab, 27)
+    fab.ScaleType = Enum.ScaleType.Stretch
     newStroke(fab, C.AccentLight, 2, 0.15)
 
-    local fabIcon = Instance.new("TextLabel")
-    fabIcon.Name = "Icon"
-    fabIcon.Parent = fab
-    fabIcon.Size = UDim2.new(1, 0, 1, 0)
-    fabIcon.BackgroundTransparency = 1
-    fabIcon.Text = "⚡"
-    fabIcon.TextColor3 = C.TextBright
-    fabIcon.TextSize = 22
-    fabIcon.Font = Enum.Font.GothamBlack
-    fabIcon.ZIndex = 51
+    local FAB_IMAGE_URL = "https://raw.githubusercontent.com/blegbot1/ELITE-HUB-14.0-Universal/main/launcher/kotik.jpg"
+    local FAB_IMAGE_FILE = "elitehub_kotik_fab.jpg"
+
+    local function loadFabImage()
+        if getgenv().ELITE_HUB_FabAsset then
+            fab.Image = getgenv().ELITE_HUB_FabAsset
+            return
+        end
+        pcall(function()
+            local hasFiles = type(isfile) == "function" and type(writefile) == "function" and type(getcustomasset) == "function"
+            if hasFiles and isfile(FAB_IMAGE_FILE) then
+                local asset = getcustomasset(FAB_IMAGE_FILE)
+                fab.Image = asset
+                getgenv().ELITE_HUB_FabAsset = asset
+                return
+            end
+            local hasReq = type(request) == "function" or type(http_request) == "function"
+            if not hasReq then return end
+            local ok, data = pcall(function()
+                if type(http_request) == "function" then
+                    return http_request({Url = FAB_IMAGE_URL, Method = "GET"})
+                else
+                    return request({Url = FAB_IMAGE_URL, Method = "GET"})
+                end
+            end)
+            if ok and data and data.Body and #data.Body > 50 then
+                if hasFiles then writefile(FAB_IMAGE_FILE, data.Body) end
+                local asset = getcustomasset(FAB_IMAGE_FILE)
+                fab.Image = asset
+                getgenv().ELITE_HUB_FabAsset = asset
+            end
+        end)
+    end
+    loadFabImage()
 
     local fabGlow = Instance.new("UIStroke")
     fabGlow.Color = C.AccentLight
@@ -183,7 +204,6 @@ function EliteHubUI:CreateWindow(config)
     fabShadow.BorderSizePixel = 0
     fabShadow.ZIndex = 49
     fabShadow.Visible = false
-    newCorner(fabShadow, 30)
 
     local dragging, dragStart, startPos, didDrag
     local UIS = game:GetService("UserInputService")
@@ -239,7 +259,6 @@ function EliteHubUI:CreateWindow(config)
             TweenService:Create(fab, TweenInfo.new(0.2, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Size = UDim2.new(0, 60, 0, 60)}):Play()
             TweenService:Create(fabShadow, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {Size = UDim2.new(0, 66, 0, 66)}):Play()
             TweenService:Create(fabGlow, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {Transparency = 0}):Play()
-            TweenService:Create(fabIcon, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {TextSize = 26}):Play()
         end
     end)
     fab.MouseLeave:Connect(function()
@@ -247,7 +266,6 @@ function EliteHubUI:CreateWindow(config)
             TweenService:Create(fab, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {Size = UDim2.new(0, 54, 0, 54)}):Play()
             TweenService:Create(fabShadow, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {Size = UDim2.new(0, 60, 0, 60)}):Play()
             TweenService:Create(fabGlow, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {Transparency = 0.6}):Play()
-            TweenService:Create(fabIcon, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {TextSize = 22}):Play()
         end
     end)
 
@@ -961,7 +979,7 @@ function EliteHubUI:CreateTab(name, icon, langKey)
         arrow.Size = UDim2.new(0, 22, 1, 0)
         arrow.Position = UDim2.new(1, -24, 0, 0)
         arrow.BackgroundTransparency = 1
-        arrow.Text = "▼"
+        arrow.Text = ""
         arrow.TextColor3 = C.AccentLight
         arrow.TextSize = 12
         arrow.Font = Enum.Font.GothamBold
@@ -1342,7 +1360,7 @@ function EliteHubUI:Notify(config)
     titleLabel.Size = UDim2.new(1, -18, 1, 0)
     titleLabel.Position = UDim2.new(0, 10, 0, 0)
     titleLabel.BackgroundTransparency = 1
-    titleLabel.Text = (config.Content or "") == "" and (config.Title or "") or ((config.Title or "") .. "  •  " .. (config.Content or ""))
+    titleLabel.Text = (config.Content or "") == "" and (config.Title or "") or ((config.Title or "") .. "    " .. (config.Content or ""))
     titleLabel.TextColor3 = C.TextBright
     titleLabel.TextSize = 11
     titleLabel.Font = Enum.Font.GothamBold
@@ -1371,252 +1389,7 @@ function EliteHubUI:Notify(config)
         barTween:Play()
 end)
 
--- ═══════════════════════════════════════════════════════════════════
--- CHINESE HAT — конусная шляпа, ForceField, 3D
--- БЕЗ WeldConstraint — parts следуют за головой через Heartbeat
--- Massless + PhysicalProperties = нет физ. взрывов
--- ═══════════════════════════════════════════════════════════════════
-task.spawn(function()
-local MT = VisualTab
-getgenv().ELITE_HUB_Log("UI", "Section loaded: CHINESE HAT")
-MT:CreateSection("🎩 CHINESE HAT")
 
-getgenv().ELITE_HUB_ChineseHatOn = false
-getgenv().ELITE_HUB_ChineseHatY = 0.5
-getgenv().ELITE_HUB_ChineseHatConeH = 1.2
-getgenv().ELITE_HUB_ChineseHatR = 2.5
-getgenv().ELITE_HUB_ChineseHatColor = Color3.fromRGB(255, 0, 255)
-getgenv().ELITE_HUB_ChineseHatSpin = false
-getgenv().ELITE_HUB_ChineseHatSpinSpeed = 50
-local hatConn = nil
-local hatParts = {}
-local hatSpinParts = {}
-
-local function RemoveHat(char)
-    if hatConn then hatConn:Disconnect() hatConn = nil end
-    hatParts = {}
-    hatSpinParts = {}
-    local old = char and char:FindFirstChild("ELITEHUB_CHINESE_HAT")
-    if old then pcall(function() old:Destroy() end) end
-end
-
-local function MakePart(props)
-    local p = Instance.new("Part")
-    p.Size = props.Size or Vector3.new(1,1,1)
-    p.Shape = props.Shape or Enum.PartType.Block
-    p.Material = props.Material or Enum.Material.ForceField
-    p.Color = props.Color or Color3.new(1,1,1)
-    p.CanCollide = false
-    p.Anchored = true
-    p.CastShadow = false
-    p.Massless = true
-    p.TopSurface = Enum.SurfaceType.Smooth
-    p.BottomSurface = Enum.SurfaceType.Smooth
-    p.FrontSurface = Enum.SurfaceType.Smooth
-    p.BackSurface = Enum.SurfaceType.Smooth
-    p.LeftSurface = Enum.SurfaceType.Smooth
-    p.RightSurface = Enum.SurfaceType.Smooth
-    p.CustomPhysicalProperties = PhysicalProperties.new(0.001, 0, 0, 1, 1)
-    return p
-end
-
-local function BuildHat(char)
-    if not getgenv().ELITE_HUB_ChineseHatOn then return end
-    if not char then return end
-    local head = char:FindFirstChild("Head")
-    if not head then return end
-
-    RemoveHat(char)
-    task.wait(0.2)
-
-    local hat = Instance.new("Model")
-    hat.Name = "ELITEHUB_CHINESE_HAT"
-    hat.Parent = char
-
-    local R = getgenv().ELITE_HUB_ChineseHatR
-    local H = getgenv().ELITE_HUB_ChineseHatConeH
-    local Y = getgenv().ELITE_HUB_ChineseHatY
-    local COL = getgenv().ELITE_HUB_ChineseHatColor
-    local N = 48
-    local headCF = head.CFrame
-
-    for i = 0, N - 1 do
-        local ang = (i / N) * math.pi * 2
-        local segW = 2 * R * math.tan(math.pi / N) * 1.08
-
-        local slat = MakePart({
-            Size = Vector3.new(segW, math.sqrt(R*R + H*H), 0.03),
-            Color = COL,
-        })
-
-        local bottomPos = Vector3.new(R * math.cos(ang), Y, R * math.sin(ang))
-        local apexPos = Vector3.new(0, Y + H, 0)
-        local center = (bottomPos + apexPos) / 2
-        local dir = (apexPos - bottomPos).Unit
-        local tangent = Vector3.new(-math.sin(ang), 0, math.cos(ang))
-
-        local localCF = CFrame.fromMatrix(center, tangent, dir)
-        local worldCF = headCF * localCF
-
-        slat.CFrame = worldCF
-        slat:BreakJoints()
-        slat.Parent = hat
-        hatParts[slat] = headCF:Inverse() * worldCF
-        hatSpinParts[slat] = localCF
-    end
-
-    local tip = MakePart({
-        Shape = Enum.PartType.Ball,
-        Size = Vector3.new(0.15, 0.18, 0.15),
-        Color = COL,
-    })
-    local tipLocal = CFrame.new(0, Y + H + 0.05, 0)
-    tip.CFrame = headCF * tipLocal
-    tip:BreakJoints()
-    tip.Parent = hat
-    hatParts[tip] = tipLocal
-    hatSpinParts[tip] = tipLocal
-
-    local brim = MakePart({
-        Shape = Enum.PartType.Cylinder,
-        Size = Vector3.new(0.06, R * 2 + 0.4, R * 2 + 0.4),
-        Color = COL,
-    })
-    local brimLocal = CFrame.new(0, Y, 0) * CFrame.Angles(0, 0, math.pi / 2)
-    brim.CFrame = headCF * brimLocal
-    brim:BreakJoints()
-    brim.Parent = hat
-    hatParts[brim] = brimLocal
-    hatSpinParts[brim] = brimLocal
-
-    for p, _ in pairs(hatParts) do
-        p.Anchored = false
-    end
-
-    if hatConn then hatConn:Disconnect() hatConn = nil end
-    local RunService = game:GetService("RunService")
-    local spinAngle = 0
-    hatConn = RunService.Heartbeat:Connect(function(dt)
-        pcall(function()
-            if not getgenv().ELITE_HUB_ChineseHatOn then
-                hatConn:Disconnect()
-                hatConn = nil
-                return
-            end
-            local h = char and char:FindFirstChild("ELITEHUB_CHINESE_HAT")
-            if not h then return end
-            local hd = char:FindFirstChild("Head")
-            if not hd then return end
-
-            if getgenv().ELITE_HUB_ChineseHatSpin then
-                spinAngle = spinAngle + (getgenv().ELITE_HUB_ChineseHatSpinSpeed or 50) * dt * 3
-            end
-
-            local spinCF = CFrame.Angles(0, math.rad(spinAngle), 0)
-            local hdCF = hd.CFrame
-            for p, localCF in pairs(hatSpinParts) do
-                if p and p.Parent then
-                    p.CanCollide = false
-                    p.Massless = true
-                    p.CFrame = hdCF * spinCF * localCF
-                end
-            end
-        end)
-    end)
-end
-
-MT:CreateToggle({
-    Name = "🎩 Chinese Hat",
-    CurrentValue = false,
-    Callback = function(value)
-        getgenv().ELITE_HUB_ChineseHatOn = value
-        getgenv().ELITE_HUB_Log("MODS", "Chinese Hat: " .. tostring(value))
-        if value then
-            task.spawn(function() BuildHat(player.Character) end)
-        else
-            RemoveHat(player.Character)
-        end
-    end
-})
-
-MT:CreateSlider({
-    Name = "⬆️ Hat Height (Y)",
-    Range = {0, 1.5},
-    Increment = 0.05,
-    CurrentValue = 0.5,
-    Callback = function(value)
-        getgenv().ELITE_HUB_ChineseHatY = value
-        if getgenv().ELITE_HUB_ChineseHatOn then
-            task.spawn(function() BuildHat(player.Character) end)
-        end
-    end
-})
-
-MT:CreateSlider({
-    Name = "🔺 Cone Height",
-    Range = {0.3, 3},
-    Increment = 0.1,
-    CurrentValue = 1.2,
-    Callback = function(value)
-        getgenv().ELITE_HUB_ChineseHatConeH = value
-        if getgenv().ELITE_HUB_ChineseHatOn then
-            task.spawn(function() BuildHat(player.Character) end)
-        end
-    end
-})
-
-MT:CreateSlider({
-    Name = "📏 Cone Radius",
-    Range = {0.5, 3},
-    Increment = 0.1,
-    CurrentValue = 2.5,
-    Callback = function(value)
-        getgenv().ELITE_HUB_ChineseHatR = value
-        if getgenv().ELITE_HUB_ChineseHatOn then
-            task.spawn(function() BuildHat(player.Character) end)
-        end
-    end
-})
-
-MT:CreateColorPicker({
-    Name = "🎨 Hat Color",
-    Color = Color3.fromRGB(255, 0, 255),
-    Callback = function(value)
-        getgenv().ELITE_HUB_ChineseHatColor = value
-        if getgenv().ELITE_HUB_ChineseHatOn then
-            task.spawn(function() BuildHat(player.Character) end)
-        end
-    end
-})
-
-MT:CreateToggle({
-    Name = "🔄 Spin",
-    CurrentValue = false,
-    Callback = function(value)
-        getgenv().ELITE_HUB_ChineseHatSpin = value
-        getgenv().ELITE_HUB_Log("MODS", "Chinese Hat Spin: " .. tostring(value))
-    end
-})
-
-MT:CreateSlider({
-    Name = "🔄 Spin Speed",
-    Range = {10, 300},
-    Increment = 5,
-    CurrentValue = 50,
-    Callback = function(value)
-        getgenv().ELITE_HUB_ChineseHatSpinSpeed = value
-    end
-})
-
-player.CharacterAdded:Connect(function(char)
-    task.wait(1)
-    pcall(function()
-        if getgenv().ELITE_HUB_ChineseHatOn then
-            BuildHat(char)
-        end
-    end)
-end)
-end)
 
 task.spawn(function()
         task.wait(dur + 0.4)

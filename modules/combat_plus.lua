@@ -1,13 +1,24 @@
--- ELITE HUB 14.0 — Combat+ Module (Hitbox Expander, Auto Parry, Reach, Spin Bot)
--- Extracted from ELITE_HUB_14.0.lua
+-- source: ELITE_HUB_14.0.lua COMBAT+ (lines 10327-10388, 10965-11145)
+local _g = getgenv
+local Rayfield = _g().ELITE_HUB_Rayfield
+local Window = _g().ELITE_HUB_Window
+local ES = _g().EliteHubSettings
+local L = _g().ELITE_HUB_L
+local Log = _g().ELITE_HUB_Log
+local Players = _g().ELITE_HUB_Players
+local player = _g().ELITE_HUB_Player
+local OverlayGui = _g().ELITE_HUB_OverlayGui
+local LoadScript = _g().ELITE_HUB_LoadScript
+local SafeNotify = _g().ELITE_HUB_SafeNotify
+local DestroyScript = _g().ELITE_HUB_DestroyScript
+local MT = Window
 
-getgenv().ELITE_HUB_HitboxExpander = false
-getgenv().ELITE_HUB_HitboxSize = 10
+local CombatPlusTab = _g().ELITE_HUB_CombatPlusTab
 MT = CombatPlusTab
 getgenv().ELITE_HUB_Log("UI", "Section loaded: COMBAT+")
-MT:CreateSection("🥊 COMBAT+")
+MT:CreateSection("⚔ COMBAT+")
 MT:CreateToggle({
-    Name = "📦 Hitbox Expander",
+    Name = " Hitbox Expander",
     CurrentValue = false,
     Callback = function(value)
         getgenv().ELITE_HUB_HitboxExpander = value
@@ -15,7 +26,7 @@ MT:CreateToggle({
     end
 })
 MT:CreateSlider({
-    Name = "📦 Hitbox size",
+    Name = " Hitbox size",
     Range = {5, 50},
     Increment = 1,
     CurrentValue = 10,
@@ -24,14 +35,35 @@ MT:CreateSlider({
         getgenv().ELITE_HUB_Log("MODS", "Hitbox Size: " .. tostring(value))
     end
 })
+local origHitboxData = {}
 task.spawn(function()
     while task.wait(0.5) do
         pcall(function()
-            if not getgenv().ELITE_HUB_HitboxExpander then return end
+            if not getgenv().ELITE_HUB_HitboxExpander then
+                for plrName, data in pairs(origHitboxData) do
+                    local p = game:GetService("Players"):FindFirstChild(plrName)
+                    if p and p.Character then
+                        local hrp = p.Character:FindFirstChild("HumanoidRootPart")
+                        if hrp then
+                            pcall(function()
+                                hrp.Size = data.Size
+                                hrp.Transparency = data.Transparency
+                                hrp.BrickColor = data.BrickColor
+                                hrp.Material = data.Material
+                            end)
+                        end
+                    end
+                end
+                origHitboxData = {}
+                return
+            end
             for _, plr in ipairs(game:GetService("Players"):GetPlayers()) do
                 if plr ~= player and plr.Character then
                     local hrp = plr.Character:FindFirstChild("HumanoidRootPart")
                     if hrp then
+                        if not origHitboxData[plr.Name] then
+                            origHitboxData[plr.Name] = {Size = hrp.Size, Transparency = hrp.Transparency, BrickColor = hrp.BrickColor, Material = hrp.Material}
+                        end
                         hrp.Size = Vector3.new(getgenv().ELITE_HUB_HitboxSize, getgenv().ELITE_HUB_HitboxSize, getgenv().ELITE_HUB_HitboxSize)
                         hrp.Transparency = 0.7
                         hrp.BrickColor = BrickColor.new("Really red")
@@ -44,13 +76,14 @@ task.spawn(function()
     end
 end)
 
+
 MT = CombatPlusTab
 getgenv().ELITE_HUB_Log("UI", "Section loaded: COMBAT+ (2)")
-MT:CreateSection("⚔️ COMBAT")
+MT:CreateSection("⚔ COMBAT")
 
 getgenv().ELITE_HUB_AutoParry = false
 MT:CreateToggle({
-    Name = "🛡️ Auto Parry (Auto Block)",
+    Name = " Auto Parry (Auto Block)",
     CurrentValue = false,
     Callback = function(value)
         getgenv().ELITE_HUB_AutoParry = value
@@ -78,9 +111,8 @@ MT:CreateToggle({
                                             if handle then
                                                 tool:Activate()
                                             end
-                                        end
-                                        hum:ChangeState(Enum.HumanoidStateType.Blocking)
                                     end
+                                end
                                 end
                             end
                         end
@@ -94,7 +126,7 @@ MT:CreateToggle({
 getgenv().ELITE_HUB_Reach = false
 getgenv().ELITE_HUB_ReachDist = 10
 MT:CreateToggle({
-    Name = "⚔️ Reach",
+    Name = " Reach",
     CurrentValue = false,
     Callback = function(value)
         getgenv().ELITE_HUB_Reach = value
@@ -102,7 +134,7 @@ MT:CreateToggle({
     end
 })
 MT:CreateSlider({
-    Name = "📏 Reach Distance",
+    Name = " Reach Distance",
     Range = {3, 50},
     Increment = 1,
     CurrentValue = 10,
@@ -138,7 +170,7 @@ task.spawn(function()
     end
 end)
 
--- Spin Bot (копия из RANGE: Heartbeat + сохранение AutoRotate)
+-- Spin Bot (РєРѕРїРёСЏ РёР· RANGE: Heartbeat + СЃРѕС…СЂР°РЅРµРЅРёРµ AutoRotate)
 task.spawn(function()
 local spinAngle = 0
 local spinConn = nil
@@ -187,11 +219,12 @@ local function stopSpin()
         end
     end)
 end
+getgenv().ELITE_HUB_CombatSpinStop = stopSpin
 
 getgenv().ELITE_HUB_SpinBot = false
 getgenv().ELITE_HUB_SpinSpeed = 50
 MT:CreateToggle({
-    Name = "🔄 Spin Bot",
+    Name = " Spin Bot",
     CurrentValue = false,
     Callback = function(value)
         getgenv().ELITE_HUB_SpinBot = value
@@ -204,7 +237,7 @@ MT:CreateToggle({
     end
 })
 MT:CreateSlider({
-    Name = "🔄 Spin Speed",
+    Name = " Spin Speed",
     Range = {10, 300},
     Increment = 5,
     CurrentValue = 50,

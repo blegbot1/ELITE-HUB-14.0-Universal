@@ -1,8 +1,28 @@
--- ELITE HUB 14.0 — ESP Module
--- Extracted from ELITE_HUB_14.0.lua
+-- source: ELITE_HUB_14.0.lua ESP (lines 7111-9103)
+local _g = getgenv
+local Rayfield = _g().ELITE_HUB_Rayfield
+local Window = _g().ELITE_HUB_Window
+local ES = _g().EliteHubSettings
+local L = _g().ELITE_HUB_L
+local Log = _g().ELITE_HUB_Log
+local Players = _g().ELITE_HUB_Players
+local player = _g().ELITE_HUB_Player
+local OverlayGui = _g().ELITE_HUB_OverlayGui
+local LoadScript = _g().ELITE_HUB_LoadScript
+local SafeNotify = _g().ELITE_HUB_SafeNotify
+local DestroyScript = _g().ELITE_HUB_DestroyScript
+local MT = Window
+local ESPTab = _g().ELITE_HUB_ESPTab
+local AimbotConfig = _g().ELITE_HUB_AimbotConfig
+local NewOverlayCircle = _g().ELITE_HUB_NewOverlayCircle
+local NewOverlayLine = _g().ELITE_HUB_NewOverlayLine
+local IsFriend = _g().ELITE_HUB_IsFriend
+local IsFriendName = _g().ELITE_HUB_IsFriendName
+local UpdateSkeletonLines = _g().ELITE_HUB_UpdateSkeletonLines
+
 --[[
     ==============================
-    ПОЛНЫЙ ESP С 3D BOX
+    РџРћР›РќР«Р™ ESP РЎ 3D BOX
     ==============================
 ]]--
 local ESPConfig = {
@@ -49,6 +69,7 @@ local ESPConfig = {
     HeadDots = false,
     HeadDotColor = Color3.fromRGB(255, 0, 0),
     HeadDotSize = 6,
+    MaxESPDistance = 0,
     ShowScriptUserTag = true,
     ScriptUserTagColor = Color3.fromRGB(200, 100, 255),
     ShowHealthBar = false,
@@ -83,6 +104,14 @@ local ESPArrows = {}
 local ESPSkeletons = {}
 local ESPHeadDots = {}
 local ESPHealthBars = {}
+getgenv().ELITE_HUB_ESPConfig = ESPConfig
+getgenv().ELITE_HUB_ESPObjects = ESPObjects
+getgenv().ELITE_HUB_TracerLines = TracerLines
+getgenv().ELITE_HUB_Box3DObjects = Box3DObjects
+getgenv().ELITE_HUB_ESPArrows = ESPArrows
+getgenv().ELITE_HUB_ESPSkeletons = ESPSkeletons
+getgenv().ELITE_HUB_ESPHeadDots = ESPHeadDots
+getgenv().ELITE_HUB_ESPHealthBars = ESPHealthBars
 
 local function CreateESPArrow(targetPlayer)
     if ESPArrows[targetPlayer] then return end
@@ -568,19 +597,19 @@ local function UpdateESPText()
                 local text = ""
 
                 if ESPConfig.Names then
-                    text = text .. targetPlayer.Name .. (isDead and " 💀" or "") .. "\n"
+                    text = text .. targetPlayer.Name .. (isDead and " " or "") .. "\n"
                 end
 
                 if not isDead or ESPConfig.ShowDead then
                     if ESPConfig.Health and humanoid then
-                        text = text .. (isDead and "💀 МЕРТВ\n" or "❤ " .. math.floor(humanoid.Health) .. "/" .. math.floor(humanoid.MaxHealth) .. "\n")
+                        text = text .. (isDead and " \n" or " " .. math.floor(humanoid.Health) .. "/" .. math.floor(humanoid.MaxHealth) .. "\n")
                     end
 
                     if ESPConfig.Distance and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
                         local localRoot = player.Character.HumanoidRootPart
                         if localRoot then
                             local distance = (localRoot.Position - rootPart.Position).Magnitude
-                            text = text .. "📏 " .. math.floor(distance) .. "m"
+                            text = text .. " " .. math.floor(distance) .. "m"
                         end
                     end
                 end
@@ -714,9 +743,9 @@ local function UpdateBox3DESP()
             end
 
             local connections = {
-                {1, 2}, {2, 3}, {3, 4}, {4, 1}, -- нижний квадрат
-                {5, 6}, {6, 7}, {7, 8}, {8, 5}, -- верхний квадрат
-                {1, 5}, {2, 6}, {3, 7}, {4, 8}  -- вертикальные линии
+                {1, 2}, {2, 3}, {3, 4}, {4, 1}, -- РЅРёР¶РЅРёР№ РєРІР°РґСЂР°С‚
+                {5, 6}, {6, 7}, {7, 8}, {8, 5}, -- РІРµСЂС…РЅРёР№ РєРІР°РґСЂР°С‚
+                {1, 5}, {2, 6}, {3, 7}, {4, 8}  -- РІРµСЂС‚РёРєР°Р»СЊРЅС‹Рµ Р»РёРЅРёРё
             }
 
             for i, connection in ipairs(connections) do
@@ -735,15 +764,34 @@ end
 
 getgenv().ELITE_HUB_LastChars = getgenv().ELITE_HUB_LastChars or {}
 
+local espUpdateDebounce = false
 local function UpdateESP()
+    if espUpdateDebounce then return end
+    espUpdateDebounce = true
+    task.delay(0.1, function() espUpdateDebounce = false end)
     for targetPlayer, _ in pairs(ESPObjects) do
         ClearPlayerESP(targetPlayer)
     end
 
     if not ESPConfig.Enabled then return end
+    local maxDist = ESPConfig.MaxESPDistance or 0
+    local myChar = player.Character
+    local myRoot = myChar and myChar:FindFirstChild("HumanoidRootPart")
     for _, targetPlayer in ipairs(Players:GetPlayers()) do
         if targetPlayer ~= player then
-            CreatePlayerESP(targetPlayer)
+            local skip = false
+            if maxDist > 0 and myRoot then
+                local char = targetPlayer.Character
+                local root = char and char:FindFirstChild("HumanoidRootPart")
+                if root and (root.Position - myRoot.Position).Magnitude > maxDist then
+                    skip = true
+                end
+            end
+            if skip then
+                ClearPlayerESP(targetPlayer)
+            else
+                CreatePlayerESP(targetPlayer)
+            end
         end
     end
 end
@@ -773,7 +821,7 @@ end
 local function InitializeESPHandlers()
     local LK = getgenv().ELITE_HUB_LastChars
     game.Players.PlayerAdded:Connect(function(targetPlayer)
-        SafeNotify("👋 JOIN", targetPlayer.Name .. " зашёл на сервер", 2, "PlayerJoin")
+        SafeNotify(" JOIN", targetPlayer.Name .. "   ", 2, "PlayerJoin")
         LK[targetPlayer] = targetPlayer.Character
         if ESPConfig.Enabled then
             CreatePlayerESP(targetPlayer)
@@ -787,9 +835,9 @@ local function InitializeESPHandlers()
     end)
 
     game.Players.PlayerRemoving:Connect(function(targetPlayer)
-        SafeNotify("👋 LEFT", targetPlayer.Name .. " вышел с сервера", 2, "PlayerLeave")
+        SafeNotify(" LEFT", targetPlayer.Name .. "   ", 2, "PlayerLeave")
         if targetPlayer == LockedTargetPlayer then
-            SafeNotify("❌ UNLOCK", "Цель вышла с сервера", 2, "TargetLost")
+            SafeNotify(" UNLOCK", "   ", 2, "TargetLost")
             LockedTarget = nil
             LockedTargetPlayer = nil
         end
@@ -819,120 +867,8 @@ RunService.RenderStepped:Connect(function(dt)
         end
     end
 end)
-
-task.spawn(function()
-    local Players = game:GetService("Players")
-    local RunService = game:GetService("RunService")
-    local chamHighlights = {}
-    local origMats = {}
-
-    local function SaveOriginals(plr)
-        local ch = plr.Character
-        if not ch then return end
-        origMats[plr] = {}
-        for _, part in ipairs(ch:GetDescendants()) do
-            if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" then
-                origMats[plr][part] = part.Material
-            end
-        end
-    end
-
-    local function RestoreOriginals(plr)
-        if origMats[plr] then
-            for part, mat in pairs(origMats[plr]) do
-                if part and part.Parent then
-                    pcall(function() part.Material = mat end)
-                end
-            end
-            origMats[plr] = nil
-        end
-    end
-
-    local function ApplyCham(plr)
-        local ch = plr.Character
-        if not ch then return end
-        local hum = ch:FindFirstChildOfClass("Humanoid")
-        if not hum then return end
-        if hum.Health <= 0 then
-            if chamHighlights[plr] then
-                chamHighlights[plr]:Destroy()
-                chamHighlights[plr] = nil
-            end
-            RestoreOriginals(plr)
-            return
-        end
-
-        local show = false
-        if ESPConfig.ChamsEnabled then
-            if plr == player then
-                show = ESPConfig.ChamsSelf
-            else
-                local isTeam = IsTeammate(plr)
-                if ESPConfig.ChamsTeamCheck and isTeam then
-                    show = false
-                elseif isTeam then
-                    show = ESPConfig.ChamsTeammates
-                else
-                    show = true
-                end
-            end
-        end
-
-        if not show then
-            if chamHighlights[plr] then
-                chamHighlights[plr]:Destroy()
-                chamHighlights[plr] = nil
-            end
-            RestoreOriginals(plr)
-            return
-        end
-
-        if not origMats[plr] then
-            SaveOriginals(plr)
-        end
-
-        local hl = chamHighlights[plr]
-        if not hl or not hl.Parent then
-            hl = Instance.new("Highlight")
-            hl.Name = "EliteChamHighlight"
-            hl.Adornee = ch
-            hl.Parent = ch
-            chamHighlights[plr] = hl
-        end
-        hl.FillColor = ESPConfig.ChamsFillColor
-        hl.FillTransparency = ESPConfig.ChamsFillTransparency
-        hl.OutlineColor = ESPConfig.ChamsOutlineColor
-        hl.OutlineTransparency = ESPConfig.ChamsOutlineTransparency
-        hl.Enabled = true
-        hl.Adornee = ch
-
-        local mat = ESPConfig.ChamsMaterial
-        if mat then
-            for _, part in ipairs(ch:GetDescendants()) do
-                if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" then
-                    pcall(function() part.Material = mat end)
-                end
-            end
-        end
-    end
-
-    Players.PlayerRemoving:Connect(function(plr)
-        if chamHighlights[plr] then
-            chamHighlights[plr]:Destroy()
-            chamHighlights[plr] = nil
-        end
-        RestoreOriginals(plr)
-    end)
-
-    RunService.RenderStepped:Connect(function()
-        for _, plr in ipairs(Players:GetPlayers()) do
-            pcall(ApplyCham, plr)
-        end
-    end)
-end)
-
 ESPTab:CreateToggle({
-    Name = "👁️ ESP ON/OFF",
+    Name = " ESP ON/OFF",
     CurrentValue = ESPConfig.Enabled,
     Callback = function(value)
         ESPConfig.Enabled = value
@@ -945,8 +881,8 @@ ESPTab:CreateToggle({
             
             UpdateESP()
             Rayfield:Notify({
-                Title = "👁️ ESP ВКЛЮЧЁН",
-                Content = "Все функции ESP активированы",
+                Title = "👁 ESP",
+                Content = "  ESP ",
                 Duration = 3
             })
         else
@@ -954,8 +890,8 @@ ESPTab:CreateToggle({
                 ClearPlayerESP(targetPlayer)
             end
             Rayfield:Notify({
-                Title = "👀 ESP ВЫКЛЮЧЕН",
-                Content = "ESP деактивирован",
+                Title = "👁 ESP",
+                Content = "ESP ",
                 Duration = 2
             })
         end
@@ -963,7 +899,7 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateToggle({
-    Name = "👥 Ignore team",
+    Name = " Ignore team",
     CurrentValue = ESPConfig.TeamCheck,
     Callback = function(value)
         ESPConfig.TeamCheck = value
@@ -972,7 +908,7 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateToggle({
-    Name = "💚 Show teammates",
+    Name = " Show teammates",
     CurrentValue = ESPConfig.ShowTeammates,
     Callback = function(value)
         ESPConfig.ShowTeammates = value
@@ -981,7 +917,7 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateToggle({
-    Name = "🟦 Boxes",
+    Name = " Boxes",
     CurrentValue = ESPConfig.Boxes,
     Callback = function(value)
         ESPConfig.Boxes = value
@@ -990,7 +926,7 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateToggle({
-    Name = "📛 Names",
+    Name = " Names",
     CurrentValue = ESPConfig.Names,
     Callback = function(value)
         ESPConfig.Names = value
@@ -999,7 +935,7 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateToggle({
-    Name = "❤ Health",
+    Name = " Health",
     CurrentValue = ESPConfig.Health,
     Callback = function(value)
         ESPConfig.Health = value
@@ -1008,7 +944,7 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateToggle({
-    Name = "📏 Distance",
+    Name = " Distance",
     CurrentValue = ESPConfig.Distance,
     Callback = function(value)
         ESPConfig.Distance = value
@@ -1017,7 +953,7 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateToggle({
-    Name = "➖ Tracers",
+    Name = " Tracers",
     CurrentValue = ESPConfig.Tracers,
     Callback = function(value)
         ESPConfig.Tracers = value
@@ -1026,7 +962,7 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateToggle({
-    Name = "🧵 Teammate tracers",
+    Name = " Teammate tracers",
     CurrentValue = ESPConfig.TracersForTeammates,
     Callback = function(value)
         ESPConfig.TracersForTeammates = value
@@ -1035,7 +971,7 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateToggle({
-    Name = "💀 Show dead",
+    Name = " Show dead",
     CurrentValue = ESPConfig.ShowDead,
     Callback = function(value)
         ESPConfig.ShowDead = value
@@ -1044,7 +980,7 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateToggle({
-    Name = "🎯 3D Box ESP",
+    Name = " 3D Box ESP",
     CurrentValue = ESPConfig.Box3DEnabled,
     Callback = function(value)
         ESPConfig.Box3DEnabled = value
@@ -1062,7 +998,7 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateColorPicker({
-    Name = "🔴 Enemy color",
+    Name = " Enemy color",
     Color = ESPConfig.EnemyColor,
     Callback = function(value)
         ESPConfig.EnemyColor = value
@@ -1071,7 +1007,7 @@ ESPTab:CreateColorPicker({
 })
 
 ESPTab:CreateColorPicker({
-    Name = "💚 Teammate color",
+    Name = " Teammate color",
     Color = ESPConfig.TeammateColor,
     Callback = function(value)
         ESPConfig.TeammateColor = value
@@ -1080,7 +1016,7 @@ ESPTab:CreateColorPicker({
 })
 
 ESPTab:CreateColorPicker({
-    Name = "💀 Dead color",
+    Name = " Dead color",
     Color = ESPConfig.DeadColor,
     Callback = function(value)
         ESPConfig.DeadColor = value
@@ -1089,7 +1025,7 @@ ESPTab:CreateColorPicker({
 })
 
 ESPTab:CreateColorPicker({
-    Name = "🎯 3D Box color",
+    Name = " 3D Box color",
     Color = ESPConfig.Box3DColor,
     Callback = function(value)
         ESPConfig.Box3DColor = value
@@ -1102,7 +1038,7 @@ ESPTab:CreateColorPicker({
 })
 
 ESPTab:CreateSlider({
-    Name = "🔢 Text size",
+    Name = " Text size",
     Range = {8, 24},
     Increment = 1,
     Suffix = "px",
@@ -1114,7 +1050,7 @@ ESPTab:CreateSlider({
 })
 
 ESPTab:CreateSlider({
-    Name = "🌫️ Transparency",
+    Name = " Transparency",
     Range = {0, 1},
     Increment = 0.1,
     CurrentValue = ESPConfig.FillTransparency,
@@ -1125,7 +1061,7 @@ ESPTab:CreateSlider({
 })
 
 ESPTab:CreateSlider({
-    Name = "📏 Line thickness",
+    Name = " Line thickness",
     Range = {1, 5},
     Increment = 1,
     CurrentValue = ESPConfig.TracerThickness,
@@ -1136,7 +1072,7 @@ ESPTab:CreateSlider({
 })
 
 ESPTab:CreateSlider({
-    Name = "🎯 3D Box thickness",
+    Name = " 3D Box thickness",
     Range = {1, 5},
     Increment = 1,
     CurrentValue = ESPConfig.Box3DThickness,
@@ -1151,7 +1087,7 @@ ESPTab:CreateSlider({
 })
 
 ESPTab:CreateSlider({
-    Name = "📐 3D Box size",
+    Name = " 3D Box size",
     Range = {0.5, 5.0},
     Increment = 0.1,
     Suffix = "x",
@@ -1161,10 +1097,10 @@ ESPTab:CreateSlider({
     end
 })
 
-ESPTab:CreateLabel("⚡ Frequency: min (0.05 sec)")
+ESPTab:CreateLabel(" Frequency: min (0.05 sec)")
 
 ESPTab:CreateSlider({
-    Name = "🎭 Box fill transparency",
+    Name = " Box fill transparency",
     Range = {0, 1},
     Increment = 0.05,
     CurrentValue = ESPConfig.FillTransparency,
@@ -1175,7 +1111,7 @@ ESPTab:CreateSlider({
 })
 
 ESPTab:CreateSlider({
-    Name = "🟢 3D Box size (multiplier)",
+    Name = " 3D Box size (multiplier)",
     Range = {0.5, 8.0},
     Increment = 0.1,
     Suffix = "x",
@@ -1185,10 +1121,10 @@ ESPTab:CreateSlider({
     end
 })
 
-ESPTab:CreateSection("🧭 ARROWS (off-screen pointers)")
+ESPTab:CreateSection("⬅ ARROWS (off-screen pointers)")
 
 ESPTab:CreateToggle({
-    Name = "🧭 Show arrows off-screen",
+    Name = " Show arrows off-screen",
     CurrentValue = ESPConfig.ShowArrows,
     Callback = function(value)
         ESPConfig.ShowArrows = value
@@ -1196,7 +1132,7 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateColorPicker({
-    Name = "🎨 Arrow color",
+    Name = " Arrow color",
     Color = ESPConfig.ArrowsColor,
     Callback = function(value)
         ESPConfig.ArrowsColor = value
@@ -1209,7 +1145,7 @@ ESPTab:CreateColorPicker({
 ESPTab:CreateSection("🎨 TEXT & TRACER COLORS")
 
 ESPTab:CreateColorPicker({
-    Name = "🔤 Name color",
+    Name = " Name color",
     Color = ESPConfig.TextColor,
     Callback = function(value)
         ESPConfig.TextColor = value
@@ -1218,7 +1154,7 @@ ESPTab:CreateColorPicker({
 })
 
 ESPTab:CreateColorPicker({
-    Name = "📏 Tracer color (players)",
+    Name = " Tracer color (players)",
     Color = ESPConfig.TracerColor,
     Callback = function(value)
         ESPConfig.TracerColor = value
@@ -1228,10 +1164,10 @@ ESPTab:CreateColorPicker({
     end
 })
 
-ESPTab:CreateSection("📍 SNAP LINES (wallhack)")
+ESPTab:CreateSection("📸 SNAP LINES (wallhack)")
 
 ESPTab:CreateToggle({
-    Name = "📍 Enable snap lines",
+    Name = " Enable snap lines",
     CurrentValue = ESPConfig.SnapLines,
     Callback = function(value)
         ESPConfig.SnapLines = value
@@ -1239,7 +1175,7 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateColorPicker({
-    Name = "🎨 Snap line color",
+    Name = " Snap line color",
     Color = ESPConfig.SnapLinesColor,
     Callback = function(value)
         ESPConfig.SnapLinesColor = value
@@ -1252,7 +1188,7 @@ ESPTab:CreateColorPicker({
 ESPTab:CreateSection("🎯 AIMBOT TARGET HIGHLIGHT")
 
 ESPTab:CreateToggle({
-    Name = "🎯 Highlight Aimbot target",
+    Name = " Highlight Aimbot target",
     CurrentValue = ESPConfig.HighlightLockTarget,
     Callback = function(value)
         ESPConfig.HighlightLockTarget = value
@@ -1260,17 +1196,17 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateColorPicker({
-    Name = "🎨 Aimbot target highlight color",
+    Name = " Aimbot target highlight color",
     Color = ESPConfig.LockTargetColor,
     Callback = function(value)
         ESPConfig.LockTargetColor = value
     end
 })
 
-ESPTab:CreateSection("🦴 SKELETON")
+ESPTab:CreateSection("💀 SKELETON")
 
 ESPTab:CreateToggle({
-    Name = "🦴 Show skeletons",
+    Name = " Show skeletons",
     CurrentValue = ESPConfig.Skeletons,
     Callback = function(value)
         ESPConfig.Skeletons = value
@@ -1278,7 +1214,7 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateColorPicker({
-    Name = "🎨 Skeleton color",
+    Name = " Skeleton color",
     Color = ESPConfig.SkeletonColor,
     Callback = function(value)
         ESPConfig.SkeletonColor = value
@@ -1286,7 +1222,7 @@ ESPTab:CreateColorPicker({
 })
 
 ESPTab:CreateSlider({
-    Name = "📏 Skeleton thickness",
+    Name = " Skeleton thickness",
     Range = {1, 4},
     Increment = 1,
     CurrentValue = ESPConfig.SkeletonThickness,
@@ -1296,7 +1232,7 @@ ESPTab:CreateSlider({
 })
 
 ESPTab:CreateDropdown({
-    Name = "🦴 Skeleton type",
+    Name = " Skeleton type",
     Options = {"1 - Simple", "2 - Full"},
     CurrentOption = "1 - Simple",
     Callback = function(value)
@@ -1309,10 +1245,22 @@ ESPTab:CreateDropdown({
     end
 })
 
-ESPTab:CreateSection("🔴 EXTRA")
+ESPTab:CreateSection("➕ EXTRA")
+
+ESPTab:CreateSlider({
+    Name = " Max ESP distance",
+    Range = {0, 1000},
+    Increment = 25,
+    Suffix = " studs (0 = ∞)",
+    CurrentValue = ESPConfig.MaxESPDistance,
+    Callback = function(value)
+        ESPConfig.MaxESPDistance = value
+        UpdateESP()
+    end
+})
 
 ESPTab:CreateToggle({
-    Name = "🔴 Dots on heads",
+    Name = " Dots on heads",
     CurrentValue = ESPConfig.HeadDots,
     Callback = function(value)
         ESPConfig.HeadDots = value
@@ -1320,7 +1268,7 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateColorPicker({
-    Name = "🎨 Head dots color",
+    Name = " Head dots color",
     Color = ESPConfig.HeadDotColor,
     Callback = function(value)
         ESPConfig.HeadDotColor = value
@@ -1328,7 +1276,7 @@ ESPTab:CreateColorPicker({
 })
 
 ESPTab:CreateSlider({
-    Name = "📐 Head dots size",
+    Name = " Head dots size",
     Range = {3, 12},
     Increment = 1,
     Suffix = " px",
@@ -1339,7 +1287,7 @@ ESPTab:CreateSlider({
 })
 
 ESPTab:CreateToggle({
-    Name = "🏷️ ELITE HUB tag over players",
+    Name = " ELITE HUB tag over players",
     CurrentValue = ESPConfig.ShowScriptUserTag,
     Callback = function(value)
         ESPConfig.ShowScriptUserTag = value
@@ -1347,122 +1295,15 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateColorPicker({
-    Name = "🎨 Script tag color",
+    Name = " Script tag color",
     Color = ESPConfig.ScriptUserTagColor,
     Callback = function(value)
         ESPConfig.ScriptUserTagColor = value
     end
 })
 
-getgenv().ELITE_HUB_ChamsTab:CreateSection("💎 PLAYER CHAMS")
-
-task.spawn(function()
-getgenv().ELITE_HUB_ChamsTab:CreateToggle({
-    Name = "💎 Enable Chams",
-    CurrentValue = ESPConfig.ChamsEnabled,
-    Callback = function(value)
-        ESPConfig.ChamsEnabled = value
-        getgenv().ELITE_HUB_Log("CHAMS", "Chams: " .. tostring(value))
-    end
-})
-
-getgenv().ELITE_HUB_ChamsTab:CreateColorPicker({
-    Name = "🎨 Fill color",
-    Color = ESPConfig.ChamsFillColor,
-    Callback = function(value)
-        ESPConfig.ChamsFillColor = value
-    end
-})
-
-getgenv().ELITE_HUB_ChamsTab:CreateSlider({
-    Name = "🔍 Fill transparency",
-    Range = {0, 1},
-    Increment = 0.05,
-    CurrentValue = ESPConfig.ChamsFillTransparency,
-    Callback = function(value)
-        ESPConfig.ChamsFillTransparency = value
-    end
-})
-
-getgenv().ELITE_HUB_ChamsTab:CreateColorPicker({
-    Name = "🎨 Outline color",
-    Color = ESPConfig.ChamsOutlineColor,
-    Callback = function(value)
-        ESPConfig.ChamsOutlineColor = value
-    end
-})
-
-getgenv().ELITE_HUB_ChamsTab:CreateSlider({
-    Name = "🔍 Outline transparency",
-    Range = {0, 1},
-    Increment = 0.05,
-    CurrentValue = ESPConfig.ChamsOutlineTransparency,
-    Callback = function(value)
-        ESPConfig.ChamsOutlineTransparency = value
-    end
-})
-
-getgenv().ELITE_HUB_ChamsTab:CreateDropdown({
-    Name = "🧊 Chams material",
-    Options = {"ForceField", "Neon", "Glass", "SmoothPlastic", "Plastic", "Wood", "DiamondPlate", "Foil", "Ice", "Brick", "Cobblestone", "CorrodedMetal", "Grass", "Sand", "Slate", "Marble", "Granite", "Limestone"},
-    CurrentOption = "ForceField",
-    Callback = function(value)
-        local v = (typeof(value) == "table") and value[1] or value
-        ESPConfig.ChamsMaterial = Enum.Material[v] or Enum.Material.ForceField
-    end
-})
-
-getgenv().ELITE_HUB_ChamsTab:CreateToggle({
-    Name = "👥 Team check",
-    CurrentValue = ESPConfig.ChamsTeamCheck,
-    Callback = function(value)
-        ESPConfig.ChamsTeamCheck = value
-    end
-})
-
-getgenv().ELITE_HUB_ChamsTab:CreateToggle({
-    Name = "👤 Show on self",
-    CurrentValue = ESPConfig.ChamsSelf,
-    Callback = function(value)
-        ESPConfig.ChamsSelf = value
-    end
-})
-
-getgenv().ELITE_HUB_ChamsTab:CreateToggle({
-    Name = "🤝 Show on teammates",
-    CurrentValue = ESPConfig.ChamsTeammates,
-    Callback = function(value)
-        ESPConfig.ChamsTeammates = value
-    end
-})
-end)
-
-getgenv().ELITE_HUB_ChamsTab:CreateSection("🌈 RAINBOW CHAMS")
-
-getgenv().ELITE_HUB_RainbowChams = false
-getgenv().ELITE_HUB_ChamsTab:CreateToggle({
-    Name = "🌈 Rainbow Chams",
-    CurrentValue = false,
-    Callback = function(value)
-        getgenv().ELITE_HUB_RainbowChams = value
-        getgenv().ELITE_HUB_Log("CHAMS", "Rainbow Chams: " .. tostring(value))
-    end
-})
-task.spawn(function()
-    local hue = 0
-    while task.wait(0.05) do
-        pcall(function()
-            if not getgenv().ELITE_HUB_RainbowChams then return end
-            if not ESPConfig.ChamsEnabled then return end
-            hue = (hue + 0.01) % 1
-            ESPConfig.ChamsFillColor = Color3.fromHSV(hue, 1, 1)
-            ESPConfig.ChamsOutlineColor = Color3.fromHSV((hue + 0.5) % 1, 1, 1)
-        end)
-    end
-end)
-
 ESPTab:CreateToggle({
-    Name = "💚 HP bar under player",
+    Name = " HP bar under player",
     CurrentValue = ESPConfig.ShowHealthBar,
     Callback = function(value)
         ESPConfig.ShowHealthBar = value
@@ -1470,7 +1311,7 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateColorPicker({
-    Name = "🌈 HP bar color",
+    Name = " HP bar color",
     Color = ESPConfig.HealthBarColor,
     Callback = function(v)
         ESPConfig.HealthBarColor = v
@@ -1478,7 +1319,7 @@ ESPTab:CreateColorPicker({
 })
 
 ESPTab:CreateToggle({
-    Name = "🎯 Highlight closest enemy",
+    Name = " Highlight closest enemy",
     CurrentValue = ESPConfig.HighlightClosest,
     Callback = function(value)
         ESPConfig.HighlightClosest = value
@@ -1486,20 +1327,20 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateColorPicker({
-    Name = "🎨 Closest highlight color",
+    Name = " Closest highlight color",
     Color = ESPConfig.HighlightClosestColor,
     Callback = function(value)
         ESPConfig.HighlightClosestColor = value
     end
 })
 
-ESPTab:CreateSection("👥 TEAMS (friends / enemies)")
+ESPTab:CreateSection(" TEAMS (friends / enemies)")
 
-local espMyTeamLabel = ESPTab:CreateLabel("🎖️ Your team: —")
+local espMyTeamLabel = ESPTab:CreateLabel(" Your team: ")
 local function UpdateEspMyTeamLabel()
     local tn = GetTeamName(player)
     pcall(function()
-        espMyTeamLabel:Set("🎖️ Ваша команда: " .. (tn or "нет"))
+        espMyTeamLabel:Set("  : " .. (tn or ""))
     end)
 end
 
@@ -1522,7 +1363,7 @@ local function RefreshEspTeamDD()
 end
 
 espTeamDD = ESPTab:CreateDropdown({
-    Name = "🎖️ Team",
+    Name = " Team",
     Options = GetAllTeamNames(),
     CurrentOption = "",
     Callback = function(option)
@@ -1532,21 +1373,21 @@ espTeamDD = ESPTab:CreateDropdown({
     end
 })
 
-ESPTab:CreateLabel("🤝 Friendly = blue, enemy = red")
+ESPTab:CreateLabel(" Friendly = blue, enemy = red")
 
 ESPTab:CreateButton({
-    Name = "✅ Make team friendly",
+    Name = " Make team friendly",
     Callback = function()
         local n = espSelectedTeam
         if not n or n == "" then
-            Rayfield:Notify({ Title = "👥 Команды", Content = "Сначала выберите команду в списке", Duration = 2 })
+            Rayfield:Notify({ Title = "👥 Friends", Content = "Lock enabled", Duration = 2 })
             return
         end
         local res = ToggleFriendTeam(n)
         if res == "added" then
-            Rayfield:Notify({ Title = "🤝 Команда-друг", Content = n .. " теперь в дружественных", Duration = 2 })
+            Rayfield:Notify({ Title = " -", Content = n .. " added to friends", Duration = 2 })
         else
-            Rayfield:Notify({ Title = "👥 Команда", Content = n .. " убрана из дружественных (враг)", Duration = 2 })
+            Rayfield:Notify({ Title = "👥 Friends", Content = n .. " already friends", Duration = 2 })
         end
         pcall(RefreshEspTeamDD)
         UpdateESP()
@@ -1554,11 +1395,11 @@ ESPTab:CreateButton({
 })
 
 ESPTab:CreateButton({
-    Name = "❌ Remove team from friends (enemy)",
+    Name = " Remove team from friends (enemy)",
     Callback = function()
         local n = espSelectedTeam
         if not n or n == "" then
-            Rayfield:Notify({ Title = "👥 Команды", Content = "Сначала выберите команду в списке", Duration = 2 })
+            Rayfield:Notify({ Title = "👥 Friends", Content = "Lock enabled", Duration = 2 })
             return
         end
         local list = getgenv().ELITE_HUB_FRIEND_TEAMS
@@ -1567,39 +1408,39 @@ ESPTab:CreateButton({
                 table.remove(list, i)
             end
         end
-        Rayfield:Notify({ Title = "⚔️ Команда-враг", Content = n .. " теперь вражеская", Duration = 2 })
+        Rayfield:Notify({ Title = " -", Content = n .. " removed from friends", Duration = 2 })
         pcall(RefreshEspTeamDD)
         UpdateESP()
     end
 })
 
 ESPTab:CreateButton({
-    Name = "📜 Friendly teams",
+    Name = " Friendly teams",
     Callback = function()
         local list = getgenv().ELITE_HUB_FRIEND_TEAMS
         if #list == 0 then
-            Rayfield:Notify({ Title = "👥 Команды", Content = "Нет дружественных команд (все враги)", Duration = 2 })
+            Rayfield:Notify({ Title = "👥 Friends", Content = "Friend list is empty", Duration = 2 })
         else
-            Rayfield:Notify({ Title = "🤝 Дружественные", Content = table.concat(list, ", "), Duration = 5 })
+            Rayfield:Notify({ Title = "👥 Friends", Content = table.concat(list, ", "), Duration = 5 })
         end
     end
 })
 
 ESPTab:CreateButton({
-    Name = "🚫 All teams — enemies",
+    Name = " All teams  enemies",
     Callback = function()
         getgenv().ELITE_HUB_FRIEND_TEAMS = {}
-        Rayfield:Notify({ Title = "⚔️ Готово", Content = "Все команды теперь враги", Duration = 2 })
+        Rayfield:Notify({ Title = "👥 Friends", Content = "Enabled", Duration = 2 })
         pcall(RefreshEspTeamDD)
         UpdateESP()
     end
 })
 
 ESPTab:CreateButton({
-    Name = "🔄 Refresh team list",
+    Name = " Refresh team list",
     Callback = function()
         pcall(RefreshEspTeamDD)
-        Rayfield:Notify({ Title = "👥 Команды", Content = "Список команд обновлён", Duration = 2 })
+        Rayfield:Notify({ Title = "👥 Friends", Content = "Lock disabled", Duration = 2 })
     end
 })
 
@@ -1610,7 +1451,7 @@ task.spawn(function()
     end
 end)
 
-ESPTab:CreateSection("🤝 FRIENDS & TARGET (select from list)")
+ESPTab:CreateSection(" FRIENDS & TARGET (select from list)")
 
 local espFriendAddDD = nil
 local espFriendRmDD = nil
@@ -1632,7 +1473,7 @@ local function RefreshESPDD()
         pcall(function() espFriendRmDD:Refresh(opts) end)
     end
     if espTargetDD then
-        local opts = {"(Авто)"}
+        local opts = {"()"}
         local playersList = {}
         for _, p in ipairs(Players:GetPlayers()) do
             if p ~= player then table.insert(playersList, p.Name) end
@@ -1644,7 +1485,7 @@ local function RefreshESPDD()
 end
 
 ESPTab:CreateToggle({
-    Name = "🚫 Hide friends in ESP",
+    Name = " Hide friends in ESP",
     CurrentValue = ESPConfig.FriendCheck,
     Flag = "ESPFriendCheck",
     Callback = function(value)
@@ -1654,7 +1495,7 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateToggle({
-    Name = "🎯 Highlight main target",
+    Name = " Highlight main target",
     CurrentValue = ESPConfig.HighlightTarget,
     Flag = "ESPHighlightTarget",
     Callback = function(value)
@@ -1664,7 +1505,7 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateColorPicker({
-    Name = "🔵 Friends / target color",
+    Name = " Friends / target color",
     Color = ESPConfig.FriendColor,
     Callback = function(value)
         ESPConfig.FriendColor = value
@@ -1673,7 +1514,7 @@ ESPTab:CreateColorPicker({
 })
 
 espFriendAddDD = ESPTab:CreateDropdown({
-    Name = "➕ Add player to friends",
+    Name = " Add player to friends",
     Options = {},
     CurrentOption = "",
     Callback = function(option)
@@ -1681,10 +1522,10 @@ espFriendAddDD = ESPTab:CreateDropdown({
         if typeof(option) == "table" then n = option[1] end
         if not n or n == "" then return end
         if IsFriendName(n) then
-            Rayfield:Notify({ Title = "🤝 Друзья", Content = n .. " уже в списке", Duration = 2 })
+            Rayfield:Notify({ Title = "👥 Friends", Content = n .. " added to friends", Duration = 2 })
         else
             table.insert(getgenv().ELITE_HUB_FRIENDS, n)
-            Rayfield:Notify({ Title = "✅ Друг добавлен", Content = n, Duration = 2 })
+            Rayfield:Notify({ Title = "  ", Content = n, Duration = 2 })
         end
         if espFriendAddDD then pcall(function() espFriendAddDD:Clear() end) end
         RefreshESPDD()
@@ -1693,7 +1534,7 @@ espFriendAddDD = ESPTab:CreateDropdown({
 })
 
 espFriendRmDD = ESPTab:CreateDropdown({
-    Name = "➖ Remove friend (select)",
+    Name = " Remove friend (select)",
     Options = {},
     CurrentOption = "",
     Callback = function(option)
@@ -1704,7 +1545,7 @@ espFriendRmDD = ESPTab:CreateDropdown({
         for i = #list, 1, -1 do
             if tostring(list[i]):lower() == n:lower() then
                 table.remove(list, i)
-                Rayfield:Notify({ Title = "🗑️ Друг удалён", Content = n, Duration = 2 })
+                Rayfield:Notify({ Title = "  ", Content = n, Duration = 2 })
                 break
             end
         end
@@ -1715,41 +1556,41 @@ espFriendRmDD = ESPTab:CreateDropdown({
 })
 
 ESPTab:CreateButton({
-    Name = "🧹 Clear friends list",
+    Name = " Clear friends list",
     Callback = function()
         local cnt = #getgenv().ELITE_HUB_FRIENDS
         getgenv().ELITE_HUB_FRIENDS = {}
-        Rayfield:Notify({ Title = "🧹 Готово", Content = "Удалено друзей: " .. cnt, Duration = 2 })
+        Rayfield:Notify({ Title = "👥 Friends", Content = " : " .. cnt, Duration = 2 })
         RefreshESPDD()
         UpdateESP()
     end
 })
 
 ESPTab:CreateButton({
-    Name = "📜 Show friends list",
+    Name = " Show friends list",
     Callback = function()
         local list = getgenv().ELITE_HUB_FRIENDS
         if #list == 0 then
-            Rayfield:Notify({ Title = "🤝 Друзья", Content = "Список пуст", Duration = 2 })
+            Rayfield:Notify({ Title = "👥 Friends", Content = "All friends cleared", Duration = 2 })
             return
         end
-        Rayfield:Notify({ Title = "🤝 Список друзей", Content = table.concat(list, ", "), Duration = 6 })
+        Rayfield:Notify({ Title = "  ", Content = table.concat(list, ", "), Duration = 6 })
     end
 })
 
 espTargetDD = ESPTab:CreateDropdown({
-    Name = "🎯 Main target (highlight)",
-    Options = {"(Авто)"},
+    Name = " Main target (highlight)",
+    Options = {"()"},
     CurrentOption = "",
     Callback = function(option)
         local n = option
         if typeof(option) == "table" then n = option[1] end
-        if n == "(Авто)" or n == nil or n == "" then
+        if n == "()" or n == nil or n == "" then
             getgenv().ELITE_HUB_TARGET_NAME = ""
-            Rayfield:Notify({ Title = "🎯 Цель", Content = "Авто (нет приоритета)", Duration = 2 })
+            Rayfield:Notify({ Title = "👥 Friends", Content = " ( )", Duration = 2 })
         else
             getgenv().ELITE_HUB_TARGET_NAME = n
-            Rayfield:Notify({ Title = "🎯 Цель установлена", Content = n, Duration = 2 })
+            Rayfield:Notify({ Title = "  ", Content = n, Duration = 2 })
         end
         UpdateESP()
     end
@@ -1768,7 +1609,7 @@ task.delay(1, RefreshESPDD)
 ESPTab:CreateSection("🔔 ESP NOTIFICATIONS")
 
 ESPTab:CreateToggle({
-    Name = "🔔 ESP: notifications on",
+    Name = " ESP: notifications on",
     CurrentValue = AimbotConfig.NotifyPlayerJoin,
     Callback = function(value)
         AimbotConfig.NotifyPlayerJoin = value
@@ -1777,7 +1618,7 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateToggle({
-    Name = "👋 Notify on player join",
+    Name = " Notify on player join",
     CurrentValue = AimbotConfig.NotifyPlayerJoin,
     Callback = function(value)
         AimbotConfig.NotifyPlayerJoin = value
@@ -1785,7 +1626,7 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateToggle({
-    Name = "👋 Notify on player leave",
+    Name = " Notify on player leave",
     CurrentValue = AimbotConfig.NotifyPlayerLeave,
     Callback = function(value)
         AimbotConfig.NotifyPlayerLeave = value
@@ -1793,17 +1634,17 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateToggle({
-    Name = "❌ Notify on target leave",
+    Name = " Notify on target leave",
     CurrentValue = AimbotConfig.NotifyTargetLost,
     Callback = function(value)
         AimbotConfig.NotifyTargetLost = value
     end
 })
 
-ESPTab:CreateSection("🎨 VISUAL FEATURES")
+ESPTab:CreateSection("👁 VISUAL FEATURES")
 
 ESPTab:CreateToggle({
-    Name = "💀 Low HP warning",
+    Name = " Low HP warning",
     CurrentValue = ESPConfig.LowHPWarning,
     Callback = function(value)
         ESPConfig.LowHPWarning = value
@@ -1811,7 +1652,7 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateSlider({
-    Name = "❤️ Low HP threshold (%)",
+    Name = " Low HP threshold (%)",
     Range = {5, 60},
     Increment = 5,
     Suffix = "%",
@@ -1822,7 +1663,7 @@ ESPTab:CreateSlider({
 })
 
 ESPTab:CreateColorPicker({
-    Name = "🔴 Vignette Color",
+    Name = " Vignette Color",
     Color = ESPConfig.LowHPColor,
     Callback = function(color)
         ESPConfig.LowHPColor = color
@@ -1830,7 +1671,7 @@ ESPTab:CreateColorPicker({
 })
 
 ESPTab:CreateToggle({
-    Name = "💫 Pulse ring around target",
+    Name = " Pulse ring around target",
     CurrentValue = AimbotConfig.PulseTarget,
     Callback = function(value)
         AimbotConfig.PulseTarget = value
@@ -1838,7 +1679,7 @@ ESPTab:CreateToggle({
 })
 
 ESPTab:CreateColorPicker({
-    Name = "🌈 Pulse ring color",
+    Name = " Pulse ring color",
     Color = AimbotConfig.PulseColor,
     Callback = function(color)
         AimbotConfig.PulseColor = color
@@ -1846,7 +1687,7 @@ ESPTab:CreateColorPicker({
 })
 
 ESPTab:CreateSlider({
-    Name = "📐 Pulse radius",
+    Name = " Pulse radius",
     Range = {20, 200},
     Increment = 5,
     Suffix = "px",
@@ -1857,7 +1698,7 @@ ESPTab:CreateSlider({
 })
 
 ESPTab:CreateSlider({
-    Name = "⚡ Pulse speed",
+    Name = " Pulse speed",
     Range = {1, 20},
     Increment = 1,
     CurrentValue = AimbotConfig.PulseSpeed,
@@ -1865,144 +1706,3 @@ ESPTab:CreateSlider({
         AimbotConfig.PulseSpeed = value
     end
 })
-
-ESPTab:CreateToggle({
-    Name = "📊 Target HP bar above head",
-    CurrentValue = AimbotConfig.TargetHealthBarTop,
-    Callback = function(value)
-        AimbotConfig.TargetHealthBarTop = value
-    end
-})
-
-ESPTab:CreateToggle({
-    Name = "📌 Pin HP bar to head",
-    CurrentValue = AimbotConfig.TargetHealthBarMounted,
-    Callback = function(value)
-        AimbotConfig.TargetHealthBarMounted = value
-    end
-})
-
-local VFX = {}
-pcall(function()
-VFX.VisualGui = Instance.new("ScreenGui")
-VFX.VisualGui.Name = "EliteHubVisual"
-VFX.VisualGui.ResetOnSpawn = false
-VFX.VisualGui.Parent = player:WaitForChild("PlayerGui")
-
-
-VFX.VignetteFrame = Instance.new("Frame")
-VFX.VignetteFrame.Size = UDim2.new(1, 0, 1, 0)
-VFX.VignetteFrame.BackgroundColor3 = ESPConfig.LowHPColor
-VFX.VignetteFrame.BackgroundTransparency = 1
-VFX.VignetteFrame.BorderSizePixel = 0
-VFX.VignetteFrame.Visible = false
-VFX.VignetteFrame.ZIndex = 5
-VFX.VignetteFrame.Parent = VFX.VisualGui
-VFX.VignetteGrad = Instance.new("UIGradient")
-VFX.VignetteGrad.Rotation = 0
-VFX.VignetteGrad.Color = ColorSequence.new({
-    ColorSequenceKeypoint.new(0, Color3.new(1, 1, 1)),
-    ColorSequenceKeypoint.new(0.55, Color3.new(1, 1, 1)),
-    ColorSequenceKeypoint.new(0.8, Color3.new(0, 0, 0)),
-    ColorSequenceKeypoint.new(1, Color3.new(0, 0, 0))
-})
-VFX.VignetteGrad.Parent = VFX.VignetteFrame
-
-VFX.PulseCircle = NewOverlayCircle()
-VFX.PulseCircle.Color = AimbotConfig.PulseColor
-VFX.PulseCircle.Thickness = 3
-VFX.PulseCircle.Visible = false
-VFX.PulseTime = 0
-
-VFX.BarFrame = Instance.new("Frame")
-VFX.BarFrame.Size = UDim2.new(0, 200, 0, 14)
-VFX.BarFrame.AnchorPoint = Vector2.new(0.5, 1)
-VFX.BarBg = Instance.new("Frame")
-VFX.BarBg.BackgroundColor3 = Color3.new(0, 0, 0)
-VFX.BarBg.BackgroundTransparency = 0.4
-VFX.BarBg.Size = UDim2.new(1, 0, 1, 0)
-VFX.BarBg.BorderSizePixel = 0
-VFX.BarBg.Parent = VFX.BarFrame
-VFX.BarFill = Instance.new("Frame")
-VFX.BarFill.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
-VFX.BarFill.BorderSizePixel = 0
-VFX.BarFill.AnchorPoint = Vector2.new(0, 0.5)
-VFX.BarFill.Position = UDim2.new(0, 0, 0.5, 0)
-VFX.BarFill.Size = UDim2.new(1, 0, 1, 0)
-VFX.BarFill.Parent = VFX.BarFrame
-VFX.BarName = Instance.new("TextLabel")
-VFX.BarName.BackgroundTransparency = 1
-VFX.BarName.Size = UDim2.new(1, 0, 1, 0)
-VFX.BarName.TextColor3 = Color3.new(1, 1, 1)
-VFX.BarName.TextStrokeTransparency = 0
-VFX.BarName.TextStrokeColor3 = Color3.new(0, 0, 0)
-VFX.BarName.Font = Enum.Font.SourceSansBold
-VFX.BarName.TextSize = 11
-VFX.BarName.Parent = VFX.BarFrame
-VFX.BarBillboard = Instance.new("BillboardGui")
-VFX.BarBillboard.Size = UDim2.new(0, 220, 0, 40)
-VFX.BarBillboard.AlwaysOnTop = true
-VFX.BarBillboard.Adornee = nil
-VFX.BarBillboard.Parent = VFX.VisualGui
-VFX.BarFrame.Parent = VFX.BarBillboard
-VFX.BarBillboard.Enabled = false
-end)
-
-task.spawn(function()
-    while task.wait(0.1) do
-        pcall(function()
-            local lowHP = false
-            local myChar = player.Character
-            local myHum = myChar and myChar:FindFirstChildOfClass("Humanoid")
-            if myHum and myHum.Health > 0 and myHum.Health <= ESPConfig.LowHPThreshold then
-                lowHP = true
-            end
-            VFX.VignetteFrame.Visible = ESPConfig.LowHPWarning
-            if ESPConfig.LowHPWarning and lowHP then
-                local pulse = (math.sin(tick() * 6) + 1) / 2
-                VFX.VignetteFrame.BackgroundTransparency = 0.75 - pulse * 0.35
-            else
-                VFX.VignetteFrame.BackgroundTransparency = 1
-            end
-
-            VFX.PulseTime = VFX.PulseTime + 0.05
-            local pulseOn = AimbotConfig.PulseTarget and LockedTarget and LockedTargetPlayer
-            VFX.PulseCircle.Visible = false
-            if pulseOn then
-                local base = AimbotConfig.PulseSize
-                local pulse = (math.sin(VFX.PulseTime * AimbotConfig.PulseSpeed) + 1) / 2
-                VFX.PulseCircle.Radius = base * (1 + pulse * 1.5)
-                VFX.PulseCircle.Color = AimbotConfig.PulseColor
-                local spp, vis = workspace.CurrentCamera:WorldToViewportPoint(LockedTarget.Position)
-                if vis then
-                    VFX.PulseCircle.Position = Vector2.new(spp.X, spp.Y)
-                    VFX.PulseCircle.Visible = true
-                end
-            end
-
-            local barOnRaw = AimbotConfig.TargetHealthBarTop and LockedTargetPlayer and LockedTargetPlayer.Character
-            local tcRaw = barOnRaw and LockedTargetPlayer.Character
-            local thpRaw = tcRaw and tcRaw:FindFirstChild("Head")
-            local barOn = barOnRaw and thpRaw
-            VFX.BarBillboard.Enabled = barOn and true or false
-            if barOn then
-                local tc = LockedTargetPlayer.Character
-                local th = tc:FindFirstChildOfClass("Humanoid")
-                local tr = tc:FindFirstChild("HumanoidRootPart")
-                local thp = thpRaw
-                if th and tr and thp then
-                    VFX.BarBillboard.Adornee = thp
-                    VFX.BarBillboard.StudsOffset = Vector3.new(0, 1.2, 0)
-                    local mh = th.MaxHealth
-                    if mh <= 0 then mh = 100 end
-                    local hp = math.max(th.Health, 0)
-                    local pct = math.clamp(hp / mh, 0, 1)
-                    VFX.BarFill.Visible = pct > 0
-                    VFX.BarFill.Size = UDim2.new(pct, 0, 1, 0)
-                    VFX.BarFill.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
-                    VFX.BarName.Text = LockedTargetPlayer.Name .. " [" .. math.floor(hp) .. "/" .. math.floor(mh) .. "]"
-                end
-            end
-        end)
-    end
-end)

@@ -1,6 +1,20 @@
--- ELITE HUB 14.0 — Visual Module (Particles + Chinese Hat)
--- Extracted from ELITE_HUB_14.0.lua
+-- source: ELITE_HUB_14.0.lua Visual (lines 9695-11288)
+local _g = getgenv
+local Rayfield = _g().ELITE_HUB_Rayfield
+local Window = _g().ELITE_HUB_Window
+local ES = _g().EliteHubSettings
+local L = _g().ELITE_HUB_L
+local Log = _g().ELITE_HUB_Log
+local Players = _g().ELITE_HUB_Players
+local player = _g().ELITE_HUB_Player
+local OverlayGui = _g().ELITE_HUB_OverlayGui
+local LoadScript = _g().ELITE_HUB_LoadScript
+local SafeNotify = _g().ELITE_HUB_SafeNotify
+local DestroyScript = _g().ELITE_HUB_DestroyScript
+local MT = Window
+local VisualTab = _g().ELITE_HUB_VisualTab
 
+MT = VisualTab
 local VisualConfig = {
     SkyEnabled = false,
     SkyColor = Color3.fromRGB(80, 120, 255),
@@ -189,7 +203,7 @@ end
 VisualTab:CreateSection("✨ PARTICLES")
 
 VisualTab:CreateToggle({
-    Name = "✨ Enable particles",
+    Name = " Enable particles",
     CurrentValue = VisualConfig.ParticlesEnabled,
     Callback = function(value)
         VisualConfig.ParticlesEnabled = value
@@ -203,7 +217,7 @@ VisualTab:CreateToggle({
 })
 
 VisualTab:CreateDropdown({
-    Name = "🎯 Particle type",
+    Name = " Particle type",
     Options = {"Aura", "Trail", "Fire", "Rain", "Snow", "Sparkles", "Confetti", "Smoke", "Blood", "Glow", "Dust", "Bubble", "Lightning", "Poison", "Hex", "Lava", "Ice", "Plasma", "Leaves", "Feathers", "Stars", "Hearts", "Neon", "Chaos", "Meteor", "Electric", "Wind", "Shadow", "Crystal", "Sakura", "Galaxy", "Nuclear", "Phoenix", "Void", "Dragon"},
     CurrentOption = VisualConfig.ParticleType,
     Callback = function(value)
@@ -214,7 +228,7 @@ VisualTab:CreateDropdown({
 })
 
 VisualTab:CreateColorPicker({
-    Name = "🎨 Color 1",
+    Name = " Color 1",
     Color = VisualConfig.ParticleColor,
     Callback = function(color)
         VisualConfig.ParticleColor = color
@@ -225,7 +239,7 @@ VisualTab:CreateColorPicker({
 })
 
 VisualTab:CreateColorPicker({
-    Name = "🎨 Color 2 (gradient)",
+    Name = " Color 2 (gradient)",
     Color = VisualConfig.ParticleColor2,
     Callback = function(color)
         VisualConfig.ParticleColor2 = color
@@ -236,7 +250,7 @@ VisualTab:CreateColorPicker({
 })
 
 VisualTab:CreateToggle({
-    Name = "💡 Glowing particles",
+    Name = " Glowing particles",
     CurrentValue = VisualConfig.ParticleGlow,
     Callback = function(value)
         VisualConfig.ParticleGlow = value
@@ -247,7 +261,7 @@ VisualTab:CreateToggle({
 })
 
 VisualTab:CreateSlider({
-    Name = "⚪ Particle size",
+    Name = " Particle size",
     Range = {0.05, 3},
     Increment = 0.05,
     CurrentValue = VisualConfig.ParticleSize,
@@ -260,7 +274,7 @@ VisualTab:CreateSlider({
 })
 
 VisualTab:CreateSlider({
-    Name = "⚡ Count/sec",
+    Name = " Count/sec",
     Range = {10, 400},
     Increment = 10,
     CurrentValue = VisualConfig.ParticleRate,
@@ -273,7 +287,7 @@ VisualTab:CreateSlider({
 })
 
 VisualTab:CreateSlider({
-    Name = "🚀 Particle speed",
+    Name = " Particle speed",
     Range = {0.5, 15},
     Increment = 0.5,
     CurrentValue = VisualConfig.ParticleSpeed,
@@ -287,10 +301,10 @@ VisualTab:CreateSlider({
 })
 
 VisualTab:CreateSlider({
-    Name = "⏳ Particle lifetime",
+    Name = " Particle lifetime",
     Range = {0.3, 5},
     Increment = 0.1,
-    Suffix = "с",
+    Suffix = "",
     CurrentValue = VisualConfig.ParticleLife,
     Callback = function(value)
         VisualConfig.ParticleLife = value
@@ -309,244 +323,425 @@ task.spawn(function()
     end)
 end)
 
-task.spawn(function()
-local MT = VisualTab
-getgenv().ELITE_HUB_Log("UI", "Section loaded: CHINESE HAT")
-MT:CreateSection("🎩 CHINESE HAT")
-
-getgenv().ELITE_HUB_ChineseHatOn = false
-getgenv().ELITE_HUB_ChineseHatY = 0.5
-getgenv().ELITE_HUB_ChineseHatConeH = 1.2
-getgenv().ELITE_HUB_ChineseHatR = 2.5
-getgenv().ELITE_HUB_ChineseHatColor = Color3.fromRGB(255, 0, 255)
-getgenv().ELITE_HUB_ChineseHatSpin = false
-getgenv().ELITE_HUB_ChineseHatSpinSpeed = 50
-local hatConn = nil
-local hatParts = {}
-local hatSpinParts = {}
-
-local function RemoveHat(char)
-    if hatConn then hatConn:Disconnect() hatConn = nil end
-    hatParts = {}
-    hatSpinParts = {}
-    local old = char and char:FindFirstChild("ELITEHUB_CHINESE_HAT")
-    if old then pcall(function() old:Destroy() end) end
-end
-
-local function MakePart(props)
-    local p = Instance.new("Part")
-    p.Size = props.Size or Vector3.new(1,1,1)
-    p.Shape = props.Shape or Enum.PartType.Block
-    p.Material = props.Material or Enum.Material.ForceField
-    p.Color = props.Color or Color3.new(1,1,1)
-    p.CanCollide = false
-    p.Anchored = true
-    p.CastShadow = false
-    p.Massless = true
-    p.TopSurface = Enum.SurfaceType.Smooth
-    p.BottomSurface = Enum.SurfaceType.Smooth
-    p.FrontSurface = Enum.SurfaceType.Smooth
-    p.BackSurface = Enum.SurfaceType.Smooth
-    p.LeftSurface = Enum.SurfaceType.Smooth
-    p.RightSurface = Enum.SurfaceType.Smooth
-    p.CustomPhysicalProperties = PhysicalProperties.new(0.001, 0, 0, 1, 1)
-    return p
-end
-
-local function BuildHat(char)
-    if not getgenv().ELITE_HUB_ChineseHatOn then return end
-    if not char then return end
-    local head = char:FindFirstChild("Head")
-    if not head then return end
-
-    RemoveHat(char)
-    task.wait(0.2)
-
-    local hat = Instance.new("Model")
-    hat.Name = "ELITEHUB_CHINESE_HAT"
-    hat.Parent = char
-
-    local R = getgenv().ELITE_HUB_ChineseHatR
-    local H = getgenv().ELITE_HUB_ChineseHatConeH
-    local Y = getgenv().ELITE_HUB_ChineseHatY
-    local COL = getgenv().ELITE_HUB_ChineseHatColor
-    local N = 48
-    local headCF = head.CFrame
-
-    for i = 0, N - 1 do
-        local ang = (i / N) * math.pi * 2
-        local segW = 2 * R * math.tan(math.pi / N) * 1.08
-
-        local slat = MakePart({
-            Size = Vector3.new(segW, math.sqrt(R*R + H*H), 0.03),
-            Color = COL,
-        })
-
-        local bottomPos = Vector3.new(R * math.cos(ang), Y, R * math.sin(ang))
-        local apexPos = Vector3.new(0, Y + H, 0)
-        local center = (bottomPos + apexPos) / 2
-        local dir = (apexPos - bottomPos).Unit
-        local tangent = Vector3.new(-math.sin(ang), 0, math.cos(ang))
-
-        local localCF = CFrame.fromMatrix(center, tangent, dir)
-        local worldCF = headCF * localCF
-
-        slat.CFrame = worldCF
-        slat:BreakJoints()
-        slat.Parent = hat
-        hatParts[slat] = headCF:Inverse() * worldCF
-        hatSpinParts[slat] = localCF
-    end
-
-    local tip = MakePart({
-        Shape = Enum.PartType.Ball,
-        Size = Vector3.new(0.15, 0.18, 0.15),
-        Color = COL,
-    })
-    local tipLocal = CFrame.new(0, Y + H + 0.05, 0)
-    tip.CFrame = headCF * tipLocal
-    tip:BreakJoints()
-    tip.Parent = hat
-    hatParts[tip] = tipLocal
-    hatSpinParts[tip] = tipLocal
-
-    local brim = MakePart({
-        Shape = Enum.PartType.Cylinder,
-        Size = Vector3.new(0.06, R * 2 + 0.4, R * 2 + 0.4),
-        Color = COL,
-    })
-    local brimLocal = CFrame.new(0, Y, 0) * CFrame.Angles(0, 0, math.pi / 2)
-    brim.CFrame = headCF * brimLocal
-    brim:BreakJoints()
-    brim.Parent = hat
-    hatParts[brim] = brimLocal
-    hatSpinParts[brim] = brimLocal
-
-    for p, _ in pairs(hatParts) do
-        p.Anchored = false
-    end
-
-    if hatConn then hatConn:Disconnect() hatConn = nil end
-    local RunService = game:GetService("RunService")
-    local spinAngle = 0
-    hatConn = RunService.Heartbeat:Connect(function(dt)
-        pcall(function()
-            if not getgenv().ELITE_HUB_ChineseHatOn then
-                hatConn:Disconnect()
-                hatConn = nil
-                return
-            end
-            local h = char and char:FindFirstChild("ELITEHUB_CHINESE_HAT")
-            if not h then return end
-            local hd = char:FindFirstChild("Head")
-            if not hd then return end
-
-            if getgenv().ELITE_HUB_ChineseHatSpin then
-                spinAngle = spinAngle + (getgenv().ELITE_HUB_ChineseHatSpinSpeed or 50) * dt * 3
-            end
-
-            local spinCF = CFrame.Angles(0, math.rad(spinAngle), 0)
-            local hdCF = hd.CFrame
-            for p, localCF in pairs(hatSpinParts) do
-                if p and p.Parent then
-                    p.CanCollide = false
-                    p.Massless = true
-                    p.CFrame = hdCF * spinCF * localCF
+getgenv().ELITE_HUB_NeonBody = false
+getgenv().ELITE_HUB_NeonBodyColor = Color3.fromRGB(0, 255, 255)
+VisualTab:CreateSection("💡 NEON BODY")
+VisualTab:CreateToggle({
+    Name = " Neon Body",
+    CurrentValue = false,
+    Callback = function(value)
+        getgenv().ELITE_HUB_NeonBody = value
+        getgenv().ELITE_HUB_Log("MODS", "Neon Body: " .. tostring(value))
+        local ch = player.Character
+        if not ch then return end
+        for _, part in ipairs(ch:GetDescendants()) do
+            if part:IsA("BasePart") then
+                if value then
+                    if not part:GetAttribute("EliteHubOrigMaterial") then
+                        part:SetAttribute("EliteHubOrigMaterial", part.Material.Name)
+                        part:SetAttribute("EliteHubOrigColor", part.Color)
+                    end
+                    part.Material = Enum.Material.Neon
+                    part.Color = getgenv().ELITE_HUB_NeonBodyColor
+                else
+                    local origMat = part:GetAttribute("EliteHubOrigMaterial")
+                    local origCol = part:GetAttribute("EliteHubOrigColor")
+                    if origMat then
+                        part.Material = Enum.Material[origMat] or Enum.Material.Plastic
+                    end
+                    if origCol then
+                        part.Color = origCol
+                    end
+                    part:SetAttribute("EliteHubOrigMaterial", nil)
+                    part:SetAttribute("EliteHubOrigColor", nil)
                 end
             end
-        end)
-    end)
-end
-
-MT:CreateToggle({
-    Name = "🎩 Chinese Hat",
-    CurrentValue = false,
-    Callback = function(value)
-        getgenv().ELITE_HUB_ChineseHatOn = value
-        getgenv().ELITE_HUB_Log("MODS", "Chinese Hat: " .. tostring(value))
-        if value then
-            task.spawn(function() BuildHat(player.Character) end)
-        else
-            RemoveHat(player.Character)
         end
     end
 })
-
-MT:CreateSlider({
-    Name = "⬆️ Hat Height (Y)",
-    Range = {0, 1.5},
-    Increment = 0.05,
-    CurrentValue = 0.5,
-    Callback = function(value)
-        getgenv().ELITE_HUB_ChineseHatY = value
-        if getgenv().ELITE_HUB_ChineseHatOn then
-            task.spawn(function() BuildHat(player.Character) end)
+VisualTab:CreateColorPicker({
+    Name = " Neon Color",
+    Color = getgenv().ELITE_HUB_NeonBodyColor,
+    Callback = function(color)
+        getgenv().ELITE_HUB_NeonBodyColor = color
+        if getgenv().ELITE_HUB_NeonBody then
+            local ch = player.Character
+            if ch then
+                for _, part in ipairs(ch:GetDescendants()) do
+                    if part:IsA("BasePart") and part.Material == Enum.Material.Neon then
+                        part.Color = color
+                    end
+                end
+            end
         end
     end
 })
-
-MT:CreateSlider({
-    Name = "🔺 Cone Height",
-    Range = {0.3, 3},
-    Increment = 0.1,
-    CurrentValue = 1.2,
-    Callback = function(value)
-        getgenv().ELITE_HUB_ChineseHatConeH = value
-        if getgenv().ELITE_HUB_ChineseHatOn then
-            task.spawn(function() BuildHat(player.Character) end)
-        end
-    end
-})
-
-MT:CreateSlider({
-    Name = "📏 Cone Radius",
-    Range = {0.5, 3},
-    Increment = 0.1,
-    CurrentValue = 2.5,
-    Callback = function(value)
-        getgenv().ELITE_HUB_ChineseHatR = value
-        if getgenv().ELITE_HUB_ChineseHatOn then
-            task.spawn(function() BuildHat(player.Character) end)
-        end
-    end
-})
-
-MT:CreateColorPicker({
-    Name = "🎨 Hat Color",
-    Color = Color3.fromRGB(255, 0, 255),
-    Callback = function(value)
-        getgenv().ELITE_HUB_ChineseHatColor = value
-        if getgenv().ELITE_HUB_ChineseHatOn then
-            task.spawn(function() BuildHat(player.Character) end)
-        end
-    end
-})
-
-MT:CreateToggle({
-    Name = "🔄 Spin",
-    CurrentValue = false,
-    Callback = function(value)
-        getgenv().ELITE_HUB_ChineseHatSpin = value
-        getgenv().ELITE_HUB_Log("MODS", "Chinese Hat Spin: " .. tostring(value))
-    end
-})
-
-MT:CreateSlider({
-    Name = "🔄 Spin Speed",
-    Range = {10, 300},
-    Increment = 5,
-    CurrentValue = 50,
-    Callback = function(value)
-        getgenv().ELITE_HUB_ChineseHatSpinSpeed = value
-    end
-})
-
 player.CharacterAdded:Connect(function(char)
     task.wait(1)
     pcall(function()
-        if getgenv().ELITE_HUB_ChineseHatOn then
-            BuildHat(char)
+        if getgenv().ELITE_HUB_NeonBody then
+            for _, part in ipairs(char:GetDescendants()) do
+                if part:IsA("BasePart") then
+                    if not part:GetAttribute("EliteHubOrigMaterial") then
+                        part:SetAttribute("EliteHubOrigMaterial", part.Material.Name)
+                        part:SetAttribute("EliteHubOrigColor", part.Color)
+                    end
+                    part.Material = Enum.Material.Neon
+                    part.Color = getgenv().ELITE_HUB_NeonBodyColor
+                end
+            end
+        end
+    end)
+end)
+
+getgenv().ELITE_HUB_HitMarkers = false
+getgenv().ELITE_HUB_HitMarkerColor = Color3.fromRGB(255, 0, 0)
+getgenv().ELITE_HUB_HitMarkerSize = 30
+getgenv().ELITE_HUB_HitMarkerDuration = 0.3
+getgenv().ELITE_HUB_DamageNumbers = false
+getgenv().ELITE_HUB_DamageNumberColor = Color3.fromRGB(255, 255, 0)
+
+task.spawn(function()
+VisualTab:CreateSection("💥 HIT EFFECTS")
+VisualTab:CreateToggle({
+    Name = " Hit Markers",
+    CurrentValue = false,
+    Callback = function(value)
+        getgenv().ELITE_HUB_HitMarkers = value
+        getgenv().ELITE_HUB_Log("MODS", "Hit Markers: " .. tostring(value))
+    end
+})
+VisualTab:CreateColorPicker({
+    Name = " Hit Marker Color",
+    Color = getgenv().ELITE_HUB_HitMarkerColor,
+    Callback = function(color)
+        getgenv().ELITE_HUB_HitMarkerColor = color
+    end
+})
+VisualTab:CreateSlider({
+    Name = " Hit Marker Size",
+    Range = {10, 80},
+    Increment = 5,
+    CurrentValue = getgenv().ELITE_HUB_HitMarkerSize,
+    Callback = function(value)
+        getgenv().ELITE_HUB_HitMarkerSize = value
+    end
+})
+VisualTab:CreateToggle({
+    Name = " Damage Numbers",
+    CurrentValue = false,
+    Callback = function(value)
+        getgenv().ELITE_HUB_DamageNumbers = value
+        getgenv().ELITE_HUB_Log("MODS", "Damage Numbers: " .. tostring(value))
+    end
+})
+VisualTab:CreateColorPicker({
+    Name = " Damage Color",
+    Color = getgenv().ELITE_HUB_DamageNumberColor,
+    Callback = function(color)
+        getgenv().ELITE_HUB_DamageNumberColor = color
+    end
+})
+
+local oldHealth = {}
+local function hookCharacterDmg(plr, char)
+    task.wait(1)
+    local hum = char:FindFirstChildOfClass("Humanoid")
+    if not hum then return end
+    oldHealth[plr.Name] = hum.Health
+    hum.HealthChanged:Connect(function(newHP)
+        local prev = oldHealth[plr.Name] or newHP
+        local dmg = prev - newHP
+        oldHealth[plr.Name] = newHP
+        if dmg <= 0 then return end
+        local hrp = char:FindFirstChild("HumanoidRootPart")
+        if not hrp then return end
+        if getgenv().ELITE_HUB_HitMarkers and plr ~= player then
+            task.spawn(function()
+                local gui = Instance.new("ScreenGui")
+                gui.Name = "EliteHubHitMarker"
+                gui.ResetOnSpawn = false
+                gui.IgnoreGuiInset = true
+                gui.DisplayOrder = 99999
+                local s = getgenv().ELITE_HUB_HitMarkerSize
+                local col = getgenv().ELITE_HUB_HitMarkerColor
+                local offsets = {
+                    {1, 1}, {-1, 1}, {1, -1}, {-1, -1}
+                }
+                for _, off in ipairs(offsets) do
+                    local f = Instance.new("Frame")
+                    f.AnchorPoint = Vector2.new(0.5, 0.5)
+                    f.Size = UDim2.new(0, 2, 0, s)
+                    f.Position = UDim2.new(0.5 + off[1] * 0.015, 0, 0.5 + off[2] * 0.015, 0)
+                    f.BackgroundColor3 = col
+                    f.BorderSizePixel = 0
+                    f.Rotation = 45 * off[1] * off[2]
+                    f.Parent = gui
+                end
+                pcall(function() gui.Parent = game:GetService("CoreGui") end)
+                task.wait(getgenv().ELITE_HUB_HitMarkerDuration)
+                gui:Destroy()
+            end)
+        end
+        if getgenv().ELITE_HUB_DamageNumbers then
+            task.spawn(function()
+                local billboard = Instance.new("BillboardGui")
+                billboard.Name = "EliteHubDmgNum"
+                billboard.Adornee = hrp
+                billboard.Size = UDim2.new(0, 200, 0, 50)
+                billboard.StudsOffset = Vector3.new(math.random(-2, 2), 2 + math.random(), 0)
+                billboard.AlwaysOnTop = true
+                billboard.LightInfluence = 0
+                local text = Instance.new("TextLabel")
+                text.Size = UDim2.new(1, 0, 1, 0)
+                text.BackgroundTransparency = 1
+                text.Text = "-" .. math.floor(dmg)
+                text.TextColor3 = getgenv().ELITE_HUB_DamageNumberColor
+                text.TextStrokeTransparency = 0.3
+                text.TextStrokeColor3 = Color3.new(0, 0, 0)
+                text.TextScaled = true
+                text.Font = Enum.Font.GothamBold
+                text.Parent = billboard
+                pcall(function() billboard.Parent = game:GetService("CoreGui") end)
+                for i = 1, 30 do
+                    task.wait(0.02)
+                    billboard.StudsOffset = billboard.StudsOffset + Vector3.new(0, 0.05, 0)
+                    text.TextTransparency = i / 30
+                    text.TextStrokeTransparency = 0.3 + (i / 30) * 0.7
+                end
+                billboard:Destroy()
+            end)
+        end
+    end)
+end
+
+for _, plr in ipairs(game:GetService("Players"):GetPlayers()) do
+    if plr ~= player then
+        plr.CharacterAdded:Connect(function(char) hookCharacterDmg(plr, char) end)
+        if plr.Character then hookCharacterDmg(plr, plr.Character) end
+    end
+end
+game:GetService("Players").PlayerAdded:Connect(function(plr)
+    plr.CharacterAdded:Connect(function(char) hookCharacterDmg(plr, char) end)
+end)
+end)
+
+getgenv().ELITE_HUB_FireTrail = false
+getgenv().ELITE_HUB_FireTrailColor = Color3.fromRGB(255, 100, 0)
+task.spawn(function()
+VisualTab:CreateSection("🔥 FIRE TRAIL")
+VisualTab:CreateToggle({
+    Name = " Fire Trail",
+    CurrentValue = false,
+    Callback = function(value)
+        getgenv().ELITE_HUB_FireTrail = value
+        getgenv().ELITE_HUB_Log("MODS", "Fire Trail: " .. tostring(value))
+        local ch = player.Character
+        if not ch then return end
+        if value then
+            for _, obj in ipairs(ch:GetDescendants()) do
+                if obj.Name == "EliteHubFireTrail" then
+                    pcall(function() obj:Destroy() end)
+                end
+            end
+            for _, part in ipairs(ch:GetDescendants()) do
+                if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" then
+                    local fire = Instance.new("Fire")
+                    fire.Name = "EliteHubFireTrail"
+                    fire.Size = 2
+                    fire.Heat = 1
+                    fire.Color = getgenv().ELITE_HUB_FireTrailColor
+                    fire.SecondaryColor = Color3.fromRGB(255, 200, 0)
+                    fire.Enabled = true
+                    fire.Parent = part
+                end
+            end
+        else
+            for _, obj in ipairs(ch:GetDescendants()) do
+                if obj.Name == "EliteHubFireTrail" then
+                    pcall(function() obj:Destroy() end)
+                end
+            end
+        end
+    end
+})
+VisualTab:CreateColorPicker({
+    Name = " Fire Color",
+    Color = getgenv().ELITE_HUB_FireTrailColor,
+    Callback = function(color)
+        getgenv().ELITE_HUB_FireTrailColor = color
+        if getgenv().ELITE_HUB_FireTrail then
+            local ch = player.Character
+            if ch then
+                for _, obj in ipairs(ch:GetDescendants()) do
+                    if obj.Name == "EliteHubFireTrail" and obj:IsA("Fire") then
+                        obj.Color = color
+                    end
+                end
+            end
+        end
+    end
+})
+player.CharacterAdded:Connect(function(char)
+    task.wait(1)
+    pcall(function()
+        if getgenv().ELITE_HUB_FireTrail then
+            for _, obj in ipairs(char:GetDescendants()) do
+                if obj.Name == "EliteHubFireTrail" then
+                    pcall(function() obj:Destroy() end)
+                end
+            end
+            for _, part in ipairs(char:GetDescendants()) do
+                if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" then
+                    local fire = Instance.new("Fire")
+                    fire.Name = "EliteHubFireTrail"
+                    fire.Size = 2
+                    fire.Heat = 1
+                    fire.Color = getgenv().ELITE_HUB_FireTrailColor
+                    fire.SecondaryColor = Color3.fromRGB(255, 200, 0)
+                    fire.Enabled = true
+                    fire.Parent = part
+                end
+            end
         end
     end)
 end)
 end)
+MT = VisualTab
+getgenv().ELITE_HUB_Log("UI", "Section loaded: VISUAL+")
+MT:CreateSection("👁 ESP+")
+
+getgenv().ELITE_HUB_ItemESP = false
+MT:CreateToggle({
+    Name = " Item ESP (items)",
+    CurrentValue = false,
+    Callback = function(value)
+        getgenv().ELITE_HUB_ItemESP = value
+        getgenv().ELITE_HUB_Log("MODS", "Item ESP: " .. tostring(value))
+        if not value then
+            for _, v in ipairs(workspace:GetDescendants()) do
+                if v:GetAttribute("EliteHubItemTag") then
+                    v:FindFirstChildOfClass("BillboardGui"):Destroy()
+                    v:SetAttribute("EliteHubItemTag", nil)
+                end
+            end
+        end
+    end
+})
+task.spawn(function()
+    while task.wait(1) do
+        pcall(function()
+            if not getgenv().ELITE_HUB_ItemESP then return end
+            for _, v in ipairs(workspace:GetDescendants()) do
+                if v:IsA("BasePart") and v.Name ~= "Terrain" and not v:GetAttribute("EliteHubItemTag") then
+                    local dist = (v.Position - player.Character.HumanoidRootPart.Position).Magnitude
+                    if dist < 200 and v.Size.Magnitude < 15 then
+                        local bb = Instance.new("BillboardGui")
+                        bb.Size = UDim2.new(0, 100, 0, 20)
+                        bb.AlwaysOnTop = true
+                        bb.Adornee = v
+                        bb.Parent = v
+                        local tl = Instance.new("TextLabel")
+                        tl.BackgroundTransparency = 1
+                        tl.Size = UDim2.new(1, 0, 1, 0)
+                        tl.Text = v.Name
+                        tl.TextColor3 = Color3.fromRGB(255, 200, 50)
+                        tl.TextSize = 10
+                        tl.Font = Enum.Font.GothamBold
+                        tl.TextStrokeTransparency = 0
+                        tl.Parent = bb
+                        v:SetAttribute("EliteHubItemTag", true)
+                    end
+                end
+            end
+        end)
+    end
+end)
+MT = VisualTab
+getgenv().ELITE_HUB_Log("UI", "Section loaded: VISUAL+ (2)")
+MT:CreateSection("👁 VISUAL+")
+
+getgenv().ELITE_HUB_XRay = false
+MT:CreateToggle({
+    Name = " X-Ray (transparent walls)",
+    CurrentValue = false,
+    Callback = function(value)
+        getgenv().ELITE_HUB_XRay = value
+        getgenv().ELITE_HUB_Log("MODS", "X-Ray: " .. tostring(value))
+        if value then
+            for _, part in ipairs(workspace:GetDescendants()) do
+                if part:IsA("BasePart") and part.Name ~= "Terrain" then
+                    if not part:GetAttribute("EliteHubXRay") then
+                        part:SetAttribute("EliteHubXRay", part.Transparency)
+                    end
+                    if part.Transparency < 0.5 then
+                        part.Transparency = 0.8
+                    end
+                end
+            end
+        else
+            for _, part in ipairs(workspace:GetDescendants()) do
+                if part:IsA("BasePart") then
+                    local orig = part:GetAttribute("EliteHubXRay")
+                    if orig then
+                        part.Transparency = orig
+                        part:SetAttribute("EliteHubXRay", nil)
+                    end
+                end
+            end
+        end
+    end
+})
+
+getgenv().ELITE_HUB_Wallhack = false
+MT:CreateToggle({
+    Name = " Wallhack (walls disappear)",
+    CurrentValue = false,
+    Callback = function(value)
+        getgenv().ELITE_HUB_Wallhack = value
+        getgenv().ELITE_HUB_Log("MODS", "Wallhack: " .. tostring(value))
+        if value then
+            for _, part in ipairs(workspace:GetDescendants()) do
+                if part:IsA("BasePart") and part.Name ~= "Terrain" then
+                    if not part:GetAttribute("EliteHubWH") then
+                        part:SetAttribute("EliteHubWH", part.Transparency)
+                    end
+                    part.Transparency = 1
+                end
+            end
+        else
+            for _, part in ipairs(workspace:GetDescendants()) do
+                if part:IsA("BasePart") then
+                    local orig = part:GetAttribute("EliteHubWH")
+                    if orig then
+                        part.Transparency = orig
+                        part:SetAttribute("EliteHubWH", nil)
+                    end
+                end
+            end
+        end
+    end
+})
+MT = VisualTab
+MT:CreateSection("🌍 WORLD SLIDERS")
+MT:CreateSlider({
+    Name = " Gravity",
+    Range = {0, 300},
+    Increment = 5,
+    CurrentValue = 196,
+    Callback = function(value)
+        workspace.Gravity = value
+        getgenv().ELITE_HUB_Log("MODS", "Gravity: " .. value)
+    end
+})
+
+MT:CreateSlider({
+    Name = " FOV",
+    Range = {30, 120},
+    Increment = 5,
+    CurrentValue = 70,
+    Callback = function(value)
+        workspace.CurrentCamera.FieldOfView = value
+        getgenv().ELITE_HUB_Log("MODS", "FOV: " .. value)
+    end
+})

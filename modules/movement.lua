@@ -1,14 +1,26 @@
--- ELITE HUB 14.0 — Movement Module (Jump Boost, Speed, Infinite Jump, Bunny Hop)
--- Extracted from ELITE_HUB_14.0.lua
+-- source: ELITE_HUB_14.0.lua MOVEMENT (lines 10289-10323, 11213-11264, 11407-11427)
+local _g = getgenv
+local Rayfield = _g().ELITE_HUB_Rayfield
+local Window = _g().ELITE_HUB_Window
+local ES = _g().EliteHubSettings
+local L = _g().ELITE_HUB_L
+local Log = _g().ELITE_HUB_Log
+local Players = _g().ELITE_HUB_Players
+local player = _g().ELITE_HUB_Player
+local OverlayGui = _g().ELITE_HUB_OverlayGui
+local LoadScript = _g().ELITE_HUB_LoadScript
+local SafeNotify = _g().ELITE_HUB_SafeNotify
+local DestroyScript = _g().ELITE_HUB_DestroyScript
+local MT = Window
 
-task.spawn(function()
+local MovementTab = _g().ELITE_HUB_MovementTab
 local MT = MovementTab
 getgenv().ELITE_HUB_Log("UI", "Section loaded: MOVEMENT")
 MT:CreateSection("🏃 MOVEMENT")
 
 getgenv().ELITE_HUB_JumpBoost = false
 MT:CreateToggle({
-    Name = "🦘 Jump Boost (high jump)",
+    Name = " Jump Boost (high jump)",
     CurrentValue = false,
     Callback = function(value)
         getgenv().ELITE_HUB_JumpBoost = value
@@ -16,7 +28,12 @@ MT:CreateToggle({
         local hum = ch and ch:FindFirstChildOfClass("Humanoid")
         if hum then
             hum.UseJumpPower = true
-            hum.JumpPower = value and 120 or 50
+            if value then
+                getgenv().ELITE_HUB_JumpBoostOrig = hum.JumpPower
+                hum.JumpPower = 120
+            else
+                hum.JumpPower = getgenv().ELITE_HUB_JumpBoostOrig or 50
+            end
         end
         getgenv().ELITE_HUB_Log("MODS", "Jump Boost: " .. tostring(value))
     end
@@ -25,20 +42,25 @@ player.CharacterAdded:Connect(function(char)
     task.wait(1)
     if getgenv().ELITE_HUB_JumpBoost then
         local hum = char:FindFirstChildOfClass("Humanoid")
-        if hum then hum.UseJumpPower = true; hum.JumpPower = 120 end
+        if hum then
+            hum.UseJumpPower = true
+            getgenv().ELITE_HUB_JumpBoostOrig = hum.JumpPower
+            hum.JumpPower = 120
+        end
     end
 end)
 
 MT = MovementTab
 getgenv().ELITE_HUB_Log("UI", "Section loaded: MOVEMENT sliders")
-MT:CreateSection("⚡ SPEED")
+MT:CreateSection("🏃 SPEED")
 
 MT:CreateSlider({
-    Name = "🏃 WalkSpeed",
+    Name = " WalkSpeed",
     Range = {16, 300},
     Increment = 1,
     CurrentValue = 16,
     Callback = function(value)
+        getgenv().ELITE_HUB_WalkSpeed = value
         pcall(function()
             local hum = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
             if hum then hum.WalkSpeed = value end
@@ -48,11 +70,12 @@ MT:CreateSlider({
 })
 
 MT:CreateSlider({
-    Name = "🦘 JumpPower",
+    Name = " JumpPower",
     Range = {50, 500},
     Increment = 10,
     CurrentValue = 50,
     Callback = function(value)
+        getgenv().ELITE_HUB_JumpPower = value
         pcall(function()
             local hum = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
             if hum then
@@ -64,11 +87,27 @@ MT:CreateSlider({
     end
 })
 
+player.CharacterAdded:Connect(function(char)
+    task.wait(1)
+    pcall(function()
+        local hum = char:FindFirstChildOfClass("Humanoid")
+        if hum then
+            if getgenv().ELITE_HUB_WalkSpeed then
+                hum.WalkSpeed = getgenv().ELITE_HUB_WalkSpeed
+            end
+            if getgenv().ELITE_HUB_JumpPower then
+                hum.UseJumpPower = true
+                hum.JumpPower = getgenv().ELITE_HUB_JumpPower
+            end
+        end
+    end)
+end)
+
 MT = MovementTab
-MT:CreateSection("🦘 JUMP")
+MT:CreateSection("👟 JUMP")
 getgenv().ELITE_HUB_InfiniteJump = false
 MT:CreateToggle({
-    Name = "🦘 Infinite Jump",
+    Name = " Infinite Jump",
     CurrentValue = false,
     Callback = function(value)
         getgenv().ELITE_HUB_InfiniteJump = value
@@ -85,30 +124,3 @@ UserInputService.JumpRequest:Connect(function()
         end
     end
 end)
-
-getgenv().ELITE_HUB_BunnyHop = false
-MT = MovementTab
-MT:CreateToggle({
-    Name = "🐰 Bunny Hop",
-    CurrentValue = false,
-    Callback = function(value)
-        getgenv().ELITE_HUB_BunnyHop = value
-        getgenv().ELITE_HUB_Log("MODS", "Bunny Hop: " .. tostring(value))
-        if value then
-            task.spawn(function()
-                while getgenv().ELITE_HUB_BunnyHop do
-                    task.wait(0.1)
-                    pcall(function()
-                        local ch = player.Character
-                        if ch then
-                            local hum = ch:FindFirstChildOfClass("Humanoid")
-                            if hum and hum.FloorMaterial ~= Enum.Material.Air then
-                                hum:ChangeState(Enum.HumanoidStateType.Jumping)
-                            end
-                        end
-                    end)
-                end
-            end)
-        end
-    end
-})

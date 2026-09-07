@@ -1,5 +1,18 @@
--- ELITE HUB 14.0 — Item Finder Module
--- Extracted from ELITE_HUB_14.0.lua
+-- source: ELITE_HUB_14.0.lua ItemFinder (lines 11626-11954)
+local _g = getgenv
+local Rayfield = _g().ELITE_HUB_Rayfield
+local Window = _g().ELITE_HUB_Window
+local ES = _g().EliteHubSettings
+local L = _g().ELITE_HUB_L
+local Log = _g().ELITE_HUB_Log
+local Players = _g().ELITE_HUB_Players
+local player = _g().ELITE_HUB_Player
+local OverlayGui = _g().ELITE_HUB_OverlayGui
+local LoadScript = _g().ELITE_HUB_LoadScript
+local SafeNotify = _g().ELITE_HUB_SafeNotify
+local DestroyScript = _g().ELITE_HUB_DestroyScript
+local MT = Window
+
 local ItemFinderTab = Window:CreateTab("🔍 " .. L("ItemFinder"), 6026568198, "ItemFinder")
 
 local if1 = ItemFinderTab:CreateSection(L("ItemFinder"))
@@ -7,7 +20,7 @@ table.insert(Window._translatables, {element = if1, key = "ItemFinder", type = "
 
 local ItemFinderESP = false
 ItemFinderTab:CreateToggle({
-    Name = "👁️ Item ESP",
+    Name = " Item ESP",
     CurrentValue = false,
     Callback = function(value)
         ItemFinderESP = value
@@ -141,9 +154,9 @@ local function scanItems()
     for idx, data in ipairs(FoundItems) do
         if ItemListFrame then
             local dist = math.floor((data.pos - myPos).Magnitude)
-            local icon = "📦"
-            if data.interactionType == "ClickDetector" then icon = "🖱️"
-            elseif data.interactionType == "ProximityPrompt" then icon = "⚡"
+            local icon = ""
+            if data.interactionType == "ClickDetector" then icon = ""
+            elseif data.interactionType == "ProximityPrompt" then icon = ""
             end
 
             local row = Instance.new("TextButton")
@@ -197,7 +210,7 @@ local function scanItems()
             grabLabel.Size = UDim2.new(0.13, 0, 1, 0)
             grabLabel.Position = UDim2.new(0.87, 0, 0, 0)
             grabLabel.BackgroundTransparency = 1
-            grabLabel.Text = "GET →"
+            grabLabel.Text = "GET "
             grabLabel.TextColor3 = Color3.fromRGB(0, 200, 100)
             grabLabel.TextSize = 10
             grabLabel.Font = Enum.Font.GothamBold
@@ -255,10 +268,10 @@ local function scanItems()
                             end
 
                             if gotItem then
-                                grabLabel.Text = "✓ OK"
+                                grabLabel.Text = " OK"
                                 grabLabel.TextColor3 = Color3.fromRGB(0, 255, 100)
                             else
-                                grabLabel.Text = "✗ miss"
+                                grabLabel.Text = " miss"
                                 grabLabel.TextColor3 = Color3.fromRGB(255, 80, 80)
                             end
 
@@ -266,7 +279,7 @@ local function scanItems()
                             hrp.CFrame = origCF
 
                             task.wait(1)
-                            grabLabel.Text = "GET →"
+                            grabLabel.Text = "GET "
                             grabLabel.TextColor3 = Color3.fromRGB(0, 200, 100)
                         end
                     end

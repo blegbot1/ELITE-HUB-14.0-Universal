@@ -1,13 +1,26 @@
--- ELITE HUB 14.0 — Camera Module (Free Cam, Teleport, Click TP, Waypoint)
--- Extracted from ELITE_HUB_14.0.lua
+-- source: ELITE_HUB_14.0.lua CAMERA & TELEPORT (lines 10389-10480, 11354-11405, 11429-11567, 11569-11598)
+local _g = getgenv
+local Rayfield = _g().ELITE_HUB_Rayfield
+local Window = _g().ELITE_HUB_Window
+local ES = _g().EliteHubSettings
+local L = _g().ELITE_HUB_L
+local Log = _g().ELITE_HUB_Log
+local Players = _g().ELITE_HUB_Players
+local player = _g().ELITE_HUB_Player
+local OverlayGui = _g().ELITE_HUB_OverlayGui
+local LoadScript = _g().ELITE_HUB_LoadScript
+local SafeNotify = _g().ELITE_HUB_SafeNotify
+local DestroyScript = _g().ELITE_HUB_DestroyScript
+local MT = Window
 
+local CameraTeleportTab = _g().ELITE_HUB_CameraTeleportTab
 MT = CameraTeleportTab
 getgenv().ELITE_HUB_Log("UI", "Section loaded: CAMERA")
 MT:CreateSection("📷 CAMERA & TELEPORT")
 
 getgenv().ELITE_HUB_FreeCam = false
 MT:CreateToggle({
-    Name = "📷 Free Cam (free camera)",
+    Name = " Free Cam (free camera)",
     CurrentValue = false,
     Callback = function(value)
         getgenv().ELITE_HUB_FreeCam = value
@@ -61,11 +74,24 @@ task.spawn(function()
         end)
     end
 end)
+player.CharacterAdded:Connect(function(char)
+    task.wait(1)
+    if getgenv().ELITE_HUB_FreeCam then
+        getgenv().ELITE_HUB_FreeCam = false
+        pcall(function()
+            workspace.CurrentCamera.CameraType = Enum.CameraType.Custom
+            local bpcam = workspace:FindFirstChild("FreeCamBP")
+            if bpcam then bpcam:Destroy() end
+            local bp = getgenv().ELITE_HUB_FreeCamBP
+            if bp then bp:Destroy(); getgenv().ELITE_HUB_FreeCamBP = nil end
+        end)
+    end
+end)
 
 MT:CreateButton({
-    Name = "📍 Teleport to cursor",
+    Name = " Teleport to cursor",
     Callback = function()
-        getgenv().ELITE_HUB_Log("MODS", "Телепорт к курсору мыши")
+        getgenv().ELITE_HUB_Log("MODS", "   ")
         pcall(function()
             local mouse = player:GetMouse()
             local hit = mouse.Hit
@@ -80,10 +106,11 @@ MT:CreateButton({
     end
 })
 
+
 MT = CameraTeleportTab
-MT:CreateSection("🏠 TELEPORT")
+MT:CreateSection("🌀 TELEPORT")
 MT:CreateButton({
-    Name = "🏠 Teleport to Spawn",
+    Name = " Teleport to Spawn",
     Callback = function()
         pcall(function()
             local ch = player.Character
@@ -98,10 +125,45 @@ MT:CreateButton({
     end
 })
 
+MT = UtilitiesTab
+MT:CreateToggle({
+    Name = " Fullbright",
+    CurrentValue = false,
+    Callback = function(value)
+        getgenv().ELITE_HUB_Log("MODS", "Fullbright: " .. tostring(value))
+        local lighting = game:GetService("Lighting")
+        if value then
+            getgenv().ELITE_HUB_FullbrightBackup = {
+                Brightness = lighting.Brightness,
+                Ambient = lighting.Ambient,
+                OutdoorAmbient = lighting.OutdoorAmbient,
+                GlobalShadows = lighting.GlobalShadows,
+                Technology = lighting.Technology,
+                FogEnd = lighting.FogEnd
+            }
+            lighting.Brightness = 10
+            lighting.Ambient = Color3.fromRGB(255, 255, 255)
+            lighting.OutdoorAmbient = Color3.fromRGB(255, 255, 255)
+            lighting.GlobalShadows = false
+            lighting.FogEnd = 999999
+        else
+            local b = getgenv().ELITE_HUB_FullbrightBackup
+            if b then
+                lighting.Brightness = b.Brightness
+                lighting.Ambient = b.Ambient
+                lighting.OutdoorAmbient = b.OutdoorAmbient
+                lighting.GlobalShadows = b.GlobalShadows
+                lighting.Technology = b.Technology
+                lighting.FogEnd = b.FogEnd
+            end
+        end
+    end
+})
+
 MT = CameraTeleportTab
 getgenv().ELITE_HUB_ClickTP = false
 MT:CreateToggle({
-    Name = "📍 Click TP (RMB)",
+    Name = " Click TP (RMB)",
     CurrentValue = false,
     Callback = function(value)
         getgenv().ELITE_HUB_ClickTP = value
@@ -134,7 +196,7 @@ end)
 
 getgenv().ELITE_HUB_AutoRespawn = false
 MT:CreateToggle({
-    Name = "♻️ Auto Respawn",
+    Name = " Auto Respawn",
     CurrentValue = false,
     Callback = function(value)
         getgenv().ELITE_HUB_AutoRespawn = value
@@ -161,7 +223,7 @@ MT:CreateToggle({
 
 MT = CameraTeleportTab
 MT:CreateToggle({
-    Name = "🎥 Third Person",
+    Name = " Third Person",
     CurrentValue = false,
     Callback = function(value)
         getgenv().ELITE_HUB_Log("MODS", "Third Person: " .. tostring(value))
@@ -176,7 +238,7 @@ MT:CreateToggle({
 
 getgenv().ELITE_HUB_KillSound = false
 MT:CreateToggle({
-    Name = "🔊 Kill Sound",
+    Name = " Kill Sound",
     CurrentValue = false,
     Callback = function(value)
         getgenv().ELITE_HUB_KillSound = value
@@ -210,11 +272,38 @@ task.spawn(function()
     end
 end)
 
-getgenv().ELITE_HUB_Waypoint = nil
+getgenv().ELITE_HUB_BunnyHop = false
+MT = MovementTab
+MT:CreateToggle({
+    Name = " Bunny Hop",
+    CurrentValue = false,
+    Callback = function(value)
+        getgenv().ELITE_HUB_BunnyHop = value
+        getgenv().ELITE_HUB_Log("MODS", "Bunny Hop: " .. tostring(value))
+        if value then
+            task.spawn(function()
+                while getgenv().ELITE_HUB_BunnyHop do
+                    task.wait(0.1)
+                    pcall(function()
+                        local ch = player.Character
+                        if ch then
+                            local hum = ch:FindFirstChildOfClass("Humanoid")
+                            if hum and hum.FloorMaterial ~= Enum.Material.Air then
+                                hum:ChangeState(Enum.HumanoidStateType.Jumping)
+                            end
+                        end
+                    end)
+                end
+            end)
+        end
+    end
+})
+
+
 MT = CameraTeleportTab
 MT:CreateSection("📍 WAYPOINT")
 MT:CreateButton({
-    Name = "📌 Set Waypoint",
+    Name = " Set Waypoint",
     Callback = function()
         local ch = player.Character
         if ch then
@@ -227,7 +316,7 @@ MT:CreateButton({
     end
 })
 MT:CreateButton({
-    Name = "📍 Teleport to Waypoint",
+    Name = " Teleport to Waypoint",
     Callback = function()
         if getgenv().ELITE_HUB_Waypoint then
             local ch = player.Character
