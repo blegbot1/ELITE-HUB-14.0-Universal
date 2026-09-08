@@ -13,6 +13,7 @@ local SafeNotify = _g().ELITE_HUB_SafeNotify
 local DestroyScript = _g().ELITE_HUB_DestroyScript
 local MT = Window
 local ESPConfig = _g().ELITE_HUB_ESPConfig
+local IsTeammate = _g().ELITE_HUB_IsTeammate
 
 task.spawn(function()
     local Players = game:GetService("Players")

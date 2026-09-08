@@ -7322,6 +7322,7 @@ local function IsTeammate(targetPlayer)
     if not player.Team or not targetPlayer.Team then return false end
     return player.Team == targetPlayer.Team
 end
+getgenv().ELITE_HUB_IsTeammate = IsTeammate
 
 local function CreatePlayerSkeleton(targetPlayer)
     if ESPSkeletons[targetPlayer] then return end
