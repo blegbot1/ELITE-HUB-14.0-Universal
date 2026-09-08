@@ -71,7 +71,7 @@ local function UpdateDropdown()
     end
 end
 
-TeleportTab:CreateSection("")
+TeleportTab:CreateSection("🪐 PLAYERS")
 onlineLabel = TeleportTab:CreateLabel(" Players online: 0")
 dropdown = TeleportTab:CreateDropdown({
     Name = "Select a player",

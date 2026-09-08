@@ -1842,7 +1842,7 @@ local function RemoveHat(char)
     if hatConn then hatConn:Disconnect() hatConn = nil end
     hatParts = {}
     hatSpinParts = {}
-    local old = char and char:FindFirstChild("ELITEHUB_CHINESE_HAT")
+    local old = workspace:FindFirstChild("ELITEHUB_CHINESE_HAT")
     if old then pcall(function() old:Destroy() end) end
 end
 
@@ -1877,7 +1877,7 @@ local function BuildHat(char)
 
     local hat = Instance.new("Model")
     hat.Name = "ELITEHUB_CHINESE_HAT"
-    hat.Parent = char
+    hat.Parent = workspace
 
     local R = getgenv().ELITE_HUB_ChineseHatR
     local H = getgenv().ELITE_HUB_ChineseHatConeH
@@ -1949,7 +1949,7 @@ local function BuildHat(char)
                 hatConn = nil
                 return
             end
-            local h = char and char:FindFirstChild("ELITEHUB_CHINESE_HAT")
+            local h = workspace:FindFirstChild("ELITEHUB_CHINESE_HAT")
             if not h then
                 local ch = player.Character
                 if ch and ch:FindFirstChild("Head") then
@@ -1976,6 +1976,9 @@ local function BuildHat(char)
         end)
     end)
 end
+
+getgenv().ELITE_HUB_BuildHat = BuildHat
+getgenv().ELITE_HUB_RemoveHat = RemoveHat
 
 MT:CreateToggle({
     Name = " Chinese Hat",
@@ -2449,12 +2452,8 @@ local function DestroyScript()
     -- Stop Chinese Hat
     pcall(function() if hatConn then hatConn:Disconnect() hatConn = nil end end)
     pcall(function()
-        local ch = player.Character
-        if ch then
-            for _, obj in ipairs(ch:GetDescendants()) do
-                if obj.Name == "ELITEHUB_CHINESE_HAT" then obj:Destroy() end
-            end
-        end
+        local hatobj = workspace:FindFirstChild("ELITEHUB_CHINESE_HAT")
+        if hatobj then hatobj:Destroy() end
     end)
 
     -- Stop Fly
@@ -2487,15 +2486,6 @@ local function DestroyScript()
         end
     end)
     pcall(function() getgenv().ELITE_HUB_MusicCache = {} end)
-
-    -- Stop FPS Overlay
-    pcall(function() getgenv().ELITE_HUB_FpsOverlay = false end)
-    pcall(function()
-        if getgenv().ELITE_HUB_FpsOverlayGui then
-            getgenv().ELITE_HUB_FpsOverlayGui:Destroy()
-            getgenv().ELITE_HUB_FpsOverlayGui = nil
-        end
-    end)
 
     -- Stop Anti-AFK / Rejoin
     pcall(function() if getgenv().ELITE_HUB_AntiAfkConn then getgenv().ELITE_HUB_AntiAfkConn:Disconnect() end end)
@@ -7957,7 +7947,8 @@ task.spawn(function()
     local function SaveOriginals(plr)
         local ch = plr.Character
         if not ch then return end
-        origMats[plr] = {}
+        if origMats[plr] and origMats[plr]._ch == ch then return end
+        origMats[plr] = { _ch = ch }
         for _, part in ipairs(ch:GetDescendants()) do
             if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" then
                 local data = {Material = part.Material, Color = part.Color, Transparency = part.Transparency, CastShadow = part.CastShadow}
@@ -7985,13 +7976,16 @@ task.spawn(function()
             if part:IsA("Texture") then
                 origMats[plr][part] = {Transparency = part.Transparency}
             end
+            if part:IsA("Decal") then
+                origMats[plr][part] = {Transparency = part.Transparency}
+            end
         end
     end
 
     local function RestoreOriginals(plr)
         if origMats[plr] then
             for part, data in pairs(origMats[plr]) do
-                if part and part.Parent then
+                if part ~= "_ch" and part and part.Parent then
                     pcall(function()
                         if part:IsA("BasePart") then
                             part.Material = data.Material
@@ -8007,6 +8001,8 @@ task.spawn(function()
                         elseif part:IsA("SurfaceAppearance") then
                             part.Enabled = data.Enabled
                         elseif part:IsA("Texture") then
+                            part.Transparency = data.Transparency
+                        elseif part:IsA("Decal") then
                             part.Transparency = data.Transparency
                         end
                     end)
@@ -8103,6 +8099,7 @@ task.spawn(function()
                 end
                 if part:IsA("SurfaceAppearance") then pcall(function() part.Enabled = false end) end
                 if part:IsA("Texture") then pcall(function() part.Transparency = 1 end) end
+                if part:IsA("Decal") then pcall(function() part.Transparency = 1 end) end
             end
         end
     end
@@ -8115,27 +8112,28 @@ task.spawn(function()
         RestoreOriginals(plr)
     end)
 
-    for _, plr in ipairs(Players:GetPlayers()) do
-        if plr ~= player then
-            plr.CharacterAdded:Connect(function(char)
-                origMats[plr] = nil
-                task.wait(1)
-                if ESPConfig.ChamsEnabled then
-                    pcall(ApplyCham, plr)
+    local function SetupPlayer(plr)
+        plr.CharacterAdded:Connect(function()
+            origMats[plr] = nil
+            task.spawn(function()
+                for _ = 1, 20 do
+                    task.wait(0.5)
+                    if not ESPConfig.ChamsEnabled then return end
+                    local c = plr.Character
+                    if c and c:FindFirstChildOfClass("Humanoid") then
+                        pcall(ApplyCham, plr)
+                        return
+                    end
                 end
             end)
-        end
+        end)
     end
 
-    Players.PlayerAdded:Connect(function(plr)
-        plr.CharacterAdded:Connect(function(char)
-            origMats[plr] = nil
-            task.wait(1)
-            if ESPConfig.ChamsEnabled then
-                pcall(ApplyCham, plr)
-            end
-        end)
-    end)
+    for _, plr in ipairs(Players:GetPlayers()) do
+        SetupPlayer(plr)
+    end
+
+    Players.PlayerAdded:Connect(SetupPlayer)
 
     RunService.RenderStepped:Connect(function()
         for _, plr in ipairs(Players:GetPlayers()) do
@@ -9300,7 +9298,7 @@ local function UpdateDropdown()
     end
 end
 
-TeleportTab:CreateSection("")
+TeleportTab:CreateSection("🪐 PLAYERS")
 onlineLabel = TeleportTab:CreateLabel(" Players online: 0")
 dropdown = TeleportTab:CreateDropdown({
     Name = "Select a player",
@@ -10601,78 +10599,6 @@ MT = UtilitiesTab
 getgenv().ELITE_HUB_Log("UI", "Section loaded: UTILS")
 MT:CreateSection("🔧 UTILITIES")
 
-getgenv().ELITE_HUB_FpsOverlay = false
-MT:CreateToggle({
-    Name = " FPS / Ping Overlay",
-    CurrentValue = false,
-    Callback = function(value)
-        getgenv().ELITE_HUB_FpsOverlay = value
-        getgenv().ELITE_HUB_Log("MODS", "FPS Overlay: " .. tostring(value))
-        if value then
-            task.spawn(function()
-                if getgenv().ELITE_HUB_FpsOverlayGui then
-                    pcall(function() getgenv().ELITE_HUB_FpsOverlayGui:Destroy() end)
-                    getgenv().ELITE_HUB_FpsOverlayGui = nil
-                end
-                local gui = Instance.new("ScreenGui")
-                gui.Name = "EliteHubFpsOverlay"
-                gui.ResetOnSpawn = false
-                gui.IgnoreGuiInset = true
-                gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-                gui.Parent = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
-                getgenv().ELITE_HUB_FpsOverlayGui = gui
-                local lbl = Instance.new("TextLabel")
-                lbl.Size = UDim2.new(0, 220, 0, 30)
-                lbl.Position = UDim2.new(0, 15, 0, 8)
-                lbl.BackgroundColor3 = Color3.fromRGB(30, 20, 50)
-                lbl.BackgroundTransparency = 0.3
-                lbl.TextColor3 = Color3.fromRGB(220, 180, 255)
-                lbl.TextSize = 13
-                lbl.Font = Enum.Font.GothamBold
-                lbl.TextStrokeTransparency = 0.6
-                Instance.new("UICorner", lbl).CornerRadius = UDim.new(0, 8)
-                lbl.Parent = gui
-                task.spawn(function()
-                    local fpsAcc = 0
-                    local fpsFrames = 0
-                    local conn = game:GetService("RunService").RenderStepped:Connect(function(dt)
-                        fpsAcc = fpsAcc + dt
-                        fpsFrames = fpsFrames + 1
-                    end)
-                    while getgenv().ELITE_HUB_FpsOverlay and gui and gui.Parent do
-                        task.wait(0.5)
-                        pcall(function()
-                            local ping = 0
-                            pcall(function()
-                                ping = math.round(game:GetService("Stats").Network.ServerStats["Data Ping"]:GetValue())
-                            end)
-                            local online = 0
-                            for _, p in ipairs(game:GetService("Players"):GetPlayers()) do
-                                online = online + 1
-                            end
-                            local fps = fpsFrames / math.max(fpsAcc, 0.0001)
-                            lbl.Text = "🌟 ELITE HUB 14.0 | FPS: " .. math.round(fps) .. " | Ping: " .. ping .. "ms | Players: " .. online
-                            fpsAcc = 0
-                            fpsFrames = 0
-                        end)
-                    end
-                    conn:Disconnect()
-                    pcall(function()
-                        if gui and gui.Parent then gui:Destroy() end
-                    end)
-                    if getgenv().ELITE_HUB_FpsOverlayGui == gui then getgenv().ELITE_HUB_FpsOverlayGui = nil end
-                end)
-            end)
-        else
-            if getgenv().ELITE_HUB_FpsOverlayGui then
-                pcall(function() getgenv().ELITE_HUB_FpsOverlayGui:Destroy() end)
-                getgenv().ELITE_HUB_FpsOverlayGui = nil
-            end
-        end
-    end
-})
-
-
 MT:CreateToggle({
     Name = " Anti-AFK",
     CurrentValue = true,
@@ -10798,30 +10724,6 @@ getgenv().ELITE_HUB_MusicRepeatOne = false
 getgenv().ELITE_HUB_MusicPlaybackSpeed = 1
 
 MusicTab:CreateSection("🎵 MUSIC PLAYER")
-MusicTab:CreateButton({
-    Name = " Load Playlist",
-    Callback = function()
-        task.spawn(function()
-            pcall(function()
-                local url = "https://raw.githubusercontent.com/blegbot1/ELITE-HUB-14.0-Universal/main/music/playlist.json"
-                local json = game:HttpGet(url)
-                local HttpService = game:GetService("HttpService")
-                getgenv().ELITE_HUB_MusicPlaylist = HttpService:JSONDecode(json)
-                local names = {}
-                for _, track in ipairs(getgenv().ELITE_HUB_MusicPlaylist) do
-                    table.insert(names, track.name)
-                end
-                musicDropdown:Refresh(names)
-                getgenv().ELITE_HUB_Log("MUSIC", "Loaded " .. #getgenv().ELITE_HUB_MusicPlaylist .. " tracks")
-                Rayfield:Notify({
-                    Title = "🎵 Playlist Loaded",
-                    Content = #getgenv().ELITE_HUB_MusicPlaylist .. " tracks available",
-                    Duration = 3
-                })
-            end)
-        end)
-    end
-})
 
 local musicDropdown = MusicTab:CreateDropdown({
     Name = " Select Track",
@@ -10918,24 +10820,6 @@ MusicTab:CreateSlider({
             getgenv().ELITE_HUB_MusicPlayer.PlaybackSpeed = value
         end
         getgenv().ELITE_HUB_Log("MUSIC", "Speed: " .. value)
-    end
-})
-
-MusicTab:CreateToggle({
-    Name = " Shuffle",
-    CurrentValue = false,
-    Callback = function(value)
-        getgenv().ELITE_HUB_MusicShuffle = value
-        getgenv().ELITE_HUB_Log("MUSIC", "Shuffle: " .. tostring(value))
-    end
-})
-
-MusicTab:CreateToggle({
-    Name = " Repeat One",
-    CurrentValue = false,
-    Callback = function(value)
-        getgenv().ELITE_HUB_MusicRepeatOne = value
-        getgenv().ELITE_HUB_Log("MUSIC", "Repeat One: " .. tostring(value))
     end
 })
 
@@ -12634,8 +12518,8 @@ task.spawn(function()
 
             -- Chinese Hat
             if getgenv().ELITE_HUB_ChineseHatOn then
-                if not ch:FindFirstChild("ELITEHUB_CHINESE_HAT") then
-                    pcall(function() BuildHat(ch) end)
+                if not workspace:FindFirstChild("ELITEHUB_CHINESE_HAT") then
+                    pcall(function() getgenv().ELITE_HUB_BuildHat(ch) end)
                 end
             end
 

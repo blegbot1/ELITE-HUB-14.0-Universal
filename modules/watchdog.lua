@@ -25,8 +25,8 @@ task.spawn(function()
 
             -- Chinese Hat
             if getgenv().ELITE_HUB_ChineseHatOn then
-                if not ch:FindFirstChild("ELITEHUB_CHINESE_HAT") then
-                    pcall(function() BuildHat(ch) end)
+                if not workspace:FindFirstChild("ELITEHUB_CHINESE_HAT") then
+                    pcall(function() getgenv().ELITE_HUB_BuildHat(ch) end)
                 end
             end
 

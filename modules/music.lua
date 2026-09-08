@@ -122,30 +122,6 @@ getgenv().ELITE_HUB_MusicRepeatOne = false
 getgenv().ELITE_HUB_MusicPlaybackSpeed = 1
 
 MusicTab:CreateSection("🎵 MUSIC PLAYER")
-MusicTab:CreateButton({
-    Name = " Load Playlist",
-    Callback = function()
-        task.spawn(function()
-            pcall(function()
-                local url = "https://raw.githubusercontent.com/blegbot1/ELITE-HUB-14.0-Universal/main/music/playlist.json"
-                local json = game:HttpGet(url)
-                local HttpService = game:GetService("HttpService")
-                getgenv().ELITE_HUB_MusicPlaylist = HttpService:JSONDecode(json)
-                local names = {}
-                for _, track in ipairs(getgenv().ELITE_HUB_MusicPlaylist) do
-                    table.insert(names, track.name)
-                end
-                musicDropdown:Refresh(names)
-                getgenv().ELITE_HUB_Log("MUSIC", "Loaded " .. #getgenv().ELITE_HUB_MusicPlaylist .. " tracks")
-                Rayfield:Notify({
-                    Title = "🎵 Playlist Loaded",
-                    Content = #getgenv().ELITE_HUB_MusicPlaylist .. " tracks available",
-                    Duration = 3
-                })
-            end)
-        end)
-    end
-})
 
 local musicDropdown = MusicTab:CreateDropdown({
     Name = " Select Track",
@@ -242,24 +218,6 @@ MusicTab:CreateSlider({
             getgenv().ELITE_HUB_MusicPlayer.PlaybackSpeed = value
         end
         getgenv().ELITE_HUB_Log("MUSIC", "Speed: " .. value)
-    end
-})
-
-MusicTab:CreateToggle({
-    Name = " Shuffle",
-    CurrentValue = false,
-    Callback = function(value)
-        getgenv().ELITE_HUB_MusicShuffle = value
-        getgenv().ELITE_HUB_Log("MUSIC", "Shuffle: " .. tostring(value))
-    end
-})
-
-MusicTab:CreateToggle({
-    Name = " Repeat One",
-    CurrentValue = false,
-    Callback = function(value)
-        getgenv().ELITE_HUB_MusicRepeatOne = value
-        getgenv().ELITE_HUB_Log("MUSIC", "Repeat One: " .. tostring(value))
     end
 })
 

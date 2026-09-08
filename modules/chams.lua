@@ -23,7 +23,8 @@ task.spawn(function()
     local function SaveOriginals(plr)
         local ch = plr.Character
         if not ch then return end
-        origMats[plr] = {}
+        if origMats[plr] and origMats[plr]._ch == ch then return end
+        origMats[plr] = { _ch = ch }
         for _, part in ipairs(ch:GetDescendants()) do
             if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" then
                 local data = {Material = part.Material, Color = part.Color, Transparency = part.Transparency, CastShadow = part.CastShadow}
@@ -51,13 +52,16 @@ task.spawn(function()
             if part:IsA("Texture") then
                 origMats[plr][part] = {Transparency = part.Transparency}
             end
+            if part:IsA("Decal") then
+                origMats[plr][part] = {Transparency = part.Transparency}
+            end
         end
     end
 
     local function RestoreOriginals(plr)
         if origMats[plr] then
             for part, data in pairs(origMats[plr]) do
-                if part and part.Parent then
+                if part ~= "_ch" and part and part.Parent then
                     pcall(function()
                         if part:IsA("BasePart") then
                             part.Material = data.Material
@@ -73,6 +77,8 @@ task.spawn(function()
                         elseif part:IsA("SurfaceAppearance") then
                             part.Enabled = data.Enabled
                         elseif part:IsA("Texture") then
+                            part.Transparency = data.Transparency
+                        elseif part:IsA("Decal") then
                             part.Transparency = data.Transparency
                         end
                     end)
@@ -169,6 +175,7 @@ task.spawn(function()
                 end
                 if part:IsA("SurfaceAppearance") then pcall(function() part.Enabled = false end) end
                 if part:IsA("Texture") then pcall(function() part.Transparency = 1 end) end
+                if part:IsA("Decal") then pcall(function() part.Transparency = 1 end) end
             end
         end
     end
@@ -181,27 +188,28 @@ task.spawn(function()
         RestoreOriginals(plr)
     end)
 
-    for _, plr in ipairs(Players:GetPlayers()) do
-        if plr ~= player then
-            plr.CharacterAdded:Connect(function(char)
-                origMats[plr] = nil
-                task.wait(1)
-                if ESPConfig.ChamsEnabled then
-                    pcall(ApplyCham, plr)
+    local function SetupPlayer(plr)
+        plr.CharacterAdded:Connect(function()
+            origMats[plr] = nil
+            task.spawn(function()
+                for _ = 1, 20 do
+                    task.wait(0.5)
+                    if not ESPConfig.ChamsEnabled then return end
+                    local c = plr.Character
+                    if c and c:FindFirstChildOfClass("Humanoid") then
+                        pcall(ApplyCham, plr)
+                        return
+                    end
                 end
             end)
-        end
+        end)
     end
 
-    Players.PlayerAdded:Connect(function(plr)
-        plr.CharacterAdded:Connect(function(char)
-            origMats[plr] = nil
-            task.wait(1)
-            if ESPConfig.ChamsEnabled then
-                pcall(ApplyCham, plr)
-            end
-        end)
-    end)
+    for _, plr in ipairs(Players:GetPlayers()) do
+        SetupPlayer(plr)
+    end
+
+    Players.PlayerAdded:Connect(SetupPlayer)
 
     RunService.RenderStepped:Connect(function()
         for _, plr in ipairs(Players:GetPlayers()) do

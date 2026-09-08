@@ -440,7 +440,7 @@ local function RemoveHat(char)
     if hatConn then hatConn:Disconnect() hatConn = nil end
     hatParts = {}
     hatSpinParts = {}
-    local old = char and char:FindFirstChild("ELITEHUB_CHINESE_HAT")
+    local old = workspace:FindFirstChild("ELITEHUB_CHINESE_HAT")
     if old then pcall(function() old:Destroy() end) end
 end
 
@@ -475,7 +475,7 @@ local function BuildHat(char)
 
     local hat = Instance.new("Model")
     hat.Name = "ELITEHUB_CHINESE_HAT"
-    hat.Parent = char
+    hat.Parent = workspace
 
     local R = getgenv().ELITE_HUB_ChineseHatR
     local H = getgenv().ELITE_HUB_ChineseHatConeH
@@ -547,7 +547,7 @@ local function BuildHat(char)
                 hatConn = nil
                 return
             end
-            local h = char and char:FindFirstChild("ELITEHUB_CHINESE_HAT")
+            local h = workspace:FindFirstChild("ELITEHUB_CHINESE_HAT")
             if not h then
                 local ch = player.Character
                 if ch and ch:FindFirstChild("Head") then
@@ -574,6 +574,9 @@ local function BuildHat(char)
         end)
     end)
 end
+
+getgenv().ELITE_HUB_BuildHat = BuildHat
+getgenv().ELITE_HUB_RemoveHat = RemoveHat
 
 MT:CreateToggle({
     Name = " Chinese Hat",
@@ -696,12 +699,8 @@ local function DestroyScript()
     -- Stop Chinese Hat
     pcall(function() if hatConn then hatConn:Disconnect() hatConn = nil end end)
     pcall(function()
-        local ch = player.Character
-        if ch then
-            for _, obj in ipairs(ch:GetDescendants()) do
-                if obj.Name == "ELITEHUB_CHINESE_HAT" then obj:Destroy() end
-            end
-        end
+        local hatobj = workspace:FindFirstChild("ELITEHUB_CHINESE_HAT")
+        if hatobj then hatobj:Destroy() end
     end)
 
     -- Stop Fly
@@ -734,15 +733,6 @@ local function DestroyScript()
         end
     end)
     pcall(function() getgenv().ELITE_HUB_MusicCache = {} end)
-
-    -- Stop FPS Overlay
-    pcall(function() getgenv().ELITE_HUB_FpsOverlay = false end)
-    pcall(function()
-        if getgenv().ELITE_HUB_FpsOverlayGui then
-            getgenv().ELITE_HUB_FpsOverlayGui:Destroy()
-            getgenv().ELITE_HUB_FpsOverlayGui = nil
-        end
-    end)
 
     -- Stop Anti-AFK / Rejoin
     pcall(function() if getgenv().ELITE_HUB_AntiAfkConn then getgenv().ELITE_HUB_AntiAfkConn:Disconnect() end end)
