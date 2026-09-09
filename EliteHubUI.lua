@@ -1,12 +1,12 @@
--- EliteHubUI.lua — Custom UI library in mini-menu style
--- Dark purple theme with tabs, buttons, toggles, sliders, inputs, dropdowns, color pickers
+-- моя UI либа в стиле мини-меню (позже переделаю, не трогать)
+-- тёмно-фиолетовая тема: вкладки, кнопки, тогглы, слайдеры, инпуты, дропдауны, пикеры цвета
 
 local EliteHubUI = {}
 EliteHubUI.__index = EliteHubUI
 
 local TweenService = game:GetService("TweenService")
 
--- Colors (same as mini menu)
+-- цвета из мини-меню
 local C = {
     BG = Color3.fromRGB(16, 11, 30),
     BG2 = Color3.fromRGB(25, 18, 45),
@@ -25,6 +25,7 @@ local C = {
     ScrollBar = Color3.fromRGB(95, 60, 165),
     Field = Color3.fromRGB(46, 34, 76),
 }
+-- (цвета не менять - проверено на себе)
 
 local function newCorner(parent, r)
     local c = Instance.new("UICorner")
@@ -80,7 +81,7 @@ local function addScroll(frame)
     return sg
 end
 
--- ==================== WINDOW ====================
+-- ======= окно =======
 function EliteHubUI:CreateWindow(config)
     local self = setmetatable({}, EliteHubUI)
     self._tabs = {}
@@ -283,7 +284,7 @@ function EliteHubUI:CreateWindow(config)
     return self
 end
 
--- ==================== TAB ====================
+-- ======= вкладки =======
 function EliteHubUI:CreateTab(name, icon)
     local tab = {}
     tab._order = 0
@@ -1086,7 +1087,7 @@ function EliteHubUI:CreateTab(name, icon)
     return tab
 end
 
--- ==================== NOTIFY ====================
+-- ======= уведомления =======
 local notifStack = 0
 
 function EliteHubUI:Notify(config)
@@ -1170,7 +1171,7 @@ function EliteHubUI:Notify(config)
     end)
 end
 
--- ==================== DESTROY ====================
+-- ======= уничтожить =======
 function EliteHubUI:Destroy()
     if self._gui then
         self._gui:Destroy()
