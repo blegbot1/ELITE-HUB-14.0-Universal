@@ -18,6 +18,7 @@ local NewOverlayCircle = _g().ELITE_HUB_NewOverlayCircle
 local NewOverlayLine = _g().ELITE_HUB_NewOverlayLine
 local IsFriend = _g().ELITE_HUB_IsFriend
 local IsFriendName = _g().ELITE_HUB_IsFriendName
+local GetPlayerRelation = _g().ELITE_HUB_GetPlayerRelation or GetTeamRelation
 local UpdateSkeletonLines = _g().ELITE_HUB_UpdateSkeletonLines
 
 --[[
@@ -174,7 +175,7 @@ local function UpdateESPArrows()
                         if isDead then
                             arrowColor = ESPConfig.DeadColor
                         else
-                            local teamRel = GetTeamRelation(targetPlayer)
+                            local teamRel = GetPlayerRelation(targetPlayer)
                             local isFriend = IsFriend(targetPlayer)
                             local isLockTarget = ESPConfig.HighlightLockTarget and LockedTargetPlayer == targetPlayer
                             if isLockTarget then
@@ -459,7 +460,7 @@ local function CreatePlayerESP(targetPlayer)
     local isTeammate = IsTeammate(targetPlayer)
     local isFriend = IsFriend(targetPlayer)
     local isTarget = ESPConfig.HighlightTarget and GetTargetPlayer() == targetPlayer
-    local teamRel = GetTeamRelation(targetPlayer)
+    local teamRel = GetPlayerRelation(targetPlayer)
     local fillColor
     if isTarget then
         fillColor = ESPConfig.FriendColor
@@ -618,7 +619,7 @@ local function UpdateESPText()
                 local isFriend = IsFriend(targetPlayer)
                 local isTarget = ESPConfig.HighlightTarget and cachedTarget == targetPlayer
                 local isLockTarget = ESPConfig.HighlightLockTarget and LockedTargetPlayer == targetPlayer
-                local teamRel = GetTeamRelation(targetPlayer)
+                local teamRel = GetPlayerRelation(targetPlayer)
                 local fillColor
                 if isLockTarget then
                     fillColor = ESPConfig.LockTargetColor
@@ -796,6 +797,7 @@ local function UpdateESP()
         end
     end
 end
+getgenv().ELITE_HUB_UpdateESP = UpdateESP
 
 local function RefreshESPOnRespawn()
     if not ESPConfig.Enabled then return end
@@ -1335,277 +1337,7 @@ ESPTab:CreateColorPicker({
     end
 })
 
-ESPTab:CreateSection(" TEAMS (friends / enemies)")
-
-local espMyTeamLabel = ESPTab:CreateLabel(" Your team: ")
-local function UpdateEspMyTeamLabel()
-    local tn = GetTeamName(player)
-    pcall(function()
-        espMyTeamLabel:Set("  : " .. (tn or ""))
-    end)
-end
-
-task.delay(0.5, UpdateEspMyTeamLabel)
-pcall(function()
-    if player and player.TeamChanged and player.TeamChanged.Connect then
-        player.TeamChanged:Connect(function()
-            UpdateEspMyTeamLabel()
-        end)
-    end
-end)
-
-local espTeamDD = nil
-local espSelectedTeam = ""
-local function RefreshEspTeamDD()
-    if not espTeamDD then return end
-    local opts = GetAllTeamNames()
-    pcall(function() espTeamDD:Refresh(opts) end)
-    UpdateEspMyTeamLabel()
-end
-
-espTeamDD = ESPTab:CreateDropdown({
-    Name = " Team",
-    Options = GetAllTeamNames(),
-    CurrentOption = "",
-    Callback = function(option)
-        local n = option
-        if typeof(option) == "table" then n = option[1] end
-        espSelectedTeam = n or ""
-    end
-})
-
-ESPTab:CreateLabel(" Friendly = blue, enemy = red")
-
-ESPTab:CreateButton({
-    Name = " Make team friendly",
-    Callback = function()
-        local n = espSelectedTeam
-        if not n or n == "" then
-            Rayfield:Notify({ Title = "👥 Friends", Content = "Lock enabled", Duration = 2 })
-            return
-        end
-        local res = ToggleFriendTeam(n)
-        if res == "added" then
-            Rayfield:Notify({ Title = " -", Content = n .. " added to friends", Duration = 2 })
-        else
-            Rayfield:Notify({ Title = "👥 Friends", Content = n .. " already friends", Duration = 2 })
-        end
-        pcall(RefreshEspTeamDD)
-        UpdateESP()
-    end
-})
-
-ESPTab:CreateButton({
-    Name = " Remove team from friends (enemy)",
-    Callback = function()
-        local n = espSelectedTeam
-        if not n or n == "" then
-            Rayfield:Notify({ Title = "👥 Friends", Content = "Lock enabled", Duration = 2 })
-            return
-        end
-        local list = getgenv().ELITE_HUB_FRIEND_TEAMS
-        for i = #list, 1, -1 do
-            if tostring(list[i]):lower() == n:lower() then
-                table.remove(list, i)
-            end
-        end
-        Rayfield:Notify({ Title = " -", Content = n .. " removed from friends", Duration = 2 })
-        pcall(RefreshEspTeamDD)
-        UpdateESP()
-    end
-})
-
-ESPTab:CreateButton({
-    Name = " Friendly teams",
-    Callback = function()
-        local list = getgenv().ELITE_HUB_FRIEND_TEAMS
-        if #list == 0 then
-            Rayfield:Notify({ Title = "👥 Friends", Content = "Friend list is empty", Duration = 2 })
-        else
-            Rayfield:Notify({ Title = "👥 Friends", Content = table.concat(list, ", "), Duration = 5 })
-        end
-    end
-})
-
-ESPTab:CreateButton({
-    Name = " All teams  enemies",
-    Callback = function()
-        getgenv().ELITE_HUB_FRIEND_TEAMS = {}
-        Rayfield:Notify({ Title = "👥 Friends", Content = "Enabled", Duration = 2 })
-        pcall(RefreshEspTeamDD)
-        UpdateESP()
-    end
-})
-
-ESPTab:CreateButton({
-    Name = " Refresh team list",
-    Callback = function()
-        pcall(RefreshEspTeamDD)
-        Rayfield:Notify({ Title = "👥 Friends", Content = "Lock disabled", Duration = 2 })
-    end
-})
-
-task.spawn(function()
-    while true do
-        task.wait(1)
-        UpdateEspMyTeamLabel()
-    end
-end)
-
-ESPTab:CreateSection(" FRIENDS & TARGET (select from list)")
-
-local espFriendAddDD = nil
-local espFriendRmDD = nil
-local espTargetDD = nil
-
-local function RefreshESPDD()
-    if espFriendAddDD then
-        local opts = {}
-        for _, p in ipairs(Players:GetPlayers()) do
-            if p ~= player and not IsFriend(p) then table.insert(opts, p.Name) end
-        end
-        table.sort(opts)
-        pcall(function() espFriendAddDD:Refresh(opts) end)
-    end
-    if espFriendRmDD then
-        local opts = {}
-        for _, n in ipairs(getgenv().ELITE_HUB_FRIENDS) do table.insert(opts, tostring(n)) end
-        table.sort(opts)
-        pcall(function() espFriendRmDD:Refresh(opts) end)
-    end
-    if espTargetDD then
-        local opts = {"()"}
-        local playersList = {}
-        for _, p in ipairs(Players:GetPlayers()) do
-            if p ~= player then table.insert(playersList, p.Name) end
-        end
-        table.sort(playersList)
-        for _, n in ipairs(playersList) do table.insert(opts, n) end
-        pcall(function() espTargetDD:Refresh(opts) end)
-    end
-end
-
-ESPTab:CreateToggle({
-    Name = " Hide friends in ESP",
-    CurrentValue = ESPConfig.FriendCheck,
-    Flag = "ESPFriendCheck",
-    Callback = function(value)
-        ESPConfig.FriendCheck = value
-        UpdateESP()
-    end
-})
-
-ESPTab:CreateToggle({
-    Name = " Highlight main target",
-    CurrentValue = ESPConfig.HighlightTarget,
-    Flag = "ESPHighlightTarget",
-    Callback = function(value)
-        ESPConfig.HighlightTarget = value
-        UpdateESP()
-    end
-})
-
-ESPTab:CreateColorPicker({
-    Name = " Friends / target color",
-    Color = ESPConfig.FriendColor,
-    Callback = function(value)
-        ESPConfig.FriendColor = value
-        UpdateESP()
-    end
-})
-
-espFriendAddDD = ESPTab:CreateDropdown({
-    Name = " Add player to friends",
-    Options = {},
-    CurrentOption = "",
-    Callback = function(option)
-        local n = option
-        if typeof(option) == "table" then n = option[1] end
-        if not n or n == "" then return end
-        if IsFriendName(n) then
-            Rayfield:Notify({ Title = "👥 Friends", Content = n .. " added to friends", Duration = 2 })
-        else
-            table.insert(getgenv().ELITE_HUB_FRIENDS, n)
-            Rayfield:Notify({ Title = "  ", Content = n, Duration = 2 })
-        end
-        if espFriendAddDD then pcall(function() espFriendAddDD:Clear() end) end
-        RefreshESPDD()
-        UpdateESP()
-    end
-})
-
-espFriendRmDD = ESPTab:CreateDropdown({
-    Name = " Remove friend (select)",
-    Options = {},
-    CurrentOption = "",
-    Callback = function(option)
-        local n = option
-        if typeof(option) == "table" then n = option[1] end
-        if not n or n == "" then return end
-        local list = getgenv().ELITE_HUB_FRIENDS
-        for i = #list, 1, -1 do
-            if tostring(list[i]):lower() == n:lower() then
-                table.remove(list, i)
-                Rayfield:Notify({ Title = "  ", Content = n, Duration = 2 })
-                break
-            end
-        end
-        if espFriendRmDD then pcall(function() espFriendRmDD:Clear() end) end
-        RefreshESPDD()
-        UpdateESP()
-    end
-})
-
-ESPTab:CreateButton({
-    Name = " Clear friends list",
-    Callback = function()
-        local cnt = #getgenv().ELITE_HUB_FRIENDS
-        getgenv().ELITE_HUB_FRIENDS = {}
-        Rayfield:Notify({ Title = "👥 Friends", Content = " : " .. cnt, Duration = 2 })
-        RefreshESPDD()
-        UpdateESP()
-    end
-})
-
-ESPTab:CreateButton({
-    Name = " Show friends list",
-    Callback = function()
-        local list = getgenv().ELITE_HUB_FRIENDS
-        if #list == 0 then
-            Rayfield:Notify({ Title = "👥 Friends", Content = "All friends cleared", Duration = 2 })
-            return
-        end
-        Rayfield:Notify({ Title = "  ", Content = table.concat(list, ", "), Duration = 6 })
-    end
-})
-
-espTargetDD = ESPTab:CreateDropdown({
-    Name = " Main target (highlight)",
-    Options = {"()"},
-    CurrentOption = "",
-    Callback = function(option)
-        local n = option
-        if typeof(option) == "table" then n = option[1] end
-        if n == "()" or n == nil or n == "" then
-            getgenv().ELITE_HUB_TARGET_NAME = ""
-            Rayfield:Notify({ Title = "👥 Friends", Content = " ( )", Duration = 2 })
-        else
-            getgenv().ELITE_HUB_TARGET_NAME = n
-            Rayfield:Notify({ Title = "  ", Content = n, Duration = 2 })
-        end
-        UpdateESP()
-    end
-})
-
-task.spawn(function()
-    while true do
-        task.wait(4)
-        RefreshESPDD()
-    end
-end)
-Players.PlayerAdded:Connect(RefreshESPDD)
-Players.PlayerRemoving:Connect(RefreshESPDD)
-task.delay(1, RefreshESPDD)
+-- (управление друзьями/врагами перенесено во вкладку ИГРОКИ)
 
 ESPTab:CreateSection("🔔 ESP NOTIFICATIONS")
 

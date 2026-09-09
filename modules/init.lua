@@ -408,6 +408,8 @@ local MusicTab = Window:CreateTab("🎵 " .. "MUSIC", 6022668888, "Music")
 getgenv().ELITE_HUB_Log("UI", "Tab loaded: MUSIC")
 getgenv().ELITE_HUB_ChamsTab = Window:CreateTab("🎨 " .. "CHAMS", 6026568198, "Chams")
 getgenv().ELITE_HUB_Log("UI", "Tab loaded: CHAMS")
+getgenv().ELITE_HUB_PlayersTab = Window:CreateTab("👥 " .. "ИГРОКИ", 6026568198, "Players")
+getgenv().ELITE_HUB_Log("UI", "Tab loaded: ИГРОКИ")
 
 MT = VisualTab
 
@@ -998,6 +1000,7 @@ loadModuleChunk("modules/main.lua")()
 loadModuleChunk("modules/aimbot.lua")()
 loadModuleChunk("modules/esp.lua")()
 loadModuleChunk("modules/chams.lua")()
+loadModuleChunk("modules/players.lua")()
 loadModuleChunk("modules/teleport.lua")()
 loadModuleChunk("modules/kill_all.lua")()
 loadModuleChunk("modules/visual.lua")()

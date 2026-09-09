@@ -43,6 +43,7 @@ local AimbotConfig = {
     FriendCheck = true,
     SpawnCheck = true,
     TeamFilter = true,
+    EnemyPriority = true,
     ShowTargetIndicator = true,
     ShowTargetArrow = false,
     ShowTargetHP = true,
@@ -478,6 +479,32 @@ function GetTeamRelation(p)
     return "enemy"
 end
 
+getgenv().ELITE_HUB_ENEMIES = getgenv().ELITE_HUB_ENEMIES or {}
+getgenv().ELITE_HUB_ENEMY_TEAMS = getgenv().ELITE_HUB_ENEMY_TEAMS or {}
+
+function GetPlayerRelation(p)
+    if not p then return "none" end
+    if p == player then return "my" end
+    local lname = tostring(p.Name or ""):lower()
+    for _, f in ipairs(getgenv().ELITE_HUB_FRIENDS) do
+        if tostring(f):lower() == lname then return "friend" end
+    end
+    for _, f in ipairs(getgenv().ELITE_HUB_ENEMIES) do
+        if tostring(f):lower() == lname then return "enemy" end
+    end
+    local tn = GetTeamName(p)
+    if tn then
+        for _, f in ipairs(getgenv().ELITE_HUB_FRIEND_TEAMS) do
+            if tostring(f):lower() == tn:lower() then return "friend" end
+        end
+        for _, f in ipairs(getgenv().ELITE_HUB_ENEMY_TEAMS) do
+            if tostring(f):lower() == tn:lower() then return "enemy" end
+        end
+    end
+    return GetTeamRelation(p)
+end
+_g().ELITE_HUB_GetPlayerRelation = GetPlayerRelation
+
 function GetAllTeamNames()
     local seen = {}
     local res = {}
@@ -593,13 +620,16 @@ local function GetClosestPlayer()
     local bestTargetPlayer = nil
     local bestScore = math.huge
     local bestHealth = math.huge
+    local bestEnemyTarget = nil
+    local bestEnemyPlayer = nil
+    local bestEnemyScore = math.huge
 
     for _, targetPlayer in ipairs(Players:GetPlayers()) do
         local skip = false
         if targetPlayer == localPlayer then skip = true end
         if not skip and not targetPlayer.Character then skip = true end
         if not skip and AimbotConfig.TeamCheck and targetPlayer.Team == localPlayer.Team then skip = true end
-        if not skip and AimbotConfig.FriendCheck and IsFriend(targetPlayer) then skip = true end
+        if not skip and AimbotConfig.FriendCheck and GetPlayerRelation(targetPlayer) == "friend" then skip = true end
         if not skip and AimbotConfig.TeamFilter and (IsFriendlyTeam(targetPlayer) or IsSameTeam(targetPlayer)) then skip = true end
 
         if not skip then
@@ -629,6 +659,12 @@ local function GetClosestPlayer()
                             else
                                 score = gameDistance
                             end
+                            local isEnemy = AimbotConfig.EnemyPriority and GetPlayerRelation(targetPlayer) == "enemy"
+                            if isEnemy and score < bestEnemyScore then
+                                bestEnemyScore = score
+                                bestEnemyTarget = targetPart
+                                bestEnemyPlayer = targetPlayer
+                            end
                             if score < bestScore then
                                 bestScore = score
                                 bestHealth = hp
@@ -642,9 +678,15 @@ local function GetClosestPlayer()
         end
     end
 
-    if bestTarget and bestTargetPlayer then
-        LockedTargetPlayer = bestTargetPlayer
-        return bestTarget
+    local chosen = bestEnemyTarget
+    local chosenPlayer = bestEnemyPlayer
+    if not chosen then
+        chosen = bestTarget
+        chosenPlayer = bestTargetPlayer
+    end
+    if chosen and chosenPlayer then
+        LockedTargetPlayer = chosenPlayer
+        return chosen
     end
 
     return nil
@@ -1305,52 +1347,7 @@ CombatTab:CreateToggle({
     end
 })
 
-CombatTab:CreateSection("🤝 TEAMS (friends / enemies)")
-
-local myTeamLabel = CombatTab:CreateLabel(" Your team: ")
-local function UpdateMyTeamLabel()
-    local tn = GetTeamName(player)
-    pcall(function()
-        myTeamLabel:Set("  : " .. (tn or ""))
-    end)
-end
-
-local teamDD = nil
-local selectedTeam = ""
-local function RefreshTeamDD()
-    if not teamDD then return end
-    local opts = GetAllTeamNames()
-    pcall(function() teamDD:Refresh(opts) end)
-    UpdateMyTeamLabel()
-end
-
-teamDD = CombatTab:CreateDropdown({
-    Name = " Team",
-    Options = GetAllTeamNames(),
-    CurrentOption = "",
-    Callback = function(option)
-        local n = option
-        if typeof(option) == "table" then n = option[1] end
-        selectedTeam = n or ""
-    end
-})
-
-task.delay(0.5, UpdateMyTeamLabel)
-pcall(function()
-    if player and player.TeamChanged and player.TeamChanged.Connect then
-        player.TeamChanged:Connect(function()
-            UpdateMyTeamLabel()
-        end)
-    end
-end)
-UpdateMyTeamLabel()
-
-task.spawn(function()
-    while true do
-        task.wait(1)
-        UpdateMyTeamLabel()
-    end
-end)
+CombatTab:CreateSection("🎯 LOCK OPTIONS")
 
 CombatTab:CreateToggle({
     Name = " Don't aim at friendlies",
@@ -1358,117 +1355,6 @@ CombatTab:CreateToggle({
     Flag = "AimbotTeamFilter",
     Callback = function(value)
         AimbotConfig.TeamFilter = value
-    end
-})
-
-CombatTab:CreateButton({
-    Name = " Make team friendly",
-    Callback = function()
-        local n = selectedTeam
-        if not n or n == "" then
-            Rayfield:Notify({ Title = "👥 Friends", Content = "Lock enabled", Duration = 2 })
-            return
-        end
-        local res = ToggleFriendTeam(n)
-        if res == "added" then
-            Rayfield:Notify({ Title = " -", Content = n .. " added to friends", Duration = 2 })
-        else
-            Rayfield:Notify({ Title = "👥 Friends", Content = n .. " already friends", Duration = 2 })
-        end
-        pcall(RefreshTeamDD)
-        pcall(UpdateESP)
-    end
-})
-
-CombatTab:CreateButton({
-    Name = " Remove team from friends (enemy)",
-    Callback = function()
-        local n = selectedTeam
-        if not n or n == "" then
-            Rayfield:Notify({ Title = "👥 Friends", Content = "Lock enabled", Duration = 2 })
-            return
-        end
-        local list = getgenv().ELITE_HUB_FRIEND_TEAMS
-        for i = #list, 1, -1 do
-            if tostring(list[i]):lower() == n:lower() then
-                table.remove(list, i)
-            end
-        end
-        Rayfield:Notify({ Title = " -", Content = n .. " removed from friends", Duration = 2 })
-        pcall(RefreshTeamDD)
-        pcall(UpdateESP)
-    end
-})
-
-CombatTab:CreateButton({
-    Name = " Friendly teams",
-    Callback = function()
-        local list = getgenv().ELITE_HUB_FRIEND_TEAMS
-        if #list == 0 then
-            Rayfield:Notify({ Title = "👥 Friends", Content = "Friend list is empty", Duration = 2 })
-        else
-            Rayfield:Notify({ Title = "👥 Friends", Content = table.concat(list, ", "), Duration = 5 })
-        end
-    end
-})
-
-CombatTab:CreateButton({
-    Name = " All teams  enemies",
-    Callback = function()
-        getgenv().ELITE_HUB_FRIEND_TEAMS = {}
-        Rayfield:Notify({ Title = "👥 Friends", Content = "Enabled", Duration = 2 })
-        pcall(RefreshTeamDD)
-        pcall(UpdateESP)
-    end
-})
-
-CombatTab:CreateButton({
-    Name = " Refresh team list",
-    Callback = function()
-        pcall(RefreshTeamDD)
-        Rayfield:Notify({ Title = "👥 Friends", Content = "Lock disabled", Duration = 2 })
-    end
-})
-
-CombatTab:CreateSection("👥 FRIENDS & TARGET (select from list)")
-
-local friendAddDD = nil
-local friendRmDD = nil
-local friendTargetDD = nil
-
-local function RefreshAimbotDD()
-    if friendAddDD then
-        local opts = {}
-        for _, p in ipairs(Players:GetPlayers()) do
-            if p ~= player and not IsFriend(p) then table.insert(opts, p.Name) end
-        end
-        table.sort(opts)
-        pcall(function() friendAddDD:Refresh(opts) end)
-    end
-    if friendRmDD then
-        local opts = {}
-        for _, n in ipairs(getgenv().ELITE_HUB_FRIENDS) do table.insert(opts, tostring(n)) end
-        table.sort(opts)
-        pcall(function() friendRmDD:Refresh(opts) end)
-    end
-    if friendTargetDD then
-        local opts = {"()"}
-        local playersList = {}
-        for _, p in ipairs(Players:GetPlayers()) do
-            if p ~= player then table.insert(playersList, p.Name) end
-        end
-        table.sort(playersList)
-        for _, n in ipairs(playersList) do table.insert(opts, n) end
-        pcall(function() friendTargetDD:Refresh(opts) end)
-    end
-end
-
-CombatTab:CreateToggle({
-    Name = " Don't aim at friends",
-    CurrentValue = AimbotConfig.FriendCheck,
-    Flag = "AimbotFriendCheck",
-    Callback = function(value)
-        AimbotConfig.FriendCheck = value
     end
 })
 
@@ -1481,69 +1367,27 @@ CombatTab:CreateToggle({
     end
 })
 
-friendAddDD = CombatTab:CreateDropdown({
-    Name = " Add player to friends",
-    Options = {},
-    CurrentOption = "",
-    Callback = function(option)
-        local n = option
-        if typeof(option) == "table" then n = option[1] end
-        if not n or n == "" then return end
-        if IsFriendName(n) then
-            Rayfield:Notify({ Title = "👥 Friends", Content = n .. " added to friends", Duration = 2 })
-        else
-            table.insert(getgenv().ELITE_HUB_FRIENDS, n)
-            Rayfield:Notify({ Title = "  ", Content = n, Duration = 2 })
-        end
-        if friendAddDD then pcall(function() friendAddDD:Clear() end) end
-        RefreshAimbotDD()
+CombatTab:CreateToggle({
+    Name = " Enemy priority",
+    CurrentValue = AimbotConfig.EnemyPriority,
+    Flag = "AimbotEnemyPriority",
+    Callback = function(value)
+        AimbotConfig.EnemyPriority = value
     end
 })
 
-friendRmDD = CombatTab:CreateDropdown({
-    Name = " Remove friend (select)",
-    Options = {},
-    CurrentOption = "",
-    Callback = function(option)
-        local n = option
-        if typeof(option) == "table" then n = option[1] end
-        if not n or n == "" then return end
-        local list = getgenv().ELITE_HUB_FRIENDS
-        for i = #list, 1, -1 do
-            if tostring(list[i]):lower() == n:lower() then
-                table.remove(list, i)
-                Rayfield:Notify({ Title = "  ", Content = n, Duration = 2 })
-                break
-            end
-        end
-        if friendRmDD then pcall(function() friendRmDD:Clear() end) end
-        RefreshAimbotDD()
+local targetDD = nil
+local function RefreshTargetDD()
+    if not targetDD then return end
+    local opts = {"()"}
+    for _, p in ipairs(Players:GetPlayers()) do
+        if p ~= player then table.insert(opts, p.Name) end
     end
-})
+    table.sort(opts)
+    pcall(function() targetDD:Refresh(opts) end)
+end
 
-CombatTab:CreateButton({
-    Name = " Clear friends list",
-    Callback = function()
-        local cnt = #getgenv().ELITE_HUB_FRIENDS
-        getgenv().ELITE_HUB_FRIENDS = {}
-        Rayfield:Notify({ Title = "👥 Friends", Content = " : " .. cnt, Duration = 2 })
-        RefreshAimbotDD()
-    end
-})
-
-CombatTab:CreateButton({
-    Name = " Show friends list",
-    Callback = function()
-        local list = getgenv().ELITE_HUB_FRIENDS
-        if #list == 0 then
-            Rayfield:Notify({ Title = "👥 Friends", Content = "All friends cleared", Duration = 2 })
-            return
-        end
-        Rayfield:Notify({ Title = "  ", Content = table.concat(list, ", "), Duration = 6 })
-    end
-})
-
-friendTargetDD = CombatTab:CreateDropdown({
+targetDD = CombatTab:CreateDropdown({
     Name = " Main target (always first)",
     Options = {"()"},
     CurrentOption = "",
@@ -1552,10 +1396,8 @@ friendTargetDD = CombatTab:CreateDropdown({
         if typeof(option) == "table" then n = option[1] end
         if n == "()" or n == nil or n == "" then
             getgenv().ELITE_HUB_TARGET_NAME = ""
-            Rayfield:Notify({ Title = "👥 Friends", Content = " ( )", Duration = 2 })
         else
             getgenv().ELITE_HUB_TARGET_NAME = n
-            Rayfield:Notify({ Title = "  ", Content = n, Duration = 2 })
         end
     end
 })
@@ -1563,9 +1405,9 @@ friendTargetDD = CombatTab:CreateDropdown({
 task.spawn(function()
     while true do
         task.wait(4)
-        RefreshAimbotDD()
+        RefreshTargetDD()
     end
 end)
-Players.PlayerAdded:Connect(RefreshAimbotDD)
-Players.PlayerRemoving:Connect(RefreshAimbotDD)
-task.delay(1, RefreshAimbotDD)
+Players.PlayerAdded:Connect(RefreshTargetDD)
+Players.PlayerRemoving:Connect(RefreshTargetDD)
+task.delay(1, RefreshTargetDD)

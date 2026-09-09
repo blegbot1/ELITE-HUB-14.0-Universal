@@ -12,6 +12,7 @@ modules/                     — Разбитые модули (для разр�
 ├── main.lua                 — Основные функции (WallHop, Fly, Noclip, Spin)
 ├── aimbot.lua               — Аимбот 3D FOV
 ├── esp.lua                  — ESP (Box, Name, HP, Skeleton, Tracers, Max Distance)
+├── players.lua              — Вкладка ИГРОКИ (друзья/враги, команды, аватары, HP, цвета)
 ├── chams.lua                — Чамсы (Player, Rainbow, Weapon)
 ├── visual.lua               — Визуал (Particles, Neon, Hit Effects, Fire Trail)
 ├── visual_plus.lua          — Визуал+ (VFX: Vignette, Pulse Ring, HP Bar)
@@ -48,15 +49,16 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/blegbot1/ELITE-HUB-14
 
 ## Функции
 
-- **ESP**: Box, Name, Health, Distance, Tracers, Skeleton, 3D Box, Arrows, Head Dots, Max Distance
-- **Aimbot**: 3D FOV, Prediction, Auto-Shoot, Anti-Aim Detect, Target Indicator
+- **ESP**: Box, Name, Health, Distance, Tracers, Skeleton, 3D Box, Arrows, Head Dots, Max Distance, друзья — синие / враги — красные
+- **Aimbot**: 3D FOV, Prediction, Auto-Shoot, Anti-Aim Detect, Target Indicator, приоритет врагов
+- **Игроки**: единая вкладка — выбор игроков/команд в друзья и враги, аватары, HP, список
 - **Chams**: Player Chams, Rainbow Chams, Weapon Chams
 - **Visual**: Particles (35 типов), Neon Body, Night Mode, X-Ray, Vignette, Pulse Ring
 - **Combat**: Hitbox Expander, Auto Parry, Reach, Spin Bot
 - **Movement**: Jump Boost, Speed, Infinite Jump, Fly
 - **Camera**: Click TP, NoClip TP, Waypoint
 - **Teleport**: TP к игрокам, Auto-TP
-- **Utilities**: FPS/Ping overlay, Anti-AFK, Chat Spammer, Server Hop, Auto Rejoin
+- **Utilities**: FPS/Ping overlay, Anti-AFK, Server Hop, Auto Rejoin
 - **Music**: плейлист, выбор трека, скорость, shuffle, repeat
 - **FE Scripts**: 40+ FE скриптов
 - **Game Scripts**: Rivals, MM2, Blox Fruits, Blade Ball, Arsenal, Jailbreak, и др.
