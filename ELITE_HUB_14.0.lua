@@ -5855,7 +5855,7 @@ local function UpdateTargetIndicator()
     if AimbotConfig.ShowAimLine and onScreen and Running and LockedTarget and LockedTargetPlayer then
         local center = Vector2.new(viewport.X / 2, viewport.Y / 2)
         AimLine.From = center
-        AimLine.To = vp
+        AimLine.To = Vector2.new(center.X, center.Y - 160)
         AimLine.Color = AimbotConfig.AimLineColor
         AimLine.Thickness = 2
         AimLine.Visible = true
