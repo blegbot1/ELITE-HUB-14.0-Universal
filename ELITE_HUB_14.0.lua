@@ -12230,6 +12230,54 @@ local function TeamRelText(tn)
     return "Нейтрал"
 end
 
+local AvatarCache = {}
+local AvatarWaiters = {}
+local AvatarQueue = {}
+local avatarBusy = 0
+local AVATAR_CONCURRENCY = 4
+
+local function AvatarWorker()
+    while next(AvatarQueue) do
+        local uid = nil
+        for k in pairs(AvatarQueue) do uid = k; break end
+        AvatarQueue[uid] = nil
+        local url = nil
+        local ok, res = pcall(function()
+            return Players:GetUserThumbnailAsync(tonumber(uid), Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size420x420)
+        end)
+        if ok and type(res) == "string" and res ~= "" then
+            url = res
+        else
+            url = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. uid .. "&width=420&height=420&format=png"
+        end
+        AvatarCache[uid] = url
+        local w = AvatarWaiters[uid] or {}
+        AvatarWaiters[uid] = nil
+        for _, cb in ipairs(w) do pcall(cb, url) end
+        task.wait()
+    end
+    avatarBusy = avatarBusy - 1
+end
+
+local function GetAvatarUrl(uid, cb)
+    if not uid or uid == 0 then return end
+    uid = tostring(uid)
+    if AvatarCache[uid] then
+        pcall(cb, AvatarCache[uid])
+        return
+    end
+    local w = AvatarWaiters[uid] or {}
+    table.insert(w, cb)
+    AvatarWaiters[uid] = w
+    if not AvatarQueue[uid] then
+        AvatarQueue[uid] = true
+        if avatarBusy < AVATAR_CONCURRENCY then
+            avatarBusy = avatarBusy + 1
+            task.spawn(AvatarWorker)
+        end
+    end
+end
+
 local function Avatar(uid, size)
     local holder = Instance.new("Frame")
     holder.Size = UDim2.new(0, size, 0, size)
@@ -12254,9 +12302,13 @@ local function Avatar(uid, size)
     img.Image = ""
     img.Parent = holder
     Instance.new("UICorner", img).CornerRadius = UDim.new(0, 6)
-    if uid then
+    if uid and uid > 0 then
         letter.Text = string.sub(tostring(uid), 1, 1):upper()
-        img.Image = "rbxthumb://type=AvatarHeadShot&id=" .. uid .. "&w=420&h=420"
+        GetAvatarUrl(uid, function(url)
+            if img and img.Parent then
+                pcall(function() img.Image = url end)
+            end
+        end)
     end
     return holder, letter, img
 end
@@ -12293,7 +12345,11 @@ local function RefreshInfo()
     infoHp:Set("HP: " .. HpOf(p))
     infoRel:Set("Связь: " .. RelText(p))
     infoLetter.Text = string.sub(p.Name, 1, 1):upper()
-    infoImg.Image = "rbxthumb://type=AvatarHeadShot&id=" .. p.UserId .. "&w=420&h=420"
+    GetAvatarUrl(p.UserId, function(url)
+        if infoImg and infoImg.Parent then
+            pcall(function() infoImg.Image = url end)
+        end
+    end)
 end
 
 pickDD = PlayersTab:CreateDropdown({
