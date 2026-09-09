@@ -11174,42 +11174,6 @@ MT:CreateSlider({
 })
 
 MT = UtilitiesTab
-MT:CreateSection("💬 CHAT")
-
-getgenv().ELITE_HUB_ChatSpammer = false
-getgenv().ELITE_HUB_ChatSpammerMsg = "ELITE HUB"
-MT:CreateToggle({
-    Name = " Chat Spammer",
-    CurrentValue = false,
-    Callback = function(value)
-        getgenv().ELITE_HUB_ChatSpammer = value
-        getgenv().ELITE_HUB_Log("MODS", "Chat Spammer: " .. tostring(value))
-        if value then
-            task.spawn(function()
-                while getgenv().ELITE_HUB_ChatSpammer do
-                    task.wait(2)
-                    pcall(function()
-                        local chatEvents = game:GetService("ReplicatedStorage"):WaitForChild("DefaultChatSystemSpeechEvents", 5)
-                        if not chatEvents then return end
-                        chatEvents:FindFirstChild("SayMessageRequest"):FireServer(
-                            getgenv().ELITE_HUB_ChatSpammerMsg, "All"
-                        )
-                    end)
-                end
-            end)
-        end
-    end
-})
-MT:CreateInput({
-    Name = " Message",
-    PlaceholderText = "Enter a message...",
-    RemoveTextAfterFocusLost = false,
-    Callback = function(value)
-        getgenv().ELITE_HUB_ChatSpammerMsg = value
-    end
-})
-
-MT = UtilitiesTab
 MT:CreateSection("⚙ SYSTEM")
 
 getgenv().ELITE_HUB_RejoinOnKick = false
