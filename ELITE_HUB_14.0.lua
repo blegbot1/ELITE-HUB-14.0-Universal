@@ -2091,7 +2091,7 @@ end)
 end)
 
 -- ============================================================
--- FUN VISUALS (Aura, Aviators, Big Head, Crown/KFC, Gold, Wings)
+-- FUN VISUALS (Aura, Horns, Aviators, Big Head, Gold, Wings)
 -- ============================================================
 task.spawn(function()
 local MT = VisualTab
@@ -2136,7 +2136,7 @@ local function characterTorso(ch)
 end
 
 -- ============================================================
--- AURA (Halo + Horns)
+-- AURA (Halo)
 -- ============================================================
 getgenv().ELITE_HUB_AuraOn = false
 getgenv().ELITE_HUB_AuraColor = Color3.fromRGB(255, 215, 0)
@@ -2145,12 +2145,10 @@ getgenv().ELITE_HUB_AuraSpin = false
 getgenv().ELITE_HUB_AuraSpinSpeed = 40
 local auraConn = nil
 local auraHalo = {}
-local auraHorns = {}
 
 local function RemoveAura()
     if auraConn then pcall(function() auraConn:Disconnect() end) auraConn = nil end
     auraHalo = {}
-    auraHorns = {}
     ClearModel("ELITEHUB_AURA")
 end
 
@@ -2181,25 +2179,6 @@ local function BuildAura(char)
         seg.Parent = au
         auraHalo[seg] = ccf
     end
-    local function addHorn(side)
-        local root = Vector3.new(side * 0.18 * S, 0.34 * S, 0)
-        local dir = Vector3.new(side * 0.55, 0.85, 0).Unit
-        local L = 0.34 * S
-        local p = MP({ Shape = Enum.PartType.Cylinder, Size = Vector3.new(0.06 * S, L, 0.06 * S), Color = COL })
-        local lcf = CFrame.fromMatrix(root + dir * (L / 2), Vector3.new(1, 0, 0), dir)
-        p.CFrame = headCF * lcf
-        p:BreakJoints()
-        p.Parent = au
-        auraHorns[p] = lcf
-        local tip = MP({ Shape = Enum.PartType.Ball, Size = Vector3.new(0.13 * S, 0.15 * S, 0.13 * S), Color = COL })
-        local tlcf = CFrame.new(root + dir * L)
-        tip.CFrame = headCF * tlcf
-        tip:BreakJoints()
-        tip.Parent = au
-        auraHorns[tip] = tlcf
-    end
-    addHorn(-1)
-    addHorn(1)
     Unanchor(au)
     if auraConn then pcall(function() auraConn:Disconnect() end) end
     local spinA = 0
@@ -2222,23 +2201,101 @@ local function BuildAura(char)
             for p, lcf in pairs(auraHalo) do
                 if p and p.Parent then p.CFrame = hdCF * spinCF * lcf end
             end
-            for p, lcf in pairs(auraHorns) do
-                if p and p.Parent then p.CFrame = hdCF * lcf end
-            end
         end)
     end)
 end
 getgenv().ELITE_HUB_BuildAura = BuildAura
 getgenv().ELITE_HUB_RemoveAura = RemoveAura
 
-MT:CreateSection("AURA (Halo + Horns)")
+-- ============================================================
+-- HORNS (sit on top of head, nothing sunk into skull)
+-- ============================================================
+getgenv().ELITE_HUB_HornsOn = false
+local hornConn = nil
+local hornParts = {}
+
+local function RemoveHorns()
+    if hornConn then pcall(function() hornConn:Disconnect() end) hornConn = nil end
+    hornParts = {}
+    ClearModel("ELITEHUB_HORNS")
+end
+
+local function BuildHorns(char)
+    if not getgenv().ELITE_HUB_HornsOn then return end
+    if not char then return end
+    local head = char:FindFirstChild("Head")
+    if not head then return end
+    RemoveHorns()
+    task.wait(0.2)
+    local S = getgenv().ELITE_HUB_AuraSize or 1
+    local COL = getgenv().ELITE_HUB_AuraColor
+    local headCF = head.CFrame
+    local hrn = Instance.new("Model")
+    hrn.Name = "ELITEHUB_HORNS"
+    hrn.Parent = workspace
+    local function sideHorn(side)
+        local base = Vector3.new(side * 0.16 * S, 0.5 * S, -0.05 * S)
+        for k = 0, 2 do
+            local L = (0.28 + 0.18 * k) * S
+            local bend = 0.18 + 0.34 * k
+            local seg = MP({ Shape = Enum.PartType.Cylinder, Size = Vector3.new(0.06 * S, L, 0.06 * S), Color = COL, Material = "Neon" })
+            local lcf = CFrame.new(base) * CFrame.Angles(0, 0, -bend * side) * CFrame.new(0, L / 2, 0)
+            seg.CFrame = headCF * lcf
+            seg:BreakJoints()
+            seg.Parent = hrn
+            hornParts[seg] = lcf
+        end
+        local tL = (0.28 + 0.18 * 2) * S
+        local tBend = 0.18 + 0.34 * 2
+        local tip = MP({ Shape = Enum.PartType.Ball, Size = Vector3.new(0.13 * S, 0.15 * S, 0.13 * S), Color = COL, Material = "Neon" })
+        local tlcf = CFrame.new(base) * CFrame.Angles(0, 0, -tBend * side) * CFrame.new(0, tL, 0)
+        tip.CFrame = headCF * tlcf
+        tip:BreakJoints()
+        tip.Parent = hrn
+        hornParts[tip] = tlcf
+    end
+    sideHorn(-1)
+    sideHorn(1)
+    Unanchor(hrn)
+    if hornConn then pcall(function() hornConn:Disconnect() end) end
+    hornConn = game:GetService("RunService").Heartbeat:Connect(function()
+        pcall(function()
+            if not getgenv().ELITE_HUB_HornsOn then RemoveHorns() return end
+            local h = workspace:FindFirstChild("ELITEHUB_HORNS")
+            if not h then
+                local c = player.Character
+                if c and c:FindFirstChild("Head") then task.spawn(function() BuildHorns(c) end) end
+                return
+            end
+            local hd = char:FindFirstChild("Head")
+            if not hd then return end
+            local hdCF = hd.CFrame
+            for p, lcf in pairs(hornParts) do
+                if p and p.Parent then p.CFrame = hdCF * lcf end
+            end
+        end)
+    end)
+end
+getgenv().ELITE_HUB_BuildHorns = BuildHorns
+getgenv().ELITE_HUB_RemoveHorns = RemoveHorns
+
+MT:CreateSection("AURA / HORNS")
 MT:CreateToggle({
-    Name = " Aura (Halo + Horns)",
+    Name = " Aura (Halo)",
     CurrentValue = false,
     Callback = function(v)
         getgenv().ELITE_HUB_AuraOn = v
         getgenv().ELITE_HUB_Log("MODS", "Aura: " .. tostring(v))
         if v then task.spawn(function() BuildAura(player.Character) end) else RemoveAura() end
+    end
+})
+MT:CreateToggle({
+    Name = " Horns",
+    CurrentValue = false,
+    Callback = function(v)
+        getgenv().ELITE_HUB_HornsOn = v
+        getgenv().ELITE_HUB_Log("MODS", "Horns: " .. tostring(v))
+        if v then task.spawn(function() pcall(function() BuildHorns(player.Character) end) end) else RemoveHorns() end
     end
 })
 MT:CreateColorPicker({
@@ -2247,16 +2304,18 @@ MT:CreateColorPicker({
     Callback = function(v)
         getgenv().ELITE_HUB_AuraColor = v
         if getgenv().ELITE_HUB_AuraOn then task.spawn(function() BuildAura(player.Character) end) end
+        if getgenv().ELITE_HUB_HornsOn then task.spawn(function() BuildHorns(player.Character) end) end
     end
 })
 MT:CreateSlider({
-    Name = " Halo Size",
+    Name = " Aura Size",
     Range = {0.6, 2},
     Increment = 0.1,
     CurrentValue = 1,
     Callback = function(v)
         getgenv().ELITE_HUB_AuraSize = v
         if getgenv().ELITE_HUB_AuraOn then task.spawn(function() BuildAura(player.Character) end) end
+        if getgenv().ELITE_HUB_HornsOn then task.spawn(function() BuildHorns(player.Character) end) end
     end
 })
 MT:CreateToggle({
@@ -2442,141 +2501,6 @@ MT:CreateSlider({
     Callback = function(v)
         getgenv().ELITE_HUB_BigHeadScale = v
         if getgenv().ELITE_HUB_BigHeadOn then task.spawn(function() ApplyBigHead(player.Character) end) end
-    end
-})
-
--- ============================================================
--- CROWN / KFC BUCKET
--- ============================================================
-getgenv().ELITE_HUB_HeadgearOn = false
-getgenv().ELITE_HUB_HeadgearStyle = "Crown"
-getgenv().ELITE_HUB_HeadgearColor = Color3.fromRGB(255, 200, 0)
-getgenv().ELITE_HUB_HeadgearSize = 1
-local gearConn = nil
-local gearParts = {}
-
-local function RemoveHeadgear()
-    if gearConn then pcall(function() gearConn:Disconnect() end) gearConn = nil end
-    gearParts = {}
-    ClearModel("ELITEHUB_HEADGEAR")
-end
-
-local function BuildHeadgear(char)
-    if not getgenv().ELITE_HUB_HeadgearOn then return end
-    if not char then return end
-    local head = char:FindFirstChild("Head")
-    if not head then return end
-    RemoveHeadgear()
-    task.wait(0.2)
-    local S = getgenv().ELITE_HUB_HeadgearSize or 1
-    local COL = getgenv().ELITE_HUB_HeadgearColor
-    local headCF = head.CFrame
-    local g = Instance.new("Model")
-    g.Name = "ELITEHUB_HEADGEAR"
-    g.Parent = workspace
-    local style = getgenv().ELITE_HUB_HeadgearStyle or "Crown"
-    if style == "Crown" then
-        local base = MP({ Shape = Enum.PartType.Cylinder, Size = Vector3.new(0.34 * S, 0.16 * S, 0.34 * S), Color = COL, Material = "Metal" })
-        local blcf = CFrame.new(0, 0.62 * S, 0)
-        base.CFrame = headCF * blcf
-        base:BreakJoints()
-        base.Parent = g
-        gearParts[base] = blcf
-        local rim = MP({ Shape = Enum.PartType.Cylinder, Size = Vector3.new(0.39 * S, 0.06 * S, 0.39 * S), Color = COL, Material = "Metal" })
-        local rlcf = CFrame.new(0, 0.74 * S, 0)
-        rim.CFrame = headCF * rlcf
-        rim:BreakJoints()
-        rim.Parent = g
-        gearParts[rim] = rlcf
-        for i = 0, 4 do
-            local ang = (i / 5) * math.pi * 2
-            local sp = MP({ Shape = Enum.PartType.Ball, Size = Vector3.new(0.09 * S, 0.12 * S, 0.09 * S), Color = COL, Material = "Metal" })
-            local slcf = CFrame.new(0.11 * S * math.cos(ang), 0.68 * S, 0.11 * S * math.sin(ang))
-            sp.CFrame = headCF * slcf
-            sp:BreakJoints()
-            sp.Parent = g
-            gearParts[sp] = slcf
-        end
-    else
-        local bucket = MP({ Shape = Enum.PartType.Cylinder, Size = Vector3.new(0.4 * S, 0.5 * S, 0.4 * S), Color = Color3.fromRGB(240, 240, 240), Material = "SmoothPlastic" })
-        local blcf = CFrame.new(0, 0.66 * S, 0)
-        bucket.CFrame = headCF * blcf
-        bucket:BreakJoints()
-        bucket.Parent = g
-        gearParts[bucket] = blcf
-        local band = MP({ Shape = Enum.PartType.Cylinder, Size = Vector3.new(0.42 * S, 0.08 * S, 0.42 * S), Color = Color3.fromRGB(200, 20, 20), Material = "SmoothPlastic" })
-        local bclcf = CFrame.new(0, 0.42 * S, 0)
-        band.CFrame = headCF * bclcf
-        band:BreakJoints()
-        band.Parent = g
-        gearParts[band] = bclcf
-        local rim2 = MP({ Shape = Enum.PartType.Cylinder, Size = Vector3.new(0.42 * S, 0.1 * S, 0.42 * S), Color = Color3.fromRGB(200, 20, 20), Material = "SmoothPlastic" })
-        local r2cf = CFrame.new(0, 0.92 * S, 0)
-        rim2.CFrame = headCF * r2cf
-        rim2:BreakJoints()
-        rim2.Parent = g
-        gearParts[rim2] = r2cf
-    end
-    Unanchor(g)
-    if gearConn then pcall(function() gearConn:Disconnect() end) end
-    gearConn = game:GetService("RunService").Heartbeat:Connect(function()
-        pcall(function()
-            if not getgenv().ELITE_HUB_HeadgearOn then RemoveHeadgear() return end
-            local h = workspace:FindFirstChild("ELITEHUB_HEADGEAR")
-            if not h then
-                local c = player.Character
-                if c and c:FindFirstChild("Head") then task.spawn(function() BuildHeadgear(c) end) end
-                return
-            end
-            local hd = char:FindFirstChild("Head")
-            if not hd then return end
-            local hdCF = hd.CFrame
-            for p, lcf in pairs(gearParts) do
-                if p and p.Parent then p.CFrame = hdCF * lcf end
-            end
-        end)
-    end)
-end
-getgenv().ELITE_HUB_BuildHeadgear = BuildHeadgear
-getgenv().ELITE_HUB_RemoveHeadgear = RemoveHeadgear
-
-local gearStyles = {"Crown", "KFC Bucket"}
-MT:CreateSection("CROWN / KFC")
-MT:CreateToggle({
-    Name = " Headgear",
-    CurrentValue = false,
-    Callback = function(v)
-        getgenv().ELITE_HUB_HeadgearOn = v
-        getgenv().ELITE_HUB_Log("MODS", "Headgear: " .. tostring(v))
-        if v then task.spawn(function() BuildHeadgear(player.Character) end) else RemoveHeadgear() end
-    end
-})
-MT:CreateDropdown({
-    Name = " Style",
-    Options = gearStyles,
-    CurrentOption = {"Crown"},
-    Flag = "HeadgearStyle",
-    Callback = function(v)
-        getgenv().ELITE_HUB_HeadgearStyle = v
-        if getgenv().ELITE_HUB_HeadgearOn then task.spawn(function() BuildHeadgear(player.Character) end) end
-    end
-})
-MT:CreateColorPicker({
-    Name = " Headgear Color",
-    Color = getgenv().ELITE_HUB_HeadgearColor,
-    Callback = function(v)
-        getgenv().ELITE_HUB_HeadgearColor = v
-        if getgenv().ELITE_HUB_HeadgearOn then task.spawn(function() BuildHeadgear(player.Character) end) end
-    end
-})
-MT:CreateSlider({
-    Name = " Headgear Size",
-    Range = {0.6, 2},
-    Increment = 0.1,
-    CurrentValue = 1,
-    Callback = function(v)
-        getgenv().ELITE_HUB_HeadgearSize = v
-        if getgenv().ELITE_HUB_HeadgearOn then task.spawn(function() BuildHeadgear(player.Character) end) end
     end
 })
 
@@ -2771,7 +2695,7 @@ player.CharacterAdded:Connect(function(char)
     pcall(function()
         if getgenv().ELITE_HUB_AuraOn then BuildAura(char) end
         if getgenv().ELITE_HUB_AviatorsOn then BuildAviators(char) end
-        if getgenv().ELITE_HUB_HeadgearOn then BuildHeadgear(char) end
+        if getgenv().ELITE_HUB_HornsOn then BuildHorns(char) end
         if getgenv().ELITE_HUB_WingsOn then BuildWings(char) end
         if getgenv().ELITE_HUB_GoldOn then ApplyGold(char) end
         if getgenv().ELITE_HUB_BigHeadOn then ApplyBigHead(char) end
@@ -3151,7 +3075,7 @@ local function DestroyScript()
     -- Stop Fun Visuals
     pcall(function() if getgenv().ELITE_HUB_RemoveAura then getgenv().ELITE_HUB_RemoveAura() end end)
     pcall(function() if getgenv().ELITE_HUB_RemoveAviators then getgenv().ELITE_HUB_RemoveAviators() end end)
-    pcall(function() if getgenv().ELITE_HUB_RemoveHeadgear then getgenv().ELITE_HUB_RemoveHeadgear() end end)
+    pcall(function() if getgenv().ELITE_HUB_RemoveHorns then getgenv().ELITE_HUB_RemoveHorns() end end)
     pcall(function() if getgenv().ELITE_HUB_RemoveWings then getgenv().ELITE_HUB_RemoveWings() end end)
     pcall(function() if getgenv().ELITE_HUB_RestoreGold then getgenv().ELITE_HUB_RestoreGold(player.Character) end end)
     pcall(function() if getgenv().ELITE_HUB_RestoreBigHead then getgenv().ELITE_HUB_RestoreBigHead(player.Character) end end)
@@ -12754,14 +12678,14 @@ task.spawn(function()
                     pcall(function() getgenv().ELITE_HUB_BuildAura(ch) end)
                 end
             end
+            if getgenv().ELITE_HUB_HornsOn then
+                if not workspace:FindFirstChild("ELITEHUB_HORNS") then
+                    pcall(function() getgenv().ELITE_HUB_BuildHorns(ch) end)
+                end
+            end
             if getgenv().ELITE_HUB_AviatorsOn then
                 if not workspace:FindFirstChild("ELITEHUB_AVIATORS") then
                     pcall(function() getgenv().ELITE_HUB_BuildAviators(ch) end)
-                end
-            end
-            if getgenv().ELITE_HUB_HeadgearOn then
-                if not workspace:FindFirstChild("ELITEHUB_HEADGEAR") then
-                    pcall(function() getgenv().ELITE_HUB_BuildHeadgear(ch) end)
                 end
             end
             if getgenv().ELITE_HUB_WingsOn then
