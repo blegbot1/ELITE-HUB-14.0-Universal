@@ -2542,10 +2542,24 @@ MT:CreateColorPicker({
 getgenv().ELITE_HUB_WingsOn = false
 getgenv().ELITE_HUB_WingsColor = Color3.fromRGB(255, 160, 220)
 getgenv().ELITE_HUB_WingsSize = 1
+getgenv().ELITE_HUB_WingsType = 1
 getgenv().ELITE_HUB_WingsFlap = true
 getgenv().ELITE_HUB_WingsFlapSpeed = 3
 local wingConn = nil
 local wingParts = {}
+
+local WING_TYPES = {
+    { label = "Faerie", dt = Vector3.new(0.25, 1, 0.55), db = Vector3.new(0.98, 0.05, 0.55), n = 60, l0 = 2.6, l1 = 0.6, d0 = 0.07, d1 = 0.016, backT = 0.45, bD0 = 0.09, sub = nil },
+    { label = "Angel", dt = Vector3.new(0.3, 1, 0.6), db = Vector3.new(0.92, 0.18, 0.58), n = 46, l0 = 3.3, l1 = 0.9, d0 = 0.075, d1 = 0.018, backT = 0.5, bD0 = 0.1, sub = nil },
+    { label = "Demon", dt = Vector3.new(0.15, 1, 0.5), db = Vector3.new(1.4, 0.02, 0.5), n = 52, l0 = 2.0, l1 = 0.72, d0 = 0.082, d1 = 0.02, backT = 0.4, bD0 = 0.11, sub = nil },
+    { label = "Butterfly", dt = Vector3.new(0.2, 1, 0.5), db = Vector3.new(0.9, 0.35, 0.5), n = 48, l0 = 2.3, l1 = 0.7, d0 = 0.07, d1 = 0.018, backT = 0.5, bD0 = 0.09, sub = { dt = Vector3.new(0.18, 0.55, 0.5), db = Vector3.new(0.55, 1.5, 0.45), n = 26, l0 = 1.1, l1 = 0.35, d0 = 0.06, d1 = 0.015 } },
+    { label = "Falcon", dt = Vector3.new(0.08, 1, 0.5), db = Vector3.new(0.35, 0.1, 0.85), n = 50, l0 = 2.5, l1 = 0.55, d0 = 0.07, d1 = 0.015, backT = 0.45, bD0 = 0.09, sub = nil },
+    { label = "Dragonel", dt = Vector3.new(0.1, 1, 0.55), db = Vector3.new(0.5, 0.6, 0.55), n = 40, l0 = 3.0, l1 = 1.0, d0 = 0.065, d1 = 0.012, backT = 0.55, bD0 = 0.08, sub = nil },
+    { label = "Raven", dt = Vector3.new(0.38, 1, 0.6), db = Vector3.new(0.9, 0.55, 0.62), n = 84, l0 = 1.55, l1 = 0.5, d0 = 0.082, d1 = 0.032, backT = 0.4, bD0 = 0.1, sub = nil },
+    { label = "Owl", dt = Vector3.new(0.42, 1, 0.5), db = Vector3.new(1.05, 0.28, 0.55), n = 60, l0 = 1.8, l1 = 0.6, d0 = 0.095, d1 = 0.035, backT = 0.4, bD0 = 0.1, sub = nil },
+    { label = "Phoenix", dt = Vector3.new(0.22, 1, 0.6), db = Vector3.new(0.95, 0.25, 0.6), n = 56, l0 = 3.5, l1 = 1.25, d0 = 0.08, d1 = 0.02, backT = 0.55, bD0 = 0.1, sub = { dt = Vector3.new(0.12, 0.8, 0.6), db = Vector3.new(0.65, 1.6, 0.55), n = 30, l0 = 0.95, l1 = 0.3, d0 = 0.055, d1 = 0.015 } },
+    { label = "Double", dt = Vector3.new(0.2, 1, 0.55), db = Vector3.new(0.85, 0.4, 0.55), n = 40, l0 = 2.1, l1 = 0.6, d0 = 0.07, d1 = 0.016, backT = 0.45, bD0 = 0.09, sub = { dt = Vector3.new(0.5, 0.9, 0.65), db = Vector3.new(0.75, 0.35, 0.7), n = 28, l0 = 1.7, l1 = 0.55, d0 = 0.065, d1 = 0.015 } }
+}
 
 local function RemoveWings()
     if wingConn then pcall(function() wingConn:Disconnect() end) wingConn = nil end
@@ -2567,35 +2581,52 @@ local function BuildWings(char)
     w.Name = "ELITEHUB_WINGS"
     w.Parent = workspace
     local function wing(side)
-        local P = CFrame.new(side * 0.55 * S, 0.05 * S, 0.4 * S)
-        local N = 60
-        local dt = Vector3.new(side * 0.25, 1, 0.55).Unit
-        local db = Vector3.new(side * 0.98, 0.05, 0.55).Unit
-        for r = 0, N - 1 do
-            local t = r / (N - 1)
-            local dir = dt:Lerp(db, t)
-            dir = dir.Unit
-            local L = (2.6 - 0.6 * t) * S
-            local D = (0.07 - 0.016 * t) * S
-            if D < 0.03 * S then D = 0.03 * S end
-            local xvec = Vector3.new(-dir.Z, 0, dir.X)
-            if xvec.Magnitude < 0.01 then xvec = Vector3.new(0, 0, 1) end
-            xvec = xvec.Unit
-            local mp0 = P.Position + dir * (L / 2)
-            local lcf = CFrame.fromMatrix(mp0, xvec, dir)
-            local ft = MP({ Shape = Enum.PartType.Cylinder, Size = Vector3.new(D, L, D), Color = COL, Material = "Neon" })
-            ft.Transparency = 0.15
-            ft.CFrame = torsoCF * lcf
-            ft:BreakJoints()
-            ft.Parent = w
-            wingParts[ft] = lcf
+        local wt = WING_TYPES[tonumber(getgenv().ELITE_HUB_WingsType) or 1] or WING_TYPES[1]
+        local P = CFrame.new(side * 0.55, 0.05, 0.4)
+        local function fan(wf0, wb0, wn, wl0, wl1, wd0v, wd1v, withBack)
+            local dtf = Vector3.new(side * wf0.X, wf0.Y, wf0.Z).Unit
+            local dbf = Vector3.new(side * wb0.X, wb0.Y, wb0.Z).Unit
+            for r = 0, wn - 1 do
+                local t = r / (wn - 1)
+                local dir = dtf:Lerp(dbf, t)
+                dir = dir.Unit
+                local L = (wl0 - wl1 * t) * S
+                local D = (wd0v - wd1v * t)
+                if D < 0.03 then D = 0.03 end
+                local xvec = Vector3.new(-dir.Z, 0, dir.X)
+                if xvec.Magnitude < 0.01 then xvec = Vector3.new(0, 0, 1) end
+                xvec = xvec.Unit
+                local mp0 = P.Position + dir * (L / 2)
+                local lcf = CFrame.fromMatrix(mp0, xvec, dir)
+                local ft = MP({ Shape = Enum.PartType.Cylinder, Size = Vector3.new(D, L, D), Color = COL, Material = "Neon" })
+                ft.Transparency = 0.15
+                ft.CFrame = torsoCF * lcf
+                ft:BreakJoints()
+                ft.Parent = w
+                wingParts[ft] = lcf
+            end
+            if withBack then
+                local dm = (dtf + dbf) / 2
+                dm = dm.Unit
+                local bl = (wl0 - wl1 * 0.3) * S * (wt.backT or 0.45)
+                local bD = wt.bD0 or 0.09
+                local bx = Vector3.new(-dm.Z, 0, dm.X)
+                if bx.Magnitude < 0.01 then bx = Vector3.new(0, 0, 1) end
+                bx = bx.Unit
+                local bmp = P.Position + dm * (bl / 2)
+                local blcf = CFrame.fromMatrix(bmp, bx, dm)
+                local bk = MP({ Shape = Enum.PartType.Cylinder, Size = Vector3.new(bD, bl, bD), Color = COL, Material = "Neon" })
+                bk.Transparency = 0.05
+                bk.CFrame = torsoCF * blcf
+                bk:BreakJoints()
+                bk.Parent = w
+                wingParts[bk] = blcf
+            end
         end
-        local core = MP({ Shape = Enum.PartType.Ball, Size = Vector3.new(0.45 * S, 0.45 * S, 0.45 * S), Color = COL, Material = "Neon" })
-        local cl = P
-        core.CFrame = torsoCF * cl
-        core:BreakJoints()
-        core.Parent = w
-        wingParts[core] = cl
+        fan(wt.dt, wt.db, wt.n, wt.l0, wt.l1, wt.d0, wt.d1, true)
+        if wt.sub then
+            fan(wt.sub.dt, wt.sub.db, wt.sub.n, wt.sub.l0, wt.sub.l1, wt.sub.d0, wt.sub.d1, false)
+        end
     end
     wing(-1)
     wing(1)
@@ -2649,6 +2680,18 @@ MT:CreateColorPicker({
     Callback = function(v)
         getgenv().ELITE_HUB_WingsColor = v
         if getgenv().ELITE_HUB_WingsOn then task.spawn(function() BuildWings(player.Character) end) end
+    end
+})
+MT:CreateDropdown({
+    Name = " Wing Type",
+    Options = { "Faerie", "Angel", "Demon", "Butterfly", "Falcon", "Dragonel", "Raven", "Owl", "Phoenix", "Double" },
+    CurrentOption = "Faerie",
+    Callback = function(opt)
+        for i, wt in ipairs(WING_TYPES) do
+            if wt.label == opt then getgenv().ELITE_HUB_WingsType = i break end
+        end
+        getgenv().ELITE_HUB_Log("MODS", "Wings type: " .. opt)
+        if getgenv().ELITE_HUB_WingsOn then task.spawn(function() pcall(function() BuildWings(player.Character) end) end) end
     end
 })
 MT:CreateSlider({
