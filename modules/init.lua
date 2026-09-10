@@ -1191,18 +1191,26 @@ local function BuildWings(char)
     w.Name = "ELITEHUB_WINGS"
     w.Parent = workspace
     local function wing(side)
-        local pivot = CFrame.new(side * 0.24 * S, -0.05 * S, -0.1 * S)
-        for k = 0, 2 do
-            local L = (1.5 + 0.45 * k) * S
-            local ang = (0.35 + 0.35 * k) * side
-            local ft = MP({ Shape = Enum.PartType.Cylinder, Size = Vector3.new(0.34 * S, L, 0.34 * S), Color = COL, Material = "ForceField" })
-            local fl = pivot * CFrame.Angles(0, 0, ang) * CFrame.new(0, L / 2, 0)
+        local pivot = CFrame.new(side * 0.26 * S, -0.15 * S, -0.15 * S)
+        for k = 0, 3 do
+            local L = (0.85 + 0.5 * k) * S
+            local a = 0.12 + 0.3 * k
+            local D = (0.26 - 0.035 * k) * S
+            local ft = MP({ Shape = Enum.PartType.Cylinder, Size = Vector3.new(D, L, D), Color = COL, Material = "ForceField" })
+            ft.Transparency = 0.15
+            local fl = pivot * CFrame.Angles(0, 0, -a * side) * CFrame.new(0, L / 2, 0)
             ft.CFrame = torsoCF * fl
             ft:BreakJoints()
             ft.Parent = w
             wingParts[ft] = fl
+            local tip = MP({ Shape = Enum.PartType.Ball, Size = Vector3.new(D * 0.4, D * 0.4, D * 0.4), Color = COL, Material = "ForceField" })
+            local tlcf = pivot * CFrame.Angles(0, 0, -a * side) * CFrame.new(0, L, 0)
+            tip.CFrame = torsoCF * tlcf
+            tip:BreakJoints()
+            tip.Parent = w
+            wingParts[tip] = tlcf
         end
-        local core = MP({ Shape = Enum.PartType.Ball, Size = Vector3.new(0.5 * S, 0.5 * S, 0.5 * S), Color = COL, Material = "ForceField" })
+        local core = MP({ Shape = Enum.PartType.Ball, Size = Vector3.new(0.45 * S, 0.45 * S, 0.45 * S), Color = COL, Material = "ForceField" })
         local cl = pivot
         core.CFrame = torsoCF * cl
         core:BreakJoints()
