@@ -161,36 +161,12 @@ MusicTab:CreateToggle({
     end
 })
 
-MusicTab:CreateButton({
-    Name = " Next Track",
-    Callback = function()
-        local playlist = getgenv().ELITE_HUB_MusicPlaylist
-        if #playlist == 0 then return end
-        if getgenv().ELITE_HUB_MusicShuffle and #playlist > 1 then
-            getgenv().ELITE_HUB_MusicIndex = math.random(1, #playlist)
-        else
-            getgenv().ELITE_HUB_MusicIndex = (getgenv().ELITE_HUB_MusicIndex % #playlist) + 1
-        end
-        local track = playlist[getgenv().ELITE_HUB_MusicIndex]
-        if ELITE_HUB_MusicPlaying or ELITE_HUB_MusicPlayer then
-            ELITE_HUB_MusicPlayTrack(track)
-        end
-        getgenv().ELITE_HUB_Log("MUSIC", "Next: " .. track.name)
-    end
-})
-
-MusicTab:CreateButton({
-    Name = " Prev Track",
-    Callback = function()
-        local playlist = getgenv().ELITE_HUB_MusicPlaylist
-        if #playlist == 0 then return end
-        getgenv().ELITE_HUB_MusicIndex = getgenv().ELITE_HUB_MusicIndex - 1
-        if getgenv().ELITE_HUB_MusicIndex < 1 then getgenv().ELITE_HUB_MusicIndex = #playlist end
-        local track = playlist[getgenv().ELITE_HUB_MusicIndex]
-        if ELITE_HUB_MusicPlaying or ELITE_HUB_MusicPlayer then
-            ELITE_HUB_MusicPlayTrack(track)
-        end
-        getgenv().ELITE_HUB_Log("MUSIC", "Prev: " .. track.name)
+MusicTab:CreateToggle({
+    Name = " Repeat Track",
+    CurrentValue = getgenv().ELITE_HUB_MusicRepeatOne,
+    Callback = function(value)
+        getgenv().ELITE_HUB_MusicRepeatOne = value
+        getgenv().ELITE_HUB_Log("MUSIC", "Repeat: " .. tostring(value))
     end
 })
 
