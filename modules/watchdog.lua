@@ -30,6 +30,34 @@ task.spawn(function()
                 end
             end
 
+            -- Fun Visuals
+            if getgenv().ELITE_HUB_AuraOn then
+                if not workspace:FindFirstChild("ELITEHUB_AURA") then
+                    pcall(function() getgenv().ELITE_HUB_BuildAura(ch) end)
+                end
+            end
+            if getgenv().ELITE_HUB_AviatorsOn then
+                if not workspace:FindFirstChild("ELITEHUB_AVIATORS") then
+                    pcall(function() getgenv().ELITE_HUB_BuildAviators(ch) end)
+                end
+            end
+            if getgenv().ELITE_HUB_HeadgearOn then
+                if not workspace:FindFirstChild("ELITEHUB_HEADGEAR") then
+                    pcall(function() getgenv().ELITE_HUB_BuildHeadgear(ch) end)
+                end
+            end
+            if getgenv().ELITE_HUB_WingsOn then
+                if not workspace:FindFirstChild("ELITEHUB_WINGS") then
+                    pcall(function() getgenv().ELITE_HUB_BuildWings(ch) end)
+                end
+            end
+            if getgenv().ELITE_HUB_GoldOn then
+                pcall(function() getgenv().ELITE_HUB_ApplyGold(ch) end)
+            end
+            if getgenv().ELITE_HUB_BigHeadOn then
+                pcall(function() getgenv().ELITE_HUB_ApplyBigHead(ch) end)
+            end
+
             -- Neon Body
             if getgenv().ELITE_HUB_NeonBody then
                 for _, part in ipairs(ch:GetDescendants()) do
