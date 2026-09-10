@@ -831,26 +831,26 @@ local function BuildHorns(char)
     hrn.Name = "ELITEHUB_HORNS"
     hrn.Parent = workspace
     local function sideHorn(side)
-        local P0 = Vector3.new(side * 0.16 * S, 0.5 * S, 0)
-        local d0 = Vector3.new(side * 0.1, 1, -0.06).Unit
-        local d1 = Vector3.new(side * 0.42, 0.78, -0.1).Unit
-        local disc = MP({ Shape = Enum.PartType.Cylinder, Size = Vector3.new(0.19 * S, 0.03 * S, 0.19 * S), Color = COL, Material = "Neon" })
-        local dcf = CFrame.new(Vector3.new(side * 0.16 * S, 0.5 * S, 0))
+        local P0 = Vector3.new(side * 0.17 * S, 0.48 * S, -0.02 * S)
+        local d0 = Vector3.new(side * 0.08, 1, -0.05).Unit
+        local d1 = Vector3.new(side * 0.34, 0.85, -0.1).Unit
+        local disc = MP({ Shape = Enum.PartType.Cylinder, Size = Vector3.new(0.22 * S, 0.04 * S, 0.22 * S), Color = COL, Material = "Neon" })
+        local dcf = CFrame.new(Vector3.new(side * 0.17 * S, 0.48 * S, -0.02 * S))
         disc.CFrame = headCF * dcf
         disc:BreakJoints()
         disc.Parent = hrn
         hornParts[disc] = dcf
         local pos = P0
-        local NS = 32
-        local step = 0.028 * S
+        local NS = 36
+        local step = 0.026 * S
         for k = 0, NS - 1 do
             local t = (k + 1) / NS
             local dir = d0:Lerp(d1, t)
             dir = dir.Unit
             local L = step * 3.0
             local taper = 1 - (k / NS) * 0.9
-            local D = (0.095 * taper) * S
-            if D < 0.03 * S then D = 0.03 * S end
+            local D = (0.12 * taper) * S
+            if D < 0.035 * S then D = 0.035 * S end
             local xvec = Vector3.new(-dir.Z, 0, dir.X)
             if xvec.Magnitude < 0.01 then xvec = Vector3.new(0, 0, 1) end
             xvec = xvec.Unit
@@ -861,9 +861,18 @@ local function BuildHorns(char)
             seg:BreakJoints()
             seg.Parent = hrn
             hornParts[seg] = lcf
+            if k % 6 == 5 then
+                local rD = D + 0.045 * S
+                local ring = MP({ Shape = Enum.PartType.Cylinder, Size = Vector3.new(rD, 0.022 * S, rD), Color = COL, Material = "Neon" })
+                local rlcf = CFrame.fromMatrix(cp, xvec, dir)
+                ring.CFrame = headCF * rlcf
+                ring:BreakJoints()
+                ring.Parent = hrn
+                hornParts[ring] = rlcf
+            end
             pos = pos + dir * step
         end
-        local tip = MP({ Shape = Enum.PartType.Ball, Size = Vector3.new(0.09 * S, 0.11 * S, 0.09 * S), Color = COL, Material = "Neon" })
+        local tip = MP({ Shape = Enum.PartType.Ball, Size = Vector3.new(0.11 * S, 0.13 * S, 0.11 * S), Color = COL, Material = "Neon" })
         local tlcf = CFrame.new(pos)
         tip.CFrame = headCF * tlcf
         tip:BreakJoints()
@@ -1114,37 +1123,30 @@ local function BuildWings(char)
     w.Name = "ELITEHUB_WINGS"
     w.Parent = workspace
     local function wing(side)
-        local P = CFrame.new(side * 0.55 * S, 0.1 * S, -0.45 * S)
-        for i = 0, 4 do
-            local d0 = Vector3.new(side * 0.18, 0.9, -0.5).Unit
-            local d1 = Vector3.new(side * (1.05 + 0.12 * i), 0.3 - 0.06 * i, -0.6)
-            if d1.Magnitude < 0.01 then d1 = Vector3.new(side, 0.3, -0.6) end
-            d1 = d1.Unit
-            local ribS = 0.85 + 0.14 * i
-            local pos = P.Position
-            for k = 0, 9 do
-                local t = (k + 1) / 10
-                local dir = d0:Lerp(d1, t)
-                dir = dir.Unit
-                local step = (0.18 + 0.014 * k) * ribS * S
-                local L = step * 2.6
-                local D = (0.085 - 0.005 * k) * ribS * S
-                if D < 0.04 * S then D = 0.04 * S end
-                local xvec = Vector3.new(-dir.Z, 0, dir.X)
-                if xvec.Magnitude < 0.01 then xvec = Vector3.new(0, 0, 1) end
-                xvec = xvec.Unit
-                local cp = pos + dir * (step / 2)
-                local lcf = CFrame.fromMatrix(cp, xvec, dir)
-                local ft = MP({ Shape = Enum.PartType.Cylinder, Size = Vector3.new(D, L, D), Color = COL, Material = "Neon" })
-                ft.Transparency = 0.15
-                ft.CFrame = torsoCF * lcf
-                ft:BreakJoints()
-                ft.Parent = w
-                wingParts[ft] = lcf
-                pos = pos + dir * step
-            end
+        local P = CFrame.new(side * 0.55 * S, 0.05 * S, 0.4 * S)
+        local N = 60
+        local dt = Vector3.new(side * 0.25, 1, 0.55).Unit
+        local db = Vector3.new(side * 0.98, 0.05, 0.55).Unit
+        for r = 0, N - 1 do
+            local t = r / (N - 1)
+            local dir = dt:Lerp(db, t)
+            dir = dir.Unit
+            local L = (1.7 - 0.45 * t) * S
+            local D = (0.062 - 0.014 * t) * S
+            if D < 0.03 * S then D = 0.03 * S end
+            local xvec = Vector3.new(-dir.Z, 0, dir.X)
+            if xvec.Magnitude < 0.01 then xvec = Vector3.new(0, 0, 1) end
+            xvec = xvec.Unit
+            local mp0 = P.Position + dir * (L / 2)
+            local lcf = CFrame.fromMatrix(mp0, xvec, dir)
+            local ft = MP({ Shape = Enum.PartType.Cylinder, Size = Vector3.new(D, L, D), Color = COL, Material = "Neon" })
+            ft.Transparency = 0.15
+            ft.CFrame = torsoCF * lcf
+            ft:BreakJoints()
+            ft.Parent = w
+            wingParts[ft] = lcf
         end
-        local core = MP({ Shape = Enum.PartType.Ball, Size = Vector3.new(0.5 * S, 0.5 * S, 0.5 * S), Color = COL, Material = "Neon" })
+        local core = MP({ Shape = Enum.PartType.Ball, Size = Vector3.new(0.45 * S, 0.45 * S, 0.45 * S), Color = COL, Material = "Neon" })
         local cl = P
         core.CFrame = torsoCF * cl
         core:BreakJoints()
