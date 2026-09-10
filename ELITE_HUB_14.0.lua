@@ -10408,7 +10408,18 @@ MusicTab:CreateButton({
                 local url = "https://raw.githubusercontent.com/blegbot1/ELITE-HUB-14.0-Universal/main/music/playlist.json"
                 local json = game:HttpGet(url)
                 local HttpService = game:GetService("HttpService")
-                getgenv().ELITE_HUB_MusicPlaylist = HttpService:JSONDecode(json)
+                local decoded = HttpService:JSONDecode(json)
+                local filtered = {}
+                for _, track in ipairs(decoded) do
+                    if type(track) == "table" and track.url then
+                        local u = tostring(track.url)
+                        local okUrl = u:sub(1, 8) == "https://" or u:sub(1, 7) == "http://"
+                        if okUrl and u:sub(1, 13) ~= "rbxassetid://" then
+                            table.insert(filtered, track)
+                        end
+                    end
+                end
+                getgenv().ELITE_HUB_MusicPlaylist = filtered
                 local names = {}
                 for _, track in ipairs(getgenv().ELITE_HUB_MusicPlaylist) do
                     table.insert(names, track.name)
