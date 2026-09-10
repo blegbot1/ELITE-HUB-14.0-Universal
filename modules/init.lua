@@ -764,12 +764,12 @@ local function BuildAura(char)
     local au = Instance.new("Model")
     au.Name = "ELITEHUB_AURA"
     au.Parent = workspace
-    local R = 0.55 * S
-    local N = 48
+    local R = 0.6 * S
+    local N = 64
     for i = 0, N - 1 do
         local ang = (i / N) * math.pi * 2
-        local chord = R * 2 * math.tan(math.pi / N) * 1.2
-        local seg = MP({ Shape = Enum.PartType.Cylinder, Size = Vector3.new(0.06 * S, chord, 0.09 * S), Color = COL, Material = "Neon" })
+        local chord = R * 2 * math.tan(math.pi / N) * 1.5
+        local seg = MP({ Shape = Enum.PartType.Cylinder, Size = Vector3.new(0.1 * S, chord, 0.12 * S), Color = COL, Material = "Neon" })
         local pos = Vector3.new(R * math.cos(ang), 0.95 * S + 0.05, R * math.sin(ang))
         local tang = Vector3.new(-math.sin(ang), 0, math.cos(ang))
         local ccf = CFrame.fromMatrix(pos, Vector3.new(0, 1, 0), tang)
@@ -1275,7 +1275,7 @@ local function BuildWings(char)
         local xvec = Vector3.new(-dir.Z, 0, dir.X)
         if xvec.Magnitude < 0.01 then xvec = Vector3.new(0, 0, 1) end
         xvec = xvec.Unit
-        local center = shoulder + dir * (L / 2)
+        local center = shoulder.Position + dir * (L / 2)
         local lcf = CFrame.fromMatrix(center, xvec, dir)
         p.CFrame = torsoCF * lcf
         p:BreakJoints()
