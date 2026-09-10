@@ -1191,27 +1191,37 @@ local function BuildWings(char)
     w.Name = "ELITEHUB_WINGS"
     w.Parent = workspace
     local function wing(side)
-        local pivot = CFrame.new(side * 0.26 * S, -0.15 * S, -0.15 * S)
-        for k = 0, 3 do
-            local L = (0.85 + 0.5 * k) * S
-            local a = 0.12 + 0.3 * k
-            local D = (0.26 - 0.035 * k) * S
-            local ft = MP({ Shape = Enum.PartType.Cylinder, Size = Vector3.new(D, L, D), Color = COL, Material = "ForceField" })
-            ft.Transparency = 0.15
-            local fl = pivot * CFrame.Angles(0, 0, -a * side) * CFrame.new(0, L / 2, 0)
-            ft.CFrame = torsoCF * fl
-            ft:BreakJoints()
-            ft.Parent = w
-            wingParts[ft] = fl
-            local tip = MP({ Shape = Enum.PartType.Ball, Size = Vector3.new(D * 0.4, D * 0.4, D * 0.4), Color = COL, Material = "ForceField" })
-            local tlcf = pivot * CFrame.Angles(0, 0, -a * side) * CFrame.new(0, L, 0)
-            tip.CFrame = torsoCF * tlcf
-            tip:BreakJoints()
-            tip.Parent = w
-            wingParts[tip] = tlcf
+        local P = CFrame.new(side * 0.24 * S, -0.12 * S, -0.12 * S)
+        for i = 0, 4 do
+            local d0 = Vector3.new(side * 0.35, 1, -0.18).Unit
+            local d1 = Vector3.new(side * (0.95 + 0.16 * i), 0.5 - 0.08 * i, -0.18)
+            if d1.Magnitude < 0.01 then d1 = Vector3.new(side, 0, 0) end
+            d1 = d1.Unit
+            local ribS = 0.8 + 0.12 * i
+            local pos = P.Position
+            for k = 0, 7 do
+                local t = (k + 1) / 8
+                local dir = d0:Lerp(d1, t)
+                dir = dir.Unit
+                local L = (0.16 + 0.045 * k) * ribS * S
+                local D = (0.07 - 0.004 * k) * ribS * S
+                if D < 0.035 * S then D = 0.035 * S end
+                local xvec = Vector3.new(-dir.Z, 0, dir.X)
+                if xvec.Magnitude < 0.01 then xvec = Vector3.new(0, 0, 1) end
+                xvec = xvec.Unit
+                local cp = pos + dir * (L / 2)
+                local lcf = CFrame.fromMatrix(cp, xvec, dir)
+                local ft = MP({ Shape = Enum.PartType.Cylinder, Size = Vector3.new(D, L, D), Color = COL, Material = "ForceField" })
+                ft.Transparency = 0.2
+                ft.CFrame = torsoCF * lcf
+                ft:BreakJoints()
+                ft.Parent = w
+                wingParts[ft] = lcf
+                pos = pos + dir * L
+            end
         end
         local core = MP({ Shape = Enum.PartType.Ball, Size = Vector3.new(0.45 * S, 0.45 * S, 0.45 * S), Color = COL, Material = "ForceField" })
-        local cl = pivot
+        local cl = P
         core.CFrame = torsoCF * cl
         core:BreakJoints()
         core.Parent = w
