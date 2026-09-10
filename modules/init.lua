@@ -1140,6 +1140,7 @@ getgenv().ELITE_HUB_WingsOn = false
 getgenv().ELITE_HUB_WingsColor = Color3.fromRGB(255, 160, 220)
 getgenv().ELITE_HUB_WingsSize = 1
 getgenv().ELITE_HUB_WingsType = 1
+getgenv().ELITE_HUB_WingsMembrane = true
 getgenv().ELITE_HUB_WingsFlap = true
 getgenv().ELITE_HUB_WingsFlapSpeed = 3
 local wingConn = nil
@@ -1201,6 +1202,27 @@ local function BuildWings(char)
                 ft:BreakJoints()
                 ft.Parent = w
                 wingParts[ft] = lcf
+            end
+            if getgenv().ELITE_HUB_WingsMembrane then
+                local memn = dtf:Cross(dbf).Unit
+                local slices = math.max(12, math.floor(wn / 3))
+                for r = 0, slices - 1 do
+                    local t = r / (slices - 1)
+                    local dir = dtf:Lerp(dbf, t)
+                    dir = dir.Unit
+                    local L = (wl0 - wl1 * t) * S * 0.98
+                    local xvec = Vector3.new(-dir.Z, 0, dir.X)
+                    if xvec.Magnitude < 0.01 then xvec = Vector3.new(0, 0, 1) end
+                    xvec = xvec.Unit
+                    local mp0 = P.Position + dir * (L / 2) + memn * 0.08
+                    local lcf = CFrame.fromMatrix(mp0, xvec, dir)
+                    local mb = MP({ Shape = Enum.PartType.Cylinder, Size = Vector3.new(0.34, L, 0.32), Color = COL, Material = "Neon" })
+                    mb.Transparency = 0.45
+                    mb.CFrame = torsoCF * lcf
+                    mb:BreakJoints()
+                    mb.Parent = w
+                    wingParts[mb] = lcf
+                end
             end
             if withBack then
                 local dm = (dtf + dbf) / 2
@@ -1298,6 +1320,14 @@ MT:CreateSlider({
     CurrentValue = 1,
     Callback = function(v)
         getgenv().ELITE_HUB_WingsSize = v
+        if getgenv().ELITE_HUB_WingsOn then task.spawn(function() BuildWings(player.Character) end) end
+    end
+})
+MT:CreateToggle({
+    Name = " Membrane",
+    CurrentValue = true,
+    Callback = function(v)
+        getgenv().ELITE_HUB_WingsMembrane = v
         if getgenv().ELITE_HUB_WingsOn then task.spawn(function() BuildWings(player.Character) end) end
     end
 })
