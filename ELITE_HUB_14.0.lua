@@ -2208,11 +2208,26 @@ getgenv().ELITE_HUB_BuildAura = BuildAura
 getgenv().ELITE_HUB_RemoveAura = RemoveAura
 
 -- ============================================================
--- HORNS (sit on top of head, nothing sunk into skull)
+-- HORNS (10 styles + size, head top)
 -- ============================================================
 getgenv().ELITE_HUB_HornsOn = false
+getgenv().ELITE_HUB_HornType = 1
+getgenv().ELITE_HUB_HornSize = 1
 local hornConn = nil
 local hornParts = {}
+
+local HORN_TYPES = {
+    { label = "Classic", p0 = Vector3.new(0.17, 0.5, -0.04), d0 = Vector3.new(0.16, 1, -0.14), d1 = Vector3.new(0.05, 1, -0.36), ns = 48, step = 0.022, db = 0.085, disc = 0.2, tip = 0.08, spikes = nil },
+    { label = "Goat", p0 = Vector3.new(0.16, 0.5, 0), d0 = Vector3.new(0.1, 1, -0.06), d1 = Vector3.new(-0.06, 1, -0.2), ns = 40, step = 0.02, db = 0.075, disc = 0.17, tip = 0.06, spikes = nil },
+    { label = "Bull", p0 = Vector3.new(0.2, 0.42, 0.05), d0 = Vector3.new(0.3, 0.75, 0.3), d1 = Vector3.new(0.55, 0.35, 0.5), ns = 30, step = 0.032, db = 0.125, disc = 0.26, tip = 0.09, spikes = nil },
+    { label = "Ram", p0 = Vector3.new(0.22, 0.48, 0), d0 = Vector3.new(0.4, 0.55, 0.1), d1 = Vector3.new(-0.05, 0.9, -0.25), ns = 56, step = 0.022, db = 0.105, disc = 0.24, tip = 0.08, spikes = nil },
+    { label = "Imp", p0 = Vector3.new(0.14, 0.5, 0), d0 = Vector3.new(0.06, 1, 0), d1 = Vector3.new(0.03, 1, -0.1), ns = 26, step = 0.02, db = 0.058, disc = 0.13, tip = 0.04, spikes = nil },
+    { label = "Devil", p0 = Vector3.new(0.18, 0.48, -0.05), d0 = Vector3.new(0.1, 1, -0.22), d1 = Vector3.new(-0.02, 0.7, -0.6), ns = 52, step = 0.024, db = 0.095, disc = 0.22, tip = 0.06, spikes = nil },
+    { label = "Dragon", p0 = Vector3.new(0.15, 0.5, -0.04), d0 = Vector3.new(0.13, 1, -0.16), d1 = Vector3.new(0.03, 0.9, -0.42), ns = 44, step = 0.02, db = 0.08, disc = 0.18, tip = 0.05, spikes = { { off = Vector3.new(0, 0, -0.1), d0 = Vector3.new(0.05, 1, -0.35), d1 = Vector3.new(0, 0.8, -0.6), ns = 26, step = 0.018, db = 0.05 }, { off = Vector3.new(0.06, 0.02, 0.02), d0 = Vector3.new(0.22, 0.85, 0.2), d1 = Vector3.new(0.45, 0.55, 0.4), ns = 20, step = 0.018, db = 0.045 } } },
+    { label = "King", p0 = Vector3.new(0.2, 0.5, -0.05), d0 = Vector3.new(0.16, 1, -0.16), d1 = Vector3.new(0.3, 0.5, -0.6), ns = 56, step = 0.026, db = 0.14, disc = 0.3, tip = 0.09, spikes = nil },
+    { label = "Stag", p0 = Vector3.new(0.15, 0.5, 0), d0 = Vector3.new(0.1, 1, -0.2), d1 = Vector3.new(0.2, 0.8, -0.45), ns = 44, step = 0.021, db = 0.08, disc = 0.18, tip = 0.05, spikes = { { off = Vector3.new(0.06, 0.42, -0.28), d0 = Vector3.new(0.05, 1, -0.3), d1 = Vector3.new(0.3, 0.6, -0.55), ns = 24, step = 0.018, db = 0.05 } } },
+    { label = "Double", p0 = Vector3.new(0.16, 0.48, 0), d0 = Vector3.new(0.12, 1, 0.05), d1 = Vector3.new(0.24, 0.85, 0.4), ns = 34, step = 0.02, db = 0.08, disc = 0.18, tip = 0.05, spikes = { { off = Vector3.new(0.03, -0.12, 0.1), d0 = Vector3.new(0.5, 0.5, 0.4), d1 = Vector3.new(0.8, 0.25, 0.55), ns = 22, step = 0.02, db = 0.06 } } }
+}
 
 local function RemoveHorns()
     if hornConn then pcall(function() hornConn:Disconnect() end) hornConn = nil end
@@ -2227,51 +2242,65 @@ local function BuildHorns(char)
     if not head then return end
     RemoveHorns()
     task.wait(0.2)
-    local S = getgenv().ELITE_HUB_AuraSize or 1
+    local S = getgenv().ELITE_HUB_HornSize or 1
+    if S < 0.1 then S = 0.1 end
     local COL = getgenv().ELITE_HUB_AuraColor
     local headCF = head.CFrame
     local hrn = Instance.new("Model")
     hrn.Name = "ELITEHUB_HORNS"
     hrn.Parent = workspace
-    local function sideHorn(side)
-        local P0 = Vector3.new(side * 0.17 * S, 0.5 * S, -0.04 * S)
-        local d0 = Vector3.new(side * 0.16, 1, -0.14).Unit
-        local d1 = Vector3.new(side * 0.05, 1, -0.36).Unit
-        local disc = MP({ Shape = Enum.PartType.Cylinder, Size = Vector3.new(0.2 * S, 0.04 * S, 0.2 * S), Color = COL, Material = "Neon" })
-        local dcf = CFrame.new(Vector3.new(side * 0.17 * S, 0.5 * S, -0.04 * S))
-        disc.CFrame = headCF * dcf
-        disc:BreakJoints()
-        disc.Parent = hrn
-        hornParts[disc] = dcf
+    local function drawHorn(side, p0v, d0v, d1v, ns, step, db, discD, tipD)
+        local P0 = Vector3.new(side * p0v.X * S, p0v.Y * S, p0v.Z * S)
+        if discD and discD > 0 then
+            local disc = MP({ Shape = Enum.PartType.Cylinder, Size = Vector3.new(discD * S, 0.04 * S, discD * S), Color = COL, Material = "Neon" })
+            local bcf = CFrame.new(P0)
+            disc.CFrame = headCF * bcf
+            disc:BreakJoints()
+            disc.Parent = hrn
+            hornParts[disc] = bcf
+        end
+        local d0 = Vector3.new(side * d0v.X, d0v.Y, d0v.Z).Unit
+        local d1 = Vector3.new(side * d1v.X, d1v.Y, d1v.Z).Unit
         local pos = P0
-        local NS = 48
-        local step = 0.022 * S
-        for k = 0, NS - 1 do
-            local t = (k + 1) / NS
+        local stepLen = step * S
+        for k = 0, ns - 1 do
+            local t = (k + 1) / ns
             local dir = d0:Lerp(d1, t)
             dir = dir.Unit
-            local L = step * 3.0
-            local taper = 1 - (k / NS) * 0.97
-            local D = (0.085 * taper) * S
-            if D < 0.02 * S then D = 0.02 * S end
+            local L = stepLen * 3.0
+            local taper = 1 - (k / ns) * 0.97
+            local D = (db * taper) * S
+            if D < 0.015 * S then D = 0.015 * S end
             local xvec = Vector3.new(-dir.Z, 0, dir.X)
             if xvec.Magnitude < 0.01 then xvec = Vector3.new(0, 0, 1) end
             xvec = xvec.Unit
-            local cp = pos + dir * (step / 2)
+            local cp = pos + dir * (stepLen / 2)
             local lcf = CFrame.fromMatrix(cp, xvec, dir)
             local seg = MP({ Shape = Enum.PartType.Cylinder, Size = Vector3.new(D, L, D), Color = COL, Material = "Neon" })
             seg.CFrame = headCF * lcf
             seg:BreakJoints()
             seg.Parent = hrn
             hornParts[seg] = lcf
-            pos = pos + dir * step
+            pos = pos + dir * stepLen
         end
-        local tip = MP({ Shape = Enum.PartType.Ball, Size = Vector3.new(0.07 * S, 0.09 * S, 0.07 * S), Color = COL, Material = "Neon" })
-        local tlcf = CFrame.new(pos)
-        tip.CFrame = headCF * tlcf
-        tip:BreakJoints()
-        tip.Parent = hrn
-        hornParts[tip] = tlcf
+        if tipD and tipD > 0 then
+            local tip = MP({ Shape = Enum.PartType.Ball, Size = Vector3.new(tipD * S, tipD * 1.2 * S, tipD * S), Color = COL, Material = "Neon" })
+            local tlcf = CFrame.new(pos)
+            tip.CFrame = headCF * tlcf
+            tip:BreakJoints()
+            tip.Parent = hrn
+            hornParts[tip] = tlcf
+        end
+    end
+    local function sideHorn(side)
+        local cfg = HORN_TYPES[tonumber(getgenv().ELITE_HUB_HornType) or 1] or HORN_TYPES[1]
+        drawHorn(side, cfg.p0, cfg.d0, cfg.d1, cfg.ns, cfg.step, cfg.db, cfg.disc, cfg.tip)
+        if cfg.spikes then
+            for _, sp in ipairs(cfg.spikes) do
+                local p0v = Vector3.new(cfg.p0.X + sp.off.X, cfg.p0.Y + sp.off.Y, cfg.p0.Z + sp.off.Z)
+                drawHorn(side, p0v, sp.d0, sp.d1, sp.ns, sp.step, sp.db, 0, 0)
+            end
+        end
     end
     sideHorn(-1)
     sideHorn(1)
@@ -2317,6 +2346,28 @@ MT:CreateToggle({
         if v then task.spawn(function() pcall(function() BuildHorns(player.Character) end) end) else RemoveHorns() end
     end
 })
+MT:CreateDropdown({
+    Name = " Horn Type",
+    Options = { "Classic", "Goat", "Bull", "Ram", "Imp", "Devil", "Dragon", "King", "Stag", "Double" },
+    CurrentOption = "Classic",
+    Callback = function(opt)
+        for i, ht in ipairs(HORN_TYPES) do
+            if ht.label == opt then getgenv().ELITE_HUB_HornType = i break end
+        end
+        getgenv().ELITE_HUB_Log("MODS", "Horns type: " .. opt)
+        if getgenv().ELITE_HUB_HornsOn then task.spawn(function() pcall(function() BuildHorns(player.Character) end) end) end
+    end
+})
+MT:CreateSlider({
+    Name = " Horn Size",
+    Range = {0.5, 2.5},
+    Increment = 0.1,
+    CurrentValue = 1,
+    Callback = function(v)
+        getgenv().ELITE_HUB_HornSize = v
+        if getgenv().ELITE_HUB_HornsOn then task.spawn(function() pcall(function() BuildHorns(player.Character) end) end) end
+    end
+})
 MT:CreateColorPicker({
     Name = " Aura Color",
     Color = getgenv().ELITE_HUB_AuraColor,
@@ -2334,7 +2385,6 @@ MT:CreateSlider({
     Callback = function(v)
         getgenv().ELITE_HUB_AuraSize = v
         if getgenv().ELITE_HUB_AuraOn then task.spawn(function() BuildAura(player.Character) end) end
-        if getgenv().ELITE_HUB_HornsOn then task.spawn(function() BuildHorns(player.Character) end) end
     end
 })
 MT:CreateToggle({
@@ -2603,7 +2653,7 @@ MT:CreateColorPicker({
 })
 MT:CreateSlider({
     Name = " Wings Size",
-    Range = {0.6, 2},
+    Range = {0.5, 3},
     Increment = 0.1,
     CurrentValue = 1,
     Callback = function(v)
