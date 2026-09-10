@@ -2141,6 +2141,7 @@ end
 getgenv().ELITE_HUB_AuraOn = false
 getgenv().ELITE_HUB_AuraColor = Color3.fromRGB(255, 215, 0)
 getgenv().ELITE_HUB_AuraSize = 1
+getgenv().ELITE_HUB_VisualMaterial = "Neon"
 getgenv().ELITE_HUB_AuraSpin = false
 getgenv().ELITE_HUB_AuraSpinSpeed = 40
 local auraConn = nil
@@ -2161,6 +2162,7 @@ local function BuildAura(char)
     task.wait(0.2)
     local S = getgenv().ELITE_HUB_AuraSize or 1
     local COL = getgenv().ELITE_HUB_AuraColor
+    local MAT = getgenv().ELITE_HUB_VisualMaterial or "Neon"
     local headCF = head.CFrame
     local au = Instance.new("Model")
     au.Name = "ELITEHUB_AURA"
@@ -2170,7 +2172,7 @@ local function BuildAura(char)
     for i = 0, N - 1 do
         local ang = (i / N) * math.pi * 2
         local chord = R * 2 * math.tan(math.pi / N) * 1.5
-        local seg = MP({ Shape = Enum.PartType.Cylinder, Size = Vector3.new(0.1 * S, chord, 0.12 * S), Color = COL, Material = "Neon" })
+        local seg = MP({ Shape = Enum.PartType.Cylinder, Size = Vector3.new(0.1 * S, chord, 0.12 * S), Color = COL, Material = MAT })
         local pos = Vector3.new(R * math.cos(ang), 0.95 * S + 0.05, R * math.sin(ang))
         local tang = Vector3.new(-math.sin(ang), 0, math.cos(ang))
         local ccf = CFrame.fromMatrix(pos, Vector3.new(0, 1, 0), tang)
@@ -2245,6 +2247,7 @@ local function BuildHorns(char)
     local S = getgenv().ELITE_HUB_HornSize or 1
     if S < 0.1 then S = 0.1 end
     local COL = getgenv().ELITE_HUB_AuraColor
+    local MAT = getgenv().ELITE_HUB_VisualMaterial or "Neon"
     local headCF = head.CFrame
     local hrn = Instance.new("Model")
     hrn.Name = "ELITEHUB_HORNS"
@@ -2252,7 +2255,7 @@ local function BuildHorns(char)
     local function drawHorn(side, p0v, d0v, d1v, ns, step, db, discD, tipD)
         local P0 = Vector3.new(side * p0v.X * S, p0v.Y * S, p0v.Z * S)
         if discD and discD > 0 then
-            local disc = MP({ Shape = Enum.PartType.Cylinder, Size = Vector3.new(discD * S, 0.04 * S, discD * S), Color = COL, Material = "Neon" })
+            local disc = MP({ Shape = Enum.PartType.Cylinder, Size = Vector3.new(discD * S, 0.04 * S, discD * S), Color = COL, Material = MAT })
             local bcf = CFrame.new(P0)
             disc.CFrame = headCF * bcf
             disc:BreakJoints()
@@ -2276,7 +2279,7 @@ local function BuildHorns(char)
             xvec = xvec.Unit
             local cp = pos + dir * (stepLen / 2)
             local lcf = CFrame.fromMatrix(cp, xvec, dir)
-            local seg = MP({ Shape = Enum.PartType.Cylinder, Size = Vector3.new(D, L, D), Color = COL, Material = "Neon" })
+            local seg = MP({ Shape = Enum.PartType.Cylinder, Size = Vector3.new(D, L, D), Color = COL, Material = MAT })
             seg.CFrame = headCF * lcf
             seg:BreakJoints()
             seg.Parent = hrn
@@ -2284,7 +2287,7 @@ local function BuildHorns(char)
             pos = pos + dir * stepLen
         end
         if tipD and tipD > 0 then
-            local tip = MP({ Shape = Enum.PartType.Ball, Size = Vector3.new(tipD * S, tipD * 1.2 * S, tipD * S), Color = COL, Material = "Neon" })
+            local tip = MP({ Shape = Enum.PartType.Ball, Size = Vector3.new(tipD * S, tipD * 1.2 * S, tipD * S), Color = COL, Material = MAT })
             local tlcf = CFrame.new(pos)
             tip.CFrame = headCF * tlcf
             tip:BreakJoints()
@@ -2398,6 +2401,18 @@ MT:CreateSlider({
     Increment = 5,
     CurrentValue = 40,
     Callback = function(v) getgenv().ELITE_HUB_AuraSpinSpeed = v end
+})
+MT:CreateDropdown({
+    Name = " Visual Material",
+    Options = { "Neon", "SmoothPlastic", "Plastic", "Glass", "ForceField", "Metal", "Ice", "CrackedLava", "DiamondPlate", "Marble", "Obsidian", "Foil", "Wood", "Concrete", "Sand", "Stone", "Brick", "Glacier" },
+    CurrentOption = "Neon",
+    Callback = function(opt)
+        getgenv().ELITE_HUB_VisualMaterial = opt
+        getgenv().ELITE_HUB_Log("MODS", "Visual material: " .. opt)
+        if getgenv().ELITE_HUB_AuraOn then task.spawn(function() BuildAura(player.Character) end) end
+        if getgenv().ELITE_HUB_HornsOn then task.spawn(function() pcall(function() BuildHorns(player.Character) end) end) end
+        if getgenv().ELITE_HUB_WingsOn then task.spawn(function() pcall(function() BuildWings(player.Character) end) end) end
+    end
 })
 
 -- ============================================================
@@ -2577,6 +2592,7 @@ local function BuildWings(char)
     task.wait(0.2)
     local S = getgenv().ELITE_HUB_WingsSize or 1
     local COL = getgenv().ELITE_HUB_WingsColor
+    local MAT = getgenv().ELITE_HUB_VisualMaterial or "Neon"
     local torsoCF = torso.CFrame
     local w = Instance.new("Model")
     w.Name = "ELITEHUB_WINGS"
@@ -2599,7 +2615,7 @@ local function BuildWings(char)
                 xvec = xvec.Unit
                 local mp0 = P.Position + dir * (L / 2)
                 local lcf = CFrame.fromMatrix(mp0, xvec, dir)
-                local ft = MP({ Shape = Enum.PartType.Cylinder, Size = Vector3.new(D, L, D), Color = COL, Material = "Neon" })
+                local ft = MP({ Shape = Enum.PartType.Cylinder, Size = Vector3.new(D, L, D), Color = COL, Material = MAT })
                 ft.Transparency = 0.15
                 ft.CFrame = torsoCF * lcf
                 ft:BreakJoints()
@@ -2619,7 +2635,7 @@ local function BuildWings(char)
                     xvec = xvec.Unit
                     local mp0 = P.Position + dir * (L / 2) + memn * 0.08
                     local lcf = CFrame.fromMatrix(mp0, xvec, dir)
-                    local mb = MP({ Shape = Enum.PartType.Cylinder, Size = Vector3.new(0.34, L, 0.32), Color = COL, Material = "Neon" })
+                    local mb = MP({ Shape = Enum.PartType.Cylinder, Size = Vector3.new(0.34, L, 0.32), Color = COL, Material = MAT })
                     mb.Transparency = 0.45
                     mb.CFrame = torsoCF * lcf
                     mb:BreakJoints()
@@ -2637,7 +2653,7 @@ local function BuildWings(char)
                 bx = bx.Unit
                 local bmp = P.Position + dm * (bl / 2)
                 local blcf = CFrame.fromMatrix(bmp, bx, dm)
-                local bk = MP({ Shape = Enum.PartType.Cylinder, Size = Vector3.new(bD, bl, bD), Color = COL, Material = "Neon" })
+                local bk = MP({ Shape = Enum.PartType.Cylinder, Size = Vector3.new(bD, bl, bD), Color = COL, Material = MAT })
                 bk.Transparency = 0.05
                 bk.CFrame = torsoCF * blcf
                 bk:BreakJoints()
