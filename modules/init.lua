@@ -765,12 +765,14 @@ local function BuildAura(char)
     au.Name = "ELITEHUB_AURA"
     au.Parent = workspace
     local R = 0.55 * S
-    for i = 0, 23 do
-        local ang = (i / 24) * math.pi * 2
-        local seg = MP({ Shape = Enum.PartType.Ball, Size = Vector3.new(0.075 * S, 0.085 * S, 0.075 * S), Color = COL })
+    local N = 48
+    for i = 0, N - 1 do
+        local ang = (i / N) * math.pi * 2
+        local chord = R * 2 * math.tan(math.pi / N) * 1.2
+        local seg = MP({ Shape = Enum.PartType.Cylinder, Size = Vector3.new(0.06 * S, chord, 0.09 * S), Color = COL, Material = "Neon" })
         local pos = Vector3.new(R * math.cos(ang), 0.95 * S + 0.05, R * math.sin(ang))
         local tang = Vector3.new(-math.sin(ang), 0, math.cos(ang))
-        local ccf = CFrame.fromMatrix(pos, tang, Vector3.new(0, 1, 0))
+        local ccf = CFrame.fromMatrix(pos, Vector3.new(0, 1, 0), tang)
         seg.CFrame = headCF * ccf
         seg:BreakJoints()
         seg.Parent = au
@@ -896,18 +898,18 @@ local function BuildAviators(char)
     av.Name = "ELITEHUB_AVIATORS"
     av.Parent = workspace
     local function lens(side)
-        local p = MP({ Shape = Enum.PartType.Cylinder, Size = Vector3.new(0.05, 0.27 * S, 0.27 * S), Color = COL })
-        local lcf = CFrame.new(side * 0.17 * S, 0.0, -0.3 * S) * CFrame.Angles(0, 0, math.pi / 2)
+        local p = MP({ Shape = Enum.PartType.Cylinder, Size = Vector3.new(0.04, 0.2 * S, 0.2 * S), Color = COL, Material = "Neon" })
+        local lcf = CFrame.new(side * 0.16 * S, 0.0, -0.46 * S) * CFrame.Angles(0, 0, math.pi / 2)
         p.CFrame = headCF * lcf
-        p.Transparency = 0.2
+        p.Transparency = 0.15
         p:BreakJoints()
         p.Parent = av
         aviParts[p] = lcf
     end
     lens(-1)
     lens(1)
-    local bridge = MP({ Size = Vector3.new(0.12 * S, 0.035, 0.035), Color = COL })
-    local blcf = CFrame.new(0, 0.0, -0.3 * S)
+    local bridge = MP({ Size = Vector3.new(0.1 * S, 0.03, 0.03), Color = COL, Material = "Neon" })
+    local blcf = CFrame.new(0, 0.0, -0.46 * S)
     bridge.CFrame = headCF * blcf
     bridge:BreakJoints()
     bridge.Parent = av
@@ -970,25 +972,50 @@ MT:CreateSlider({
 getgenv().ELITE_HUB_BigHeadOn = false
 getgenv().ELITE_HUB_BigHeadScale = 1.8
 
+getgenv().ELITE_HUB_BigHeadState = {}
 local function ApplyBigHead(char)
     if not getgenv().ELITE_HUB_BigHeadOn then return end
     if not char then return end
+    local head = char:FindFirstChild("Head")
     local hum = char:FindFirstChildOfClass("Humanoid")
-    if not hum then return end
+    if not head then return end
+    local s = getgenv().ELITE_HUB_BigHeadScale or 1.8
     pcall(function()
-        local s = getgenv().ELITE_HUB_BigHeadScale or 1.8
-        hum.HeadScale = s
-        hum.HeadOffset = Vector3.new(0, (s - 1) * 0.35, 0)
+        local st = getgenv().ELITE_HUB_BigHeadState
+        if not st.head then
+            st.head = head
+            st.size = head.Size
+            local m = head:FindFirstChildOfClass("SpecialMesh")
+            if m then st.mesh = m st.meshScale = m.Scale end
+        end
+        if st.head == head then
+            head.Size = st.size * s
+            if st.mesh and st.mesh.Parent then st.mesh.Scale = st.meshScale * s end
+        end
     end)
+    if hum then
+        pcall(function()
+            hum.HeadScale = s
+            hum.HeadOffset = Vector3.new(0, (s - 1) * 0.2, 0)
+        end)
+    end
 end
 
 local function RestoreBigHead(char)
-    if not char then return end
-    local hum = char:FindFirstChildOfClass("Humanoid")
-    if hum then
+    pcall(function()
+        local st = getgenv().ELITE_HUB_BigHeadState
+        if st.head then
+            if st.head.Parent then
+                st.head.Size = st.size
+                if st.mesh and st.mesh.Parent then st.mesh.Scale = st.meshScale end
+            end
+            st.head = nil st.size = nil st.mesh = nil st.meshScale = nil
+        end
+    end)
+    if char then
         pcall(function()
-            hum.HeadScale = 1
-            hum.HeadOffset = Vector3.new(0, 0, 0)
+            local hum = char:FindFirstChildOfClass("Humanoid")
+            if hum then hum.HeadScale = 1 hum.HeadOffset = Vector3.new(0, 0, 0) end
         end)
     end
 end
@@ -1047,42 +1074,42 @@ local function BuildHeadgear(char)
     g.Parent = workspace
     local style = getgenv().ELITE_HUB_HeadgearStyle or "Crown"
     if style == "Crown" then
-        local base = MP({ Shape = Enum.PartType.Cylinder, Size = Vector3.new(0.33 * S, 0.18 * S, 0.33 * S), Color = COL, Material = "Metal" })
-        local blcf = CFrame.new(0, 0.29 * S, 0)
+        local base = MP({ Shape = Enum.PartType.Cylinder, Size = Vector3.new(0.34 * S, 0.16 * S, 0.34 * S), Color = COL, Material = "Metal" })
+        local blcf = CFrame.new(0, 0.62 * S, 0)
         base.CFrame = headCF * blcf
         base:BreakJoints()
         base.Parent = g
         gearParts[base] = blcf
-        local rim = MP({ Shape = Enum.PartType.Cylinder, Size = Vector3.new(0.37 * S, 0.06 * S, 0.37 * S), Color = COL, Material = "Metal" })
-        local rlcf = CFrame.new(0, 0.39 * S, 0)
+        local rim = MP({ Shape = Enum.PartType.Cylinder, Size = Vector3.new(0.39 * S, 0.06 * S, 0.39 * S), Color = COL, Material = "Metal" })
+        local rlcf = CFrame.new(0, 0.74 * S, 0)
         rim.CFrame = headCF * rlcf
         rim:BreakJoints()
         rim.Parent = g
         gearParts[rim] = rlcf
         for i = 0, 4 do
             local ang = (i / 5) * math.pi * 2
-            local sp = MP({ Shape = Enum.PartType.Ball, Size = Vector3.new(0.09 * S, 0.13 * S, 0.09 * S), Color = COL, Material = "Metal" })
-            local slcf = CFrame.new(0.11 * S * math.cos(ang), 0.32 * S, 0.11 * S * math.sin(ang))
+            local sp = MP({ Shape = Enum.PartType.Ball, Size = Vector3.new(0.09 * S, 0.12 * S, 0.09 * S), Color = COL, Material = "Metal" })
+            local slcf = CFrame.new(0.11 * S * math.cos(ang), 0.68 * S, 0.11 * S * math.sin(ang))
             sp.CFrame = headCF * slcf
             sp:BreakJoints()
             sp.Parent = g
             gearParts[sp] = slcf
         end
     else
-        local bucket = MP({ Shape = Enum.PartType.Cylinder, Size = Vector3.new(0.38 * S, 0.44 * S, 0.38 * S), Color = Color3.fromRGB(240, 240, 240), Material = "SmoothPlastic" })
-        local blcf = CFrame.new(0, 0.26 * S, 0)
+        local bucket = MP({ Shape = Enum.PartType.Cylinder, Size = Vector3.new(0.4 * S, 0.5 * S, 0.4 * S), Color = Color3.fromRGB(240, 240, 240), Material = "SmoothPlastic" })
+        local blcf = CFrame.new(0, 0.66 * S, 0)
         bucket.CFrame = headCF * blcf
         bucket:BreakJoints()
         bucket.Parent = g
         gearParts[bucket] = blcf
-        local band = MP({ Shape = Enum.PartType.Cylinder, Size = Vector3.new(0.4 * S, 0.08 * S, 0.4 * S), Color = Color3.fromRGB(200, 20, 20), Material = "SmoothPlastic" })
-        local bclcf = CFrame.new(0, 0.14 * S, 0)
+        local band = MP({ Shape = Enum.PartType.Cylinder, Size = Vector3.new(0.42 * S, 0.08 * S, 0.42 * S), Color = Color3.fromRGB(200, 20, 20), Material = "SmoothPlastic" })
+        local bclcf = CFrame.new(0, 0.42 * S, 0)
         band.CFrame = headCF * bclcf
         band:BreakJoints()
         band.Parent = g
         gearParts[band] = bclcf
-        local rim2 = MP({ Shape = Enum.PartType.Cylinder, Size = Vector3.new(0.4 * S, 0.1 * S, 0.4 * S), Color = Color3.fromRGB(200, 20, 20), Material = "SmoothPlastic" })
-        local r2cf = CFrame.new(0, 0.48 * S, 0)
+        local rim2 = MP({ Shape = Enum.PartType.Cylinder, Size = Vector3.new(0.42 * S, 0.1 * S, 0.42 * S), Color = Color3.fromRGB(200, 20, 20), Material = "SmoothPlastic" })
+        local r2cf = CFrame.new(0, 0.92 * S, 0)
         rim2.CFrame = headCF * r2cf
         rim2:BreakJoints()
         rim2.Parent = g
@@ -1241,10 +1268,10 @@ local function BuildWings(char)
     w.Name = "ELITEHUB_WINGS"
     w.Parent = workspace
     local function petal(side, k, shoulder)
-        local L = (0.8 + 0.32 * k) * S
-        local dir = Vector3.new(side * 0.55, 0.1 + 0.28 * k, 0).Unit
-        local p = MP({ Shape = Enum.PartType.Cylinder, Size = Vector3.new(0.16 * S, L, 0.16 * S), Color = COL, Material = "Glass" })
-        p.Transparency = 0.35
+        local L = (0.9 + 0.4 * k) * S
+        local dir = Vector3.new(side * 0.6, 0.05 + 0.3 * k, 0).Unit
+        local p = MP({ Shape = Enum.PartType.Cylinder, Size = Vector3.new(0.17 * S, L, 0.17 * S), Color = COL, Material = "ForceField" })
+        p.Transparency = 0.2
         local xvec = Vector3.new(-dir.Z, 0, dir.X)
         if xvec.Magnitude < 0.01 then xvec = Vector3.new(0, 0, 1) end
         xvec = xvec.Unit
@@ -1256,7 +1283,7 @@ local function BuildWings(char)
         wingParts[p] = lcf
     end
     local function wing(side)
-        local shoulder = CFrame.new(side * 0.16 * S, -0.05 * S, -0.05 * S)
+        local shoulder = CFrame.new(side * 0.2 * S, -0.05 * S, -0.1 * S)
         for k = 0, 3 do petal(side, k, shoulder) end
     end
     wing(-1)
