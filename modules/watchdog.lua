@@ -41,11 +41,6 @@ task.spawn(function()
                     pcall(function() getgenv().ELITE_HUB_BuildHorns(ch) end)
                 end
             end
-            if getgenv().ELITE_HUB_AviatorsOn then
-                if not workspace:FindFirstChild("ELITEHUB_AVIATORS") then
-                    pcall(function() getgenv().ELITE_HUB_BuildAviators(ch) end)
-                end
-            end
             if getgenv().ELITE_HUB_WingsOn then
                 if not workspace:FindFirstChild("ELITEHUB_WINGS") then
                     pcall(function() getgenv().ELITE_HUB_BuildWings(ch) end)

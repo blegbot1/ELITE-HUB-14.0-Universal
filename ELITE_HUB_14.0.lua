@@ -2091,7 +2091,7 @@ end)
 end)
 
 -- ============================================================
--- FUN VISUALS (Aura, Horns, Aviators, Big Head, Gold, Wings)
+-- FUN VISUALS (Aura, Horns, Big Head, Gold, Wings)
 -- ============================================================
 task.spawn(function()
 local MT = VisualTab
@@ -2234,21 +2234,38 @@ local function BuildHorns(char)
     hrn.Name = "ELITEHUB_HORNS"
     hrn.Parent = workspace
     local function sideHorn(side)
-        local base = Vector3.new(side * 0.16 * S, 0.5 * S, -0.05 * S)
-        for k = 0, 2 do
-            local L = (0.28 + 0.18 * k) * S
-            local bend = 0.18 + 0.34 * k
-            local seg = MP({ Shape = Enum.PartType.Cylinder, Size = Vector3.new(0.06 * S, L, 0.06 * S), Color = COL, Material = "Neon" })
-            local lcf = CFrame.new(base) * CFrame.Angles(0, 0, -bend * side) * CFrame.new(0, L / 2, 0)
+        local P0 = Vector3.new(side * 0.16 * S, 0.5 * S, 0)
+        local d0 = Vector3.new(side * 0.12, 1, -0.08).Unit
+        local d1 = Vector3.new(side * 0.5, 0.8, -0.12).Unit
+        local disc = MP({ Shape = Enum.PartType.Cylinder, Size = Vector3.new(0.19 * S, 0.03 * S, 0.19 * S), Color = COL, Material = "Neon" })
+        local dcf = CFrame.new(Vector3.new(side * 0.16 * S, 0.5 * S, 0))
+        disc.CFrame = headCF * dcf
+        disc:BreakJoints()
+        disc.Parent = hrn
+        hornParts[disc] = dcf
+        local pos = P0
+        local stepL = 0.09 * S
+        for k = 0, 11 do
+            local t = (k + 1) / 12
+            local dir = d0:Lerp(d1, t)
+            dir = dir.Unit
+            local taper = 1 - (k / 12) * 0.85
+            local D = (0.1 * taper) * S
+            if D < 0.035 * S then D = 0.035 * S end
+            local xvec = Vector3.new(-dir.Z, 0, dir.X)
+            if xvec.Magnitude < 0.01 then xvec = Vector3.new(0, 0, 1) end
+            xvec = xvec.Unit
+            local cp = pos + dir * (stepL / 2)
+            local lcf = CFrame.fromMatrix(cp, xvec, dir)
+            local seg = MP({ Shape = Enum.PartType.Cylinder, Size = Vector3.new(D, stepL, D), Color = COL, Material = "Neon" })
             seg.CFrame = headCF * lcf
             seg:BreakJoints()
             seg.Parent = hrn
             hornParts[seg] = lcf
+            pos = pos + dir * stepL
         end
-        local tL = (0.28 + 0.18 * 2) * S
-        local tBend = 0.18 + 0.34 * 2
-        local tip = MP({ Shape = Enum.PartType.Ball, Size = Vector3.new(0.13 * S, 0.15 * S, 0.13 * S), Color = COL, Material = "Neon" })
-        local tlcf = CFrame.new(base) * CFrame.Angles(0, 0, -tBend * side) * CFrame.new(0, tL, 0)
+        local tip = MP({ Shape = Enum.PartType.Ball, Size = Vector3.new(0.09 * S, 0.11 * S, 0.09 * S), Color = COL, Material = "Neon" })
+        local tlcf = CFrame.new(pos)
         tip.CFrame = headCF * tlcf
         tip:BreakJoints()
         tip.Parent = hrn
@@ -2329,102 +2346,6 @@ MT:CreateSlider({
     Increment = 5,
     CurrentValue = 40,
     Callback = function(v) getgenv().ELITE_HUB_AuraSpinSpeed = v end
-})
-
--- ============================================================
--- AVIATORS (sunglasses)
--- ============================================================
-getgenv().ELITE_HUB_AviatorsOn = false
-getgenv().ELITE_HUB_AviatorsColor = Color3.fromRGB(25, 25, 30)
-getgenv().ELITE_HUB_AviatorsSize = 1
-local aviConn = nil
-local aviParts = {}
-
-local function RemoveAviators()
-    if aviConn then pcall(function() aviConn:Disconnect() end) aviConn = nil end
-    aviParts = {}
-    ClearModel("ELITEHUB_AVIATORS")
-end
-
-local function BuildAviators(char)
-    if not getgenv().ELITE_HUB_AviatorsOn then return end
-    if not char then return end
-    local head = char:FindFirstChild("Head")
-    if not head then return end
-    RemoveAviators()
-    task.wait(0.2)
-    local S = getgenv().ELITE_HUB_AviatorsSize or 1
-    local COL = getgenv().ELITE_HUB_AviatorsColor
-    local headCF = head.CFrame
-    local av = Instance.new("Model")
-    av.Name = "ELITEHUB_AVIATORS"
-    av.Parent = workspace
-    local function lens(side)
-        local p = MP({ Shape = Enum.PartType.Cylinder, Size = Vector3.new(0.05, 0.3 * S, 0.3 * S), Color = COL, Material = "Neon" })
-        local lcf = CFrame.new(side * 0.19 * S, 0.02 * S, -0.56 * S) * CFrame.Angles(0, 0, math.pi / 2)
-        p.CFrame = headCF * lcf
-        p:BreakJoints()
-        p.Parent = av
-        aviParts[p] = lcf
-    end
-    lens(-1)
-    lens(1)
-    local bridge = MP({ Size = Vector3.new(0.12 * S, 0.04, 0.04), Color = COL, Material = "Neon" })
-    local blcf = CFrame.new(0, 0.02 * S, -0.56 * S)
-    bridge.CFrame = headCF * blcf
-    bridge:BreakJoints()
-    bridge.Parent = av
-    aviParts[bridge] = blcf
-    Unanchor(av)
-    if aviConn then pcall(function() aviConn:Disconnect() end) end
-    aviConn = game:GetService("RunService").Heartbeat:Connect(function()
-        pcall(function()
-            if not getgenv().ELITE_HUB_AviatorsOn then RemoveAviators() return end
-            local h = workspace:FindFirstChild("ELITEHUB_AVIATORS")
-            if not h then
-                local c = player.Character
-                if c and c:FindFirstChild("Head") then task.spawn(function() BuildAviators(c) end) end
-                return
-            end
-            local hd = char:FindFirstChild("Head")
-            if not hd then return end
-            local hdCF = hd.CFrame
-            for p, lcf in pairs(aviParts) do
-                if p and p.Parent then p.CFrame = hdCF * lcf end
-            end
-        end)
-    end)
-end
-getgenv().ELITE_HUB_BuildAviators = BuildAviators
-getgenv().ELITE_HUB_RemoveAviators = RemoveAviators
-
-MT:CreateSection("AVIATORS")
-MT:CreateToggle({
-    Name = " Aviators",
-    CurrentValue = false,
-    Callback = function(v)
-        getgenv().ELITE_HUB_AviatorsOn = v
-        getgenv().ELITE_HUB_Log("MODS", "Aviators: " .. tostring(v))
-        if v then task.spawn(function() pcall(function() BuildAviators(player.Character) end) end) else RemoveAviators() end
-    end
-})
-MT:CreateColorPicker({
-    Name = " Lens Color",
-    Color = getgenv().ELITE_HUB_AviatorsColor,
-    Callback = function(v)
-        getgenv().ELITE_HUB_AviatorsColor = v
-        if getgenv().ELITE_HUB_AviatorsOn then task.spawn(function() BuildAviators(player.Character) end) end
-    end
-})
-MT:CreateSlider({
-    Name = " Lens Size",
-    Range = {0.6, 1.6},
-    Increment = 0.05,
-    CurrentValue = 1,
-    Callback = function(v)
-        getgenv().ELITE_HUB_AviatorsSize = v
-        if getgenv().ELITE_HUB_AviatorsOn then task.spawn(function() BuildAviators(player.Character) end) end
-    end
 })
 
 -- ============================================================
@@ -2594,28 +2515,28 @@ local function BuildWings(char)
     w.Name = "ELITEHUB_WINGS"
     w.Parent = workspace
     local function wing(side)
-        local P = CFrame.new(side * 0.24 * S, -0.12 * S, -0.12 * S)
+        local P = CFrame.new(side * 0.95 * S, 0.15 * S, -0.1 * S)
         for i = 0, 4 do
-            local d0 = Vector3.new(side * 0.35, 1, -0.18).Unit
-            local d1 = Vector3.new(side * (0.95 + 0.16 * i), 0.5 - 0.08 * i, -0.18)
-            if d1.Magnitude < 0.01 then d1 = Vector3.new(side, 0, 0) end
+            local d0 = Vector3.new(side * 0.15, 1, -0.25).Unit
+            local d1 = Vector3.new(side * 1.15, 0.22 - 0.05 * i, -0.4)
+            if d1.Magnitude < 0.01 then d1 = Vector3.new(side, 0.3, 0) end
             d1 = d1.Unit
-            local ribS = 0.8 + 0.12 * i
+            local ribS = 0.9 + 0.14 * i
             local pos = P.Position
-            for k = 0, 7 do
-                local t = (k + 1) / 8
+            for k = 0, 8 do
+                local t = (k + 1) / 9
                 local dir = d0:Lerp(d1, t)
                 dir = dir.Unit
-                local L = (0.16 + 0.045 * k) * ribS * S
-                local D = (0.07 - 0.004 * k) * ribS * S
-                if D < 0.035 * S then D = 0.035 * S end
+                local L = (0.2 + 0.05 * k) * ribS * S
+                local D = (0.1 - 0.005 * k) * ribS * S
+                if D < 0.05 * S then D = 0.05 * S end
                 local xvec = Vector3.new(-dir.Z, 0, dir.X)
                 if xvec.Magnitude < 0.01 then xvec = Vector3.new(0, 0, 1) end
                 xvec = xvec.Unit
                 local cp = pos + dir * (L / 2)
                 local lcf = CFrame.fromMatrix(cp, xvec, dir)
-                local ft = MP({ Shape = Enum.PartType.Cylinder, Size = Vector3.new(D, L, D), Color = COL, Material = "ForceField" })
-                ft.Transparency = 0.2
+                local ft = MP({ Shape = Enum.PartType.Cylinder, Size = Vector3.new(D, L, D), Color = COL, Material = "Neon" })
+                ft.Transparency = 0.15
                 ft.CFrame = torsoCF * lcf
                 ft:BreakJoints()
                 ft.Parent = w
@@ -2623,7 +2544,7 @@ local function BuildWings(char)
                 pos = pos + dir * L
             end
         end
-        local core = MP({ Shape = Enum.PartType.Ball, Size = Vector3.new(0.45 * S, 0.45 * S, 0.45 * S), Color = COL, Material = "ForceField" })
+        local core = MP({ Shape = Enum.PartType.Ball, Size = Vector3.new(0.5 * S, 0.5 * S, 0.5 * S), Color = COL, Material = "Neon" })
         local cl = P
         core.CFrame = torsoCF * cl
         core:BreakJoints()
@@ -2712,7 +2633,6 @@ player.CharacterAdded:Connect(function(char)
     task.wait(1)
     pcall(function()
         if getgenv().ELITE_HUB_AuraOn then BuildAura(char) end
-        if getgenv().ELITE_HUB_AviatorsOn then BuildAviators(char) end
         if getgenv().ELITE_HUB_HornsOn then BuildHorns(char) end
         if getgenv().ELITE_HUB_WingsOn then BuildWings(char) end
         if getgenv().ELITE_HUB_GoldOn then ApplyGold(char) end
@@ -3092,7 +3012,6 @@ local function DestroyScript()
 
     -- Stop Fun Visuals
     pcall(function() if getgenv().ELITE_HUB_RemoveAura then getgenv().ELITE_HUB_RemoveAura() end end)
-    pcall(function() if getgenv().ELITE_HUB_RemoveAviators then getgenv().ELITE_HUB_RemoveAviators() end end)
     pcall(function() if getgenv().ELITE_HUB_RemoveHorns then getgenv().ELITE_HUB_RemoveHorns() end end)
     pcall(function() if getgenv().ELITE_HUB_RemoveWings then getgenv().ELITE_HUB_RemoveWings() end end)
     pcall(function() if getgenv().ELITE_HUB_RestoreGold then getgenv().ELITE_HUB_RestoreGold(player.Character) end end)
@@ -12699,11 +12618,6 @@ task.spawn(function()
             if getgenv().ELITE_HUB_HornsOn then
                 if not workspace:FindFirstChild("ELITEHUB_HORNS") then
                     pcall(function() getgenv().ELITE_HUB_BuildHorns(ch) end)
-                end
-            end
-            if getgenv().ELITE_HUB_AviatorsOn then
-                if not workspace:FindFirstChild("ELITEHUB_AVIATORS") then
-                    pcall(function() getgenv().ELITE_HUB_BuildAviators(ch) end)
                 end
             end
             if getgenv().ELITE_HUB_WingsOn then
