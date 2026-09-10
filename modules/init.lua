@@ -898,18 +898,17 @@ local function BuildAviators(char)
     av.Name = "ELITEHUB_AVIATORS"
     av.Parent = workspace
     local function lens(side)
-        local p = MP({ Shape = Enum.PartType.Cylinder, Size = Vector3.new(0.04, 0.2 * S, 0.2 * S), Color = COL, Material = "Neon" })
-        local lcf = CFrame.new(side * 0.16 * S, 0.0, -0.46 * S) * CFrame.Angles(0, 0, math.pi / 2)
+        local p = MP({ Shape = Enum.PartType.Cylinder, Size = Vector3.new(0.05, 0.3 * S, 0.3 * S), Color = COL, Material = "Neon" })
+        local lcf = CFrame.new(side * 0.19 * S, 0.02 * S, -0.56 * S) * CFrame.Angles(0, 0, math.pi / 2)
         p.CFrame = headCF * lcf
-        p.Transparency = 0.15
         p:BreakJoints()
         p.Parent = av
         aviParts[p] = lcf
     end
     lens(-1)
     lens(1)
-    local bridge = MP({ Size = Vector3.new(0.1 * S, 0.03, 0.03), Color = COL, Material = "Neon" })
-    local blcf = CFrame.new(0, 0.0, -0.46 * S)
+    local bridge = MP({ Size = Vector3.new(0.12 * S, 0.04, 0.04), Color = COL, Material = "Neon" })
+    local blcf = CFrame.new(0, 0.02 * S, -0.56 * S)
     bridge.CFrame = headCF * blcf
     bridge:BreakJoints()
     bridge.Parent = av
@@ -944,7 +943,7 @@ MT:CreateToggle({
     Callback = function(v)
         getgenv().ELITE_HUB_AviatorsOn = v
         getgenv().ELITE_HUB_Log("MODS", "Aviators: " .. tostring(v))
-        if v then task.spawn(function() BuildAviators(player.Character) end) else RemoveAviators() end
+        if v then task.spawn(function() pcall(function() BuildAviators(player.Character) end) end) else RemoveAviators() end
     end
 })
 MT:CreateColorPicker({
@@ -1267,24 +1266,24 @@ local function BuildWings(char)
     local w = Instance.new("Model")
     w.Name = "ELITEHUB_WINGS"
     w.Parent = workspace
-    local function petal(side, k, shoulder)
-        local L = (0.9 + 0.4 * k) * S
-        local dir = Vector3.new(side * 0.6, 0.05 + 0.3 * k, 0).Unit
-        local p = MP({ Shape = Enum.PartType.Cylinder, Size = Vector3.new(0.17 * S, L, 0.17 * S), Color = COL, Material = "ForceField" })
-        p.Transparency = 0.2
-        local xvec = Vector3.new(-dir.Z, 0, dir.X)
-        if xvec.Magnitude < 0.01 then xvec = Vector3.new(0, 0, 1) end
-        xvec = xvec.Unit
-        local center = shoulder.Position + dir * (L / 2)
-        local lcf = CFrame.fromMatrix(center, xvec, dir)
-        p.CFrame = torsoCF * lcf
-        p:BreakJoints()
-        p.Parent = w
-        wingParts[p] = lcf
-    end
     local function wing(side)
-        local shoulder = CFrame.new(side * 0.2 * S, -0.05 * S, -0.1 * S)
-        for k = 0, 3 do petal(side, k, shoulder) end
+        local pivot = CFrame.new(side * 0.24 * S, -0.05 * S, -0.1 * S)
+        for k = 0, 2 do
+            local L = (1.5 + 0.45 * k) * S
+            local ang = (0.35 + 0.35 * k) * side
+            local ft = MP({ Shape = Enum.PartType.Cylinder, Size = Vector3.new(0.34 * S, L, 0.34 * S), Color = COL, Material = "ForceField" })
+            local fl = pivot * CFrame.Angles(0, 0, ang) * CFrame.new(0, L / 2, 0)
+            ft.CFrame = torsoCF * fl
+            ft:BreakJoints()
+            ft.Parent = w
+            wingParts[ft] = fl
+        end
+        local core = MP({ Shape = Enum.PartType.Ball, Size = Vector3.new(0.5 * S, 0.5 * S, 0.5 * S), Color = COL, Material = "ForceField" })
+        local cl = pivot
+        core.CFrame = torsoCF * cl
+        core:BreakJoints()
+        core.Parent = w
+        wingParts[core] = cl
     end
     wing(-1)
     wing(1)
@@ -1329,7 +1328,7 @@ MT:CreateToggle({
     Callback = function(v)
         getgenv().ELITE_HUB_WingsOn = v
         getgenv().ELITE_HUB_Log("MODS", "Wings: " .. tostring(v))
-        if v then task.spawn(function() BuildWings(player.Character) end) else RemoveWings() end
+        if v then task.spawn(function() pcall(function() BuildWings(player.Character) end) end) else RemoveWings() end
     end
 })
 MT:CreateColorPicker({
