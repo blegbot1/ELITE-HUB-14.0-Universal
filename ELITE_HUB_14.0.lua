@@ -2617,11 +2617,11 @@ local function BuildWings(char)
                 xvec = xvec.Unit
                 for s = 0, nSeg - 1 do
                     local st = s / nSeg
-                    local sD = D * (1 - st * 0.5)
+                    local sD = D * (1 - st * 0.4)
                     local offset = (st + 0.5 / nSeg) * L
                     local mp = P.Position + dir * offset
                     local lcf = CFrame.fromMatrix(mp, xvec, dir)
-                    local ft = MP({ Shape = Enum.PartType.Cylinder, Size = Vector3.new(sD, segLen * 1.3, sD), Color = COL, Material = MAT })
+                    local ft = MP({ Shape = Enum.PartType.Cylinder, Size = Vector3.new(sD * 1.8, segLen * 2.0, sD * 1.8), Color = COL, Material = MAT })
                     ft.Transparency = 0
                     ft.CFrame = torsoCF * lcf
                     ft:BreakJoints()
@@ -2802,53 +2802,39 @@ local function BuildAcc()
         local ok, model = pcall(function()
             return game:GetService("InsertService"):LoadAsset(ACC_WING_ID)
         end)
-        if not ok or not model then return end
-        local tool = model:FindFirstChildWhichIsA("Tool")
-        if not tool then
-            for _, c in ipairs(model:GetChildren()) do
-                if c:IsA("Tool") or c:FindFirstChildWhichIsA("BasePart") then
-                    tool = c
-                    break
-                end
-            end
+        if not ok or not model then
+            pcall(function()
+                Rayfield:Notify({ Title = "ACCESSORIES", Content = "Failed to load item " .. ACC_WING_ID, Duration = 3 })
+            end)
+            return
         end
-        if not tool then tool = model end
-        local handle = tool:FindFirstChild("Handle") or tool:FindFirstChildWhichIsA("BasePart")
-        if not handle then
-            for _, d in ipairs(tool:GetDescendants()) do
-                if d:IsA("BasePart") then handle = d break end
-            end
-        end
-        if not handle then pcall(function() model:Destroy() end) return end
+        local allParts = {}
         for _, d in ipairs(model:GetDescendants()) do
-            if d:IsA("BasePart") and d ~= handle then
-                pcall(function() d:Destroy() end)
-            end
-        end
-        for _, d in ipairs(tool:GetDescendants()) do
             if d:IsA("BasePart") then
-                d.Material = Enum.Material[mat] or Enum.Material.Neon
-                d.Color = col
-                d.Transparency = 0
-                d.Anchored = false
-                d.CanCollide = false
-                d.Massless = true
+                table.insert(allParts, d)
             end
         end
-        handle.Material = Enum.Material[mat] or Enum.Material.Neon
-        handle.Color = col
-        handle.Transparency = 0
-        handle.Anchored = false
-        handle.CanCollide = false
-        handle.Massless = true
+        if #allParts == 0 then
+            pcall(function() model:Destroy() end)
+            return
+        end
+        local primary = allParts[1]
+        for _, d in ipairs(allParts) do
+            d.Material = Enum.Material[mat] or Enum.Material.Neon
+            d.Color = col
+            d.Transparency = 0
+            d.Anchored = false
+            d.CanCollide = false
+            d.Massless = true
+        end
         local weld = Instance.new("Weld")
         weld.Part0 = torso
-        weld.Part1 = handle
-        weld.C0 = CFrame.new(0, -1.5, -0.5) * CFrame.Angles(math.rad(90), 0, 0)
+        weld.Part1 = primary
+        weld.C0 = CFrame.new(0, 0, -2) * CFrame.Angles(0, 0, 0)
         weld.Parent = torso
-        handle.Anchored = false
-        tool.Parent = char
-        accModel = tool
+        primary.Anchored = false
+        model.Parent = char
+        accModel = model
     end)
 end
 
