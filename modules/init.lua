@@ -1373,6 +1373,97 @@ MT:CreateSlider({
     Callback = function(v) getgenv().ELITE_HUB_WingsFlapSpeed = v end
 })
 
+-- ============================================================
+-- JUMP RINGS (expanding circles on jump)
+-- ============================================================
+getgenv().ELITE_HUB_JumpRingsOn = false
+getgenv().ELITE_HUB_JumpRingsColor = Color3.fromRGB(255, 255, 255)
+getgenv().ELITE_HUB_JumpRingsCount = 3
+local jumpRingConn = nil
+local lastJumpY = 0
+
+local function SpawnJumpRing(pos, col)
+    local ring = Instance.new("Part")
+    ring.Shape = Enum.PartType.Cylinder
+    ring.Anchored = true
+    ring.CanCollide = false
+    ring.Material = Enum.Material.Neon
+    ring.Color = col
+    ring.Size = Vector3.new(0.15, 2, 2)
+    ring.CFrame = CFrame.new(pos) * CFrame.Angles(0, 0, math.rad(90))
+    ring.Transparency = 0
+    ring.Parent = workspace
+    local t = 0
+    local dur = 0.5
+    local conn
+    conn = game:GetService("RunService").Heartbeat:Connect(function(dt)
+        t = t + dt
+        if t >= dur or not ring or not ring.Parent then
+            pcall(function() ring:Destroy() end)
+            if conn then conn:Disconnect() end
+            return
+        end
+        local p = t / dur
+        local scale = 1 + p * 8
+        ring.Size = Vector3.new(0.15, 2 * scale, 2 * scale)
+        ring.Transparency = 0 + p * 0.8
+    end)
+end
+
+local function StartJumpRings()
+    if jumpRingConn then pcall(function() jumpRingConn:Disconnect() end) end
+    lastJumpY = 0
+    jumpRingConn = game:GetService("RunService").Heartbeat:Connect(function()
+        pcall(function()
+            if not getgenv().ELITE_HUB_JumpRingsOn then
+                pcall(function() jumpRingConn:Disconnect() end)
+                jumpRingConn = nil
+                return
+            end
+            local char = player.Character
+            if not char then return end
+            local h = char:FindFirstChildOfClass("Humanoid")
+            local hrp = char:FindFirstChild("HumanoidRootPart")
+            if not h or not hrp then return end
+            local y = hrp.Position.Y
+            local wasOnGround = lastJumpY <= y + 0.1
+            local isJumping = h:GetState() == Enum.HumanoidStateType.Jumping or h:GetState() == Enum.HumanoidStateType.Freefall
+            if wasOnGround and isJumping then
+                local col = getgenv().ELITE_HUB_JumpRingsColor
+                local count = getgenv().ELITE_HUB_JumpRingsCount or 3
+                for i = 1, count do
+                    task.delay((i - 1) * 0.08, function()
+                        SpawnJumpRing(Vector3.new(hrp.Position.X, hrp.Position.Y - 2.5, hrp.Position.Z), col)
+                    end)
+                end
+            end
+            lastJumpY = y
+        end)
+    end)
+end
+
+MT:CreateSection(" JUMP RINGS")
+MT:CreateToggle({
+    Name = " Jump Rings",
+    CurrentValue = false,
+    Callback = function(v)
+        getgenv().ELITE_HUB_JumpRingsOn = v
+        if v then StartJumpRings() end
+    end
+})
+MT:CreateColorPicker({
+    Name = " Rings Color",
+    Color = Color3.fromRGB(255, 255, 255),
+    Callback = function(v) getgenv().ELITE_HUB_JumpRingsColor = v end
+})
+MT:CreateSlider({
+    Name = " Rings Count",
+    Range = {1, 8},
+    Increment = 1,
+    CurrentValue = 3,
+    Callback = function(v) getgenv().ELITE_HUB_JumpRingsCount = v end
+})
+
 -- respawn re-apply for fun visuals
 player.CharacterAdded:Connect(function(char)
     task.wait(1)
@@ -1410,6 +1501,7 @@ local function DestroyScript()
     pcall(function() if getgenv().ELITE_HUB_RemoveWings then getgenv().ELITE_HUB_RemoveWings() end end)
     pcall(function() if getgenv().ELITE_HUB_RestoreGold then getgenv().ELITE_HUB_RestoreGold(player.Character) end end)
     pcall(function() if getgenv().ELITE_HUB_RestoreBigHead then getgenv().ELITE_HUB_RestoreBigHead(player.Character) end end)
+    pcall(function() if jumpRingConn then jumpRingConn:Disconnect() jumpRingConn = nil end end)
 
     -- Stop Fly
     pcall(function()
