@@ -2256,7 +2256,7 @@ local function BuildHorns(char)
         local d0u0 = Vector3.new(side * d0v.X, d0v.Y, d0v.Z).Unit
         local P0 = Vector3.new(side * p0v.X * S, p0v.Y * S, p0v.Z * S) - d0u0 * (0.26 * S)
         if discD and discD > 0 then
-            local disc = MP({ Shape = Enum.PartType.Cylinder, Size = Vector3.new(discD * S, 0.04 * S, discD * S), Color = COL, Material = MAT })
+            local disc = MP({ Shape = Enum.PartType.Cylinder, Size = Vector3.new(discD * S, 0.15 * S, discD * S), Color = COL, Material = MAT })
             local bcf = CFrame.new(P0)
             disc.CFrame = headCF * bcf
             disc:BreakJoints()
@@ -2272,10 +2272,10 @@ local function BuildHorns(char)
             local t = (k + 1) / steps
             local dir = d0:Lerp(d1, t)
             dir = dir.Unit
-            local L = stepLen * 3.0
-            local taper = 1 - (k / ns) * 0.97
+            local L = stepLen * 3.4
+            local taper = 1 - (k / steps) * 0.97
             local D = (db * taper) * S
-            if D < 0.015 * S then D = 0.015 * S end
+            if D < 0.04 * S then D = 0.04 * S end
             local xvec = Vector3.new(-dir.Z, 0, dir.X)
             if xvec.Magnitude < 0.01 then xvec = Vector3.new(0, 0, 1) end
             xvec = xvec.Unit
@@ -2620,7 +2620,7 @@ local function BuildWings(char)
                 local mp0 = P.Position + dir * (L / 2)
                 local lcf = CFrame.fromMatrix(mp0, xvec, dir)
                 local ft = MP({ Shape = Enum.PartType.Cylinder, Size = Vector3.new(D, L, D), Color = COL, Material = MAT })
-                ft.Transparency = 0.15
+                ft.Transparency = 0
                 ft.CFrame = torsoCF * lcf
                 ft:BreakJoints()
                 ft.Parent = w
@@ -2641,16 +2641,16 @@ local function BuildWings(char)
                     dm = dm.Unit
                     local Lm = (LA + LB) / 2
                     local gap = (dA * LA - dB * LB).Magnitude
-                    local pad = gap * 0.5
-                    if pad < 0.14 then pad = 0.14 end
-                    if pad > 0.5 then pad = 0.5 end
+                    local pad = gap * 0.65
+                    if pad < 0.18 then pad = 0.18 end
+                    if pad > 0.7 then pad = 0.7 end
                     local xvec = Vector3.new(-dm.Z, 0, dm.X)
                     if xvec.Magnitude < 0.01 then xvec = Vector3.new(0, 0, 1) end
                     xvec = xvec.Unit
                     local mp0 = P.Position + dm * (Lm / 2) + memn * 0.05
                     local lcf = CFrame.fromMatrix(mp0, xvec, dm)
                     local mb = MP({ Shape = Enum.PartType.Cylinder, Size = Vector3.new(pad, Lm, pad), Color = COL, Material = MAT })
-                    mb.Transparency = 0.4
+                    mb.Transparency = 0
                     mb.CFrame = torsoCF * lcf
                     mb:BreakJoints()
                     mb.Parent = w
@@ -2668,7 +2668,7 @@ local function BuildWings(char)
                 local bmp = P.Position + dm * (bl / 2)
                 local blcf = CFrame.fromMatrix(bmp, bx, dm)
                 local bk = MP({ Shape = Enum.PartType.Cylinder, Size = Vector3.new(bD, bl, bD), Color = COL, Material = MAT })
-                bk.Transparency = 0.05
+                bk.Transparency = 0
                 bk.CFrame = torsoCF * blcf
                 bk:BreakJoints()
                 bk.Parent = w
