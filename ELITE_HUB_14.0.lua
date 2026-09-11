@@ -2563,6 +2563,7 @@ getgenv().ELITE_HUB_WingsFlap = true
 getgenv().ELITE_HUB_WingsFlapSpeed = 3
 local wingConn = nil
 local wingParts = {}
+local wingBuildId = 0
 
 local WING_TYPES = {
     { label = "Angel", dt = Vector3.new(0.3, 0.9, 0.3), db = Vector3.new(0.9, 0.3, 0.2), n = 30, ns = 8, l0 = 2.0, l1 = -7.0, d0 = 0.28, d1 = 0.1, backT = 0.7, bD0 = 0.22, sub = { dt = Vector3.new(0.7, -0.2, 0.3), db = Vector3.new(0.4, -0.8, 0.2), n = 18, ns = 6, l0 = 4.0, l1 = 1.5, d0 = 0.22, d1 = 0.08 } },
@@ -2590,7 +2591,10 @@ local function BuildWings(char)
     local torso = characterTorso(char)
     if not torso then return end
     RemoveWings()
+    local myId = wingBuildId + 1
+    wingBuildId = myId
     task.wait(0.2)
+    if wingBuildId ~= myId then return end
     local S = getgenv().ELITE_HUB_WingsLength or 1
     local COL = getgenv().ELITE_HUB_WingsColor
     local MAT = getgenv().ELITE_HUB_VisualMaterial or "Neon"
@@ -2604,7 +2608,7 @@ local function BuildWings(char)
         local function fan(wf0, wb0, wn, wl0, wl1, wd0v, wd1v, withBack, segPer)
             local dtf = Vector3.new(side * wf0.X, wf0.Y, wf0.Z).Unit
             local dbf = Vector3.new(side * wb0.X, wb0.Y, wb0.Z).Unit
-            local nSeg = segPer or 1
+            local nSeg = math.max(segPer or 1, math.ceil((segPer or 1) * S))
             for r = 0, wn - 1 do
                 local t = r / math.max(wn - 1, 1)
                 local dir = dtf:Lerp(dbf, t).Unit
@@ -2654,7 +2658,7 @@ local function BuildWings(char)
                     mb.CFrame = torsoCF * lcf
                     mb:BreakJoints()
                     mb.Parent = w
-                    wingParts[mb] = lcf
+                    wingParts[mb] = { lcf = lcf, side = side }
                 end
             end
             if withBack then
@@ -2672,7 +2676,7 @@ local function BuildWings(char)
                 bk.CFrame = torsoCF * blcf
                 bk:BreakJoints()
                 bk.Parent = w
-                wingParts[bk] = blcf
+                    wingParts[bk] = { lcf = blcf, side = side }
             end
         end
         fan(wt.dt, wt.db, wt.n, wt.l0, wt.l1, wt.d0, wt.d1, true, wt.ns)
