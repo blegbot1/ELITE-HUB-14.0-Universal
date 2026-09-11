@@ -1508,12 +1508,12 @@ local function FindClosestPlayerByRay()
     local myH, myHRP = GetLocalCharacter()
     if not myH or not myHRP then return nil end
     local camPos = Camera.CFrame.Position
-    local mousePos = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)
     local ac = getgenv().ELITE_HUB_AimbotConfig
     local aimbotOn = ac and ac.Enabled
     local fovRadius = ac and ac.FOV or 200
-    local closestDist = math.huge
-    local closestPlayer = nil
+    local mousePos = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)
+    local best = nil
+    local bestScore = math.huge
     for _, p in ipairs(Players:GetPlayers()) do
         if p ~= player and p.Character then
             local tH = p.Character:FindFirstChildOfClass("Humanoid")
@@ -1522,30 +1522,34 @@ local function FindClosestPlayerByRay()
                 local toTarget = (tHRP.Position - camPos)
                 local gameDist = toTarget.Magnitude
                 if gameDist < 200 then
-                    local screenPos, onScreen = Camera:WorldToViewportPoint(tHRP.Position)
-                    if onScreen then
-                        local screenPoint = Vector2.new(screenPos.X, screenPos.Y)
-                        local screenDist = (screenPoint - mousePos).Magnitude
-                        local inRange = true
-                        if aimbotOn then
-                            inRange = screenDist <= fovRadius
-                        end
-                        if inRange and screenDist < closestDist then
-                            local params = RaycastParams.new()
-                            params.FilterDescendantsInstances = {player.Character}
-                            params.FilterType = Enum.RaycastFilterType.Exclude
-                            local result = workspace:Raycast(camPos, toTarget, params)
-                            if not result or result.Instance:IsDescendantOf(p.Character) then
-                                closestDist = screenDist
-                                closestPlayer = p
+                    local score
+                    if aimbotOn then
+                        local screenPos, onScreen = Camera:WorldToViewportPoint(tHRP.Position)
+                        if onScreen then
+                            local screenPoint = Vector2.new(screenPos.X, screenPos.Y)
+                            local screenDist = (screenPoint - mousePos).Magnitude
+                            if screenDist <= fovRadius then
+                                score = screenDist
                             end
+                        end
+                    else
+                        score = gameDist
+                    end
+                    if score and score < bestScore then
+                        local params = RaycastParams.new()
+                        params.FilterDescendantsInstances = {player.Character}
+                        params.FilterType = Enum.RaycastFilterType.Exclude
+                        local result = workspace:Raycast(camPos, toTarget, params)
+                        if not result or result.Instance:IsDescendantOf(p.Character) then
+                            bestScore = score
+                            best = p
                         end
                     end
                 end
             end
         end
     end
-    return closestPlayer
+    return best
 end
 
 local function GetTargetPlayer()
@@ -1816,7 +1820,15 @@ local function GetBillboardForTarget(tgtChar)
 end
 
 local function UpdateTargetHUD()
-    local tgt = GetTargetPlayer()
+    local ac = getgenv().ELITE_HUB_AimbotConfig
+    local aimbotOn = ac and ac.Enabled
+
+    local tgt = nil
+    if aimbotOn and LockedTargetPlayer and LockedTargetPlayer.Character then
+        local h = LockedTargetPlayer.Character:FindFirstChildOfClass("Humanoid")
+        if h and h.Health > 0 then tgt = LockedTargetPlayer end
+    end
+
     local changed = (tgt ~= currentTarget)
     currentTarget = tgt
 
@@ -1851,8 +1863,8 @@ local function UpdateTargetHUD()
         barColor = Color3.fromRGB(255, 50, 50)
     end
 
-    -- Screen panel
-    if getgenv().ELITE_HUB_PlayerHUDOn then
+    -- Screen panel (only when aimbot locked)
+    if getgenv().ELITE_HUB_PlayerHUDOn and aimbotOn then
         if not targetScreenGui or not targetScreenGui.Parent then
             CreateTargetScreenGui()
         end
@@ -1869,10 +1881,13 @@ local function UpdateTargetHUD()
                 if content and content ~= "" then frame.Avatar.Image = content end
             end)
         end
+    elseif targetScreenGui then
+        local frame = targetScreenGui:FindFirstChild("TargetPanel")
+        if frame then frame.Visible = false end
     end
 
-    -- Name tag billboard
-    if getgenv().ELITE_HUB_NameTagOn then
+    -- Name tag billboard (only when aimbot locked)
+    if getgenv().ELITE_HUB_NameTagOn and aimbotOn then
         local bb = GetBillboardForTarget(tgtChar)
         if bb then
             local bg = bb:FindFirstChildWhichIsA("Frame")
@@ -1891,8 +1906,8 @@ local function UpdateTargetHUD()
         end
     end
 
-    -- Crosshair
-    if getgenv().ELITE_HUB_CrosshairOn then
+    -- Crosshair (only when aimbot locked)
+    if getgenv().ELITE_HUB_CrosshairOn and aimbotOn then
         if not crosshairPart or not crosshairPart.Parent then CreateCrosshair() end
         crosshairPart.Enabled = true
     else
