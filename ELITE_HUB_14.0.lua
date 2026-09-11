@@ -2911,8 +2911,11 @@ local function FindClosestPlayerByRay()
     local myH, myHRP = GetLocalCharacter()
     if not myH or not myHRP then return nil end
     local camPos = Camera.CFrame.Position
-    local camLook = Camera.CFrame.LookVector
-    local closestDist = 200
+    local mousePos = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)
+    local ac = getgenv().ELITE_HUB_AimbotConfig
+    local aimbotOn = ac and ac.Enabled
+    local fovRadius = ac and ac.FOV or 200
+    local closestDist = math.huge
     local closestPlayer = nil
     for _, p in ipairs(Players:GetPlayers()) do
         if p ~= player and p.Character then
@@ -2920,17 +2923,25 @@ local function FindClosestPlayerByRay()
             local tHRP = p.Character:FindFirstChild("HumanoidRootPart")
             if tH and tHRP and tH.Health > 0 then
                 local toTarget = (tHRP.Position - camPos)
-                local dist = toTarget.Magnitude
-                if dist < closestDist then
-                    local dot = camLook.Unit:Dot(toTarget.Unit)
-                    if dot > 0.95 then
-                        local params = RaycastParams.new()
-                        params.FilterDescendantsInstances = {player.Character}
-                        params.FilterType = Enum.RaycastFilterType.Exclude
-                        local result = workspace:Raycast(camPos, toTarget, params)
-                        if not result or result.Instance:IsDescendantOf(p.Character) then
-                            closestDist = dist
-                            closestPlayer = p
+                local gameDist = toTarget.Magnitude
+                if gameDist < 200 then
+                    local screenPos, onScreen = Camera:WorldToViewportPoint(tHRP.Position)
+                    if onScreen then
+                        local screenPoint = Vector2.new(screenPos.X, screenPos.Y)
+                        local screenDist = (screenPoint - mousePos).Magnitude
+                        local inRange = true
+                        if aimbotOn then
+                            inRange = screenDist <= fovRadius
+                        end
+                        if inRange and screenDist < closestDist then
+                            local params = RaycastParams.new()
+                            params.FilterDescendantsInstances = {player.Character}
+                            params.FilterType = Enum.RaycastFilterType.Exclude
+                            local result = workspace:Raycast(camPos, toTarget, params)
+                            if not result or result.Instance:IsDescendantOf(p.Character) then
+                                closestDist = screenDist
+                                closestPlayer = p
+                            end
                         end
                     end
                 end
@@ -2941,7 +2952,9 @@ local function FindClosestPlayerByRay()
 end
 
 local function GetTargetPlayer()
-    if LockedTargetPlayer and LockedTargetPlayer.Character then
+    local ac = getgenv().ELITE_HUB_AimbotConfig
+    local aimbotOn = ac and ac.Enabled
+    if aimbotOn and LockedTargetPlayer and LockedTargetPlayer.Character then
         local h = LockedTargetPlayer.Character:FindFirstChildOfClass("Humanoid")
         if h and h.Health > 0 then return LockedTargetPlayer end
     end
@@ -2986,8 +2999,8 @@ local function CreateTargetScreenGui()
 
     local frame = Instance.new("Frame")
     frame.Name = "TargetPanel"
-    frame.Size = UDim2.new(0, 240, 0, 90)
-    frame.Position = UDim2.new(0.5, -120, 0.15, 0)
+    frame.Size = UDim2.new(0, 280, 0, 100)
+    frame.Position = UDim2.new(0.5, -140, 0.15, 0)
     frame.BackgroundColor3 = Color3.fromRGB(15, 15, 25)
     frame.BackgroundTransparency = 0.1
     frame.BorderSizePixel = 0
@@ -3005,18 +3018,22 @@ local function CreateTargetScreenGui()
 
     local avatar = Instance.new("ImageLabel")
     avatar.Name = "Avatar"
-    avatar.Size = UDim2.new(0, 50, 0, 50)
-    avatar.Position = UDim2.new(0, 8, 0, 20)
+    avatar.Size = UDim2.new(0, 60, 0, 60)
+    avatar.Position = UDim2.new(0, 10, 0, 18)
     avatar.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
     avatar.BorderSizePixel = 0
     avatar.Image = ""
     avatar.Parent = frame
     Instance.new("UICorner", avatar).CornerRadius = UDim.new(0, 10)
+    local avatarStroke = Instance.new("UIStroke")
+    avatarStroke.Color = Color3.fromRGB(100, 100, 255)
+    avatarStroke.Thickness = 2
+    avatarStroke.Parent = avatar
 
     local nameLabel = Instance.new("TextLabel")
     nameLabel.Name = "PlayerName"
-    nameLabel.Size = UDim2.new(1, -75, 0, 22)
-    nameLabel.Position = UDim2.new(0, 65, 0, 15)
+    nameLabel.Size = UDim2.new(1, -85, 0, 22)
+    nameLabel.Position = UDim2.new(0, 80, 0, 18)
     nameLabel.BackgroundTransparency = 1
     nameLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
     nameLabel.TextScaled = false
@@ -3028,8 +3045,8 @@ local function CreateTargetScreenGui()
 
     local hpLabel = Instance.new("TextLabel")
     hpLabel.Name = "HPText"
-    hpLabel.Size = UDim2.new(1, -75, 0, 16)
-    hpLabel.Position = UDim2.new(0, 65, 0, 38)
+    hpLabel.Size = UDim2.new(1, -85, 0, 16)
+    hpLabel.Position = UDim2.new(0, 80, 0, 42)
     hpLabel.BackgroundTransparency = 1
     hpLabel.TextColor3 = Color3.fromRGB(255, 80, 80)
     hpLabel.TextScaled = false
@@ -3042,7 +3059,7 @@ local function CreateTargetScreenGui()
     local hpBarBg = Instance.new("Frame")
     hpBarBg.Name = "HPBarBG"
     hpBarBg.Size = UDim2.new(1, -20, 0, 8)
-    hpBarBg.Position = UDim2.new(0, 10, 0, 65)
+    hpBarBg.Position = UDim2.new(0, 10, 0, 72)
     hpBarBg.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
     hpBarBg.BorderSizePixel = 0
     hpBarBg.Parent = frame
@@ -3070,18 +3087,55 @@ end
 
 local function CreateCrosshair()
     if crosshairPart then pcall(function() crosshairPart:Destroy() end) end
-    local part = Instance.new("Part")
-    part.Name = "ELITEHUB_Crosshair"
-    part.Anchored = true
-    part.CanCollide = false
-    part.Size = Vector3.new(0.3, 0.3, 0.04)
-    part.Material = Enum.Material.Neon
-    part.Color = Color3.fromRGB(255, 0, 0)
-    part.Shape = Enum.PartType.Cylinder
-    part.Transparency = 0.3
-    part.Parent = workspace
-    crosshairPart = part
-    return part
+    local sg = Instance.new("ScreenGui")
+    sg.Name = "ELITEHUB_Crosshair"
+    sg.ResetOnSpawn = false
+    sg.DisplayOrder = 101
+    sg.IgnoreGuiInset = true
+    sg.Parent = player.PlayerGui
+
+    local radius = 20
+    local centerX = Camera.ViewportSize.X / 2
+    local centerY = Camera.ViewportSize.Y / 2
+    local crosshairColor = Color3.fromRGB(255, 50, 50)
+    local gap = 6
+    local lineLen = 8
+    local thickness = 2
+
+    local circle = Instance.new("Frame")
+    circle.Name = "Circle"
+    circle.Size = UDim2.new(0, radius * 2, 0, radius * 2)
+    circle.Position = UDim2.new(0, centerX - radius, 0, centerY - radius)
+    circle.BackgroundColor3 = crosshairColor
+    circle.BackgroundTransparency = 0.5
+    circle.BorderSizePixel = 0
+    circle.Parent = sg
+    Instance.new("UICorner", circle).CornerRadius = UDim.new(0.5, 0)
+    local circleStroke = Instance.new("UIStroke")
+    circleStroke.Color = crosshairColor
+    circleStroke.Thickness = 2
+    circleStroke.Transparency = 0
+    circleStroke.Parent = circle
+
+    local lines = {
+        {Name = "Top",    Pos = UDim2.new(0, centerX - thickness / 2, 0, centerY - radius - gap - lineLen), Size = UDim2.new(0, thickness, 0, lineLen)},
+        {Name = "Bottom", Pos = UDim2.new(0, centerX - thickness / 2, 0, centerY + radius + gap),           Size = UDim2.new(0, thickness, 0, lineLen)},
+        {Name = "Left",   Pos = UDim2.new(0, centerX - radius - gap - lineLen, 0, centerY - thickness / 2), Size = UDim2.new(0, lineLen, 0, thickness)},
+        {Name = "Right",  Pos = UDim2.new(0, centerX + radius + gap, 0, centerY - thickness / 2),           Size = UDim2.new(0, lineLen, 0, thickness)},
+    }
+
+    for _, cfg in ipairs(lines) do
+        local line = Instance.new("Frame")
+        line.Name = cfg.Name
+        line.Size = cfg.Size
+        line.Position = cfg.Pos
+        line.BackgroundColor3 = crosshairColor
+        line.BorderSizePixel = 0
+        line.Parent = sg
+    end
+
+    crosshairPart = sg
+    return sg
 end
 
 local function RemovePlayerHud()
@@ -3174,7 +3228,7 @@ local function UpdateTargetHUD()
                 if frame then frame.Visible = false end
             end
             if targetBillboard then pcall(function() targetBillboard:Destroy() end) targetBillboard = nil end
-            if crosshairPart then crosshairPart.Transparency = 1 end
+            if crosshairPart then crosshairPart.Enabled = false end
         end
         return
     end
@@ -3241,9 +3295,7 @@ local function UpdateTargetHUD()
     -- Crosshair
     if getgenv().ELITE_HUB_CrosshairOn then
         if not crosshairPart or not crosshairPart.Parent then CreateCrosshair() end
-        crosshairPart.Transparency = 0.3
-        local dir = (tgtHead.Position - Camera.CFrame.Position).Unit
-        crosshairPart.CFrame = CFrame.new(Camera.CFrame.Position + dir * 8) * CFrame.Angles(0, 0, math.rad(90))
+        crosshairPart.Enabled = true
     else
         if crosshairPart then crosshairPart.Transparency = 1 end
     end
