@@ -1820,15 +1820,7 @@ local function GetBillboardForTarget(tgtChar)
 end
 
 local function UpdateTargetHUD()
-    local ac = getgenv().ELITE_HUB_AimbotConfig
-    local aimbotOn = ac and ac.Enabled
-
-    local tgt = nil
-    if aimbotOn and LockedTargetPlayer and LockedTargetPlayer.Character then
-        local h = LockedTargetPlayer.Character:FindFirstChildOfClass("Humanoid")
-        if h and h.Health > 0 then tgt = LockedTargetPlayer end
-    end
-
+    local tgt = GetTargetPlayer()
     local changed = (tgt ~= currentTarget)
     currentTarget = tgt
 
@@ -1863,8 +1855,8 @@ local function UpdateTargetHUD()
         barColor = Color3.fromRGB(255, 50, 50)
     end
 
-    -- Screen panel (only when aimbot locked)
-    if getgenv().ELITE_HUB_PlayerHUDOn and aimbotOn then
+    -- Screen panel
+    if getgenv().ELITE_HUB_PlayerHUDOn then
         if not targetScreenGui or not targetScreenGui.Parent then
             CreateTargetScreenGui()
         end
@@ -1881,13 +1873,10 @@ local function UpdateTargetHUD()
                 if content and content ~= "" then frame.Avatar.Image = content end
             end)
         end
-    elseif targetScreenGui then
-        local frame = targetScreenGui:FindFirstChild("TargetPanel")
-        if frame then frame.Visible = false end
     end
 
-    -- Name tag billboard (only when aimbot locked)
-    if getgenv().ELITE_HUB_NameTagOn and aimbotOn then
+    -- Name tag billboard
+    if getgenv().ELITE_HUB_NameTagOn then
         local bb = GetBillboardForTarget(tgtChar)
         if bb then
             local bg = bb:FindFirstChildWhichIsA("Frame")
@@ -1906,8 +1895,8 @@ local function UpdateTargetHUD()
         end
     end
 
-    -- Crosshair (only when aimbot locked)
-    if getgenv().ELITE_HUB_CrosshairOn and aimbotOn then
+    -- Crosshair
+    if getgenv().ELITE_HUB_CrosshairOn then
         if not crosshairPart or not crosshairPart.Parent then CreateCrosshair() end
         crosshairPart.Enabled = true
     else
