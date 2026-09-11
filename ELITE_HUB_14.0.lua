@@ -2907,7 +2907,7 @@ local function GetLocalCharacter()
     return h, hrp
 end
 
-local function FindTargetPlayer()
+local function FindClosestPlayerByRay()
     local myH, myHRP = GetLocalCharacter()
     if not myH or not myHRP then return nil end
     local camPos = Camera.CFrame.Position
@@ -2918,8 +2918,7 @@ local function FindTargetPlayer()
         if p ~= player and p.Character then
             local tH = p.Character:FindFirstChildOfClass("Humanoid")
             local tHRP = p.Character:FindFirstChild("HumanoidRootPart")
-            local tHead = p.Character:FindFirstChild("Head")
-            if tH and tHRP and tHead and tH.Health > 0 then
+            if tH and tHRP and tH.Health > 0 then
                 local toTarget = (tHRP.Position - camPos)
                 local dist = toTarget.Magnitude
                 if dist < closestDist then
@@ -2941,36 +2940,83 @@ local function FindTargetPlayer()
     return closestPlayer
 end
 
+local function GetTargetPlayer()
+    if LockedTargetPlayer and LockedTargetPlayer.Character then
+        local h = LockedTargetPlayer.Character:FindFirstChildOfClass("Humanoid")
+        if h and h.Health > 0 then return LockedTargetPlayer end
+    end
+    return FindClosestPlayerByRay()
+end
+
+local function MakeDraggable(frame)
+    local dragging, dragInput, dragStart, startPos
+    frame.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            dragStart = input.Position
+            startPos = frame.Position
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragging = false
+                end
+            end)
+        end
+    end)
+    frame.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+            dragInput = input
+        end
+    end)
+    game:GetService("UserInputService").InputChanged:Connect(function(input)
+        if input == dragInput and dragging then
+            local delta = input.Position - dragStart
+            frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+        end
+    end)
+end
+
 local function CreateTargetScreenGui()
     if targetScreenGui then pcall(function() targetScreenGui:Destroy() end) end
     local sg = Instance.new("ScreenGui")
     sg.Name = "ELITEHUB_PlayerHUD"
     sg.ResetOnSpawn = false
     sg.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    sg.DisplayOrder = 100
     sg.Parent = player.PlayerGui
 
     local frame = Instance.new("Frame")
     frame.Name = "TargetPanel"
-    frame.Size = UDim2.new(0, 220, 0, 80)
-    frame.Position = UDim2.new(1, -240, 0.5, -40)
-    frame.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
-    frame.BackgroundTransparency = 0.15
+    frame.Size = UDim2.new(0, 240, 0, 90)
+    frame.Position = UDim2.new(0.5, -120, 0.15, 0)
+    frame.BackgroundColor3 = Color3.fromRGB(15, 15, 25)
+    frame.BackgroundTransparency = 0.1
     frame.BorderSizePixel = 0
+    frame.Visible = false
     frame.Parent = sg
 
     local corner = Instance.new("UICorner")
-    corner.CornerRadius = UDim.new(0, 10)
+    corner.CornerRadius = UDim.new(0, 12)
     corner.Parent = frame
 
     local stroke = Instance.new("UIStroke")
-    stroke.Color = Color3.fromRGB(80, 80, 255)
+    stroke.Color = Color3.fromRGB(100, 100, 255)
     stroke.Thickness = 2
     stroke.Parent = frame
 
+    local avatar = Instance.new("ImageLabel")
+    avatar.Name = "Avatar"
+    avatar.Size = UDim2.new(0, 50, 0, 50)
+    avatar.Position = UDim2.new(0, 8, 0, 20)
+    avatar.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+    avatar.BorderSizePixel = 0
+    avatar.Image = ""
+    avatar.Parent = frame
+    Instance.new("UICorner", avatar).CornerRadius = UDim.new(0, 10)
+
     local nameLabel = Instance.new("TextLabel")
     nameLabel.Name = "PlayerName"
-    nameLabel.Size = UDim2.new(1, -20, 0, 22)
-    nameLabel.Position = UDim2.new(0, 50, 0, 8)
+    nameLabel.Size = UDim2.new(1, -75, 0, 22)
+    nameLabel.Position = UDim2.new(0, 65, 0, 15)
     nameLabel.BackgroundTransparency = 1
     nameLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
     nameLabel.TextScaled = false
@@ -2982,8 +3028,8 @@ local function CreateTargetScreenGui()
 
     local hpLabel = Instance.new("TextLabel")
     hpLabel.Name = "HPText"
-    hpLabel.Size = UDim2.new(1, -20, 0, 16)
-    hpLabel.Position = UDim2.new(0, 50, 0, 30)
+    hpLabel.Size = UDim2.new(1, -75, 0, 16)
+    hpLabel.Position = UDim2.new(0, 65, 0, 38)
     hpLabel.BackgroundTransparency = 1
     hpLabel.TextColor3 = Color3.fromRGB(255, 80, 80)
     hpLabel.TextScaled = false
@@ -2996,7 +3042,7 @@ local function CreateTargetScreenGui()
     local hpBarBg = Instance.new("Frame")
     hpBarBg.Name = "HPBarBG"
     hpBarBg.Size = UDim2.new(1, -20, 0, 8)
-    hpBarBg.Position = UDim2.new(0, 10, 0, 52)
+    hpBarBg.Position = UDim2.new(0, 10, 0, 65)
     hpBarBg.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
     hpBarBg.BorderSizePixel = 0
     hpBarBg.Parent = frame
@@ -3010,18 +3056,14 @@ local function CreateTargetScreenGui()
     hpBar.Parent = hpBarBg
     Instance.new("UICorner", hpBar).CornerRadius = UDim.new(0, 4)
 
-    local avatar = Instance.new("ImageLabel")
-    avatar.Name = "Avatar"
-    avatar.Size = UDim2.new(0, 40, 0, 40)
-    avatar.Position = UDim2.new(0, 6, 0, 20)
-    avatar.BackgroundTransparency = 1
-    avatar.Image = ""
-    avatar.Parent = frame
+    local grad = Instance.new("UIGradient")
+    grad.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 255)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(180, 180, 180))
+    })
+    grad.Parent = frame
 
-    local avatarCorner = Instance.new("UICorner")
-    avatarCorner.CornerRadius = UDim.new(0, 8)
-    avatarCorner.Parent = avatar
-
+    MakeDraggable(frame)
     targetScreenGui = sg
     return sg
 end
@@ -3032,7 +3074,7 @@ local function CreateCrosshair()
     part.Name = "ELITEHUB_Crosshair"
     part.Anchored = true
     part.CanCollide = false
-    part.Size = Vector3.new(0.4, 0.4, 0.05)
+    part.Size = Vector3.new(0.3, 0.3, 0.04)
     part.Material = Enum.Material.Neon
     part.Color = Color3.fromRGB(255, 0, 0)
     part.Shape = Enum.PartType.Cylinder
@@ -3072,7 +3114,7 @@ local function GetBillboardForTarget(tgtChar)
     Instance.new("UICorner", bg).CornerRadius = UDim.new(0, 8)
 
     local stroke = Instance.new("UIStroke")
-    stroke.Color = Color3.fromRGB(80, 80, 255)
+    stroke.Color = Color3.fromRGB(100, 100, 255)
     stroke.Thickness = 1.5
     stroke.Parent = bg
 
@@ -3121,7 +3163,7 @@ local function GetBillboardForTarget(tgtChar)
 end
 
 local function UpdateTargetHUD()
-    local tgt = FindTargetPlayer()
+    local tgt = GetTargetPlayer()
     local changed = (tgt ~= currentTarget)
     currentTarget = tgt
 
@@ -3143,6 +3185,19 @@ local function UpdateTargetHUD()
     local tgtHead = tgtChar:FindFirstChild("Head")
     if not tgtH or not tgtHRP or not tgtHead then return end
 
+    local hp = math.max(0, math.floor(tgtH.Health))
+    local maxHp = math.max(1, math.floor(tgtH.MaxHealth))
+    local ratio = hp / maxHp
+
+    local barColor
+    if ratio > 0.5 then
+        barColor = Color3.fromRGB(80, 255, 80)
+    elseif ratio > 0.25 then
+        barColor = Color3.fromRGB(255, 200, 0)
+    else
+        barColor = Color3.fromRGB(255, 50, 50)
+    end
+
     -- Screen panel
     if getgenv().ELITE_HUB_PlayerHUDOn then
         if not targetScreenGui or not targetScreenGui.Parent then
@@ -3151,32 +3206,14 @@ local function UpdateTargetHUD()
         local frame = targetScreenGui:FindFirstChild("TargetPanel")
         if frame then
             frame.Visible = true
-            local hp = math.max(0, math.floor(tgtH.Health))
-            local maxHp = math.max(1, math.floor(tgtH.MaxHealth))
-            local ratio = hp / maxHp
-
             frame.PlayerName.Text = tgt.Name
             frame.HPText.Text = hp .. " / " .. maxHp .. " HP"
+            frame.HPText.TextColor3 = barColor
             frame.HPBar.Size = UDim2.new(math.clamp(ratio, 0, 1), 0, 1, 0)
-
-            if ratio > 0.5 then
-                frame.HPBar.BackgroundColor3 = Color3.fromRGB(80, 255, 80)
-                frame.HPText.TextColor3 = Color3.fromRGB(80, 255, 80)
-            elseif ratio > 0.25 then
-                frame.HPBar.BackgroundColor3 = Color3.fromRGB(255, 200, 0)
-                frame.HPText.TextColor3 = Color3.fromRGB(255, 200, 0)
-            else
-                frame.HPBar.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
-                frame.HPText.TextColor3 = Color3.fromRGB(255, 50, 50)
-            end
-
+            frame.HPBar.BackgroundColor3 = barColor
             pcall(function()
-                local thumbType = Enum.ThumbnailType.HeadShot
-                local thumbSize = Enum.ThumbnailSize.Size100x100
-                local content, _ = Players:GetUserThumbnailAsync(tgt.UserId, thumbType, thumbSize)
-                if content and content ~= "" then
-                    frame.Avatar.Image = content
-                end
+                local content = Players:GetUserThumbnailAsync(tgt.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size100x100)
+                if content and content ~= "" then frame.Avatar.Image = content end
             end)
         end
     end
@@ -3187,23 +3224,13 @@ local function UpdateTargetHUD()
         if bb then
             local bg = bb:FindFirstChildWhichIsA("Frame")
             if bg then
-                local hp = math.max(0, math.floor(tgtH.Health))
-                local maxHp = math.max(1, math.floor(tgtH.MaxHealth))
-                local ratio = hp / maxHp
                 bg.NameLabel.Text = tgt.Name
                 bg.HPBar.HPBar.Size = UDim2.new(math.clamp(ratio, 0, 1), 0, 1, 0)
+                bg.HPBar.HPBar.BackgroundColor3 = barColor
                 bg.HPText.Text = hp .. " HP"
-                if ratio > 0.5 then
-                    bg.HPBar.HPBar.BackgroundColor3 = Color3.fromRGB(80, 255, 80)
-                elseif ratio > 0.25 then
-                    bg.HPBar.HPBar.BackgroundColor3 = Color3.fromRGB(255, 200, 0)
-                else
-                    bg.HPBar.HPBar.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
-                end
             end
         end
     else
-        if targetBillboard then pcall(function() targetBillboard:Destroy() end) targetBillboard = nil end
         local head = tgtChar:FindFirstChild("Head")
         if head then
             local old = head:FindFirstChild("ELITEHUB_NameTag")
@@ -3213,14 +3240,10 @@ local function UpdateTargetHUD()
 
     -- Crosshair
     if getgenv().ELITE_HUB_CrosshairOn then
-        if not crosshairPart or not crosshairPart.Parent then
-            CreateCrosshair()
-        end
+        if not crosshairPart or not crosshairPart.Parent then CreateCrosshair() end
         crosshairPart.Transparency = 0.3
-        local headPos = tgtHead.Position
-        local camPos = Camera.CFrame.Position
-        local dir = (headPos - camPos).Unit
-        crosshairPart.CFrame = CFrame.new(camPos + dir * 8) * CFrame.Angles(0, 0, math.rad(90))
+        local dir = (tgtHead.Position - Camera.CFrame.Position).Unit
+        crosshairPart.CFrame = CFrame.new(Camera.CFrame.Position + dir * 8) * CFrame.Angles(0, 0, math.rad(90))
     else
         if crosshairPart then crosshairPart.Transparency = 1 end
     end
