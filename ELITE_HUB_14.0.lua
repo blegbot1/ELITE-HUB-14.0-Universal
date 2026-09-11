@@ -2621,7 +2621,7 @@ local function BuildWings(char)
                     local offset = (st + 0.5 / nSeg) * L
                     local mp = P.Position + dir * offset
                     local lcf = CFrame.fromMatrix(mp, xvec, dir)
-                    local ft = MP({ Shape = Enum.PartType.Cylinder, Size = Vector3.new(sD, segLen * 1.02, sD), Color = COL, Material = MAT })
+                    local ft = MP({ Shape = Enum.PartType.Cylinder, Size = Vector3.new(sD, segLen * 1.15, sD), Color = COL, Material = MAT })
                     ft.Transparency = 0
                     ft.CFrame = torsoCF * lcf
                     ft:BreakJoints()
@@ -2777,26 +2777,13 @@ MT:CreateSlider({
 })
 
 -- ============================================================
--- ACCESSORIES (Load marketplace items, change material)
+-- ACCESSORIES (Load marketplace wings, change material)
 -- ============================================================
 getgenv().ELITE_HUB_AccOn = false
-getgenv().ELITE_HUB_AccItem = 16440688336
 getgenv().ELITE_HUB_AccMaterial = "Neon"
 getgenv().ELITE_HUB_AccColor = Color3.fromRGB(255, 255, 255)
 local accModel = nil
-
-local ACC_ITEMS = {
-    { label = "Unnamed Sword", id = 16440688336 },
-    { label = "Energy Blade", id = 134608496 },
-    { label = "Purplekatana", id = 134608879 },
-    { label = "Futuristic Sword", id = 1025185 },
-    { label = "Golden Ghost", id = 1025185 },
-    { label = "Ice Dagger", id = 11575318 },
-    { label = "Laser Gun", id = 13708437 },
-    { label = "Candy Cane", id = 10452496 },
-    { label = "Blue Fire Blade", id = 134608796 },
-    { label = "Neon Katana", id = 62934584 }
-}
+local ACC_WING_ID = 16440688336
 
 local function RemoveAcc()
     if accModel then pcall(function() accModel:Destroy() end) accModel = nil end
@@ -2809,12 +2796,11 @@ local function BuildAcc()
     if not char then return end
     local torso = characterTorso(char)
     if not torso then return end
-    local itemId = getgenv().ELITE_HUB_AccItem
     local mat = getgenv().ELITE_HUB_AccMaterial or "Neon"
     local col = getgenv().ELITE_HUB_AccColor
     task.spawn(function()
         local ok, model = pcall(function()
-            return game:GetService("InsertService"):LoadAsset(itemId)
+            return game:GetService("InsertService"):LoadAsset(ACC_WING_ID)
         end)
         if not ok or not model then return end
         model:ClearAllChildren()
@@ -2848,18 +2834,6 @@ end
 
 MT:CreateSection(" ACCESSORIES")
 MT:CreateDropdown({
-    Name = " Item",
-    Options = (function() local t = {} for _, v in ipairs(ACC_ITEMS) do table.insert(t, v.label) end return t end)(),
-    CurrentOption = "Unnamed Sword",
-    Callback = function(opt)
-        for _, v in ipairs(ACC_ITEMS) do
-            if v.label == opt then getgenv().ELITE_HUB_AccItem = v.id break end
-        end
-        getgenv().ELITE_HUB_Log("MODS", "Accessory: " .. opt)
-        if getgenv().ELITE_HUB_AccOn then task.spawn(function() BuildAcc() end) end
-    end
-})
-MT:CreateDropdown({
     Name = " Material",
     Options = { "Neon", "SmoothPlastic", "ForceField", "Glass", "DiamondPlate", "Granite", "Marble", "Cobblestone", "Wood", "WoodPlanks", "Metal", "CorrodedMetal", "Brick", "Sand", "Ice", "Foil", "Plastic", "LeafyGrass" },
     CurrentOption = "Neon",
@@ -2877,7 +2851,7 @@ MT:CreateColorPicker({
     end
 })
 MT:CreateToggle({
-    Name = " Load Item",
+    Name = " Marketplace Wings",
     CurrentValue = false,
     Callback = function(v)
         getgenv().ELITE_HUB_AccOn = v
