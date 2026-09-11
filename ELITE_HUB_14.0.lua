@@ -2626,7 +2626,7 @@ local function BuildWings(char)
                     ft.CFrame = torsoCF * lcf
                     ft:BreakJoints()
                     ft.Parent = w
-                    wingParts[ft] = lcf
+                    wingParts[ft] = { lcf = lcf, side = side }
                 end
             end
             if getgenv().ELITE_HUB_WingsMembrane then
@@ -2702,11 +2702,9 @@ local function BuildWings(char)
                 amp = math.sin(t * (getgenv().ELITE_HUB_WingsFlapSpeed or 3)) * 0.45
             end
             local base = ts.CFrame
-            for p, lcf in pairs(wingParts) do
+            for p, data in pairs(wingParts) do
                 if p and p.Parent then
-                    local side = 1
-                    if p.CFrame.Position.X < 0 then side = -1 end
-                    p.CFrame = base * CFrame.Angles(0, 0, side * amp) * lcf
+                    p.CFrame = base * CFrame.Angles(0, 0, data.side * amp) * data.lcf
                 end
             end
         end)
@@ -2783,7 +2781,7 @@ getgenv().ELITE_HUB_JumpRingsOn = false
 getgenv().ELITE_HUB_JumpRingsColor = Color3.fromRGB(255, 255, 255)
 getgenv().ELITE_HUB_JumpRingsCount = 3
 local jumpRingConn = nil
-local lastJumpY = 0
+local jumpWasGrounded = true
 
 local function SpawnJumpRing(pos, col)
     local ring = Instance.new("Part")
@@ -2813,9 +2811,17 @@ local function SpawnJumpRing(pos, col)
     end)
 end
 
+local function GetGroundY(char, hrp)
+    local params = RaycastParams.new()
+    params.FilterDescendantsInstances = {char}
+    params.FilterType = Enum.RaycastFilterType.Exclude
+    local result = workspace:Raycast(hrp.Position, Vector3.new(0, -10, 0), params)
+    return result and result.Position.Y or (hrp.Position.Y - 3)
+end
+
 local function StartJumpRings()
     if jumpRingConn then pcall(function() jumpRingConn:Disconnect() end) end
-    lastJumpY = 0
+    jumpWasGrounded = true
     jumpRingConn = game:GetService("RunService").Heartbeat:Connect(function()
         pcall(function()
             if not getgenv().ELITE_HUB_JumpRingsOn then
@@ -2828,19 +2834,25 @@ local function StartJumpRings()
             local h = char:FindFirstChildOfClass("Humanoid")
             local hrp = char:FindFirstChild("HumanoidRootPart")
             if not h or not hrp then return end
-            local y = hrp.Position.Y
-            local wasOnGround = lastJumpY <= y + 0.1
-            local isJumping = h:GetState() == Enum.HumanoidStateType.Jumping or h:GetState() == Enum.HumanoidStateType.Freefall
-            if wasOnGround and isJumping then
+            local state = h:GetState()
+            local isGrounded = state == Enum.HumanoidStateType.Running
+                or state == Enum.HumanoidStateType.RunningNoPhysics
+                or state == Enum.HumanoidStateType.Landed
+                or state == Enum.HumanoidStateType.Seated
+            if isGrounded then
+                jumpWasGrounded = true
+            elseif jumpWasGrounded then
+                jumpWasGrounded = false
+                local groundY = GetGroundY(char, hrp)
                 local col = getgenv().ELITE_HUB_JumpRingsColor
                 local count = getgenv().ELITE_HUB_JumpRingsCount or 3
+                local ringPos = Vector3.new(hrp.Position.X, groundY + 0.1, hrp.Position.Z)
                 for i = 1, count do
                     task.delay((i - 1) * 0.08, function()
-                        SpawnJumpRing(Vector3.new(hrp.Position.X, hrp.Position.Y - 2.5, hrp.Position.Z), col)
+                        SpawnJumpRing(ringPos, col)
                     end)
                 end
             end
-            lastJumpY = y
         end)
     end)
 end
