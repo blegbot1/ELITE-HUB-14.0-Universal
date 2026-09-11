@@ -2565,17 +2565,17 @@ local wingConn = nil
 local wingParts = {}
 
 local WING_TYPES = {
-    { label = "Angel", dt = Vector3.new(0.3, 0.9, -0.3), db = Vector3.new(0.9, 0.3, -0.2), n = 5, l0 = 1.2, l1 = -4.8, d0 = 0.08, d1 = 0.05, backT = 0.7, bD0 = 0.1, sub = { dt = Vector3.new(0.7, -0.2, -0.3), db = Vector3.new(0.4, -0.8, -0.2), n = 3, l0 = 2.5, l1 = 1.0, d0 = 0.07, d1 = 0.04 } },
-    { label = "Demon", dt = Vector3.new(0.2, 0.95, -0.2), db = Vector3.new(0.95, 0.2, -0.15), n = 4, l0 = 1.0, l1 = -5.5, d0 = 0.1, d1 = 0.06, backT = 0.75, bD0 = 0.12, sub = { dt = Vector3.new(0.8, -0.15, -0.2), db = Vector3.new(0.5, -0.85, -0.15), n = 3, l0 = 2.0, l1 = 0.8, d0 = 0.09, d1 = 0.05 } },
-    { label = "Vampire", dt = Vector3.new(0.4, 0.85, -0.35), db = Vector3.new(0.95, 0.15, -0.1), n = 5, l0 = 1.5, l1 = -5.0, d0 = 0.07, d1 = 0.04, backT = 0.65, bD0 = 0.08, sub = { dt = Vector3.new(0.75, -0.25, -0.25), db = Vector3.new(0.35, -0.85, -0.2), n = 3, l0 = 2.2, l1 = 0.9, d0 = 0.06, d1 = 0.035 } },
-    { label = "Faerie", dt = Vector3.new(0.35, 0.88, -0.3), db = Vector3.new(0.85, 0.35, -0.25), n = 4, l0 = 0.8, l1 = -3.2, d0 = 0.06, d1 = 0.035, backT = 0.6, bD0 = 0.07, sub = { dt = Vector3.new(0.65, -0.25, -0.3), db = Vector3.new(0.35, -0.75, -0.25), n = 2, l0 = 1.8, l1 = 0.8, d0 = 0.05, d1 = 0.03 } },
-    { label = "Butterfly", dt = Vector3.new(0.5, 0.8, -0.3), db = Vector3.new(0.95, 0.1, -0.1), n = 3, l0 = 1.0, l1 = -4.0, d0 = 0.07, d1 = 0.04, backT = 0.55, bD0 = 0.08, sub = { dt = Vector3.new(0.8, -0.2, -0.2), db = Vector3.new(0.3, -0.85, -0.15), n = 2, l0 = 2.0, l1 = 0.8, d0 = 0.06, d1 = 0.035 } },
-    { label = "Falcon", dt = Vector3.new(0.25, 0.92, -0.25), db = Vector3.new(0.88, 0.35, -0.18), n = 5, l0 = 1.3, l1 = -4.5, d0 = 0.07, d1 = 0.04, backT = 0.68, bD0 = 0.09, sub = { dt = Vector3.new(0.7, -0.18, -0.25), db = Vector3.new(0.4, -0.82, -0.18), n = 3, l0 = 2.3, l1 = 0.9, d0 = 0.06, d1 = 0.035 } },
-    { label = "Dragonel", dt = Vector3.new(0.2, 0.93, -0.2), db = Vector3.new(0.92, 0.25, -0.12), n = 4, l0 = 1.1, l1 = -5.2, d0 = 0.09, d1 = 0.05, backT = 0.72, bD0 = 0.11, sub = { dt = Vector3.new(0.75, -0.2, -0.2), db = Vector3.new(0.45, -0.8, -0.15), n = 2, l0 = 2.0, l1 = 0.7, d0 = 0.08, d1 = 0.045 } },
-    { label = "Raven", dt = Vector3.new(0.3, 0.88, -0.3), db = Vector3.new(0.88, 0.32, -0.2), n = 5, l0 = 1.2, l1 = -4.6, d0 = 0.08, d1 = 0.05, backT = 0.62, bD0 = 0.09, sub = { dt = Vector3.new(0.68, -0.22, -0.28), db = Vector3.new(0.38, -0.78, -0.22), n = 3, l0 = 2.2, l1 = 0.85, d0 = 0.07, d1 = 0.04 } },
-    { label = "Owl", dt = Vector3.new(0.35, 0.85, -0.35), db = Vector3.new(0.85, 0.35, -0.25), n = 4, l0 = 1.0, l1 = -4.0, d0 = 0.09, d1 = 0.06, backT = 0.58, bD0 = 0.1, sub = { dt = Vector3.new(0.65, -0.25, -0.3), db = Vector3.new(0.35, -0.8, -0.25), n = 3, l0 = 2.0, l1 = 0.8, d0 = 0.08, d1 = 0.05 } },
-    { label = "Phoenix", dt = Vector3.new(0.25, 0.92, -0.25), db = Vector3.new(0.9, 0.3, -0.15), n = 5, l0 = 1.4, l1 = -5.5, d0 = 0.08, d1 = 0.04, backT = 0.72, bD0 = 0.09, sub = { dt = Vector3.new(0.72, -0.2, -0.22), db = Vector3.new(0.42, -0.82, -0.18), n = 3, l0 = 2.4, l1 = 0.9, d0 = 0.07, d1 = 0.035 } },
-    { label = "Double", dt = Vector3.new(0.3, 0.9, -0.3), db = Vector3.new(0.9, 0.3, -0.2), n = 4, l0 = 1.1, l1 = -4.5, d0 = 0.07, d1 = 0.04, backT = 0.65, bD0 = 0.09, sub = { dt = Vector3.new(0.7, -0.2, -0.3), db = Vector3.new(0.4, -0.8, -0.2), n = 3, l0 = 2.2, l1 = 0.85, d0 = 0.06, d1 = 0.035 } }
+    { label = "Angel", dt = Vector3.new(0.3, 0.9, 0.3), db = Vector3.new(0.9, 0.3, 0.2), n = 5, l0 = 1.2, l1 = -4.8, d0 = 0.08, d1 = 0.05, backT = 0.7, bD0 = 0.1, sub = { dt = Vector3.new(0.7, -0.2, 0.3), db = Vector3.new(0.4, -0.8, 0.2), n = 3, l0 = 2.5, l1 = 1.0, d0 = 0.07, d1 = 0.04 } },
+    { label = "Demon", dt = Vector3.new(0.2, 0.95, 0.2), db = Vector3.new(0.95, 0.2, 0.15), n = 4, l0 = 1.0, l1 = -5.5, d0 = 0.1, d1 = 0.06, backT = 0.75, bD0 = 0.12, sub = { dt = Vector3.new(0.8, -0.15, 0.2), db = Vector3.new(0.5, -0.85, 0.15), n = 3, l0 = 2.0, l1 = 0.8, d0 = 0.09, d1 = 0.05 } },
+    { label = "Vampire", dt = Vector3.new(0.4, 0.85, 0.35), db = Vector3.new(0.95, 0.15, 0.1), n = 5, l0 = 1.5, l1 = -5.0, d0 = 0.07, d1 = 0.04, backT = 0.65, bD0 = 0.08, sub = { dt = Vector3.new(0.75, -0.25, 0.25), db = Vector3.new(0.35, -0.85, 0.2), n = 3, l0 = 2.2, l1 = 0.9, d0 = 0.06, d1 = 0.035 } },
+    { label = "Faerie", dt = Vector3.new(0.35, 0.88, 0.3), db = Vector3.new(0.85, 0.35, 0.25), n = 4, l0 = 0.8, l1 = -3.2, d0 = 0.06, d1 = 0.035, backT = 0.6, bD0 = 0.07, sub = { dt = Vector3.new(0.65, -0.25, 0.3), db = Vector3.new(0.35, -0.75, 0.25), n = 2, l0 = 1.8, l1 = 0.8, d0 = 0.05, d1 = 0.03 } },
+    { label = "Butterfly", dt = Vector3.new(0.5, 0.8, 0.3), db = Vector3.new(0.95, 0.1, 0.1), n = 3, l0 = 1.0, l1 = -4.0, d0 = 0.07, d1 = 0.04, backT = 0.55, bD0 = 0.08, sub = { dt = Vector3.new(0.8, -0.2, 0.2), db = Vector3.new(0.3, -0.85, 0.15), n = 2, l0 = 2.0, l1 = 0.8, d0 = 0.06, d1 = 0.035 } },
+    { label = "Falcon", dt = Vector3.new(0.25, 0.92, 0.25), db = Vector3.new(0.88, 0.35, 0.18), n = 5, l0 = 1.3, l1 = -4.5, d0 = 0.07, d1 = 0.04, backT = 0.68, bD0 = 0.09, sub = { dt = Vector3.new(0.7, -0.18, 0.25), db = Vector3.new(0.4, -0.82, 0.18), n = 3, l0 = 2.3, l1 = 0.9, d0 = 0.06, d1 = 0.035 } },
+    { label = "Dragonel", dt = Vector3.new(0.2, 0.93, 0.2), db = Vector3.new(0.92, 0.25, 0.12), n = 4, l0 = 1.1, l1 = -5.2, d0 = 0.09, d1 = 0.05, backT = 0.72, bD0 = 0.11, sub = { dt = Vector3.new(0.75, -0.2, 0.2), db = Vector3.new(0.45, -0.8, 0.15), n = 2, l0 = 2.0, l1 = 0.7, d0 = 0.08, d1 = 0.045 } },
+    { label = "Raven", dt = Vector3.new(0.3, 0.88, 0.3), db = Vector3.new(0.88, 0.32, 0.2), n = 5, l0 = 1.2, l1 = -4.6, d0 = 0.08, d1 = 0.05, backT = 0.62, bD0 = 0.09, sub = { dt = Vector3.new(0.68, -0.22, 0.28), db = Vector3.new(0.38, -0.78, 0.22), n = 3, l0 = 2.2, l1 = 0.85, d0 = 0.07, d1 = 0.04 } },
+    { label = "Owl", dt = Vector3.new(0.35, 0.85, 0.35), db = Vector3.new(0.85, 0.35, 0.25), n = 4, l0 = 1.0, l1 = -4.0, d0 = 0.09, d1 = 0.06, backT = 0.58, bD0 = 0.1, sub = { dt = Vector3.new(0.65, -0.25, 0.3), db = Vector3.new(0.35, -0.8, 0.25), n = 3, l0 = 2.0, l1 = 0.8, d0 = 0.08, d1 = 0.05 } },
+    { label = "Phoenix", dt = Vector3.new(0.25, 0.92, 0.25), db = Vector3.new(0.9, 0.3, 0.15), n = 5, l0 = 1.4, l1 = -5.5, d0 = 0.08, d1 = 0.04, backT = 0.72, bD0 = 0.09, sub = { dt = Vector3.new(0.72, -0.2, 0.22), db = Vector3.new(0.42, -0.82, 0.18), n = 3, l0 = 2.4, l1 = 0.9, d0 = 0.07, d1 = 0.035 } },
+    { label = "Double", dt = Vector3.new(0.3, 0.9, 0.3), db = Vector3.new(0.9, 0.3, 0.2), n = 4, l0 = 1.1, l1 = -4.5, d0 = 0.07, d1 = 0.04, backT = 0.65, bD0 = 0.09, sub = { dt = Vector3.new(0.7, -0.2, 0.3), db = Vector3.new(0.4, -0.8, 0.2), n = 3, l0 = 2.2, l1 = 0.85, d0 = 0.06, d1 = 0.035 } }
 }
 
 local function RemoveWings()
@@ -2676,7 +2676,6 @@ local function BuildWings(char)
     end
     wing(-1)
     wing(1)
-    Unanchor(w)
     if wingConn then pcall(function() wingConn:Disconnect() end) end
     local t = 0
     wingConn = game:GetService("RunService").Heartbeat:Connect(function(dt)
