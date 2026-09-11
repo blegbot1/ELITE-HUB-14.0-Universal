@@ -765,11 +765,11 @@ local function BuildAura(char)
     au.Name = "ELITEHUB_AURA"
     au.Parent = workspace
     local R = 0.6 * S
-    local N = 64
+    local N = 24
     for i = 0, N - 1 do
         local ang = (i / N) * math.pi * 2
         local chord = R * 2 * math.tan(math.pi / N) * 1.5
-        local seg = MP({ Shape = Enum.PartType.Cylinder, Size = Vector3.new(0.1 * S, chord, 0.12 * S), Color = COL, Material = MAT })
+        local seg = MP({ Shape = Enum.PartType.Cylinder, Size = Vector3.new(0.25 * S, chord, 0.25 * S), Color = COL, Material = MAT })
         local pos = Vector3.new(R * math.cos(ang), 0.95 * S + 0.05, R * math.sin(ang))
         local tang = Vector3.new(-math.sin(ang), 0, math.cos(ang))
         local ccf = CFrame.fromMatrix(pos, Vector3.new(0, 1, 0), tang)
@@ -869,10 +869,10 @@ local function BuildHorns(char)
             local t = (k + 1) / steps
             local dir = d0:Lerp(d1, t)
             dir = dir.Unit
-            local L = stepLen * 3.4
+            local L = stepLen * 5.0
             local taper = 1 - (k / steps) * 0.97
             local D = (db * taper) * S
-            if D < 0.04 * S then D = 0.04 * S end
+            if D < 0.08 * S then D = 0.08 * S end
             local xvec = Vector3.new(-dir.Z, 0, dir.X)
             if xvec.Magnitude < 0.01 then xvec = Vector3.new(0, 0, 1) end
             xvec = xvec.Unit
