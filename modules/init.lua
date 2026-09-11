@@ -1218,7 +1218,7 @@ local function BuildWings(char)
                     local offset = (st + 0.5 / nSeg) * L
                     local mp = P.Position + dir * offset
                     local lcf = CFrame.fromMatrix(mp, xvec, dir)
-                    local ft = MP({ Shape = Enum.PartType.Cylinder, Size = Vector3.new(sD, segLen * 1.15, sD), Color = COL, Material = MAT })
+                    local ft = MP({ Shape = Enum.PartType.Cylinder, Size = Vector3.new(sD, segLen * 1.3, sD), Color = COL, Material = MAT })
                     ft.Transparency = 0
                     ft.CFrame = torsoCF * lcf
                     ft:BreakJoints()
@@ -1400,10 +1400,28 @@ local function BuildAcc()
             return game:GetService("InsertService"):LoadAsset(ACC_WING_ID)
         end)
         if not ok or not model then return end
-        model:ClearAllChildren()
-        local tool = model:FindFirstChildWhichIsA("Tool") or model:GetChildren()[1]
-        if not tool then pcall(function() model:Destroy() end) return end
-        tool.Parent = nil
+        local tool = model:FindFirstChildWhichIsA("Tool")
+        if not tool then
+            for _, c in ipairs(model:GetChildren()) do
+                if c:IsA("Tool") or c:FindFirstChildWhichIsA("BasePart") then
+                    tool = c
+                    break
+                end
+            end
+        end
+        if not tool then tool = model end
+        local handle = tool:FindFirstChild("Handle") or tool:FindFirstChildWhichIsA("BasePart")
+        if not handle then
+            for _, d in ipairs(tool:GetDescendants()) do
+                if d:IsA("BasePart") then handle = d break end
+            end
+        end
+        if not handle then pcall(function() model:Destroy() end) return end
+        for _, d in ipairs(model:GetDescendants()) do
+            if d:IsA("BasePart") and d ~= handle then
+                pcall(function() d:Destroy() end)
+            end
+        end
         for _, d in ipairs(tool:GetDescendants()) do
             if d:IsA("BasePart") then
                 d.Material = Enum.Material[mat] or Enum.Material.Neon
@@ -1414,18 +1432,20 @@ local function BuildAcc()
                 d.Massless = true
             end
         end
+        handle.Material = Enum.Material[mat] or Enum.Material.Neon
+        handle.Color = col
+        handle.Transparency = 0
+        handle.Anchored = false
+        handle.CanCollide = false
+        handle.Massless = true
         local weld = Instance.new("Weld")
         weld.Part0 = torso
-        weld.Part1 = tool.Handle or tool:FindFirstChildWhichIsA("BasePart")
-        if weld.Part1 then
-            weld.C0 = CFrame.new(0, -1.5, -0.5) * CFrame.Angles(math.rad(90), 0, 0)
-            weld.Parent = torso
-            tool.Handle.Anchored = false
-            tool.Parent = char
-            accModel = tool
-        else
-            pcall(function() model:Destroy() end)
-        end
+        weld.Part1 = handle
+        weld.C0 = CFrame.new(0, -1.5, -0.5) * CFrame.Angles(math.rad(90), 0, 0)
+        weld.Parent = torso
+        handle.Anchored = false
+        tool.Parent = char
+        accModel = tool
     end)
 end
 
