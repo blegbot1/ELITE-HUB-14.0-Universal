@@ -1555,9 +1555,12 @@ end
 local function GetTargetPlayer()
     local ac = getgenv().ELITE_HUB_AimbotConfig
     local aimbotOn = ac and ac.Enabled
-    if aimbotOn and LockedTargetPlayer and LockedTargetPlayer.Character then
-        local h = LockedTargetPlayer.Character:FindFirstChildOfClass("Humanoid")
-        if h and h.Health > 0 then return LockedTargetPlayer end
+    if aimbotOn then
+        if LockedTargetPlayer and LockedTargetPlayer.Character then
+            local h = LockedTargetPlayer.Character:FindFirstChildOfClass("Humanoid")
+            if h and h.Health > 0 then return LockedTargetPlayer end
+        end
+        return nil
     end
     return FindClosestPlayerByRay()
 end
@@ -1688,16 +1691,18 @@ local function CreateTargetScreenGui()
 end
 
 local function CreateCrosshair()
-    if crosshairPart then pcall(function() crosshairPart:Destroy() end) end
+    if crosshairPart then pcall(function() crosshairPart:Destroy() end) crosshairPart = nil end
+    local cam = workspace.CurrentCamera
+    if not cam then return end
     local sg = Instance.new("ScreenGui")
     sg.Name = "ELITEHUB_Crosshair"
     sg.ResetOnSpawn = false
     sg.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-    sg.DisplayOrder = 101
+    sg.DisplayOrder = 999
     sg.Parent = player.PlayerGui
 
-    local centerX = Camera.ViewportSize.X / 2
-    local centerY = Camera.ViewportSize.Y / 2
+    local centerX = cam.ViewportSize.X / 2
+    local centerY = cam.ViewportSize.Y / 2
     local radius = 20
     local lineLen = 8
     local gap = 6
@@ -1956,6 +1961,7 @@ MT:CreateToggle({
     Callback = function(v)
         getgenv().ELITE_HUB_CrosshairOn = v
         if v then
+            CreateCrosshair()
             StartPlayerHUD()
         else
             if crosshairPart then pcall(function() crosshairPart:Destroy() end) crosshairPart = nil end

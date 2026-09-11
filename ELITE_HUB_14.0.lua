@@ -2958,9 +2958,12 @@ end
 local function GetTargetPlayer()
     local ac = getgenv().ELITE_HUB_AimbotConfig
     local aimbotOn = ac and ac.Enabled
-    if aimbotOn and LockedTargetPlayer and LockedTargetPlayer.Character then
-        local h = LockedTargetPlayer.Character:FindFirstChildOfClass("Humanoid")
-        if h and h.Health > 0 then return LockedTargetPlayer end
+    if aimbotOn then
+        if LockedTargetPlayer and LockedTargetPlayer.Character then
+            local h = LockedTargetPlayer.Character:FindFirstChildOfClass("Humanoid")
+            if h and h.Health > 0 then return LockedTargetPlayer end
+        end
+        return nil
     end
     return FindClosestPlayerByRay()
 end
@@ -3090,53 +3093,56 @@ local function CreateTargetScreenGui()
 end
 
 local function CreateCrosshair()
-    if crosshairPart then pcall(function() crosshairPart:Destroy() end) end
+    if crosshairPart then pcall(function() crosshairPart:Destroy() end) crosshairPart = nil end
+    local cam = workspace.CurrentCamera
+    if not cam then return end
     local sg = Instance.new("ScreenGui")
     sg.Name = "ELITEHUB_Crosshair"
     sg.ResetOnSpawn = false
-    sg.DisplayOrder = 101
-    sg.IgnoreGuiInset = true
+    sg.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    sg.DisplayOrder = 999
     sg.Parent = player.PlayerGui
 
+    local centerX = cam.ViewportSize.X / 2
+    local centerY = cam.ViewportSize.Y / 2
     local radius = 20
-    local centerX = Camera.ViewportSize.X / 2
-    local centerY = Camera.ViewportSize.Y / 2
-    local crosshairColor = Color3.fromRGB(255, 50, 50)
-    local gap = 6
     local lineLen = 8
+    local gap = 6
     local thickness = 2
+    local col = Color3.fromRGB(255, 50, 50)
 
     local circle = Instance.new("Frame")
     circle.Name = "Circle"
     circle.Size = UDim2.new(0, radius * 2, 0, radius * 2)
     circle.Position = UDim2.new(0, centerX - radius, 0, centerY - radius)
-    circle.BackgroundColor3 = crosshairColor
-    circle.BackgroundTransparency = 0.5
+    circle.BackgroundTransparency = 1
     circle.BorderSizePixel = 0
     circle.Parent = sg
     Instance.new("UICorner", circle).CornerRadius = UDim.new(0.5, 0)
     local circleStroke = Instance.new("UIStroke")
-    circleStroke.Color = crosshairColor
-    circleStroke.Thickness = 2
-    circleStroke.Transparency = 0
+    circleStroke.Color = col
+    circleStroke.Thickness = thickness
     circleStroke.Parent = circle
 
-    local lines = {
-        {Name = "Top",    Pos = UDim2.new(0, centerX - thickness / 2, 0, centerY - radius - gap - lineLen), Size = UDim2.new(0, thickness, 0, lineLen)},
-        {Name = "Bottom", Pos = UDim2.new(0, centerX - thickness / 2, 0, centerY + radius + gap),           Size = UDim2.new(0, thickness, 0, lineLen)},
-        {Name = "Left",   Pos = UDim2.new(0, centerX - radius - gap - lineLen, 0, centerY - thickness / 2), Size = UDim2.new(0, lineLen, 0, thickness)},
-        {Name = "Right",  Pos = UDim2.new(0, centerX + radius + gap, 0, centerY - thickness / 2),           Size = UDim2.new(0, lineLen, 0, thickness)},
-    }
-
-    for _, cfg in ipairs(lines) do
-        local line = Instance.new("Frame")
-        line.Name = cfg.Name
-        line.Size = cfg.Size
-        line.Position = cfg.Pos
-        line.BackgroundColor3 = crosshairColor
-        line.BorderSizePixel = 0
-        line.Parent = sg
+    local function makeLine(name, size, pos)
+        local l = Instance.new("Frame")
+        l.Name = name
+        l.Size = size
+        l.Position = pos
+        l.BackgroundColor3 = col
+        l.BorderSizePixel = 0
+        l.Parent = sg
+        return l
     end
+
+    makeLine("Top", UDim2.new(0, thickness, 0, lineLen),
+        UDim2.new(0, centerX - thickness / 2, 0, centerY - radius - gap - lineLen))
+    makeLine("Bottom", UDim2.new(0, thickness, 0, lineLen),
+        UDim2.new(0, centerX - thickness / 2, 0, centerY + radius + gap))
+    makeLine("Left", UDim2.new(0, lineLen, 0, thickness),
+        UDim2.new(0, centerX - radius - gap - lineLen, 0, centerY - thickness / 2))
+    makeLine("Right", UDim2.new(0, lineLen, 0, thickness),
+        UDim2.new(0, centerX + radius + gap, 0, centerY - thickness / 2))
 
     crosshairPart = sg
     return sg
@@ -3357,6 +3363,7 @@ MT:CreateToggle({
     Callback = function(v)
         getgenv().ELITE_HUB_CrosshairOn = v
         if v then
+            CreateCrosshair()
             StartPlayerHUD()
         else
             if crosshairPart then pcall(function() crosshairPart:Destroy() end) crosshairPart = nil end
