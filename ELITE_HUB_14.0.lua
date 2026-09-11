@@ -2776,105 +2776,6 @@ MT:CreateSlider({
     Callback = function(v) getgenv().ELITE_HUB_WingsFlapSpeed = v end
 })
 
--- ============================================================
--- ACCESSORIES (Load marketplace wings, change material)
--- ============================================================
-getgenv().ELITE_HUB_AccOn = false
-getgenv().ELITE_HUB_AccMaterial = "Neon"
-getgenv().ELITE_HUB_AccColor = Color3.fromRGB(255, 255, 255)
-local accModel = nil
-local ACC_WING_ID = 16440688336
-
-local function RemoveAcc()
-    if accModel then pcall(function() accModel:Destroy() end) accModel = nil end
-end
-
-local function BuildAcc()
-    RemoveAcc()
-    if not getgenv().ELITE_HUB_AccOn then return end
-    local char = player.Character
-    if not char then return end
-    local torso = characterTorso(char)
-    if not torso then return end
-    local mat = getgenv().ELITE_HUB_AccMaterial or "Neon"
-    local col = getgenv().ELITE_HUB_AccColor
-    task.spawn(function()
-        local model = nil
-        local ok, err = pcall(function()
-            model = game:GetService("InsertService"):LoadAsset(ACC_WING_ID)
-        end)
-        if not ok or not model then
-            ok, err = pcall(function()
-                model = game:GetService("InsertService"):LoadAsset(ACC_WING_ID)
-            end)
-        end
-        if not ok or not model then
-            pcall(function()
-                game:GetService("StarterGui"):SetCore("SendNotification", {
-                    Title = "ACCESSORIES",
-                    Text = "Cannot load item. Executor may not support LoadAsset.",
-                    Duration = 5
-                })
-            end)
-            return
-        end
-        local allParts = {}
-        for _, d in ipairs(model:GetDescendants()) do
-            if d:IsA("BasePart") then
-                table.insert(allParts, d)
-            end
-        end
-        if #allParts == 0 then
-            pcall(function() model:Destroy() end)
-            return
-        end
-        local primary = allParts[1]
-        for _, d in ipairs(allParts) do
-            d.Material = Enum.Material[mat] or Enum.Material.Neon
-            d.Color = col
-            d.Transparency = 0
-            d.Anchored = false
-            d.CanCollide = false
-            d.Massless = true
-        end
-        local weld = Instance.new("Weld")
-        weld.Part0 = torso
-        weld.Part1 = primary
-        weld.C0 = CFrame.new(0, 0, -2)
-        weld.Parent = torso
-        primary.Anchored = false
-        model.Parent = char
-        accModel = model
-    end)
-end
-
-MT:CreateSection(" ACCESSORIES")
-MT:CreateDropdown({
-    Name = " Material",
-    Options = { "Neon", "SmoothPlastic", "ForceField", "Glass", "DiamondPlate", "Granite", "Marble", "Cobblestone", "Wood", "WoodPlanks", "Metal", "CorrodedMetal", "Brick", "Sand", "Ice", "Foil", "Plastic", "LeafyGrass" },
-    CurrentOption = "Neon",
-    Callback = function(opt)
-        getgenv().ELITE_HUB_AccMaterial = opt
-        if getgenv().ELITE_HUB_AccOn then task.spawn(function() BuildAcc() end) end
-    end
-})
-MT:CreateColorPicker({
-    Name = " Item Color",
-    Color = Color3.fromRGB(255, 255, 255),
-    Callback = function(v)
-        getgenv().ELITE_HUB_AccColor = v
-        if getgenv().ELITE_HUB_AccOn then task.spawn(function() BuildAcc() end) end
-    end
-})
-MT:CreateToggle({
-    Name = " Marketplace Wings",
-    CurrentValue = false,
-    Callback = function(v)
-        getgenv().ELITE_HUB_AccOn = v
-        if v then BuildAcc() else RemoveAcc() end
-    end
-})
-
 -- respawn re-apply for fun visuals
 player.CharacterAdded:Connect(function(char)
     task.wait(1)
@@ -2884,7 +2785,6 @@ player.CharacterAdded:Connect(function(char)
         if getgenv().ELITE_HUB_WingsOn then BuildWings(char) end
         if getgenv().ELITE_HUB_GoldOn then ApplyGold(char) end
         if getgenv().ELITE_HUB_BigHeadOn then ApplyBigHead(char) end
-        if getgenv().ELITE_HUB_AccOn then task.spawn(function() BuildAcc() end) end
     end)
 end)
 end)
@@ -3264,7 +3164,6 @@ local function DestroyScript()
     pcall(function() if getgenv().ELITE_HUB_RemoveWings then getgenv().ELITE_HUB_RemoveWings() end end)
     pcall(function() if getgenv().ELITE_HUB_RestoreGold then getgenv().ELITE_HUB_RestoreGold(player.Character) end end)
     pcall(function() if getgenv().ELITE_HUB_RestoreBigHead then getgenv().ELITE_HUB_RestoreBigHead(player.Character) end end)
-    pcall(function() RemoveAcc() end)
 
     -- Stop Fly
     pcall(function()
