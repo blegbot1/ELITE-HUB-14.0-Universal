@@ -5,7 +5,7 @@ local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local player = Players.LocalPlayer
 
-local HUB_URL = "https://raw.githubusercontent.com/blegbot1/ELITE-HUB-14.0-Universal/main/ELITE_HUB_14.0.lua?v=7c54283"
+local HUB_URL = "https://raw.githubusercontent.com/blegbot1/ELITE-HUB-14.0-Universal/main/ELITE_HUB_14.0.lua?v=9ba740d"
 local IMAGE_URL = "https://raw.githubusercontent.com/blegbot1/ELITE-HUB-14.0-Universal/main/launcher/kotik.jpg"
 local IMAGE_FILE = "elitehub_kotik.jpg"
 
