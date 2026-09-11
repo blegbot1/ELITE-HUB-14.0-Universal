@@ -1373,6 +1373,115 @@ MT:CreateSlider({
     Callback = function(v) getgenv().ELITE_HUB_WingsFlapSpeed = v end
 })
 
+-- ============================================================
+-- ACCESSORIES (Load marketplace items, change material)
+-- ============================================================
+getgenv().ELITE_HUB_AccOn = false
+getgenv().ELITE_HUB_AccItem = 16440688336
+getgenv().ELITE_HUB_AccMaterial = "Neon"
+getgenv().ELITE_HUB_AccColor = Color3.fromRGB(255, 255, 255)
+local accModel = nil
+
+local ACC_ITEMS = {
+    { label = "Unnamed Sword", id = 16440688336 },
+    { label = "Energy Blade", id = 134608496 },
+    { label = "Purplekatana", id = 134608879 },
+    { label = "Futuristic Sword", id = 1025185 },
+    { label = "Golden Ghost", id = 1025185 },
+    { label = "Ice Dagger", id = 11575318 },
+    { label = "Laser Gun", id = 13708437 },
+    { label = "Candy Cane", id = 10452496 },
+    { label = "Blue Fire Blade", id = 134608796 },
+    { label = "Neon Katana", id = 62934584 }
+}
+
+local function RemoveAcc()
+    if accModel then pcall(function() accModel:Destroy() end) accModel = nil end
+end
+
+local function BuildAcc()
+    RemoveAcc()
+    if not getgenv().ELITE_HUB_AccOn then return end
+    local char = player.Character
+    if not char then return end
+    local torso = characterTorso(char)
+    if not torso then return end
+    local itemId = getgenv().ELITE_HUB_AccItem
+    local mat = getgenv().ELITE_HUB_AccMaterial or "Neon"
+    local col = getgenv().ELITE_HUB_AccColor
+    task.spawn(function()
+        local ok, model = pcall(function()
+            return game:GetService("InsertService"):LoadAsset(itemId)
+        end)
+        if not ok or not model then return end
+        model:ClearAllChildren()
+        local tool = model:FindFirstChildWhichIsA("Tool") or model:GetChildren()[1]
+        if not tool then pcall(function() model:Destroy() end) return end
+        tool.Parent = nil
+        for _, d in ipairs(tool:GetDescendants()) do
+            if d:IsA("BasePart") then
+                d.Material = Enum.Material[mat] or Enum.Material.Neon
+                d.Color = col
+                d.Transparency = 0
+                d.Anchored = false
+                d.CanCollide = false
+                d.Massless = true
+            end
+        end
+        local weld = Instance.new("Weld")
+        weld.Part0 = torso
+        weld.Part1 = tool.Handle or tool:FindFirstChildWhichIsA("BasePart")
+        if weld.Part1 then
+            weld.C0 = CFrame.new(0, -1.5, -0.5) * CFrame.Angles(math.rad(90), 0, 0)
+            weld.Parent = torso
+            tool.Handle.Anchored = false
+            tool.Parent = char
+            accModel = tool
+        else
+            pcall(function() model:Destroy() end)
+        end
+    end)
+end
+
+MT:CreateSection(" ACCESSORIES")
+MT:CreateDropdown({
+    Name = " Item",
+    Options = (function() local t = {} for _, v in ipairs(ACC_ITEMS) do table.insert(t, v.label) end return t end)(),
+    CurrentOption = "Unnamed Sword",
+    Callback = function(opt)
+        for _, v in ipairs(ACC_ITEMS) do
+            if v.label == opt then getgenv().ELITE_HUB_AccItem = v.id break end
+        end
+        getgenv().ELITE_HUB_Log("MODS", "Accessory: " .. opt)
+        if getgenv().ELITE_HUB_AccOn then task.spawn(function() BuildAcc() end) end
+    end
+})
+MT:CreateDropdown({
+    Name = " Material",
+    Options = { "Neon", "SmoothPlastic", "ForceField", "Glass", "DiamondPlate", "Granite", "Marble", "Cobblestone", "Wood", "WoodPlanks", "Metal", "CorrodedMetal", "Brick", "Sand", "Ice", "Foil", "Plastic", "LeafyGrass" },
+    CurrentOption = "Neon",
+    Callback = function(opt)
+        getgenv().ELITE_HUB_AccMaterial = opt
+        if getgenv().ELITE_HUB_AccOn then task.spawn(function() BuildAcc() end) end
+    end
+})
+MT:CreateColorPicker({
+    Name = " Item Color",
+    Color = Color3.fromRGB(255, 255, 255),
+    Callback = function(v)
+        getgenv().ELITE_HUB_AccColor = v
+        if getgenv().ELITE_HUB_AccOn then task.spawn(function() BuildAcc() end) end
+    end
+})
+MT:CreateToggle({
+    Name = " Load Item",
+    CurrentValue = false,
+    Callback = function(v)
+        getgenv().ELITE_HUB_AccOn = v
+        if v then BuildAcc() else RemoveAcc() end
+    end
+})
+
 -- respawn re-apply for fun visuals
 player.CharacterAdded:Connect(function(char)
     task.wait(1)
@@ -1382,6 +1491,7 @@ player.CharacterAdded:Connect(function(char)
         if getgenv().ELITE_HUB_WingsOn then BuildWings(char) end
         if getgenv().ELITE_HUB_GoldOn then ApplyGold(char) end
         if getgenv().ELITE_HUB_BigHeadOn then ApplyBigHead(char) end
+        if getgenv().ELITE_HUB_AccOn then task.spawn(function() BuildAcc() end) end
     end)
 end)
 end)
@@ -1410,6 +1520,7 @@ local function DestroyScript()
     pcall(function() if getgenv().ELITE_HUB_RemoveWings then getgenv().ELITE_HUB_RemoveWings() end end)
     pcall(function() if getgenv().ELITE_HUB_RestoreGold then getgenv().ELITE_HUB_RestoreGold(player.Character) end end)
     pcall(function() if getgenv().ELITE_HUB_RestoreBigHead then getgenv().ELITE_HUB_RestoreBigHead(player.Character) end end)
+    pcall(function() RemoveAcc() end)
 
     -- Stop Fly
     pcall(function()
