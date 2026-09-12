@@ -1701,7 +1701,7 @@ local function EnsureCrosshairGui()
 
     local rotFrame = Instance.new("Frame")
     rotFrame.Name = "Rotator"
-    rotFrame.Size = UDim2.new(0, 120, 0, 120)
+    rotFrame.Size = UDim2.new(0, 160, 0, 160)
     rotFrame.AnchorPoint = Vector2.new(0.5, 0.5)
     rotFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
     rotFrame.BackgroundTransparency = 1
@@ -1710,17 +1710,17 @@ local function EnsureCrosshairGui()
     rotFrame.Parent = sg
 
     local col = getgenv().ELITE_HUB_CrosshairColor or Color3.fromRGB(255, 50, 50)
-    local radius = 36
-    local lineLen = 14
+    local radius = 40
+    local lineLen = 16
     local gap = 10
-    local thick = 3
+    local thick = 4
 
     local outerGlow = Instance.new("Frame")
     outerGlow.Name = "OuterGlow"
-    outerGlow.Size = UDim2.new(0, radius * 2 + 40, 0, radius * 2 + 40)
+    outerGlow.Size = UDim2.new(0, radius * 2 + 50, 0, radius * 2 + 50)
     outerGlow.AnchorPoint = Vector2.new(0.5, 0.5)
     outerGlow.Position = UDim2.new(0.5, 0, 0.5, 0)
-    outerGlow.BackgroundTransparency = 0.7
+    outerGlow.BackgroundTransparency = 0.5
     outerGlow.BackgroundColor3 = col
     outerGlow.BorderSizePixel = 0
     outerGlow.ZIndex = 0
@@ -1738,12 +1738,12 @@ local function EnsureCrosshairGui()
     local cs = Instance.new("UIStroke")
     cs.Color = col
     cs.Thickness = thick
-    cs.Transparency = 0.1
+    cs.Transparency = 0
     cs.Parent = circle
     local csGlow = Instance.new("UIStroke")
     csGlow.Color = col
-    csGlow.Thickness = thick + 8
-    csGlow.Transparency = 0.55
+    csGlow.Thickness = thick + 10
+    csGlow.Transparency = 0.4
     csGlow.Parent = circle
 
     local function ml(name, sz, pos)
@@ -1757,11 +1757,11 @@ local function EnsureCrosshairGui()
         f.Parent = rotFrame
         local fg = Instance.new("Frame")
         fg.Name = name .. "Glow"
-        fg.Size = UDim2.new(1, 10, 1, 10)
+        fg.Size = UDim2.new(1, 14, 1, 14)
         fg.AnchorPoint = Vector2.new(0.5, 0.5)
         fg.Position = UDim2.new(0.5, 0, 0.5, 0)
         fg.BackgroundColor3 = col
-        fg.BackgroundTransparency = 0.5
+        fg.BackgroundTransparency = 0.3
         fg.BorderSizePixel = 0
         fg.ZIndex = 0
         fg.Parent = f
@@ -1785,16 +1785,16 @@ local function EnsureCrosshairGui()
         local speed = getgenv().ELITE_HUB_CrosshairSpeed or 2
         rotAngle = rotAngle + dt * speed * 360
         pulseTime = pulseTime + dt * 3
-        local pulse = 0.85 + 0.15 * math.sin(pulseTime)
-        local neonPulse = 0.5 + 0.3 * math.sin(pulseTime * 1.5)
+        local pulse = 0.8 + 0.2 * math.sin(pulseTime)
+        local neonPulse = 0.3 + 0.4 * math.sin(pulseTime * 1.5)
         rotFrame.Rotation = rotAngle
         local newCol = getgenv().ELITE_HUB_CrosshairColor or Color3.fromRGB(255, 50, 50)
         cs.Color = newCol
         cs.Thickness = thick * pulse
         csGlow.Color = newCol
-        csGlow.Transparency = 0.4 + 0.3 * math.sin(pulseTime * 2)
+        csGlow.Transparency = 0.3 + 0.3 * math.sin(pulseTime * 2)
         outerGlow.BackgroundColor3 = newCol
-        outerGlow.BackgroundTransparency = 0.5 + neonPulse * 0.3
+        outerGlow.BackgroundTransparency = 0.3 + neonPulse * 0.3
         for _, child in ipairs(rotFrame:GetChildren()) do
             if child:IsA("Frame") and child.Name ~= "Circle" and child.Name ~= "OuterGlow" and not child.Name:find("Glow") then
                 child.BackgroundColor3 = newCol
@@ -1805,12 +1805,13 @@ local function EnsureCrosshairGui()
             local hrp = currentTarget.Character:FindFirstChild("HumanoidRootPart")
             if head and hrp then
                 local dist = (Camera.CFrame.Position - hrp.Position).Magnitude
-                local sp, onScr = Camera:WorldToViewportPoint(head.Position + Vector3.new(0, 2.5, 0))
+                local torso = currentTarget.Character:FindFirstChild("UpperTorso") or currentTarget.Character:FindFirstChild("Torso") or head
+                local sp, onScr = Camera:WorldToViewportPoint(torso.Position)
                 if onScr and dist < 200 then
                     rotFrame.Position = UDim2.new(0, sp.X, 0, sp.Y)
                     rotFrame.Visible = true
-                    local scale = math.clamp(150 / dist, 0.4, 3)
-                    local sz = 120 * scale
+                    local scale = math.clamp(150 / dist, 0.5, 3.5)
+                    local sz = 160 * scale
                     rotFrame.Size = UDim2.new(0, sz, 0, sz)
                     return
                 end
