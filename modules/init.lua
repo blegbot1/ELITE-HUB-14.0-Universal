@@ -560,6 +560,7 @@ local function BuildHat(char)
     if hatConn then hatConn:Disconnect() hatConn = nil end
     local RunService = game:GetService("RunService")
     local spinAngle = 0
+    local lastRgbCol = nil
     hatConn = RunService.Heartbeat:Connect(function(dt)
         pcall(function()
             if not getgenv().ELITE_HUB_ChineseHatOn then
@@ -584,19 +585,13 @@ local function BuildHat(char)
 
             local spinCF = CFrame.Angles(0, math.rad(spinAngle), 0)
             local hdCF = hd.CFrame
+            local rgbCol = GetRgbColor()
+            local colChanged = (rgbCol ~= nil and rgbCol ~= lastRgbCol)
+            if rgbCol then lastRgbCol = rgbCol end
             for p, localCF in pairs(hatSpinParts) do
                 if p and p.Parent then
-                    p.CanCollide = false
-                    p.Massless = true
                     p.CFrame = hdCF * spinCF * localCF
-                end
-            end
-            local rgbCol = GetRgbColor()
-            if rgbCol then
-                for p, _ in pairs(hatSpinParts) do
-                    if p and p.Parent then
-                        p.Color = rgbCol
-                    end
+                    if colChanged then p.Color = rgbCol end
                 end
             end
         end)
@@ -807,6 +802,7 @@ local function BuildAura(char)
     Unanchor(au)
     if auraConn then pcall(function() auraConn:Disconnect() end) end
     local spinA = 0
+    local lastRgbCol = nil
     auraConn = game:GetService("RunService").Heartbeat:Connect(function(dt)
         pcall(function()
             if not getgenv().ELITE_HUB_AuraOn then RemoveAura() return end
@@ -823,13 +819,13 @@ local function BuildAura(char)
             end
             local spinCF = CFrame.Angles(0, math.rad(spinA), 0)
             local hdCF = hd.CFrame
-            for p, lcf in pairs(auraHalo) do
-                if p and p.Parent then p.CFrame = hdCF * spinCF * lcf end
-            end
             local rgbCol = GetRgbColor()
-            if rgbCol then
-                for p, _ in pairs(auraHalo) do
-                    if p and p.Parent then p.Color = rgbCol end
+            local colChanged = (rgbCol ~= nil and rgbCol ~= lastRgbCol)
+            if rgbCol then lastRgbCol = rgbCol end
+            for p, lcf in pairs(auraHalo) do
+                if p and p.Parent then
+                    p.CFrame = hdCF * spinCF * lcf
+                    if colChanged then p.Color = rgbCol end
                 end
             end
         end)
@@ -938,6 +934,7 @@ local function BuildHorns(char)
     sideHorn(1)
     Unanchor(hrn)
     if hornConn then pcall(function() hornConn:Disconnect() end) end
+    local lastRgbCol = nil
     hornConn = game:GetService("RunService").Heartbeat:Connect(function()
         pcall(function()
             if not getgenv().ELITE_HUB_HornsOn then RemoveHorns() return end
@@ -950,13 +947,13 @@ local function BuildHorns(char)
             local hd = char:FindFirstChild("Head")
             if not hd then return end
             local hdCF = hd.CFrame
-            for p, lcf in pairs(hornParts) do
-                if p and p.Parent then p.CFrame = hdCF * lcf end
-            end
             local rgbCol = GetRgbColor()
-            if rgbCol then
-                for p, _ in pairs(hornParts) do
-                    if p and p.Parent then p.Color = rgbCol end
+            local colChanged = (rgbCol ~= nil and rgbCol ~= lastRgbCol)
+            if rgbCol then lastRgbCol = rgbCol end
+            for p, lcf in pairs(hornParts) do
+                if p and p.Parent then
+                    p.CFrame = hdCF * lcf
+                    if colChanged then p.Color = rgbCol end
                 end
             end
         end)
@@ -1201,17 +1198,17 @@ local wingParts = {}
 local wingBuildId = 0
 
 local WING_TYPES = {
-    { label = "Angel", dt = Vector3.new(0.3, 0.9, 0.3), db = Vector3.new(0.9, 0.3, 0.2), n = 30, ns = 8, l0 = 2.0, l1 = -7.0, d0 = 0.28, d1 = 0.1, backT = 0.7, bD0 = 0.22, sub = { dt = Vector3.new(0.7, -0.2, 0.3), db = Vector3.new(0.4, -0.8, 0.2), n = 18, ns = 6, l0 = 4.0, l1 = 1.5, d0 = 0.22, d1 = 0.08 } },
-    { label = "Demon", dt = Vector3.new(0.2, 0.95, 0.2), db = Vector3.new(0.95, 0.2, 0.15), n = 30, ns = 9, l0 = 1.8, l1 = -8.0, d0 = 0.3, d1 = 0.12, backT = 0.75, bD0 = 0.25, sub = { dt = Vector3.new(0.8, -0.15, 0.2), db = Vector3.new(0.5, -0.85, 0.15), n = 18, ns = 7, l0 = 3.5, l1 = 1.3, d0 = 0.25, d1 = 0.09 } },
-    { label = "Vampire", dt = Vector3.new(0.4, 0.85, 0.35), db = Vector3.new(0.95, 0.15, 0.1), n = 34, ns = 8, l0 = 2.2, l1 = -7.5, d0 = 0.25, d1 = 0.09, backT = 0.65, bD0 = 0.2, sub = { dt = Vector3.new(0.75, -0.25, 0.25), db = Vector3.new(0.35, -0.85, 0.2), n = 20, ns = 6, l0 = 3.8, l1 = 1.4, d0 = 0.2, d1 = 0.07 } },
-    { label = "Faerie", dt = Vector3.new(0.35, 0.88, 0.3), db = Vector3.new(0.85, 0.35, 0.25), n = 22, ns = 7, l0 = 1.4, l1 = -5.5, d0 = 0.22, d1 = 0.08, backT = 0.6, bD0 = 0.18, sub = { dt = Vector3.new(0.65, -0.25, 0.3), db = Vector3.new(0.35, -0.75, 0.25), n = 12, ns = 5, l0 = 3.0, l1 = 1.2, d0 = 0.18, d1 = 0.06 } },
-    { label = "Butterfly", dt = Vector3.new(0.5, 0.8, 0.3), db = Vector3.new(0.95, 0.1, 0.1), n = 22, ns = 8, l0 = 1.7, l1 = -6.5, d0 = 0.25, d1 = 0.09, backT = 0.55, bD0 = 0.2, sub = { dt = Vector3.new(0.8, -0.2, 0.2), db = Vector3.new(0.3, -0.85, 0.15), n = 12, ns = 6, l0 = 3.5, l1 = 1.3, d0 = 0.2, d1 = 0.07 } },
-    { label = "Falcon", dt = Vector3.new(0.25, 0.92, 0.25), db = Vector3.new(0.88, 0.35, 0.18), n = 30, ns = 8, l0 = 2.0, l1 = -7.0, d0 = 0.25, d1 = 0.09, backT = 0.68, bD0 = 0.2, sub = { dt = Vector3.new(0.7, -0.18, 0.25), db = Vector3.new(0.4, -0.82, 0.18), n = 18, ns = 6, l0 = 3.8, l1 = 1.4, d0 = 0.2, d1 = 0.07 } },
-    { label = "Dragonel", dt = Vector3.new(0.2, 0.93, 0.2), db = Vector3.new(0.92, 0.25, 0.12), n = 26, ns = 9, l0 = 1.8, l1 = -7.8, d0 = 0.28, d1 = 0.1, backT = 0.72, bD0 = 0.22, sub = { dt = Vector3.new(0.75, -0.2, 0.2), db = Vector3.new(0.45, -0.8, 0.15), n = 14, ns = 6, l0 = 3.5, l1 = 1.2, d0 = 0.22, d1 = 0.08 } },
-    { label = "Raven", dt = Vector3.new(0.3, 0.88, 0.3), db = Vector3.new(0.88, 0.32, 0.2), n = 30, ns = 8, l0 = 1.9, l1 = -7.0, d0 = 0.25, d1 = 0.1, backT = 0.62, bD0 = 0.2, sub = { dt = Vector3.new(0.68, -0.22, 0.28), db = Vector3.new(0.38, -0.78, 0.22), n = 18, ns = 6, l0 = 3.5, l1 = 1.3, d0 = 0.22, d1 = 0.08 } },
-    { label = "Owl", dt = Vector3.new(0.35, 0.85, 0.35), db = Vector3.new(0.85, 0.35, 0.25), n = 24, ns = 7, l0 = 1.7, l1 = -6.5, d0 = 0.3, d1 = 0.12, backT = 0.58, bD0 = 0.22, sub = { dt = Vector3.new(0.65, -0.25, 0.3), db = Vector3.new(0.35, -0.8, 0.25), n = 14, ns = 6, l0 = 3.5, l1 = 1.3, d0 = 0.25, d1 = 0.09 } },
-    { label = "Phoenix", dt = Vector3.new(0.25, 0.92, 0.25), db = Vector3.new(0.9, 0.3, 0.15), n = 30, ns = 9, l0 = 2.1, l1 = -8.0, d0 = 0.25, d1 = 0.09, backT = 0.72, bD0 = 0.2, sub = { dt = Vector3.new(0.72, -0.2, 0.22), db = Vector3.new(0.42, -0.82, 0.18), n = 18, ns = 6, l0 = 4.0, l1 = 1.4, d0 = 0.22, d1 = 0.07 } },
-    { label = "Double", dt = Vector3.new(0.3, 0.9, 0.3), db = Vector3.new(0.9, 0.3, 0.2), n = 26, ns = 8, l0 = 1.8, l1 = -7.0, d0 = 0.25, d1 = 0.09, backT = 0.65, bD0 = 0.2, sub = { dt = Vector3.new(0.7, -0.2, 0.3), db = Vector3.new(0.4, -0.8, 0.2), n = 16, ns = 6, l0 = 3.5, l1 = 1.3, d0 = 0.2, d1 = 0.07 } }
+    { label = "Angel", dt = Vector3.new(0.3, 0.9, 0.3), db = Vector3.new(0.9, 0.3, 0.2), n = 16, ns = 4, l0 = 2.0, l1 = -7.0, d0 = 0.28, d1 = 0.1, backT = 0.7, bD0 = 0.22, sub = { dt = Vector3.new(0.7, -0.2, 0.3), db = Vector3.new(0.4, -0.8, 0.2), n = 10, ns = 3, l0 = 4.0, l1 = 1.5, d0 = 0.22, d1 = 0.08 } },
+    { label = "Demon", dt = Vector3.new(0.2, 0.95, 0.2), db = Vector3.new(0.95, 0.2, 0.15), n = 16, ns = 5, l0 = 1.8, l1 = -8.0, d0 = 0.3, d1 = 0.12, backT = 0.75, bD0 = 0.25, sub = { dt = Vector3.new(0.8, -0.15, 0.2), db = Vector3.new(0.5, -0.85, 0.15), n = 10, ns = 4, l0 = 3.5, l1 = 1.3, d0 = 0.25, d1 = 0.09 } },
+    { label = "Vampire", dt = Vector3.new(0.4, 0.85, 0.35), db = Vector3.new(0.95, 0.15, 0.1), n = 18, ns = 4, l0 = 2.2, l1 = -7.5, d0 = 0.25, d1 = 0.09, backT = 0.65, bD0 = 0.2, sub = { dt = Vector3.new(0.75, -0.25, 0.25), db = Vector3.new(0.35, -0.85, 0.2), n = 12, ns = 3, l0 = 3.8, l1 = 1.4, d0 = 0.2, d1 = 0.07 } },
+    { label = "Faerie", dt = Vector3.new(0.35, 0.88, 0.3), db = Vector3.new(0.85, 0.35, 0.25), n = 12, ns = 4, l0 = 1.4, l1 = -5.5, d0 = 0.22, d1 = 0.08, backT = 0.6, bD0 = 0.18, sub = { dt = Vector3.new(0.65, -0.25, 0.3), db = Vector3.new(0.35, -0.75, 0.25), n = 8, ns = 3, l0 = 3.0, l1 = 1.2, d0 = 0.18, d1 = 0.06 } },
+    { label = "Butterfly", dt = Vector3.new(0.5, 0.8, 0.3), db = Vector3.new(0.95, 0.1, 0.1), n = 12, ns = 4, l0 = 1.7, l1 = -6.5, d0 = 0.25, d1 = 0.09, backT = 0.55, bD0 = 0.2, sub = { dt = Vector3.new(0.8, -0.2, 0.2), db = Vector3.new(0.3, -0.85, 0.15), n = 8, ns = 3, l0 = 3.5, l1 = 1.3, d0 = 0.2, d1 = 0.07 } },
+    { label = "Falcon", dt = Vector3.new(0.25, 0.92, 0.25), db = Vector3.new(0.88, 0.35, 0.18), n = 16, ns = 4, l0 = 2.0, l1 = -7.0, d0 = 0.25, d1 = 0.09, backT = 0.68, bD0 = 0.2, sub = { dt = Vector3.new(0.7, -0.18, 0.25), db = Vector3.new(0.4, -0.82, 0.18), n = 10, ns = 3, l0 = 3.8, l1 = 1.4, d0 = 0.2, d1 = 0.07 } },
+    { label = "Dragonel", dt = Vector3.new(0.2, 0.93, 0.2), db = Vector3.new(0.92, 0.25, 0.12), n = 14, ns = 5, l0 = 1.8, l1 = -7.8, d0 = 0.28, d1 = 0.1, backT = 0.72, bD0 = 0.22, sub = { dt = Vector3.new(0.75, -0.2, 0.2), db = Vector3.new(0.45, -0.8, 0.15), n = 8, ns = 3, l0 = 3.5, l1 = 1.2, d0 = 0.22, d1 = 0.08 } },
+    { label = "Raven", dt = Vector3.new(0.3, 0.88, 0.3), db = Vector3.new(0.88, 0.32, 0.2), n = 16, ns = 4, l0 = 1.9, l1 = -7.0, d0 = 0.25, d1 = 0.1, backT = 0.62, bD0 = 0.2, sub = { dt = Vector3.new(0.68, -0.22, 0.28), db = Vector3.new(0.38, -0.78, 0.22), n = 10, ns = 3, l0 = 3.5, l1 = 1.3, d0 = 0.22, d1 = 0.08 } },
+    { label = "Owl", dt = Vector3.new(0.35, 0.85, 0.35), db = Vector3.new(0.85, 0.35, 0.25), n = 14, ns = 4, l0 = 1.7, l1 = -6.5, d0 = 0.3, d1 = 0.12, backT = 0.58, bD0 = 0.22, sub = { dt = Vector3.new(0.65, -0.25, 0.3), db = Vector3.new(0.35, -0.8, 0.25), n = 8, ns = 3, l0 = 3.5, l1 = 1.3, d0 = 0.25, d1 = 0.09 } },
+    { label = "Phoenix", dt = Vector3.new(0.25, 0.92, 0.25), db = Vector3.new(0.9, 0.3, 0.15), n = 16, ns = 5, l0 = 2.1, l1 = -8.0, d0 = 0.25, d1 = 0.09, backT = 0.72, bD0 = 0.2, sub = { dt = Vector3.new(0.72, -0.2, 0.22), db = Vector3.new(0.42, -0.82, 0.18), n = 10, ns = 3, l0 = 4.0, l1 = 1.4, d0 = 0.22, d1 = 0.07 } },
+    { label = "Double", dt = Vector3.new(0.3, 0.9, 0.3), db = Vector3.new(0.9, 0.3, 0.2), n = 14, ns = 4, l0 = 1.8, l1 = -7.0, d0 = 0.25, d1 = 0.09, backT = 0.65, bD0 = 0.2, sub = { dt = Vector3.new(0.7, -0.2, 0.3), db = Vector3.new(0.4, -0.8, 0.2), n = 10, ns = 3, l0 = 3.5, l1 = 1.3, d0 = 0.2, d1 = 0.07 } }
 }
 
 local function RemoveWings()
@@ -1323,6 +1320,7 @@ local function BuildWings(char)
     wing(1)
     if wingConn then pcall(function() wingConn:Disconnect() end) end
     local t = 0
+    local lastRgbCol = nil
     wingConn = game:GetService("RunService").Heartbeat:Connect(function(dt)
         pcall(function()
             if not getgenv().ELITE_HUB_WingsOn then RemoveWings() return end
@@ -1341,15 +1339,15 @@ local function BuildWings(char)
                 amp = math.sin(t * (getgenv().ELITE_HUB_WingsFlapSpeed or 3)) * 0.45
             end
             local base = ts.CFrame
-                for p, data in pairs(wingParts) do
-                    if p and p.Parent then
-                        p.CFrame = base * CFrame.Angles(0, 0, data.side * amp) * data.lcf
-                    end
-            end
             local rgbCol = GetRgbColor()
-            if rgbCol then
-                for p, _ in pairs(wingParts) do
-                    if p and p.Parent then p.Color = rgbCol end
+            local colChanged = (rgbCol ~= nil and rgbCol ~= lastRgbCol)
+            if rgbCol then lastRgbCol = rgbCol end
+            for p, data in pairs(wingParts) do
+                if p and p.Parent then
+                    p.CFrame = base * CFrame.Angles(0, 0, data.side * amp) * data.lcf
+                    if colChanged then
+                        p.Color = rgbCol
+                    end
                 end
             end
         end)
@@ -2063,6 +2061,7 @@ local function EnsureCrosshairGui()
 
     local lastStyle = nil
     local rotAngle = 0
+    local lastCrossCol = nil
     if crosshairRotConn then pcall(function() crosshairRotConn:Disconnect() end) end
     crosshairRotConn = RunService.Heartbeat:Connect(function(dt)
         if not sg or not sg.Parent then
@@ -2071,6 +2070,8 @@ local function EnsureCrosshairGui()
             return
         end
         local newCol = ApplyColor(getgenv().ELITE_HUB_CrosshairColor or Color3.fromRGB(255, 50, 50))
+        local colChanged = (newCol ~= lastCrossCol)
+        if colChanged then lastCrossCol = newCol end
         local curStyle = getgenv().ELITE_HUB_CrosshairStyle or "Rotating Ring"
         if curStyle ~= lastStyle then
             lastStyle = curStyle
@@ -2079,18 +2080,20 @@ local function EnsureCrosshairGui()
         local speed = getgenv().ELITE_HUB_CrosshairSpeed or 2
         rotAngle = rotAngle + dt * speed * 360
         rotFrame.Rotation = rotAngle
-        for _, child in ipairs(rotFrame:GetChildren()) do
-            if child:IsA("Frame") and child.Name ~= "OuterGlow" and not child.Name:find("Glow") then
-                if child:FindFirstChildOfClass("UIStroke") then
-                    child:FindFirstChildOfClass("UIStroke").Color = newCol
+        if colChanged then
+            for _, child in ipairs(rotFrame:GetChildren()) do
+                if child:IsA("Frame") and child.Name ~= "OuterGlow" and not child.Name:find("Glow") then
+                    if child:FindFirstChildOfClass("UIStroke") then
+                        child:FindFirstChildOfClass("UIStroke").Color = newCol
+                    end
+                    pcall(function()
+                        if child.BackgroundColor3 then child.BackgroundColor3 = newCol end
+                    end)
                 end
-                pcall(function()
-                    if child.BackgroundColor3 then child.BackgroundColor3 = newCol end
-                end)
             end
         end
         local og = rotFrame:FindFirstChild("OuterGlow")
-        if og then
+        if og and colChanged then
             og.BackgroundColor3 = newCol
         end
         if currentTarget and currentTarget.Character then
