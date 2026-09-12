@@ -20,6 +20,7 @@ local IsFriend = _g().ELITE_HUB_IsFriend
 local IsFriendName = _g().ELITE_HUB_IsFriendName
 local GetPlayerRelation = _g().ELITE_HUB_GetPlayerRelation or GetTeamRelation
 local UpdateSkeletonLines = _g().ELITE_HUB_UpdateSkeletonLines
+local RunService = game:GetService("RunService")
 
 --[[
     ==============================
