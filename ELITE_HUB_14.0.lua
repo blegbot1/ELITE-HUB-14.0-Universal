@@ -1979,7 +1979,9 @@ local function BuildHat(char)
                 end
                 return
             end
-            local hd = char:FindFirstChild("Head")
+            local curChar = player.Character
+            if not curChar then return end
+            local hd = curChar:FindFirstChild("Head")
             if not hd then return end
 
             if getgenv().ELITE_HUB_ChineseHatSpin then
@@ -2215,7 +2217,9 @@ local function BuildAura(char)
                 if c and c:FindFirstChild("Head") then task.spawn(function() BuildAura(c) end) end
                 return
             end
-            local hd = char:FindFirstChild("Head")
+            local curChar = player.Character
+            if not curChar then return end
+            local hd = curChar:FindFirstChild("Head")
             if not hd then return end
             if getgenv().ELITE_HUB_AuraSpin then
                 spinA = spinA + (getgenv().ELITE_HUB_AuraSpinSpeed or 40) * dt * 3
@@ -2347,7 +2351,9 @@ local function BuildHorns(char)
                 if c and c:FindFirstChild("Head") then task.spawn(function() BuildHorns(c) end) end
                 return
             end
-            local hd = char:FindFirstChild("Head")
+            local curChar = player.Character
+            if not curChar then return end
+            local hd = curChar:FindFirstChild("Head")
             if not hd then return end
             local hdCF = hd.CFrame
             local rgbCol = GetRgbColor()
@@ -2734,7 +2740,7 @@ local function BuildWings(char)
                 if tc then task.spawn(function() BuildWings(c) end) end
                 return
             end
-            local ts = characterTorso(char)
+            local ts = characterTorso(player.Character)
             if not ts then return end
             t = t + dt
             local amp = 0
