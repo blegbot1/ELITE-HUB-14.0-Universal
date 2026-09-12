@@ -7998,7 +7998,6 @@ _g().ELITE_HUB_IsFriendName = IsFriendName
 _g().ELITE_HUB_IsFriend = IsFriend
 _g().ELITE_HUB_CreateSkeletonLines = CreateSkeletonLines
 _g().ELITE_HUB_RemoveSkeletonLines = RemoveSkeletonLines
-_g().ELITE_HUB_GetTargetPlayer = GetTargetPlayer
 
 local function GetTargetPlayer()
     local targetName = tostring(getgenv().ELITE_HUB_TARGET_NAME or "")
@@ -8008,6 +8007,7 @@ local function GetTargetPlayer()
     end
     return nil
 end
+_g().ELITE_HUB_GetTargetPlayer = GetTargetPlayer
 
 getgenv().ELITE_HUB_FRIEND_TEAMS = getgenv().ELITE_HUB_FRIEND_TEAMS or {}
 
@@ -8023,6 +8023,7 @@ function GetTeamName(p)
     end
     return nil
 end
+getgenv().ELITE_HUB_GetTeamName = GetTeamName
 
 function IsFriendlyTeamName(teamName)
     teamName = tostring(teamName or "")
@@ -8056,6 +8057,7 @@ function GetTeamRelation(p)
     if IsFriendlyTeamName(tn) then return "friend" end
     return "enemy"
 end
+getgenv().ELITE_HUB_GetTeamRelation = GetTeamRelation
 
 getgenv().ELITE_HUB_ENEMIES = getgenv().ELITE_HUB_ENEMIES or {}
 getgenv().ELITE_HUB_ENEMY_TEAMS = getgenv().ELITE_HUB_ENEMY_TEAMS or {}
@@ -8784,7 +8786,7 @@ CombatTab:CreateToggle({
 })
 
 CombatTab:CreateSlider({
-    Name = "  ",
+    Name = " Prediction Factor",
     Range = {0.05, 0.5},
     Increment = 0.05,
     Suffix = "x",
@@ -8815,7 +8817,7 @@ CombatTab:CreateToggle({
 })
 
 CombatTab:CreateSlider({
-    Name = " . FOV ()",
+    Name = " Min FOV (studs)",
     Range = {30, 100},
     Increment = 5,
     Suffix = "",
@@ -8826,7 +8828,7 @@ CombatTab:CreateSlider({
 })
 
 CombatTab:CreateSlider({
-    Name = " . FOV ()",
+    Name = " Max FOV (studs)",
     Range = {100, 400},
     Increment = 10,
     Suffix = "",
@@ -8847,7 +8849,7 @@ CombatTab:CreateToggle({
 })
 
 CombatTab:CreateToggle({
-    Name = " Lock Notify ( )",
+    Name = " Lock Notify",
     CurrentValue = AimbotConfig.NotifyLock,
     Callback = function(value)
         AimbotConfig.NotifyLock = value
@@ -8855,7 +8857,7 @@ CombatTab:CreateToggle({
 })
 
 CombatTab:CreateToggle({
-    Name = " Unlock Notify ( )",
+    Name = " Unlock Notify",
     CurrentValue = AimbotConfig.NotifyUnlock,
     Callback = function(value)
         AimbotConfig.NotifyUnlock = value
@@ -8871,7 +8873,7 @@ CombatTab:CreateToggle({
 })
 
 CombatTab:CreateToggle({
-    Name = " Low HP Notify ( < 30 HP)",
+    Name = " Low HP Notify (< 30 HP)",
     CurrentValue = AimbotConfig.NotifyLowHP,
     Callback = function(value)
         AimbotConfig.NotifyLowHP = value
@@ -8879,7 +8881,7 @@ CombatTab:CreateToggle({
 })
 
 CombatTab:CreateToggle({
-    Name = " Auto-Shot Notify ()",
+    Name = " Auto-Shot Notify",
     CurrentValue = AimbotConfig.NotifyShot,
     Callback = function(value)
         AimbotConfig.NotifyShot = value
@@ -8913,7 +8915,7 @@ CombatTab:CreateToggle({
 CombatTab:CreateSection("🔒 TARGET LOCK")
 
 CombatTab:CreateToggle({
-    Name = " Persistent Lock ( )",
+    Name = " Persistent Lock",
     CurrentValue = AimbotConfig.PersistentLock,
     Callback = function(value)
         AimbotConfig.PersistentLock = value
@@ -9006,7 +9008,7 @@ local NewOverlayCircle = _g().ELITE_HUB_NewOverlayCircle
 local NewOverlayLine = _g().ELITE_HUB_NewOverlayLine
 local IsFriend = _g().ELITE_HUB_IsFriend
 local IsFriendName = _g().ELITE_HUB_IsFriendName
-local GetPlayerRelation = _g().ELITE_HUB_GetPlayerRelation or GetTeamRelation
+local GetPlayerRelation = _g().ELITE_HUB_GetPlayerRelation or _g().ELITE_HUB_GetTeamRelation or function() return "none" end
 local UpdateSkeletonLines = _g().ELITE_HUB_UpdateSkeletonLines
 local RunService = game:GetService("RunService")
 local GetTargetPlayer = _g().ELITE_HUB_GetTargetPlayer
@@ -10918,6 +10920,7 @@ local AimbotConfig = _g().ELITE_HUB_AimbotConfig
 local ESPConfig = _g().ELITE_HUB_ESPConfig
 local UpdateESP = _g().ELITE_HUB_UpdateESP or function() end
 local GetPlayerRelation = _g().ELITE_HUB_GetPlayerRelation or function() return "none" end
+local GetTeamName = _g().ELITE_HUB_GetTeamName or function() return nil end
 
 local FRIENDS = getgenv().ELITE_HUB_FRIENDS
 local ENEMIES = getgenv().ELITE_HUB_ENEMIES

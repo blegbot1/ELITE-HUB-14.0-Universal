@@ -8,6 +8,7 @@ local AimbotConfig = _g().ELITE_HUB_AimbotConfig
 local ESPConfig = _g().ELITE_HUB_ESPConfig
 local UpdateESP = _g().ELITE_HUB_UpdateESP or function() end
 local GetPlayerRelation = _g().ELITE_HUB_GetPlayerRelation or function() return "none" end
+local GetTeamName = _g().ELITE_HUB_GetTeamName or function() return nil end
 
 local FRIENDS = getgenv().ELITE_HUB_FRIENDS
 local ENEMIES = getgenv().ELITE_HUB_ENEMIES

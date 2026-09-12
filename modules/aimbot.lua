@@ -423,7 +423,6 @@ _g().ELITE_HUB_IsFriendName = IsFriendName
 _g().ELITE_HUB_IsFriend = IsFriend
 _g().ELITE_HUB_CreateSkeletonLines = CreateSkeletonLines
 _g().ELITE_HUB_RemoveSkeletonLines = RemoveSkeletonLines
-_g().ELITE_HUB_GetTargetPlayer = GetTargetPlayer
 
 local function GetTargetPlayer()
     local targetName = tostring(getgenv().ELITE_HUB_TARGET_NAME or "")
@@ -433,6 +432,7 @@ local function GetTargetPlayer()
     end
     return nil
 end
+_g().ELITE_HUB_GetTargetPlayer = GetTargetPlayer
 
 getgenv().ELITE_HUB_FRIEND_TEAMS = getgenv().ELITE_HUB_FRIEND_TEAMS or {}
 
@@ -448,6 +448,7 @@ function GetTeamName(p)
     end
     return nil
 end
+getgenv().ELITE_HUB_GetTeamName = GetTeamName
 
 function IsFriendlyTeamName(teamName)
     teamName = tostring(teamName or "")
@@ -481,6 +482,7 @@ function GetTeamRelation(p)
     if IsFriendlyTeamName(tn) then return "friend" end
     return "enemy"
 end
+getgenv().ELITE_HUB_GetTeamRelation = GetTeamRelation
 
 getgenv().ELITE_HUB_ENEMIES = getgenv().ELITE_HUB_ENEMIES or {}
 getgenv().ELITE_HUB_ENEMY_TEAMS = getgenv().ELITE_HUB_ENEMY_TEAMS or {}
