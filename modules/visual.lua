@@ -735,14 +735,3 @@ MT:CreateSlider({
         getgenv().ELITE_HUB_Log("MODS", "Gravity: " .. value)
     end
 })
-
-MT:CreateSlider({
-    Name = " FOV",
-    Range = {30, 120},
-    Increment = 5,
-    CurrentValue = 70,
-    Callback = function(value)
-        workspace.CurrentCamera.FieldOfView = value
-        getgenv().ELITE_HUB_Log("MODS", "FOV: " .. value)
-    end
-})

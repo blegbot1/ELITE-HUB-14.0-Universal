@@ -1425,9 +1425,9 @@ do
         if isfile("EliteHub_Config.json") then
             local data = game:GetService("HttpService"):JSONDecode(readfile("EliteHub_Config.json"))
             if data.Animations ~= nil then ES.Animations = data.Animations end
-            if data.Lang then ES.Lang = data.Lang end
         end
     end)
+    ES.Lang = "EN"
     getgenv().EliteHubSettings = ES
 
     local LangData = {
@@ -2851,14 +2851,14 @@ local JUMP_RING_PATTERNS = {
     "Cross", "Burst", "Flower", "Spiral", "Zigzag", "Dotted", "Heart", "Wave"
 }
 
-local function SpawnPart(pos, col, size)
+local function SpawnPart(pos, col, size, yAngle)
     local p = Instance.new("Part")
     p.Anchored = true
     p.CanCollide = false
     p.Material = Enum.Material.Neon
     p.Color = col
     p.Size = size
-    p.CFrame = CFrame.new(pos)
+    p.CFrame = yAngle and (CFrame.new(pos) * CFrame.Angles(0, yAngle, 0)) or CFrame.new(pos)
     p.Transparency = 0
     p.Parent = workspace
     return p
@@ -2881,7 +2881,7 @@ local function AnimateRing(parts, dur)
             if p and p.Parent then
                 local base = p:GetAttribute("BaseSize")
                 if base then
-                    p.Size = Vector3.new(base, base * scale, base * scale)
+                    p.Size = Vector3.new(base * scale, base, base * scale)
                 end
                 p.Transparency = alpha
             end
@@ -2892,8 +2892,8 @@ end
 local function SpawnJumpRingPattern(pos, col, pattern)
     local parts = {}
     local dur = 0.5
-    local function add(x, z, sx, sz)
-        local p = SpawnPart(Vector3.new(pos.X + x, pos.Y, pos.Z + z), col, Vector3.new(0.15, sx, sz))
+    local function add(x, z, sx, sz, yAngle)
+        local p = SpawnPart(Vector3.new(pos.X + x, pos.Y, pos.Z + z), col, Vector3.new(sx, 0.15, sz), yAngle)
         p:SetAttribute("BaseSize", 0.15)
         parts[#parts + 1] = p
     end
@@ -2902,55 +2902,55 @@ local function SpawnJumpRingPattern(pos, col, pattern)
         local radius = 1.0
         for i = 0, 15 do
             local ang = (i / 16) * math.pi * 2
-            add(math.cos(ang) * radius, math.sin(ang) * radius, 0.15, 0.3)
+            add(math.cos(ang) * radius, math.sin(ang) * radius, 0.15, 0.3, ang + math.pi / 2)
         end
 
     elseif pattern == "Double Ring" then
         for i = 0, 15 do
             local ang = (i / 16) * math.pi * 2
-            add(math.cos(ang) * 1.0, math.sin(ang) * 1.0, 0.15, 0.3)
+            add(math.cos(ang) * 1.0, math.sin(ang) * 1.0, 0.15, 0.3, ang + math.pi / 2)
         end
         task.delay(0.05, function()
             for i = 0, 15 do
                 local ang = (i / 16) * math.pi * 2
-                add(math.cos(ang) * 1.5, math.sin(ang) * 1.5, 0.15, 0.3)
+                add(math.cos(ang) * 1.5, math.sin(ang) * 1.5, 0.15, 0.3, ang + math.pi / 2)
             end
         end)
 
     elseif pattern == "Triple Ring" then
         for i = 0, 15 do
             local ang = (i / 16) * math.pi * 2
-            add(math.cos(ang) * 1.0, math.sin(ang) * 1.0, 0.15, 0.3)
+            add(math.cos(ang) * 1.0, math.sin(ang) * 1.0, 0.15, 0.3, ang + math.pi / 2)
         end
         task.delay(0.04, function()
             for i = 0, 15 do
                 local ang = (i / 16) * math.pi * 2
-                add(math.cos(ang) * 1.5, math.sin(ang) * 1.5, 0.15, 0.3)
+                add(math.cos(ang) * 1.5, math.sin(ang) * 1.5, 0.15, 0.3, ang + math.pi / 2)
             end
         end)
         task.delay(0.08, function()
             for i = 0, 19 do
                 local ang = (i / 20) * math.pi * 2
-                add(math.cos(ang) * 2.0, math.sin(ang) * 2.0, 0.15, 0.3)
+                add(math.cos(ang) * 2.0, math.sin(ang) * 2.0, 0.15, 0.3, ang + math.pi / 2)
             end
         end)
 
     elseif pattern == "Star 5" then
         for i = 0, 4 do
             local ang = (i / 5) * math.pi * 2
-            add(math.cos(ang) * 0.5, math.sin(ang) * 0.5, 0.3, 2)
+            add(math.cos(ang) * 0.5, math.sin(ang) * 0.5, 0.3, 2, ang)
         end
 
     elseif pattern == "Star 6" then
         for i = 0, 5 do
             local ang = (i / 6) * math.pi * 2
-            add(math.cos(ang) * 0.5, math.sin(ang) * 0.5, 0.3, 2)
+            add(math.cos(ang) * 0.5, math.sin(ang) * 0.5, 0.3, 2, ang)
         end
 
     elseif pattern == "Star 8" then
         for i = 0, 7 do
             local ang = (i / 8) * math.pi * 2
-            add(math.cos(ang) * 0.5, math.sin(ang) * 0.5, 0.3, 2)
+            add(math.cos(ang) * 0.5, math.sin(ang) * 0.5, 0.3, 2, ang)
         end
 
     elseif pattern == "Hexagon" then
@@ -2960,19 +2960,20 @@ local function SpawnJumpRingPattern(pos, col, pattern)
             local mx = (math.cos(ang) + math.cos(ang2)) * 0.5
             local mz = (math.sin(ang) + math.sin(ang2)) * 0.5
             local len = math.sqrt((math.cos(ang2) - math.cos(ang))^2 + (math.sin(ang2) - math.sin(ang))^2)
-            add(mx * 0.5, mz * 0.5, len * 0.5, 0.3)
+            local edgeAng = math.atan2(math.sin(ang2) - math.sin(ang), math.cos(ang2) - math.cos(ang))
+            add(mx * 0.5, mz * 0.5, len * 0.5, 0.3, edgeAng)
         end
 
     elseif pattern == "Square" then
         local s = 0.6
-        for _, d in ipairs({{0, s, 0.3, s * 2}, {0, -s, 0.3, s * 2}, {s, 0, s * 2, 0.3}, {-s, 0, s * 2, 0.3}}) do
-            add(d[1], d[2], d[3], d[4])
+        for _, d in ipairs({{0, s, 0.3, s * 2, 0}, {0, -s, 0.3, s * 2, 0}, {s, 0, s * 2, 0.3, math.pi / 2}, {-s, 0, s * 2, 0.3, math.pi / 2}}) do
+            add(d[1], d[2], d[3], d[4], d[5])
         end
 
     elseif pattern == "Diamond" then
         local s = 0.7
-        for _, d in ipairs({{0, s, 0.3, s * 1.5}, {0, -s, 0.3, s * 1.5}, {s, 0, s * 1.5, 0.3}, {-s, 0, s * 1.5, 0.3}}) do
-            add(d[1], d[2], d[3], d[4])
+        for _, d in ipairs({{0, s, 0.3, s * 1.5, math.pi / 2}, {0, -s, 0.3, s * 1.5, math.pi / 2}, {s, 0, s * 1.5, 0.3, 0}, {-s, 0, s * 1.5, 0.3, 0}}) do
+            add(d[1], d[2], d[3], d[4], d[5])
         end
 
     elseif pattern == "Triangle" then
@@ -2982,7 +2983,8 @@ local function SpawnJumpRingPattern(pos, col, pattern)
             local mx = (math.cos(ang) + math.cos(ang2)) * 0.33
             local mz = (math.sin(ang) + math.sin(ang2)) * 0.33
             local len = math.sqrt((math.cos(ang2) - math.cos(ang))^2 + (math.sin(ang2) - math.sin(ang))^2)
-            add(mx, mz, len * 0.5, 0.3)
+            local edgeAng = math.atan2(math.sin(ang2) - math.sin(ang), math.cos(ang2) - math.cos(ang))
+            add(mx, mz, len * 0.5, 0.3, edgeAng)
         end
 
     elseif pattern == "Pentagon" then
@@ -2992,7 +2994,8 @@ local function SpawnJumpRingPattern(pos, col, pattern)
             local mx = (math.cos(ang) + math.cos(ang2)) * 0.3
             local mz = (math.sin(ang) + math.sin(ang2)) * 0.3
             local len = math.sqrt((math.cos(ang2) - math.cos(ang))^2 + (math.sin(ang2) - math.sin(ang))^2)
-            add(mx, mz, len * 0.5, 0.3)
+            local edgeAng = math.atan2(math.sin(ang2) - math.sin(ang), math.cos(ang2) - math.cos(ang))
+            add(mx, mz, len * 0.5, 0.3, edgeAng)
         end
 
     elseif pattern == "Octagon" then
@@ -3002,18 +3005,19 @@ local function SpawnJumpRingPattern(pos, col, pattern)
             local mx = (math.cos(ang) + math.cos(ang2)) * 0.3
             local mz = (math.sin(ang) + math.sin(ang2)) * 0.3
             local len = math.sqrt((math.cos(ang2) - math.cos(ang))^2 + (math.sin(ang2) - math.sin(ang))^2)
-            add(mx, mz, len * 0.4, 0.25)
+            local edgeAng = math.atan2(math.sin(ang2) - math.sin(ang), math.cos(ang2) - math.cos(ang))
+            add(mx, mz, len * 0.4, 0.25, edgeAng)
         end
 
     elseif pattern == "Cross" then
-        for _, d in ipairs({{0, 0, 0.2, 3}, {0, 0, 3, 0.2}}) do
-            add(d[1], d[2], d[3], d[4])
+        for _, d in ipairs({{0, 0, 0.2, 3, 0}, {0, 0, 3, 0.2, math.pi / 2}}) do
+            add(d[1], d[2], d[3], d[4], d[5])
         end
 
     elseif pattern == "Burst" then
         for i = 0, 11 do
             local ang = (i / 12) * math.pi * 2
-            add(math.cos(ang) * 0.3, math.sin(ang) * 0.3, 0.15, 1.5)
+            add(math.cos(ang) * 0.3, math.sin(ang) * 0.3, 0.15, 1.5, ang)
         end
 
     elseif pattern == "Flower" then
@@ -3678,20 +3682,18 @@ local function EnsureCrosshairGui()
         local speed = getgenv().ELITE_HUB_CrosshairSpeed or 2
         rotAngle = rotAngle + dt * speed * 360
         rotFrame.Rotation = rotAngle
-        for _, child in ipairs(rotFrame:GetChildren()) do
-            if child:IsA("Frame") and child.Name ~= "OuterGlow" and not child.Name:find("Glow") then
-                if child:FindFirstChildOfClass("UIStroke") then
-                    child:FindFirstChildOfClass("UIStroke").Color = newCol
-                end
-                pcall(function()
-                    if child.BackgroundColor3 then child.BackgroundColor3 = newCol end
-                end)
+        local function applyColorRecursive(obj)
+            if obj:IsA("Frame") and obj.Name ~= "OuterGlow" and not obj.Name:find("Glow") then
+                pcall(function() obj.BackgroundColor3 = newCol end)
+            end
+            if obj:IsA("UIStroke") then
+                pcall(function() obj.Color = newCol end)
+            end
+            for _, child in ipairs(obj:GetChildren()) do
+                applyColorRecursive(child)
             end
         end
-        local og = rotFrame:FindFirstChild("OuterGlow")
-        if og then
-            og.BackgroundColor3 = newCol
-        end
+        applyColorRecursive(rotFrame)
         if currentTarget and typeof(currentTarget) == "Instance" and currentTarget:IsA("Player") and currentTarget.Character then
             local head = currentTarget.Character:FindFirstChild("Head")
             local hrp = currentTarget.Character:FindFirstChild("HumanoidRootPart")
@@ -3726,7 +3728,7 @@ local function GetBillboardForTarget(tgtChar)
     bb.Name = "ELITEHUB_NameTag"
     bb.Size = UDim2.new(0, 180, 0, 50)
     bb.StudsOffset = Vector3.new(0, 2.5, 0)
-    bb.AlwaysOnTop = true
+    bb.AlwaysOnTop = false
     bb.LightInfluence = 0
     bb.Parent = head
 
@@ -3788,10 +3790,7 @@ local function GetBillboardForTarget(tgtChar)
 end
 
 local function UpdateTargetHUD()
-    local ac = getgenv().ELITE_HUB_AimbotConfig
-    local aimbotOn = (ac and ac.Enabled) or getgenv().ELITE_HUB_AimbotEnabled
-    local locked = aimbotOn and LockedTargetPlayer
-    local tgt = locked or GetTargetPlayer() or nil
+    local tgt = LockedTargetPlayer or nil
     local changed = (tgt ~= currentTarget)
     currentTarget = tgt
 
@@ -6556,7 +6555,6 @@ local BindConfig = {
     Fly = "F",
     Noclip = "N",
     SpeedBoost = "V",
-    SpinBot = "B"
 }
 local wallhopActive = false
 local wallhopConnection = nil
@@ -6741,12 +6739,6 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
     if success5 and speedKey and input.KeyCode == speedKey then
         ActivateSpeedBoost()
     end
-    local success6, spinKey = pcall(function() return Enum.KeyCode[BindConfig.SpinBot] end)
-    if success6 and spinKey and input.KeyCode == spinKey then
-        getgenv().ELITE_HUB_SpinBot = not getgenv().ELITE_HUB_SpinBot
-        getgenv().ELITE_HUB_Log("MODS", "Spin Bot: " .. tostring(getgenv().ELITE_HUB_SpinBot))
-        pcall(updateMiniGuiButtons)
-    end
 end)
 
 local miniGui = Instance.new("ScreenGui")
@@ -6839,30 +6831,6 @@ getgenv().ELITE_HUB_SpeedBtn = CreateMiniButton("SpeedBoostBtn", " Speed Boost",
     ActivateSpeedBoost()
 end)
 
-getgenv().ELITE_HUB_SpinBtn = CreateMiniButton("SpinBotBtn", " Spin Bot", 4, function()
-    getgenv().ELITE_HUB_SpinBot = not getgenv().ELITE_HUB_SpinBot
-    getgenv().ELITE_HUB_Log("MODS", "Spin Bot: " .. tostring(getgenv().ELITE_HUB_SpinBot))
-    updateMiniGuiButtons()
-    if getgenv().ELITE_HUB_SpinBot then
-        task.spawn(function()
-            while getgenv().ELITE_HUB_SpinBot do
-                task.wait(0.016)
-                pcall(function()
-                    if not flyBg then
-                        local ch = player.Character
-                        if ch then
-                            local hrp = ch:FindFirstChild("HumanoidRootPart")
-                            if hrp then
-                                hrp.CFrame = hrp.CFrame * CFrame.Angles(0, math.rad((getgenv().ELITE_HUB_SpinSpeed or 30) * 0.1), 0)
-                            end
-                        end
-                    end
-                end)
-            end
-        end)
-    end
-end)
-
 function updateMiniGuiButtons()
     if wallhopActive then
         wallhopBtn.Text = "   WallHop: ON"
@@ -6898,18 +6866,6 @@ function updateMiniGuiButtons()
         noclipBtn.BackgroundColor3 = Color3.fromRGB(40, 28, 65)
         noclipBtn.TextColor3 = Color3.fromRGB(170, 170, 170)
         noclipBtn.Indicator.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
-    end
-
-    if getgenv().ELITE_HUB_SpinBot then
-        getgenv().ELITE_HUB_SpinBtn.Text = "   Spin Bot: ON"
-        getgenv().ELITE_HUB_SpinBtn.BackgroundColor3 = Color3.fromRGB(120, 40, 40)
-        getgenv().ELITE_HUB_SpinBtn.TextColor3 = Color3.fromRGB(255, 140, 140)
-        getgenv().ELITE_HUB_SpinBtn.Indicator.BackgroundColor3 = Color3.fromRGB(255, 80, 80)
-    else
-        getgenv().ELITE_HUB_SpinBtn.Text = "   Spin Bot: OFF"
-        getgenv().ELITE_HUB_SpinBtn.BackgroundColor3 = Color3.fromRGB(40, 28, 65)
-        getgenv().ELITE_HUB_SpinBtn.TextColor3 = Color3.fromRGB(170, 170, 170)
-        getgenv().ELITE_HUB_SpinBtn.Indicator.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
     end
 end
 
@@ -7156,11 +7112,7 @@ function ToggleFly()
                     end
 
                     if flyBg then
-                        local spinY = 0
-                        if getgenv().ELITE_HUB_SpinBot then
-                            spinY = math.rad((getgenv().ELITE_HUB_SpinSpeed or 30) * 0.1)
-                        end
-                        flyBg.cframe = workspace.CurrentCamera.CFrame * CFrame.Angles(-math.rad((_G.flyCtrl.f + _G.flyCtrl.b) * 50 * speed / maxspeed), spinY, 0)
+                        flyBg.cframe = workspace.CurrentCamera.CFrame * CFrame.Angles(-math.rad((_G.flyCtrl.f + _G.flyCtrl.b) * 50 * speed / maxspeed), 0, 0)
                     end
                 end
 
@@ -7238,11 +7190,7 @@ function ToggleFly()
                     end
 
                     if flyBg then
-                        local spinY = 0
-                        if getgenv().ELITE_HUB_SpinBot then
-                            spinY = math.rad((getgenv().ELITE_HUB_SpinSpeed or 30) * 0.1)
-                        end
-                        flyBg.cframe = workspace.CurrentCamera.CFrame * CFrame.Angles(-math.rad((_G.flyCtrl.f + _G.flyCtrl.b) * 50 * speed / maxspeed), spinY, 0)
+                        flyBg.cframe = workspace.CurrentCamera.CFrame * CFrame.Angles(-math.rad((_G.flyCtrl.f + _G.flyCtrl.b) * 50 * speed / maxspeed), 0, 0)
                     end
                 end
 
@@ -7551,22 +7499,6 @@ MainTab:CreateInput({
         if success and keyEnum then
             BindConfig.SpeedBoost = keyName
             Rayfield:Notify({ Title = "✅ Speed Bound", Content = "Key: " .. keyName, Duration = 2 })
-        else
-            Rayfield:Notify({ Title = "❌ Error", Content = "Invalid key!", Duration = 2 })
-        end
-    end
-})
-
-MainTab:CreateInput({
-    Name = " Spin Bot Bind",
-    PlaceholderText = ": " .. BindConfig.SpinBot,
-    RemoveTextAfterFocusLost = false,
-    Callback = function(Text)
-        local keyName = Text:upper()
-        local success, keyEnum = pcall(function() return Enum.KeyCode[keyName] end)
-        if success and keyEnum then
-            BindConfig.SpinBot = keyName
-            Rayfield:Notify({ Title = "✅ Spin Bound", Content = "Key: " .. keyName, Duration = 2 })
         else
             Rayfield:Notify({ Title = "❌ Error", Content = "Invalid key!", Duration = 2 })
         end
@@ -8156,6 +8088,7 @@ local function TargetIsValid(targetPlayer)
     local gameDistance = (targetPart.Position - camera.CFrame.Position).Magnitude
     if gameDistance > AimbotConfig.MaxDistance or gameDistance < AimbotConfig.MinDistance then return false end
     if AimbotConfig.PersistentLock and targetPlayer == LockedTargetPlayer then
+        if not IsVisible(targetPart) then return false end
         return true, targetPart
     end
     if not IsVisible(targetPart) then return false end
@@ -12822,17 +12755,6 @@ MT:CreateSlider({
         getgenv().ELITE_HUB_Log("MODS", "Gravity: " .. value)
     end
 })
-
-MT:CreateSlider({
-    Name = " FOV",
-    Range = {30, 120},
-    Increment = 5,
-    CurrentValue = 70,
-    Callback = function(value)
-        workspace.CurrentCamera.FieldOfView = value
-        getgenv().ELITE_HUB_Log("MODS", "FOV: " .. value)
-    end
-})
 end)()
 ;(function()
 -- source: ELITE_HUB_14.0.lua VisualPlus (lines 9105-9244)
@@ -13388,95 +13310,6 @@ task.spawn(function()
     end
 end)
 
--- Spin Bot (РєРѕРїРёСЏ РёР· RANGE: Heartbeat + СЃРѕС…СЂР°РЅРµРЅРёРµ AutoRotate)
-task.spawn(function()
-local spinAngle = 0
-local spinConn = nil
-local prevAutoRotate = nil
-
-local function startSpin()
-    if spinConn then return end
-    pcall(function()
-        local ch = player.Character
-        if ch then
-            local hum = ch:FindFirstChildOfClass("Humanoid")
-            if hum then
-                prevAutoRotate = hum.AutoRotate
-                hum.AutoRotate = false
-            end
-        end
-    end)
-    local RunService = game:GetService("RunService")
-    spinConn = RunService.Heartbeat:Connect(function(dt)
-        pcall(function()
-            if not getgenv().ELITE_HUB_SpinBot then return end
-            local ch = player.Character
-            if not ch then return end
-            local hrp = ch:FindFirstChild("HumanoidRootPart")
-            if not hrp then return end
-            local speed = getgenv().ELITE_HUB_SpinSpeed or 50
-            local delta = speed * dt * 3
-            hrp.CFrame = hrp.CFrame * CFrame.Angles(0, math.rad(delta), 0)
-        end)
-    end)
-end
-
-local function stopSpin()
-    if spinConn then
-        spinConn:Disconnect()
-        spinConn = nil
-    end
-    pcall(function()
-        local ch = player.Character
-        if ch then
-            local hum = ch:FindFirstChildOfClass("Humanoid")
-            if hum then
-                hum.AutoRotate = prevAutoRotate ~= nil and prevAutoRotate or true
-                prevAutoRotate = nil
-            end
-        end
-    end)
-end
-getgenv().ELITE_HUB_CombatSpinStop = stopSpin
-
-getgenv().ELITE_HUB_SpinBot = false
-getgenv().ELITE_HUB_SpinSpeed = 50
-MT:CreateToggle({
-    Name = " Spin Bot",
-    CurrentValue = false,
-    Callback = function(value)
-        getgenv().ELITE_HUB_SpinBot = value
-        getgenv().ELITE_HUB_Log("COMBAT", "Spin Bot: " .. tostring(value))
-        if value then
-            startSpin()
-        else
-            stopSpin()
-        end
-    end
-})
-MT:CreateSlider({
-    Name = " Spin Speed",
-    Range = {10, 300},
-    Increment = 5,
-    CurrentValue = 50,
-    Callback = function(value)
-        getgenv().ELITE_HUB_SpinSpeed = value
-    end
-})
-task.spawn(function()
-    while task.wait(1) do
-        pcall(function()
-            if not getgenv().ELITE_HUB_SpinBot then return end
-            local ch = player.Character
-            if ch then
-                local hum = ch:FindFirstChildOfClass("Humanoid")
-                if hum then hum.AutoRotate = false end
-            end
-        end)
-    end
-end)
-end)
-
 end)()
 ;(function()
 -- source: ELITE_HUB_14.0.lua CAMERA & TELEPORT (lines 10389-10480, 11354-11405, 11429-11567, 11569-11598)
@@ -13530,11 +13363,16 @@ MT:CreateToggle({
     end
 })
 task.spawn(function()
+    local yaw = 0
+    local pitch = 0
     while task.wait(0.03) do
         pcall(function()
             if not getgenv().ELITE_HUB_FreeCam then return end
             local cam = workspace.CurrentCamera
             local speed = 2
+            local mouseDelta = UserInputService:GetMouseDelta()
+            yaw = yaw - mouseDelta.X * 0.003
+            pitch = math.clamp(pitch - mouseDelta.Y * 0.003, -1.2, 1.2)
             if UIS:IsKeyDown(Enum.KeyCode.W) then
                 cam.CFrame = cam.CFrame * CFrame.new(0, 0, -speed)
             end
@@ -13553,6 +13391,8 @@ task.spawn(function()
             if UIS:IsKeyDown(Enum.KeyCode.LeftControl) then
                 cam.CFrame = cam.CFrame * CFrame.new(0, -speed, 0)
             end
+            local pos = cam.CFrame.Position
+            cam.CFrame = CFrame.new(pos) * CFrame.Angles(pitch, yaw, 0)
             getgenv().ELITE_HUB_FreeCamCF = cam.CFrame
         end)
     end
@@ -13700,21 +13540,6 @@ MT:CreateToggle({
                     end)
                 end
             end)
-        end
-    end
-})
-
-MT = CameraTeleportTab
-MT:CreateToggle({
-    Name = " Third Person",
-    CurrentValue = false,
-    Callback = function(value)
-        getgenv().ELITE_HUB_Log("MODS", "Third Person: " .. tostring(value))
-        if value then
-            workspace.CurrentCamera.CameraType = Enum.CameraType.Custom
-            player.CameraMaxZoomDistance = 999
-        else
-            player.CameraMaxZoomDistance = 0.5
         end
     end
 })
@@ -14112,39 +13937,34 @@ MusicTab:CreateSlider({
     end
 })
 
-MusicTab:CreateButton({
-    Name = " Refresh Playlist",
-    Callback = function()
-        task.spawn(function()
-            pcall(function()
-                local url = "https://raw.githubusercontent.com/blegbot1/ELITE-HUB-14.0-Universal/main/music/playlist.json"
-                local json = game:HttpGet(url)
-                local HttpService = game:GetService("HttpService")
-                local decoded = HttpService:JSONDecode(json)
-                local filtered = {}
-                for _, track in ipairs(decoded) do
-                    if type(track) == "table" and track.url then
-                        local u = tostring(track.url)
-                        local okUrl = u:sub(1, 8) == "https://" or u:sub(1, 7) == "http://"
-                        if okUrl and u:sub(1, 13) ~= "rbxassetid://" then
-                            table.insert(filtered, track)
-                        end
-                    end
+task.spawn(function()
+    pcall(function()
+        local url = "https://raw.githubusercontent.com/blegbot1/ELITE-HUB-14.0-Universal/main/music/playlist.json"
+        local json = game:HttpGet(url)
+        local HttpService = game:GetService("HttpService")
+        local decoded = HttpService:JSONDecode(json)
+        local filtered = {}
+        for _, track in ipairs(decoded) do
+            if type(track) == "table" and track.url then
+                local u = tostring(track.url)
+                local okUrl = u:sub(1, 8) == "https://" or u:sub(1, 7) == "http://"
+                if okUrl and u:sub(1, 13) ~= "rbxassetid://" then
+                    table.insert(filtered, track)
                 end
-                getgenv().ELITE_HUB_MusicPlaylist = filtered
-                local names = {}
-                for _, track in ipairs(getgenv().ELITE_HUB_MusicPlaylist) do
-                    table.insert(names, track.name)
-                end
-                musicDropdown:Refresh(names)
-                if getgenv().ELITE_HUB_MusicIndex > #getgenv().ELITE_HUB_MusicPlaylist then
-                    getgenv().ELITE_HUB_MusicIndex = 1
-                end
-                getgenv().ELITE_HUB_Log("MUSIC", "Refreshed: " .. #getgenv().ELITE_HUB_MusicPlaylist .. " tracks")
-            end)
-        end)
-    end
-})
+            end
+        end
+        getgenv().ELITE_HUB_MusicPlaylist = filtered
+        local names = {}
+        for _, track in ipairs(getgenv().ELITE_HUB_MusicPlaylist) do
+            table.insert(names, track.name)
+        end
+        musicDropdown:Refresh(names)
+        if getgenv().ELITE_HUB_MusicIndex > #getgenv().ELITE_HUB_MusicPlaylist then
+            getgenv().ELITE_HUB_MusicIndex = 1
+        end
+        getgenv().ELITE_HUB_Log("MUSIC", "Loaded: " .. #getgenv().ELITE_HUB_MusicPlaylist .. " tracks")
+    end)
+end)
 
 end)()
 ;(function()
@@ -14277,84 +14097,13 @@ end
 local re1 = RangeTab:CreateSection("✨ EFFECTS")
 
 RangeTab:CreateSlider({
-    Name = " R",
-    Range = {0, 255},
-    Increment = 5,
-    CurrentValue = 150,
-    Callback = function(value)
-        RC.Color1 = Color3.new(value / 255, RC.Color1.G, RC.Color1.B)
-    end
-})
-
-RangeTab:CreateSlider({
-    Name = " G",
-    Range = {0, 255},
+    Name = " FOV",
+    Range = {30, 120},
     Increment = 5,
     CurrentValue = 70,
     Callback = function(value)
-        local c = RC.Color1
-        RC.Color1 = Color3.new(c.R, value / 255, c.B)
-    end
-})
-
-RangeTab:CreateSlider({
-    Name = " B",
-    Range = {0, 255},
-    Increment = 5,
-    CurrentValue = 255,
-    Callback = function(value)
-        local c = RC.Color1
-        RC.Color1 = Color3.new(c.R, c.G, value / 255)
-    end
-})
-
-RangeTab:CreateSlider({
-    Name = " Trail Lifetime",
-    Range = {0.2, 2},
-    Increment = 0.1,
-    CurrentValue = 0.8,
-    Callback = function(value)
-        RC.TrailSpeed = value
-    end
-})
-
-RangeTab:CreateSlider({
-    Name = " Sparkle Rate",
-    Range = {1, 50},
-    Increment = 1,
-    CurrentValue = 10,
-    Callback = function(value)
-        RC.SparkleRate = value
-    end
-})
-
-RangeTab:CreateSlider({
-    Name = " Particle Speed",
-    Range = {1, 30},
-    Increment = 1,
-    CurrentValue = 10,
-    Callback = function(value)
-        RC.ParticleSpeed = value
-    end
-})
-
-RangeTab:CreateSlider({
-    Name = " Particle Life",
-    Range = {0.1, 2},
-    Increment = 0.1,
-    CurrentValue = 0.6,
-    Callback = function(value)
-        RC.ParticleLife = value
-    end
-})
-
-RangeTab:CreateSlider({
-    Name = " Particle Size",
-    Range = {0.5, 5},
-    Increment = 0.5,
-    CurrentValue = 2,
-    Callback = function(value)
-        RC.ParticleSize = value
+        workspace.CurrentCamera.FieldOfView = value
+        getgenv().ELITE_HUB_Log("RANGE", "FOV: " .. value)
     end
 })
 
@@ -14909,32 +14658,6 @@ local SettingsTab = Window:CreateTab("⚙ " .. L("Settings"), 0, "Settings")
 local s1 = SettingsTab:CreateSection(L("Settings"))
 table.insert(Window._translatables, {element = s1, key = "Settings", type = "section", prefix = ""})
 
-local langDrop = SettingsTab:CreateDropdown({
-    Name = L("Language"),
-    Options = {"RU", "EN"},
-    CurrentOption = ES.Lang,
-    Callback = function(opt)
-        ES.Lang = opt
-        Window:_updateAll()
-        pcall(function()
-            writefile("EliteHub_Config.json", game:GetService("HttpService"):JSONEncode({Animations = ES.Animations, Lang = ES.Lang}))
-        end)
-    end
-})
-table.insert(Window._translatables, {element = langDrop.Frame, key = "Language", type = "dropdown"})
-
-local animToggle = SettingsTab:CreateToggle({
-    Name = L("Animations"),
-    CurrentValue = ES.Animations,
-    Callback = function(val)
-        ES.Animations = val
-        pcall(function()
-            writefile("EliteHub_Config.json", game:GetService("HttpService"):JSONEncode({Animations = ES.Animations, Lang = ES.Lang}))
-        end)
-    end
-})
-table.insert(Window._translatables, {element = animToggle.Frame, key = "Animations", type = "toggle"})
-
 local s2 = SettingsTab:CreateSection(L("Config"))
 table.insert(Window._translatables, {element = s2, key = "Config", type = "section", prefix = ""})
 
@@ -14943,8 +14666,8 @@ local saveBtn = SettingsTab:CreateButton({
     Callback = function()
         pcall(function()
             local data = game:GetService("HttpService"):JSONEncode({
-                Animations = ES.Animations,
-                Lang = ES.Lang,
+                Animations = true,
+                Lang = "EN",
             })
             writefile("EliteHub_Config.json", data)
             Rayfield:Notify({Title = "✅ OK", Content = L("ConfigSaved"), Duration = 2})
@@ -14962,8 +14685,6 @@ local loadBtn = SettingsTab:CreateButton({
                 return
             end
             local data = game:GetService("HttpService"):JSONDecode(readfile("EliteHub_Config.json"))
-            if data.Animations ~= nil then ES.Animations = data.Animations end
-            if data.Lang then ES.Lang = data.Lang end
             Window:_updateAll()
             Rayfield:Notify({Title = "✅ OK", Content = L("ConfigLoaded"), Duration = 2})
         end)
@@ -14975,7 +14696,7 @@ local resetBtn = SettingsTab:CreateButton({
     Name = L("ResetSettings"),
     Callback = function()
         ES.Animations = true
-        ES.Lang = "RU"
+        ES.Lang = "EN"
         Window:_updateAll()
         Rayfield:Notify({Title = "✅ OK", Content = L("SettingsReset"), Duration = 2})
     end

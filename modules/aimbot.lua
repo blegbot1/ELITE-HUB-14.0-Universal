@@ -579,6 +579,7 @@ local function TargetIsValid(targetPlayer)
     local gameDistance = (targetPart.Position - camera.CFrame.Position).Magnitude
     if gameDistance > AimbotConfig.MaxDistance or gameDistance < AimbotConfig.MinDistance then return false end
     if AimbotConfig.PersistentLock and targetPlayer == LockedTargetPlayer then
+        if not IsVisible(targetPart) then return false end
         return true, targetPart
     end
     if not IsVisible(targetPart) then return false end

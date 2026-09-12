@@ -195,36 +195,31 @@ MusicTab:CreateSlider({
     end
 })
 
-MusicTab:CreateButton({
-    Name = " Refresh Playlist",
-    Callback = function()
-        task.spawn(function()
-            pcall(function()
-                local url = "https://raw.githubusercontent.com/blegbot1/ELITE-HUB-14.0-Universal/main/music/playlist.json"
-                local json = game:HttpGet(url)
-                local HttpService = game:GetService("HttpService")
-                local decoded = HttpService:JSONDecode(json)
-                local filtered = {}
-                for _, track in ipairs(decoded) do
-                    if type(track) == "table" and track.url then
-                        local u = tostring(track.url)
-                        local okUrl = u:sub(1, 8) == "https://" or u:sub(1, 7) == "http://"
-                        if okUrl and u:sub(1, 13) ~= "rbxassetid://" then
-                            table.insert(filtered, track)
-                        end
-                    end
+task.spawn(function()
+    pcall(function()
+        local url = "https://raw.githubusercontent.com/blegbot1/ELITE-HUB-14.0-Universal/main/music/playlist.json"
+        local json = game:HttpGet(url)
+        local HttpService = game:GetService("HttpService")
+        local decoded = HttpService:JSONDecode(json)
+        local filtered = {}
+        for _, track in ipairs(decoded) do
+            if type(track) == "table" and track.url then
+                local u = tostring(track.url)
+                local okUrl = u:sub(1, 8) == "https://" or u:sub(1, 7) == "http://"
+                if okUrl and u:sub(1, 13) ~= "rbxassetid://" then
+                    table.insert(filtered, track)
                 end
-                getgenv().ELITE_HUB_MusicPlaylist = filtered
-                local names = {}
-                for _, track in ipairs(getgenv().ELITE_HUB_MusicPlaylist) do
-                    table.insert(names, track.name)
-                end
-                musicDropdown:Refresh(names)
-                if getgenv().ELITE_HUB_MusicIndex > #getgenv().ELITE_HUB_MusicPlaylist then
-                    getgenv().ELITE_HUB_MusicIndex = 1
-                end
-                getgenv().ELITE_HUB_Log("MUSIC", "Refreshed: " .. #getgenv().ELITE_HUB_MusicPlaylist .. " tracks")
-            end)
-        end)
-    end
-})
+            end
+        end
+        getgenv().ELITE_HUB_MusicPlaylist = filtered
+        local names = {}
+        for _, track in ipairs(getgenv().ELITE_HUB_MusicPlaylist) do
+            table.insert(names, track.name)
+        end
+        musicDropdown:Refresh(names)
+        if getgenv().ELITE_HUB_MusicIndex > #getgenv().ELITE_HUB_MusicPlaylist then
+            getgenv().ELITE_HUB_MusicIndex = 1
+        end
+        getgenv().ELITE_HUB_Log("MUSIC", "Loaded: " .. #getgenv().ELITE_HUB_MusicPlaylist .. " tracks")
+    end)
+end)

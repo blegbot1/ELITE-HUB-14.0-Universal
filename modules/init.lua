@@ -23,9 +23,9 @@ do
         if isfile("EliteHub_Config.json") then
             local data = game:GetService("HttpService"):JSONDecode(readfile("EliteHub_Config.json"))
             if data.Animations ~= nil then ES.Animations = data.Animations end
-            if data.Lang then ES.Lang = data.Lang end
         end
     end)
+    ES.Lang = "EN"
     getgenv().EliteHubSettings = ES
 
     local LangData = {
@@ -1449,14 +1449,14 @@ local JUMP_RING_PATTERNS = {
     "Cross", "Burst", "Flower", "Spiral", "Zigzag", "Dotted", "Heart", "Wave"
 }
 
-local function SpawnPart(pos, col, size)
+local function SpawnPart(pos, col, size, yAngle)
     local p = Instance.new("Part")
     p.Anchored = true
     p.CanCollide = false
     p.Material = Enum.Material.Neon
     p.Color = col
     p.Size = size
-    p.CFrame = CFrame.new(pos)
+    p.CFrame = yAngle and (CFrame.new(pos) * CFrame.Angles(0, yAngle, 0)) or CFrame.new(pos)
     p.Transparency = 0
     p.Parent = workspace
     return p
@@ -1479,7 +1479,7 @@ local function AnimateRing(parts, dur)
             if p and p.Parent then
                 local base = p:GetAttribute("BaseSize")
                 if base then
-                    p.Size = Vector3.new(base, base * scale, base * scale)
+                    p.Size = Vector3.new(base * scale, base, base * scale)
                 end
                 p.Transparency = alpha
             end
@@ -1490,8 +1490,8 @@ end
 local function SpawnJumpRingPattern(pos, col, pattern)
     local parts = {}
     local dur = 0.5
-    local function add(x, z, sx, sz)
-        local p = SpawnPart(Vector3.new(pos.X + x, pos.Y, pos.Z + z), col, Vector3.new(0.15, sx, sz))
+    local function add(x, z, sx, sz, yAngle)
+        local p = SpawnPart(Vector3.new(pos.X + x, pos.Y, pos.Z + z), col, Vector3.new(sx, 0.15, sz), yAngle)
         p:SetAttribute("BaseSize", 0.15)
         parts[#parts + 1] = p
     end
@@ -1500,55 +1500,55 @@ local function SpawnJumpRingPattern(pos, col, pattern)
         local radius = 1.0
         for i = 0, 15 do
             local ang = (i / 16) * math.pi * 2
-            add(math.cos(ang) * radius, math.sin(ang) * radius, 0.15, 0.3)
+            add(math.cos(ang) * radius, math.sin(ang) * radius, 0.15, 0.3, ang + math.pi / 2)
         end
 
     elseif pattern == "Double Ring" then
         for i = 0, 15 do
             local ang = (i / 16) * math.pi * 2
-            add(math.cos(ang) * 1.0, math.sin(ang) * 1.0, 0.15, 0.3)
+            add(math.cos(ang) * 1.0, math.sin(ang) * 1.0, 0.15, 0.3, ang + math.pi / 2)
         end
         task.delay(0.05, function()
             for i = 0, 15 do
                 local ang = (i / 16) * math.pi * 2
-                add(math.cos(ang) * 1.5, math.sin(ang) * 1.5, 0.15, 0.3)
+                add(math.cos(ang) * 1.5, math.sin(ang) * 1.5, 0.15, 0.3, ang + math.pi / 2)
             end
         end)
 
     elseif pattern == "Triple Ring" then
         for i = 0, 15 do
             local ang = (i / 16) * math.pi * 2
-            add(math.cos(ang) * 1.0, math.sin(ang) * 1.0, 0.15, 0.3)
+            add(math.cos(ang) * 1.0, math.sin(ang) * 1.0, 0.15, 0.3, ang + math.pi / 2)
         end
         task.delay(0.04, function()
             for i = 0, 15 do
                 local ang = (i / 16) * math.pi * 2
-                add(math.cos(ang) * 1.5, math.sin(ang) * 1.5, 0.15, 0.3)
+                add(math.cos(ang) * 1.5, math.sin(ang) * 1.5, 0.15, 0.3, ang + math.pi / 2)
             end
         end)
         task.delay(0.08, function()
             for i = 0, 19 do
                 local ang = (i / 20) * math.pi * 2
-                add(math.cos(ang) * 2.0, math.sin(ang) * 2.0, 0.15, 0.3)
+                add(math.cos(ang) * 2.0, math.sin(ang) * 2.0, 0.15, 0.3, ang + math.pi / 2)
             end
         end)
 
     elseif pattern == "Star 5" then
         for i = 0, 4 do
             local ang = (i / 5) * math.pi * 2
-            add(math.cos(ang) * 0.5, math.sin(ang) * 0.5, 0.3, 2)
+            add(math.cos(ang) * 0.5, math.sin(ang) * 0.5, 0.3, 2, ang)
         end
 
     elseif pattern == "Star 6" then
         for i = 0, 5 do
             local ang = (i / 6) * math.pi * 2
-            add(math.cos(ang) * 0.5, math.sin(ang) * 0.5, 0.3, 2)
+            add(math.cos(ang) * 0.5, math.sin(ang) * 0.5, 0.3, 2, ang)
         end
 
     elseif pattern == "Star 8" then
         for i = 0, 7 do
             local ang = (i / 8) * math.pi * 2
-            add(math.cos(ang) * 0.5, math.sin(ang) * 0.5, 0.3, 2)
+            add(math.cos(ang) * 0.5, math.sin(ang) * 0.5, 0.3, 2, ang)
         end
 
     elseif pattern == "Hexagon" then
@@ -1558,19 +1558,20 @@ local function SpawnJumpRingPattern(pos, col, pattern)
             local mx = (math.cos(ang) + math.cos(ang2)) * 0.5
             local mz = (math.sin(ang) + math.sin(ang2)) * 0.5
             local len = math.sqrt((math.cos(ang2) - math.cos(ang))^2 + (math.sin(ang2) - math.sin(ang))^2)
-            add(mx * 0.5, mz * 0.5, len * 0.5, 0.3)
+            local edgeAng = math.atan2(math.sin(ang2) - math.sin(ang), math.cos(ang2) - math.cos(ang))
+            add(mx * 0.5, mz * 0.5, len * 0.5, 0.3, edgeAng)
         end
 
     elseif pattern == "Square" then
         local s = 0.6
-        for _, d in ipairs({{0, s, 0.3, s * 2}, {0, -s, 0.3, s * 2}, {s, 0, s * 2, 0.3}, {-s, 0, s * 2, 0.3}}) do
-            add(d[1], d[2], d[3], d[4])
+        for _, d in ipairs({{0, s, 0.3, s * 2, 0}, {0, -s, 0.3, s * 2, 0}, {s, 0, s * 2, 0.3, math.pi / 2}, {-s, 0, s * 2, 0.3, math.pi / 2}}) do
+            add(d[1], d[2], d[3], d[4], d[5])
         end
 
     elseif pattern == "Diamond" then
         local s = 0.7
-        for _, d in ipairs({{0, s, 0.3, s * 1.5}, {0, -s, 0.3, s * 1.5}, {s, 0, s * 1.5, 0.3}, {-s, 0, s * 1.5, 0.3}}) do
-            add(d[1], d[2], d[3], d[4])
+        for _, d in ipairs({{0, s, 0.3, s * 1.5, math.pi / 2}, {0, -s, 0.3, s * 1.5, math.pi / 2}, {s, 0, s * 1.5, 0.3, 0}, {-s, 0, s * 1.5, 0.3, 0}}) do
+            add(d[1], d[2], d[3], d[4], d[5])
         end
 
     elseif pattern == "Triangle" then
@@ -1580,7 +1581,8 @@ local function SpawnJumpRingPattern(pos, col, pattern)
             local mx = (math.cos(ang) + math.cos(ang2)) * 0.33
             local mz = (math.sin(ang) + math.sin(ang2)) * 0.33
             local len = math.sqrt((math.cos(ang2) - math.cos(ang))^2 + (math.sin(ang2) - math.sin(ang))^2)
-            add(mx, mz, len * 0.5, 0.3)
+            local edgeAng = math.atan2(math.sin(ang2) - math.sin(ang), math.cos(ang2) - math.cos(ang))
+            add(mx, mz, len * 0.5, 0.3, edgeAng)
         end
 
     elseif pattern == "Pentagon" then
@@ -1590,7 +1592,8 @@ local function SpawnJumpRingPattern(pos, col, pattern)
             local mx = (math.cos(ang) + math.cos(ang2)) * 0.3
             local mz = (math.sin(ang) + math.sin(ang2)) * 0.3
             local len = math.sqrt((math.cos(ang2) - math.cos(ang))^2 + (math.sin(ang2) - math.sin(ang))^2)
-            add(mx, mz, len * 0.5, 0.3)
+            local edgeAng = math.atan2(math.sin(ang2) - math.sin(ang), math.cos(ang2) - math.cos(ang))
+            add(mx, mz, len * 0.5, 0.3, edgeAng)
         end
 
     elseif pattern == "Octagon" then
@@ -1600,18 +1603,19 @@ local function SpawnJumpRingPattern(pos, col, pattern)
             local mx = (math.cos(ang) + math.cos(ang2)) * 0.3
             local mz = (math.sin(ang) + math.sin(ang2)) * 0.3
             local len = math.sqrt((math.cos(ang2) - math.cos(ang))^2 + (math.sin(ang2) - math.sin(ang))^2)
-            add(mx, mz, len * 0.4, 0.25)
+            local edgeAng = math.atan2(math.sin(ang2) - math.sin(ang), math.cos(ang2) - math.cos(ang))
+            add(mx, mz, len * 0.4, 0.25, edgeAng)
         end
 
     elseif pattern == "Cross" then
-        for _, d in ipairs({{0, 0, 0.2, 3}, {0, 0, 3, 0.2}}) do
-            add(d[1], d[2], d[3], d[4])
+        for _, d in ipairs({{0, 0, 0.2, 3, 0}, {0, 0, 3, 0.2, math.pi / 2}}) do
+            add(d[1], d[2], d[3], d[4], d[5])
         end
 
     elseif pattern == "Burst" then
         for i = 0, 11 do
             local ang = (i / 12) * math.pi * 2
-            add(math.cos(ang) * 0.3, math.sin(ang) * 0.3, 0.15, 1.5)
+            add(math.cos(ang) * 0.3, math.sin(ang) * 0.3, 0.15, 1.5, ang)
         end
 
     elseif pattern == "Flower" then
@@ -2276,20 +2280,18 @@ local function EnsureCrosshairGui()
         local speed = getgenv().ELITE_HUB_CrosshairSpeed or 2
         rotAngle = rotAngle + dt * speed * 360
         rotFrame.Rotation = rotAngle
-        for _, child in ipairs(rotFrame:GetChildren()) do
-            if child:IsA("Frame") and child.Name ~= "OuterGlow" and not child.Name:find("Glow") then
-                if child:FindFirstChildOfClass("UIStroke") then
-                    child:FindFirstChildOfClass("UIStroke").Color = newCol
-                end
-                pcall(function()
-                    if child.BackgroundColor3 then child.BackgroundColor3 = newCol end
-                end)
+        local function applyColorRecursive(obj)
+            if obj:IsA("Frame") and obj.Name ~= "OuterGlow" and not obj.Name:find("Glow") then
+                pcall(function() obj.BackgroundColor3 = newCol end)
+            end
+            if obj:IsA("UIStroke") then
+                pcall(function() obj.Color = newCol end)
+            end
+            for _, child in ipairs(obj:GetChildren()) do
+                applyColorRecursive(child)
             end
         end
-        local og = rotFrame:FindFirstChild("OuterGlow")
-        if og then
-            og.BackgroundColor3 = newCol
-        end
+        applyColorRecursive(rotFrame)
         if currentTarget and typeof(currentTarget) == "Instance" and currentTarget:IsA("Player") and currentTarget.Character then
             local head = currentTarget.Character:FindFirstChild("Head")
             local hrp = currentTarget.Character:FindFirstChild("HumanoidRootPart")
@@ -2324,7 +2326,7 @@ local function GetBillboardForTarget(tgtChar)
     bb.Name = "ELITEHUB_NameTag"
     bb.Size = UDim2.new(0, 180, 0, 50)
     bb.StudsOffset = Vector3.new(0, 2.5, 0)
-    bb.AlwaysOnTop = true
+    bb.AlwaysOnTop = false
     bb.LightInfluence = 0
     bb.Parent = head
 
@@ -2386,10 +2388,7 @@ local function GetBillboardForTarget(tgtChar)
 end
 
 local function UpdateTargetHUD()
-    local ac = getgenv().ELITE_HUB_AimbotConfig
-    local aimbotOn = (ac and ac.Enabled) or getgenv().ELITE_HUB_AimbotEnabled
-    local locked = aimbotOn and LockedTargetPlayer
-    local tgt = locked or GetTargetPlayer() or nil
+    local tgt = LockedTargetPlayer or nil
     local changed = (tgt ~= currentTarget)
     currentTarget = tgt
 

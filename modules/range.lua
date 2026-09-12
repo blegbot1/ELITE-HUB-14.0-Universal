@@ -127,84 +127,13 @@ end
 local re1 = RangeTab:CreateSection("✨ EFFECTS")
 
 RangeTab:CreateSlider({
-    Name = " R",
-    Range = {0, 255},
-    Increment = 5,
-    CurrentValue = 150,
-    Callback = function(value)
-        RC.Color1 = Color3.new(value / 255, RC.Color1.G, RC.Color1.B)
-    end
-})
-
-RangeTab:CreateSlider({
-    Name = " G",
-    Range = {0, 255},
+    Name = " FOV",
+    Range = {30, 120},
     Increment = 5,
     CurrentValue = 70,
     Callback = function(value)
-        local c = RC.Color1
-        RC.Color1 = Color3.new(c.R, value / 255, c.B)
-    end
-})
-
-RangeTab:CreateSlider({
-    Name = " B",
-    Range = {0, 255},
-    Increment = 5,
-    CurrentValue = 255,
-    Callback = function(value)
-        local c = RC.Color1
-        RC.Color1 = Color3.new(c.R, c.G, value / 255)
-    end
-})
-
-RangeTab:CreateSlider({
-    Name = " Trail Lifetime",
-    Range = {0.2, 2},
-    Increment = 0.1,
-    CurrentValue = 0.8,
-    Callback = function(value)
-        RC.TrailSpeed = value
-    end
-})
-
-RangeTab:CreateSlider({
-    Name = " Sparkle Rate",
-    Range = {1, 50},
-    Increment = 1,
-    CurrentValue = 10,
-    Callback = function(value)
-        RC.SparkleRate = value
-    end
-})
-
-RangeTab:CreateSlider({
-    Name = " Particle Speed",
-    Range = {1, 30},
-    Increment = 1,
-    CurrentValue = 10,
-    Callback = function(value)
-        RC.ParticleSpeed = value
-    end
-})
-
-RangeTab:CreateSlider({
-    Name = " Particle Life",
-    Range = {0.1, 2},
-    Increment = 0.1,
-    CurrentValue = 0.6,
-    Callback = function(value)
-        RC.ParticleLife = value
-    end
-})
-
-RangeTab:CreateSlider({
-    Name = " Particle Size",
-    Range = {0.5, 5},
-    Increment = 0.5,
-    CurrentValue = 2,
-    Callback = function(value)
-        RC.ParticleSize = value
+        workspace.CurrentCamera.FieldOfView = value
+        getgenv().ELITE_HUB_Log("RANGE", "FOV: " .. value)
     end
 })
 

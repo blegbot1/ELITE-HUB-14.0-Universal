@@ -21,7 +21,6 @@ local BindConfig = {
     Fly = "F",
     Noclip = "N",
     SpeedBoost = "V",
-    SpinBot = "B"
 }
 local wallhopActive = false
 local wallhopConnection = nil
@@ -206,12 +205,6 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
     if success5 and speedKey and input.KeyCode == speedKey then
         ActivateSpeedBoost()
     end
-    local success6, spinKey = pcall(function() return Enum.KeyCode[BindConfig.SpinBot] end)
-    if success6 and spinKey and input.KeyCode == spinKey then
-        getgenv().ELITE_HUB_SpinBot = not getgenv().ELITE_HUB_SpinBot
-        getgenv().ELITE_HUB_Log("MODS", "Spin Bot: " .. tostring(getgenv().ELITE_HUB_SpinBot))
-        pcall(updateMiniGuiButtons)
-    end
 end)
 
 local miniGui = Instance.new("ScreenGui")
@@ -304,30 +297,6 @@ getgenv().ELITE_HUB_SpeedBtn = CreateMiniButton("SpeedBoostBtn", " Speed Boost",
     ActivateSpeedBoost()
 end)
 
-getgenv().ELITE_HUB_SpinBtn = CreateMiniButton("SpinBotBtn", " Spin Bot", 4, function()
-    getgenv().ELITE_HUB_SpinBot = not getgenv().ELITE_HUB_SpinBot
-    getgenv().ELITE_HUB_Log("MODS", "Spin Bot: " .. tostring(getgenv().ELITE_HUB_SpinBot))
-    updateMiniGuiButtons()
-    if getgenv().ELITE_HUB_SpinBot then
-        task.spawn(function()
-            while getgenv().ELITE_HUB_SpinBot do
-                task.wait(0.016)
-                pcall(function()
-                    if not flyBg then
-                        local ch = player.Character
-                        if ch then
-                            local hrp = ch:FindFirstChild("HumanoidRootPart")
-                            if hrp then
-                                hrp.CFrame = hrp.CFrame * CFrame.Angles(0, math.rad((getgenv().ELITE_HUB_SpinSpeed or 30) * 0.1), 0)
-                            end
-                        end
-                    end
-                end)
-            end
-        end)
-    end
-end)
-
 function updateMiniGuiButtons()
     if wallhopActive then
         wallhopBtn.Text = "   WallHop: ON"
@@ -363,18 +332,6 @@ function updateMiniGuiButtons()
         noclipBtn.BackgroundColor3 = Color3.fromRGB(40, 28, 65)
         noclipBtn.TextColor3 = Color3.fromRGB(170, 170, 170)
         noclipBtn.Indicator.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
-    end
-
-    if getgenv().ELITE_HUB_SpinBot then
-        getgenv().ELITE_HUB_SpinBtn.Text = "   Spin Bot: ON"
-        getgenv().ELITE_HUB_SpinBtn.BackgroundColor3 = Color3.fromRGB(120, 40, 40)
-        getgenv().ELITE_HUB_SpinBtn.TextColor3 = Color3.fromRGB(255, 140, 140)
-        getgenv().ELITE_HUB_SpinBtn.Indicator.BackgroundColor3 = Color3.fromRGB(255, 80, 80)
-    else
-        getgenv().ELITE_HUB_SpinBtn.Text = "   Spin Bot: OFF"
-        getgenv().ELITE_HUB_SpinBtn.BackgroundColor3 = Color3.fromRGB(40, 28, 65)
-        getgenv().ELITE_HUB_SpinBtn.TextColor3 = Color3.fromRGB(170, 170, 170)
-        getgenv().ELITE_HUB_SpinBtn.Indicator.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
     end
 end
 
@@ -621,11 +578,7 @@ function ToggleFly()
                     end
 
                     if flyBg then
-                        local spinY = 0
-                        if getgenv().ELITE_HUB_SpinBot then
-                            spinY = math.rad((getgenv().ELITE_HUB_SpinSpeed or 30) * 0.1)
-                        end
-                        flyBg.cframe = workspace.CurrentCamera.CFrame * CFrame.Angles(-math.rad((_G.flyCtrl.f + _G.flyCtrl.b) * 50 * speed / maxspeed), spinY, 0)
+                        flyBg.cframe = workspace.CurrentCamera.CFrame * CFrame.Angles(-math.rad((_G.flyCtrl.f + _G.flyCtrl.b) * 50 * speed / maxspeed), 0, 0)
                     end
                 end
 
@@ -703,11 +656,7 @@ function ToggleFly()
                     end
 
                     if flyBg then
-                        local spinY = 0
-                        if getgenv().ELITE_HUB_SpinBot then
-                            spinY = math.rad((getgenv().ELITE_HUB_SpinSpeed or 30) * 0.1)
-                        end
-                        flyBg.cframe = workspace.CurrentCamera.CFrame * CFrame.Angles(-math.rad((_G.flyCtrl.f + _G.flyCtrl.b) * 50 * speed / maxspeed), spinY, 0)
+                        flyBg.cframe = workspace.CurrentCamera.CFrame * CFrame.Angles(-math.rad((_G.flyCtrl.f + _G.flyCtrl.b) * 50 * speed / maxspeed), 0, 0)
                     end
                 end
 
@@ -1016,22 +965,6 @@ MainTab:CreateInput({
         if success and keyEnum then
             BindConfig.SpeedBoost = keyName
             Rayfield:Notify({ Title = "✅ Speed Bound", Content = "Key: " .. keyName, Duration = 2 })
-        else
-            Rayfield:Notify({ Title = "❌ Error", Content = "Invalid key!", Duration = 2 })
-        end
-    end
-})
-
-MainTab:CreateInput({
-    Name = " Spin Bot Bind",
-    PlaceholderText = ": " .. BindConfig.SpinBot,
-    RemoveTextAfterFocusLost = false,
-    Callback = function(Text)
-        local keyName = Text:upper()
-        local success, keyEnum = pcall(function() return Enum.KeyCode[keyName] end)
-        if success and keyEnum then
-            BindConfig.SpinBot = keyName
-            Rayfield:Notify({ Title = "✅ Spin Bound", Content = "Key: " .. keyName, Duration = 2 })
         else
             Rayfield:Notify({ Title = "❌ Error", Content = "Invalid key!", Duration = 2 })
         end

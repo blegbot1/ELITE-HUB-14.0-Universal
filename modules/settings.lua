@@ -17,32 +17,6 @@ local SettingsTab = Window:CreateTab("⚙ " .. L("Settings"), 0, "Settings")
 local s1 = SettingsTab:CreateSection(L("Settings"))
 table.insert(Window._translatables, {element = s1, key = "Settings", type = "section", prefix = ""})
 
-local langDrop = SettingsTab:CreateDropdown({
-    Name = L("Language"),
-    Options = {"RU", "EN"},
-    CurrentOption = ES.Lang,
-    Callback = function(opt)
-        ES.Lang = opt
-        Window:_updateAll()
-        pcall(function()
-            writefile("EliteHub_Config.json", game:GetService("HttpService"):JSONEncode({Animations = ES.Animations, Lang = ES.Lang}))
-        end)
-    end
-})
-table.insert(Window._translatables, {element = langDrop.Frame, key = "Language", type = "dropdown"})
-
-local animToggle = SettingsTab:CreateToggle({
-    Name = L("Animations"),
-    CurrentValue = ES.Animations,
-    Callback = function(val)
-        ES.Animations = val
-        pcall(function()
-            writefile("EliteHub_Config.json", game:GetService("HttpService"):JSONEncode({Animations = ES.Animations, Lang = ES.Lang}))
-        end)
-    end
-})
-table.insert(Window._translatables, {element = animToggle.Frame, key = "Animations", type = "toggle"})
-
 local s2 = SettingsTab:CreateSection(L("Config"))
 table.insert(Window._translatables, {element = s2, key = "Config", type = "section", prefix = ""})
 
@@ -51,8 +25,8 @@ local saveBtn = SettingsTab:CreateButton({
     Callback = function()
         pcall(function()
             local data = game:GetService("HttpService"):JSONEncode({
-                Animations = ES.Animations,
-                Lang = ES.Lang,
+                Animations = true,
+                Lang = "EN",
             })
             writefile("EliteHub_Config.json", data)
             Rayfield:Notify({Title = "✅ OK", Content = L("ConfigSaved"), Duration = 2})
@@ -70,8 +44,6 @@ local loadBtn = SettingsTab:CreateButton({
                 return
             end
             local data = game:GetService("HttpService"):JSONDecode(readfile("EliteHub_Config.json"))
-            if data.Animations ~= nil then ES.Animations = data.Animations end
-            if data.Lang then ES.Lang = data.Lang end
             Window:_updateAll()
             Rayfield:Notify({Title = "✅ OK", Content = L("ConfigLoaded"), Duration = 2})
         end)
@@ -83,7 +55,7 @@ local resetBtn = SettingsTab:CreateButton({
     Name = L("ResetSettings"),
     Callback = function()
         ES.Animations = true
-        ES.Lang = "RU"
+        ES.Lang = "EN"
         Window:_updateAll()
         Rayfield:Notify({Title = "✅ OK", Content = L("SettingsReset"), Duration = 2})
     end

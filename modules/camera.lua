@@ -49,11 +49,16 @@ MT:CreateToggle({
     end
 })
 task.spawn(function()
+    local yaw = 0
+    local pitch = 0
     while task.wait(0.03) do
         pcall(function()
             if not getgenv().ELITE_HUB_FreeCam then return end
             local cam = workspace.CurrentCamera
             local speed = 2
+            local mouseDelta = UserInputService:GetMouseDelta()
+            yaw = yaw - mouseDelta.X * 0.003
+            pitch = math.clamp(pitch - mouseDelta.Y * 0.003, -1.2, 1.2)
             if UIS:IsKeyDown(Enum.KeyCode.W) then
                 cam.CFrame = cam.CFrame * CFrame.new(0, 0, -speed)
             end
@@ -72,6 +77,8 @@ task.spawn(function()
             if UIS:IsKeyDown(Enum.KeyCode.LeftControl) then
                 cam.CFrame = cam.CFrame * CFrame.new(0, -speed, 0)
             end
+            local pos = cam.CFrame.Position
+            cam.CFrame = CFrame.new(pos) * CFrame.Angles(pitch, yaw, 0)
             getgenv().ELITE_HUB_FreeCamCF = cam.CFrame
         end)
     end
@@ -219,21 +226,6 @@ MT:CreateToggle({
                     end)
                 end
             end)
-        end
-    end
-})
-
-MT = CameraTeleportTab
-MT:CreateToggle({
-    Name = " Third Person",
-    CurrentValue = false,
-    Callback = function(value)
-        getgenv().ELITE_HUB_Log("MODS", "Third Person: " .. tostring(value))
-        if value then
-            workspace.CurrentCamera.CameraType = Enum.CameraType.Custom
-            player.CameraMaxZoomDistance = 999
-        else
-            player.CameraMaxZoomDistance = 0.5
         end
     end
 })
