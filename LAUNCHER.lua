@@ -1,13 +1,53 @@
--- ELITE HUB 14.0 LAUNCHER v3
--- Square, draggable, with kotik photo
+-- ELITE HUB 14.0 LAUNCHER v5
+-- Downloads modules + hub from GitHub, caches locally
 
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local player = Players.LocalPlayer
 
-local HUB_URL = "https://raw.githubusercontent.com/blegbot1/ELITE-HUB-14.0-Universal/main/ELITE_HUB_14.0.lua?v=jumpring22"
-local IMAGE_URL = "https://raw.githubusercontent.com/blegbot1/ELITE-HUB-14.0-Universal/main/launcher/kotik.jpg"
+local BASE_URL = "https://raw.githubusercontent.com/blegbot1/ELITE-HUB-14.0-Universal/main/"
+local HUB_URL = BASE_URL .. "ELITE_HUB_14.0.lua?v=jumpring23"
+local IMAGE_URL = BASE_URL .. "launcher/kotik.jpg"
 local IMAGE_FILE = "elitehub_kotik.jpg"
+
+local MODULES = {
+    "modules/ui_library.lua",
+    "modules/overlay.lua",
+    "modules/hubs.lua",
+    "modules/fe_scripts.lua",
+    "modules/game_scripts.lua",
+    "modules/main.lua",
+    "modules/aimbot.lua",
+    "modules/esp.lua",
+    "modules/chams.lua",
+    "modules/players.lua",
+    "modules/teleport.lua",
+    "modules/kill_all.lua",
+    "modules/visual.lua",
+    "modules/visual_plus.lua",
+    "modules/environment.lua",
+    "modules/movement.lua",
+    "modules/combat_plus.lua",
+    "modules/camera.lua",
+    "modules/utilities.lua",
+    "modules/music.lua",
+    "modules/range.lua",
+    "modules/item_finder.lua",
+    "modules/settings.lua",
+    "modules/anti_fling.lua",
+    "modules/watchdog.lua",
+}
+
+local function ensureFile(path)
+    local okRead = pcall(function() return isfile(path) end)
+    if okRead and isfile(path) then return true end
+    local ok, data = pcall(function() return game:HttpGet(BASE_URL .. path, true) end)
+    if ok and data and #data > 0 then
+        pcall(function() writefile(path, data) end)
+        return true
+    end
+    return false
+end
 
 local gui = Instance.new("ScreenGui")
 gui.Name = "KOLKA_Launcher"
@@ -178,6 +218,17 @@ btn.MouseButton1Click:Connect(function()
     TweenService:Create(btn, TweenInfo.new(0.06), {
         Size = UDim2.new(0, 90, 0, 90)
     }):Play()
+
+    print("[KOLKA] Downloading modules...")
+    pcall(function() makefolder("modules") end)
+    local failCount = 0
+    for _, mod in ipairs(MODULES) do
+        if not ensureFile(mod) then
+            warn("[KOLKA] FAIL: " .. mod)
+            failCount = failCount + 1
+        end
+    end
+    print("[KOLKA] Modules done. Failed: " .. failCount .. "/" .. #MODULES)
 
     print("[KOLKA] Loading ELITE HUB 14.0...")
     local ok, src = pcall(function()
