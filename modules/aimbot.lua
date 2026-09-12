@@ -721,7 +721,6 @@ task.spawn(function()
                 local target = GetClosestPlayer()
                 if target then
                     local prevTarget = LockedTargetPlayer
-                    LockedTargetPlayer = target
                     if LockedTarget == nil then
                         SafeNotify(" LOCK", LockedTargetPlayer.Name, 1.5, "Lock")
                     end

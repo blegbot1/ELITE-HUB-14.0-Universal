@@ -1456,7 +1456,7 @@ local function SpawnPart(pos, col, size)
     p.Material = Enum.Material.Neon
     p.Color = col
     p.Size = size
-    p.CFrame = CFrame.new(pos) * CFrame.Angles(math.rad(90), 0, 0)
+    p.CFrame = CFrame.new(pos)
     p.Transparency = 0
     p.Parent = workspace
     return p
@@ -2290,7 +2290,7 @@ local function EnsureCrosshairGui()
         if og then
             og.BackgroundColor3 = newCol
         end
-        if currentTarget and currentTarget.Character then
+        if currentTarget and typeof(currentTarget) == "Instance" and currentTarget:IsA("Player") and currentTarget.Character then
             local head = currentTarget.Character:FindFirstChild("Head")
             local hrp = currentTarget.Character:FindFirstChild("HumanoidRootPart")
             if head and hrp then
@@ -2386,12 +2386,14 @@ local function GetBillboardForTarget(tgtChar)
 end
 
 local function UpdateTargetHUD()
-    local locked = getgenv().ELITE_HUB_AimbotConfig and getgenv().ELITE_HUB_AimbotConfig.Enabled and LockedTargetPlayer
-    local tgt = locked or nil
+    local ac = getgenv().ELITE_HUB_AimbotConfig
+    local aimbotOn = (ac and ac.Enabled) or getgenv().ELITE_HUB_AimbotEnabled
+    local locked = aimbotOn and LockedTargetPlayer
+    local tgt = locked or GetTargetPlayer() or nil
     local changed = (tgt ~= currentTarget)
     currentTarget = tgt
 
-    if not tgt or not tgt.Character then
+    if not tgt or not tgt:IsA("Player") or not tgt.Character then
         if changed then
             if targetScreenGui then
                 local frame = targetScreenGui:FindFirstChild("TargetPanel")
