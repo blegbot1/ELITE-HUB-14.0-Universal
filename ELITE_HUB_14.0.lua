@@ -2842,6 +2842,7 @@ getgenv().ELITE_HUB_JumpRingsOn = false
 getgenv().ELITE_HUB_JumpRingsColor = Color3.fromRGB(255, 255, 255)
 getgenv().ELITE_HUB_JumpRingsCount = 3
 getgenv().ELITE_HUB_JumpRingsPattern = "Circle"
+getgenv().ELITE_HUB_JumpRingsRadius = 1.0
 local jumpRingConn = nil
 local jumpWasGrounded = true
 
@@ -2892,6 +2893,7 @@ end
 local function SpawnJumpRingPattern(pos, col, pattern)
     local parts = {}
     local dur = 0.5
+    local R = getgenv().ELITE_HUB_JumpRingsRadius or 1.0
     local function add(x, z, sx, sz, yAngle)
         local p = SpawnPart(Vector3.new(pos.X + x, pos.Y, pos.Z + z), col, Vector3.new(sx, 0.15, sz), yAngle)
         p:SetAttribute("BaseSize", 0.15)
@@ -2899,58 +2901,57 @@ local function SpawnJumpRingPattern(pos, col, pattern)
     end
 
     if pattern == "Circle" then
-        local radius = 1.0
         for i = 0, 15 do
             local ang = (i / 16) * math.pi * 2
-            add(math.cos(ang) * radius, math.sin(ang) * radius, 0.15, 0.3, ang + math.pi / 2)
+            add(math.cos(ang) * R, math.sin(ang) * R, 0.15, 0.3, ang + math.pi / 2)
         end
 
     elseif pattern == "Double Ring" then
         for i = 0, 15 do
             local ang = (i / 16) * math.pi * 2
-            add(math.cos(ang) * 1.0, math.sin(ang) * 1.0, 0.15, 0.3, ang + math.pi / 2)
+            add(math.cos(ang) * R, math.sin(ang) * R, 0.15, 0.3, ang + math.pi / 2)
         end
         task.delay(0.05, function()
             for i = 0, 15 do
                 local ang = (i / 16) * math.pi * 2
-                add(math.cos(ang) * 1.5, math.sin(ang) * 1.5, 0.15, 0.3, ang + math.pi / 2)
+                add(math.cos(ang) * R * 1.5, math.sin(ang) * R * 1.5, 0.15, 0.3, ang + math.pi / 2)
             end
         end)
 
     elseif pattern == "Triple Ring" then
         for i = 0, 15 do
             local ang = (i / 16) * math.pi * 2
-            add(math.cos(ang) * 1.0, math.sin(ang) * 1.0, 0.15, 0.3, ang + math.pi / 2)
+            add(math.cos(ang) * R, math.sin(ang) * R, 0.15, 0.3, ang + math.pi / 2)
         end
         task.delay(0.04, function()
             for i = 0, 15 do
                 local ang = (i / 16) * math.pi * 2
-                add(math.cos(ang) * 1.5, math.sin(ang) * 1.5, 0.15, 0.3, ang + math.pi / 2)
+                add(math.cos(ang) * R * 1.5, math.sin(ang) * R * 1.5, 0.15, 0.3, ang + math.pi / 2)
             end
         end)
         task.delay(0.08, function()
             for i = 0, 19 do
                 local ang = (i / 20) * math.pi * 2
-                add(math.cos(ang) * 2.0, math.sin(ang) * 2.0, 0.15, 0.3, ang + math.pi / 2)
+                add(math.cos(ang) * R * 2.0, math.sin(ang) * R * 2.0, 0.15, 0.3, ang + math.pi / 2)
             end
         end)
 
     elseif pattern == "Star 5" then
         for i = 0, 4 do
             local ang = (i / 5) * math.pi * 2
-            add(math.cos(ang) * 0.5, math.sin(ang) * 0.5, 0.3, 2, ang)
+            add(math.cos(ang) * R * 0.5, math.sin(ang) * R * 0.5, 0.3, 2, ang)
         end
 
     elseif pattern == "Star 6" then
         for i = 0, 5 do
             local ang = (i / 6) * math.pi * 2
-            add(math.cos(ang) * 0.5, math.sin(ang) * 0.5, 0.3, 2, ang)
+            add(math.cos(ang) * R * 0.5, math.sin(ang) * R * 0.5, 0.3, 2, ang)
         end
 
     elseif pattern == "Star 8" then
         for i = 0, 7 do
             local ang = (i / 8) * math.pi * 2
-            add(math.cos(ang) * 0.5, math.sin(ang) * 0.5, 0.3, 2, ang)
+            add(math.cos(ang) * R * 0.5, math.sin(ang) * R * 0.5, 0.3, 2, ang)
         end
 
     elseif pattern == "Hexagon" then
@@ -2961,17 +2962,17 @@ local function SpawnJumpRingPattern(pos, col, pattern)
             local mz = (math.sin(ang) + math.sin(ang2)) * 0.5
             local len = math.sqrt((math.cos(ang2) - math.cos(ang))^2 + (math.sin(ang2) - math.sin(ang))^2)
             local edgeAng = math.atan2(math.sin(ang2) - math.sin(ang), math.cos(ang2) - math.cos(ang))
-            add(mx * 0.5, mz * 0.5, len * 0.5, 0.3, edgeAng)
+            add(mx * R * 0.5, mz * R * 0.5, len * R * 0.5, 0.3, edgeAng)
         end
 
     elseif pattern == "Square" then
-        local s = 0.6
+        local s = R * 0.6
         for _, d in ipairs({{0, s, 0.3, s * 2, 0}, {0, -s, 0.3, s * 2, 0}, {s, 0, s * 2, 0.3, math.pi / 2}, {-s, 0, s * 2, 0.3, math.pi / 2}}) do
             add(d[1], d[2], d[3], d[4], d[5])
         end
 
     elseif pattern == "Diamond" then
-        local s = 0.7
+        local s = R * 0.7
         for _, d in ipairs({{0, s, 0.3, s * 1.5, math.pi / 2}, {0, -s, 0.3, s * 1.5, math.pi / 2}, {s, 0, s * 1.5, 0.3, 0}, {-s, 0, s * 1.5, 0.3, 0}}) do
             add(d[1], d[2], d[3], d[4], d[5])
         end
@@ -2984,7 +2985,7 @@ local function SpawnJumpRingPattern(pos, col, pattern)
             local mz = (math.sin(ang) + math.sin(ang2)) * 0.33
             local len = math.sqrt((math.cos(ang2) - math.cos(ang))^2 + (math.sin(ang2) - math.sin(ang))^2)
             local edgeAng = math.atan2(math.sin(ang2) - math.sin(ang), math.cos(ang2) - math.cos(ang))
-            add(mx, mz, len * 0.5, 0.3, edgeAng)
+            add(mx * R, mz * R, len * R * 0.5, 0.3, edgeAng)
         end
 
     elseif pattern == "Pentagon" then
@@ -2995,7 +2996,7 @@ local function SpawnJumpRingPattern(pos, col, pattern)
             local mz = (math.sin(ang) + math.sin(ang2)) * 0.3
             local len = math.sqrt((math.cos(ang2) - math.cos(ang))^2 + (math.sin(ang2) - math.sin(ang))^2)
             local edgeAng = math.atan2(math.sin(ang2) - math.sin(ang), math.cos(ang2) - math.cos(ang))
-            add(mx, mz, len * 0.5, 0.3, edgeAng)
+            add(mx * R, mz * R, len * R * 0.5, 0.3, edgeAng)
         end
 
     elseif pattern == "Octagon" then
@@ -3006,24 +3007,24 @@ local function SpawnJumpRingPattern(pos, col, pattern)
             local mz = (math.sin(ang) + math.sin(ang2)) * 0.3
             local len = math.sqrt((math.cos(ang2) - math.cos(ang))^2 + (math.sin(ang2) - math.sin(ang))^2)
             local edgeAng = math.atan2(math.sin(ang2) - math.sin(ang), math.cos(ang2) - math.cos(ang))
-            add(mx, mz, len * 0.4, 0.25, edgeAng)
+            add(mx * R, mz * R, len * R * 0.4, 0.25, edgeAng)
         end
 
     elseif pattern == "Cross" then
-        for _, d in ipairs({{0, 0, 0.2, 3, 0}, {0, 0, 3, 0.2, math.pi / 2}}) do
+        for _, d in ipairs({{0, 0, 0.2, 3 * R, 0}, {0, 0, 3 * R, 0.2, math.pi / 2}}) do
             add(d[1], d[2], d[3], d[4], d[5])
         end
 
     elseif pattern == "Burst" then
         for i = 0, 11 do
             local ang = (i / 12) * math.pi * 2
-            add(math.cos(ang) * 0.3, math.sin(ang) * 0.3, 0.15, 1.5, ang)
+            add(math.cos(ang) * R * 0.3, math.sin(ang) * R * 0.3, 0.15, 1.5 * R, ang)
         end
 
     elseif pattern == "Flower" then
         for i = 0, 5 do
             local ang = (i / 6) * math.pi * 2
-            add(math.cos(ang) * 0.4, math.sin(ang) * 0.4, 0.4, 0.8)
+            add(math.cos(ang) * R * 0.4, math.sin(ang) * R * 0.4, 0.4, 0.8)
         end
         add(0, 0, 0.5, 0.5)
 
@@ -3031,21 +3032,21 @@ local function SpawnJumpRingPattern(pos, col, pattern)
         for i = 0, 15 do
             local t = i / 16
             local ang = t * math.pi * 4
-            local r = t * 0.8
+            local r = t * R * 0.8
             add(math.cos(ang) * r, math.sin(ang) * r, 0.12, 0.3)
         end
 
     elseif pattern == "Zigzag" then
         for i = 0, 7 do
             local ang = (i / 8) * math.pi * 2
-            local r = (i % 2 == 0) and 0.6 or 0.3
+            local r = (i % 2 == 0) and R * 0.6 or R * 0.3
             add(math.cos(ang) * r, math.sin(ang) * r, 0.15, 0.4)
         end
 
     elseif pattern == "Dotted" then
         for i = 0, 15 do
             local ang = (i / 16) * math.pi * 2
-            add(math.cos(ang) * 0.7, math.sin(ang) * 0.7, 0.2, 0.2)
+            add(math.cos(ang) * R * 0.7, math.sin(ang) * R * 0.7, 0.2, 0.2)
         end
 
     elseif pattern == "Heart" then
@@ -3053,13 +3054,13 @@ local function SpawnJumpRingPattern(pos, col, pattern)
             local t = (i / 24) * math.pi * 2
             local hx = 16 * math.sin(t)^3
             local hz = 13 * math.cos(t) - 5 * math.cos(2*t) - 2 * math.cos(3*t) - math.cos(4*t)
-            add(hx * 0.03, hz * 0.03, 0.15, 0.25)
+            add(hx * 0.03 * R, hz * 0.03 * R, 0.15, 0.25)
         end
 
     elseif pattern == "Wave" then
         for i = 0, 19 do
             local ang = (i / 20) * math.pi * 2
-            local r = 0.6 + math.sin(ang * 6) * 0.15
+            local r = R * 0.6 + math.sin(ang * 6) * R * 0.15
             add(math.cos(ang) * r, math.sin(ang) * r, 0.12, 0.35)
         end
     end
@@ -3140,6 +3141,13 @@ MT:CreateSlider({
     Increment = 1,
     CurrentValue = 3,
     Callback = function(v) getgenv().ELITE_HUB_JumpRingsCount = v end
+})
+MT:CreateSlider({
+    Name = " Circle Radius",
+    Range = {0.3, 5},
+    Increment = 0.1,
+    CurrentValue = 1,
+    Callback = function(v) getgenv().ELITE_HUB_JumpRingsRadius = v end
 })
 
 -- ============================================================
@@ -3711,9 +3719,7 @@ local function EnsureCrosshairGui()
                 end
             end
         end
-        rotFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
-        rotFrame.Size = UDim2.new(0, 80, 0, 80)
-        rotFrame.Visible = true
+        rotFrame.Visible = false
     end)
 
     return sg
@@ -3790,7 +3796,8 @@ local function GetBillboardForTarget(tgtChar)
 end
 
 local function UpdateTargetHUD()
-    local tgt = LockedTargetPlayer or nil
+    local tgt = LockedTargetPlayer or GetTargetPlayer() or nil
+    if tgt and (not tgt:IsA("Player") or not tgt.Character) then tgt = nil end
     local changed = (tgt ~= currentTarget)
     currentTarget = tgt
 
@@ -7690,14 +7697,9 @@ end
 
 local function UpdateSkeletonLines(character, lines, color, thickness, skeletonType)
     if not lines then return end
-    local links
-    if skeletonType == 2 then
-        links = GetSkeletonRig(character)
-    else
-        links = SkeletonLinksSimple
-    end
+    local links = GetSkeletonRig(character)
     if not links then
-        links = SkeletonLinksSimple
+        links = SkeletonLinksR15
     end
 
     local camera = workspace.CurrentCamera
@@ -9205,12 +9207,12 @@ local function UpdateESPSkeletons()
     end
     local lockTarget = (AimbotConfig.Enabled and LockedTargetPlayer) or nil
     for targetPlayer, lines in pairs(ESPSkeletons) do
-        local showThis = (targetPlayer == lockTarget)
         local char = targetPlayer and targetPlayer.Character
-        if not showThis or not char then
+        if not char then
             for _, l in ipairs(lines) do l.Visible = false end
         else
-            UpdateSkeletonLines(char, lines, AimbotConfig.LockedColor, ESPConfig.SkeletonThickness, ESPConfig.SkeletonType)
+            local col = (targetPlayer == lockTarget) and AimbotConfig.LockedColor or ESPConfig.SkeletonColor
+            UpdateSkeletonLines(char, lines, col, ESPConfig.SkeletonThickness, ESPConfig.SkeletonType)
         end
     end
 end
@@ -10141,15 +10143,10 @@ ESPTab:CreateSlider({
 
 ESPTab:CreateDropdown({
     Name = " Skeleton type",
-    Options = {"1 - Simple", "2 - Full"},
-    CurrentOption = "1 - Simple",
+    Options = {"R15 / R6"},
+    CurrentOption = {"R15 / R6"},
     Callback = function(value)
-        local v = (typeof(value) == "table") and value[1] or value
-        if v == "2 - Full" then
-            ESPConfig.SkeletonType = 2
-        else
-            ESPConfig.SkeletonType = 1
-        end
+        ESPConfig.SkeletonType = 2
     end
 })
 
@@ -13365,14 +13362,24 @@ MT:CreateToggle({
 task.spawn(function()
     local yaw = 0
     local pitch = 0
+    local lastMousePos = nil
+    local mouseLocked = false
     while task.wait(0.03) do
         pcall(function()
             if not getgenv().ELITE_HUB_FreeCam then return end
             local cam = workspace.CurrentCamera
             local speed = 2
-            local mouseDelta = UserInputService:GetMouseDelta()
-            yaw = yaw - mouseDelta.X * 0.003
-            pitch = math.clamp(pitch - mouseDelta.Y * 0.003, -1.2, 1.2)
+            local mousePos = UserInputService:GetMouseLocation()
+            if lastMousePos then
+                local dx = mousePos.X - lastMousePos.X
+                local dy = mousePos.Y - lastMousePos.Y
+                if math.abs(dx) > 0.1 or math.abs(dy) > 0.1 then
+                    yaw = yaw - dx * 0.004
+                    pitch = math.clamp(pitch - dy * 0.004, -1.2, 1.2)
+                    mouseLocked = true
+                end
+            end
+            lastMousePos = mousePos
             if UIS:IsKeyDown(Enum.KeyCode.W) then
                 cam.CFrame = cam.CFrame * CFrame.new(0, 0, -speed)
             end
@@ -14639,7 +14646,6 @@ task.spawn(function()
 end)
 end)()
 ;(function()
--- source: ELITE_HUB_14.0.lua SETTINGS (lines 12543-12622)
 local _g = getgenv
 local Rayfield = _g().ELITE_HUB_Rayfield
 local Window = _g().ELITE_HUB_Window
@@ -14654,46 +14660,194 @@ local SafeNotify = _g().ELITE_HUB_SafeNotify
 local DestroyScript = _g().ELITE_HUB_DestroyScript
 local MT = Window
 local SettingsTab = Window:CreateTab("⚙ " .. L("Settings"), 0, "Settings")
+local HttpService = game:GetService("HttpService")
 
 local s1 = SettingsTab:CreateSection(L("Settings"))
 table.insert(Window._translatables, {element = s1, key = "Settings", type = "section", prefix = ""})
 
-local s2 = SettingsTab:CreateSection(L("Config"))
-table.insert(Window._translatables, {element = s2, key = "Config", type = "section", prefix = ""})
+local CONFIG_DIR = "EliteHub_Configs/"
 
-local saveBtn = SettingsTab:CreateButton({
-    Name = L("SaveConfig"),
+local function getListFile()
+    return CONFIG_DIR .. "_list.json"
+end
+
+local function getConfigList()
+    pcall(function()
+        if not isfile(getListFile()) then
+            writefile(getListFile(), HttpService:JSONEncode({}))
+        end
+    end)
+    local ok, data = pcall(function()
+        return HttpService:JSONDecode(readfile(getListFile()))
+    end)
+    return ok and data or {}
+end
+
+local function saveConfigList(list)
+    pcall(function()
+        writefile(getListFile(), HttpService:JSONEncode(list))
+    end)
+end
+
+local function getSavedConfigs()
+    local list = getConfigList()
+    local names = {}
+    for name, _ in pairs(list) do
+        table.insert(names, name)
+    end
+    table.sort(names)
+    return names, list
+end
+
+local function collectSettings()
+    local g = _g()
+    return {
+        ESP = g.ELITE_HUB_ESPConfig and {
+            Enabled = g.ELITE_HUB_ESPConfig.Enabled,
+            Boxes = g.ELITE_HUB_ESPConfig.Boxes,
+            Names = g.ELITE_HUB_ESPConfig.Names,
+            Health = g.ELITE_HUB_ESPConfig.Health,
+            Distance = g.ELITE_HUB_ESPConfig.Distance,
+            Tracers = g.ELITE_HUB_ESPConfig.Tracers,
+            Skeletons = g.ELITE_HUB_ESPConfig.Skeletons,
+            HeadDots = g.ELITE_HUB_ESPConfig.HeadDots,
+        } or {},
+        Aimbot = g.ELITE_HUB_AimbotConfig and {
+            Enabled = g.ELITE_HUB_AimbotConfig.Enabled,
+            FOV = g.ELITE_HUB_AimbotConfig.FOV,
+            Smoothness = g.ELITE_HUB_AimbotConfig.Smoothness,
+            Prediction = g.ELITE_HUB_AimbotConfig.Prediction,
+        } or {},
+        Visual = {
+            JumpRingsOn = g.ELITE_HUB_JumpRingsOn,
+            JumpRingsRadius = g.ELITE_HUB_JumpRingsRadius,
+            JumpRingsPattern = g.ELITE_HUB_JumpRingsPattern,
+            PlayerHUDOn = g.ELITE_HUB_PlayerHUDOn,
+            NameTagOn = g.ELITE_HUB_NameTagOn,
+            CrosshairOn = g.ELITE_HUB_CrosshairOn,
+            CrosshairStyle = g.ELITE_HUB_CrosshairStyle,
+        },
+    }
+end
+
+local function applySettings(data)
+    if not data then return end
+    local g = _g()
+    if data.ESP then
+        local e = g.ELITE_HUB_ESPConfig
+        if e then
+            for k, v in pairs(data.ESP) do e[k] = v end
+        end
+    end
+    if data.Aimbot then
+        local a = g.ELITE_HUB_AimbotConfig
+        if a then
+            for k, v in pairs(data.Aimbot) do a[k] = v end
+        end
+    end
+    if data.Visual then
+        for k, v in pairs(data.Visual) do
+            g["ELITE_HUB_" .. k] = v
+        end
+    end
+    Window:_updateAll()
+end
+
+local s2 = SettingsTab:CreateSection("💾 CONFIGS")
+
+local selectedConfig = {name = nil}
+
+SettingsTab:CreateInput({
+    Name = " Config Name",
+    PlaceholderText = "Enter config name...",
+    RemoveTextAfterFocusLost = false,
+    Callback = function(text)
+        local name = text:match("^%s*(.-)%s*$")
+        if name and #name > 0 then
+            selectedConfig.name = name
+        end
+    end
+})
+
+local namesList, _ = getSavedConfigs()
+local configDropdown = SettingsTab:CreateDropdown({
+    Name = " Select Config",
+    Options = #namesList > 0 and namesList or {"No configs"},
+    CurrentOption = #namesList > 0 and {namesList[1]} or {"No configs"},
+    Callback = function(opt)
+        local v = (typeof(opt) == "table") and opt[1] or opt
+        if v ~= "No configs" then
+            selectedConfig.name = v
+        end
+    end
+})
+
+SettingsTab:CreateButton({
+    Name = " Save Config",
     Callback = function()
+        local name = selectedConfig.name
+        if not name or #name == 0 then
+            Rayfield:Notify({Title = "⚠️ Warning", Content = "Enter a config name first", Duration = 2})
+            return
+        end
         pcall(function()
-            local data = game:GetService("HttpService"):JSONEncode({
-                Animations = true,
-                Lang = "EN",
-            })
-            writefile("EliteHub_Config.json", data)
-            Rayfield:Notify({Title = "✅ OK", Content = L("ConfigSaved"), Duration = 2})
+            local list = getConfigList()
+            list[name] = collectSettings()
+            saveConfigList(list)
+            local updatedNames = {}
+            for n, _ in pairs(list) do table.insert(updatedNames, n) end
+            table.sort(updatedNames)
+            configDropdown:Refresh(updatedNames)
+            Rayfield:Notify({Title = "✅ OK", Content = "Saved: " .. name, Duration = 2})
         end)
     end
 })
-table.insert(Window._translatables, {element = saveBtn, key = "SaveConfig", type = "button"})
 
-local loadBtn = SettingsTab:CreateButton({
-    Name = L("LoadConfig"),
+SettingsTab:CreateButton({
+    Name = " Load Config",
     Callback = function()
+        local name = selectedConfig.name
+        if not name or #name == 0 then
+            Rayfield:Notify({Title = "⚠️ Warning", Content = "Select a config first", Duration = 2})
+            return
+        end
         pcall(function()
-            if not isfile("EliteHub_Config.json") then
-                Rayfield:Notify({Title = "⚠️ Warning", Content = L("NoConfig"), Duration = 2})
-                return
+            local list = getConfigList()
+            if list[name] then
+                applySettings(list[name])
+                Rayfield:Notify({Title = "✅ OK", Content = "Loaded: " .. name, Duration = 2})
+            else
+                Rayfield:Notify({Title = "⚠️ Warning", Content = "Config not found: " .. name, Duration = 2})
             end
-            local data = game:GetService("HttpService"):JSONDecode(readfile("EliteHub_Config.json"))
-            Window:_updateAll()
-            Rayfield:Notify({Title = "✅ OK", Content = L("ConfigLoaded"), Duration = 2})
         end)
     end
 })
-table.insert(Window._translatables, {element = loadBtn, key = "LoadConfig", type = "button"})
 
-local resetBtn = SettingsTab:CreateButton({
-    Name = L("ResetSettings"),
+SettingsTab:CreateButton({
+    Name = " Delete Config",
+    Callback = function()
+        local name = selectedConfig.name
+        if not name or #name == 0 then
+            Rayfield:Notify({Title = "⚠️ Warning", Content = "Select a config first", Duration = 2})
+            return
+        end
+        pcall(function()
+            local list = getConfigList()
+            if list[name] then
+                list[name] = nil
+                saveConfigList(list)
+                local updatedNames = {}
+                for n, _ in pairs(list) do table.insert(updatedNames, n) end
+                table.sort(updatedNames)
+                configDropdown:Refresh(#updatedNames > 0 and updatedNames or {"No configs"})
+                Rayfield:Notify({Title = "✅ OK", Content = "Deleted: " .. name, Duration = 2})
+            end
+        end)
+    end
+})
+
+SettingsTab:CreateButton({
+    Name = " Reset Settings",
     Callback = function()
         ES.Animations = true
         ES.Lang = "EN"
@@ -14701,10 +14855,10 @@ local resetBtn = SettingsTab:CreateButton({
         Rayfield:Notify({Title = "✅ OK", Content = L("SettingsReset"), Duration = 2})
     end
 })
-table.insert(Window._translatables, {element = resetBtn, key = "ResetSettings", type = "button"})
 
 local verLabel = SettingsTab:CreateLabel(L("Version"))
 table.insert(Window._translatables, {element = verLabel.Frame, key = "Version", type = "label"})
+
 end)()
 ;(function()
 -- source: ELITE_HUB_14.0.lua ANTI-FLING (lines 12470-12541)

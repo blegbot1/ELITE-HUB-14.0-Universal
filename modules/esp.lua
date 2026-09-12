@@ -281,12 +281,12 @@ local function UpdateESPSkeletons()
     end
     local lockTarget = (AimbotConfig.Enabled and LockedTargetPlayer) or nil
     for targetPlayer, lines in pairs(ESPSkeletons) do
-        local showThis = (targetPlayer == lockTarget)
         local char = targetPlayer and targetPlayer.Character
-        if not showThis or not char then
+        if not char then
             for _, l in ipairs(lines) do l.Visible = false end
         else
-            UpdateSkeletonLines(char, lines, AimbotConfig.LockedColor, ESPConfig.SkeletonThickness, ESPConfig.SkeletonType)
+            local col = (targetPlayer == lockTarget) and AimbotConfig.LockedColor or ESPConfig.SkeletonColor
+            UpdateSkeletonLines(char, lines, col, ESPConfig.SkeletonThickness, ESPConfig.SkeletonType)
         end
     end
 end
@@ -1217,15 +1217,10 @@ ESPTab:CreateSlider({
 
 ESPTab:CreateDropdown({
     Name = " Skeleton type",
-    Options = {"1 - Simple", "2 - Full"},
-    CurrentOption = "1 - Simple",
+    Options = {"R15 / R6"},
+    CurrentOption = {"R15 / R6"},
     Callback = function(value)
-        local v = (typeof(value) == "table") and value[1] or value
-        if v == "2 - Full" then
-            ESPConfig.SkeletonType = 2
-        else
-            ESPConfig.SkeletonType = 1
-        end
+        ESPConfig.SkeletonType = 2
     end
 })
 

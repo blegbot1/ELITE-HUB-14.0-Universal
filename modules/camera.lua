@@ -51,14 +51,24 @@ MT:CreateToggle({
 task.spawn(function()
     local yaw = 0
     local pitch = 0
+    local lastMousePos = nil
+    local mouseLocked = false
     while task.wait(0.03) do
         pcall(function()
             if not getgenv().ELITE_HUB_FreeCam then return end
             local cam = workspace.CurrentCamera
             local speed = 2
-            local mouseDelta = UserInputService:GetMouseDelta()
-            yaw = yaw - mouseDelta.X * 0.003
-            pitch = math.clamp(pitch - mouseDelta.Y * 0.003, -1.2, 1.2)
+            local mousePos = UserInputService:GetMouseLocation()
+            if lastMousePos then
+                local dx = mousePos.X - lastMousePos.X
+                local dy = mousePos.Y - lastMousePos.Y
+                if math.abs(dx) > 0.1 or math.abs(dy) > 0.1 then
+                    yaw = yaw - dx * 0.004
+                    pitch = math.clamp(pitch - dy * 0.004, -1.2, 1.2)
+                    mouseLocked = true
+                end
+            end
+            lastMousePos = mousePos
             if UIS:IsKeyDown(Enum.KeyCode.W) then
                 cam.CFrame = cam.CFrame * CFrame.new(0, 0, -speed)
             end

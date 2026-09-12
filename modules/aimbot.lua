@@ -181,14 +181,9 @@ end
 
 local function UpdateSkeletonLines(character, lines, color, thickness, skeletonType)
     if not lines then return end
-    local links
-    if skeletonType == 2 then
-        links = GetSkeletonRig(character)
-    else
-        links = SkeletonLinksSimple
-    end
+    local links = GetSkeletonRig(character)
     if not links then
-        links = SkeletonLinksSimple
+        links = SkeletonLinksR15
     end
 
     local camera = workspace.CurrentCamera

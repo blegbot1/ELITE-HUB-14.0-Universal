@@ -1440,6 +1440,7 @@ getgenv().ELITE_HUB_JumpRingsOn = false
 getgenv().ELITE_HUB_JumpRingsColor = Color3.fromRGB(255, 255, 255)
 getgenv().ELITE_HUB_JumpRingsCount = 3
 getgenv().ELITE_HUB_JumpRingsPattern = "Circle"
+getgenv().ELITE_HUB_JumpRingsRadius = 1.0
 local jumpRingConn = nil
 local jumpWasGrounded = true
 
@@ -1490,6 +1491,7 @@ end
 local function SpawnJumpRingPattern(pos, col, pattern)
     local parts = {}
     local dur = 0.5
+    local R = getgenv().ELITE_HUB_JumpRingsRadius or 1.0
     local function add(x, z, sx, sz, yAngle)
         local p = SpawnPart(Vector3.new(pos.X + x, pos.Y, pos.Z + z), col, Vector3.new(sx, 0.15, sz), yAngle)
         p:SetAttribute("BaseSize", 0.15)
@@ -1497,58 +1499,57 @@ local function SpawnJumpRingPattern(pos, col, pattern)
     end
 
     if pattern == "Circle" then
-        local radius = 1.0
         for i = 0, 15 do
             local ang = (i / 16) * math.pi * 2
-            add(math.cos(ang) * radius, math.sin(ang) * radius, 0.15, 0.3, ang + math.pi / 2)
+            add(math.cos(ang) * R, math.sin(ang) * R, 0.15, 0.3, ang + math.pi / 2)
         end
 
     elseif pattern == "Double Ring" then
         for i = 0, 15 do
             local ang = (i / 16) * math.pi * 2
-            add(math.cos(ang) * 1.0, math.sin(ang) * 1.0, 0.15, 0.3, ang + math.pi / 2)
+            add(math.cos(ang) * R, math.sin(ang) * R, 0.15, 0.3, ang + math.pi / 2)
         end
         task.delay(0.05, function()
             for i = 0, 15 do
                 local ang = (i / 16) * math.pi * 2
-                add(math.cos(ang) * 1.5, math.sin(ang) * 1.5, 0.15, 0.3, ang + math.pi / 2)
+                add(math.cos(ang) * R * 1.5, math.sin(ang) * R * 1.5, 0.15, 0.3, ang + math.pi / 2)
             end
         end)
 
     elseif pattern == "Triple Ring" then
         for i = 0, 15 do
             local ang = (i / 16) * math.pi * 2
-            add(math.cos(ang) * 1.0, math.sin(ang) * 1.0, 0.15, 0.3, ang + math.pi / 2)
+            add(math.cos(ang) * R, math.sin(ang) * R, 0.15, 0.3, ang + math.pi / 2)
         end
         task.delay(0.04, function()
             for i = 0, 15 do
                 local ang = (i / 16) * math.pi * 2
-                add(math.cos(ang) * 1.5, math.sin(ang) * 1.5, 0.15, 0.3, ang + math.pi / 2)
+                add(math.cos(ang) * R * 1.5, math.sin(ang) * R * 1.5, 0.15, 0.3, ang + math.pi / 2)
             end
         end)
         task.delay(0.08, function()
             for i = 0, 19 do
                 local ang = (i / 20) * math.pi * 2
-                add(math.cos(ang) * 2.0, math.sin(ang) * 2.0, 0.15, 0.3, ang + math.pi / 2)
+                add(math.cos(ang) * R * 2.0, math.sin(ang) * R * 2.0, 0.15, 0.3, ang + math.pi / 2)
             end
         end)
 
     elseif pattern == "Star 5" then
         for i = 0, 4 do
             local ang = (i / 5) * math.pi * 2
-            add(math.cos(ang) * 0.5, math.sin(ang) * 0.5, 0.3, 2, ang)
+            add(math.cos(ang) * R * 0.5, math.sin(ang) * R * 0.5, 0.3, 2, ang)
         end
 
     elseif pattern == "Star 6" then
         for i = 0, 5 do
             local ang = (i / 6) * math.pi * 2
-            add(math.cos(ang) * 0.5, math.sin(ang) * 0.5, 0.3, 2, ang)
+            add(math.cos(ang) * R * 0.5, math.sin(ang) * R * 0.5, 0.3, 2, ang)
         end
 
     elseif pattern == "Star 8" then
         for i = 0, 7 do
             local ang = (i / 8) * math.pi * 2
-            add(math.cos(ang) * 0.5, math.sin(ang) * 0.5, 0.3, 2, ang)
+            add(math.cos(ang) * R * 0.5, math.sin(ang) * R * 0.5, 0.3, 2, ang)
         end
 
     elseif pattern == "Hexagon" then
@@ -1559,17 +1560,17 @@ local function SpawnJumpRingPattern(pos, col, pattern)
             local mz = (math.sin(ang) + math.sin(ang2)) * 0.5
             local len = math.sqrt((math.cos(ang2) - math.cos(ang))^2 + (math.sin(ang2) - math.sin(ang))^2)
             local edgeAng = math.atan2(math.sin(ang2) - math.sin(ang), math.cos(ang2) - math.cos(ang))
-            add(mx * 0.5, mz * 0.5, len * 0.5, 0.3, edgeAng)
+            add(mx * R * 0.5, mz * R * 0.5, len * R * 0.5, 0.3, edgeAng)
         end
 
     elseif pattern == "Square" then
-        local s = 0.6
+        local s = R * 0.6
         for _, d in ipairs({{0, s, 0.3, s * 2, 0}, {0, -s, 0.3, s * 2, 0}, {s, 0, s * 2, 0.3, math.pi / 2}, {-s, 0, s * 2, 0.3, math.pi / 2}}) do
             add(d[1], d[2], d[3], d[4], d[5])
         end
 
     elseif pattern == "Diamond" then
-        local s = 0.7
+        local s = R * 0.7
         for _, d in ipairs({{0, s, 0.3, s * 1.5, math.pi / 2}, {0, -s, 0.3, s * 1.5, math.pi / 2}, {s, 0, s * 1.5, 0.3, 0}, {-s, 0, s * 1.5, 0.3, 0}}) do
             add(d[1], d[2], d[3], d[4], d[5])
         end
@@ -1582,7 +1583,7 @@ local function SpawnJumpRingPattern(pos, col, pattern)
             local mz = (math.sin(ang) + math.sin(ang2)) * 0.33
             local len = math.sqrt((math.cos(ang2) - math.cos(ang))^2 + (math.sin(ang2) - math.sin(ang))^2)
             local edgeAng = math.atan2(math.sin(ang2) - math.sin(ang), math.cos(ang2) - math.cos(ang))
-            add(mx, mz, len * 0.5, 0.3, edgeAng)
+            add(mx * R, mz * R, len * R * 0.5, 0.3, edgeAng)
         end
 
     elseif pattern == "Pentagon" then
@@ -1593,7 +1594,7 @@ local function SpawnJumpRingPattern(pos, col, pattern)
             local mz = (math.sin(ang) + math.sin(ang2)) * 0.3
             local len = math.sqrt((math.cos(ang2) - math.cos(ang))^2 + (math.sin(ang2) - math.sin(ang))^2)
             local edgeAng = math.atan2(math.sin(ang2) - math.sin(ang), math.cos(ang2) - math.cos(ang))
-            add(mx, mz, len * 0.5, 0.3, edgeAng)
+            add(mx * R, mz * R, len * R * 0.5, 0.3, edgeAng)
         end
 
     elseif pattern == "Octagon" then
@@ -1604,24 +1605,24 @@ local function SpawnJumpRingPattern(pos, col, pattern)
             local mz = (math.sin(ang) + math.sin(ang2)) * 0.3
             local len = math.sqrt((math.cos(ang2) - math.cos(ang))^2 + (math.sin(ang2) - math.sin(ang))^2)
             local edgeAng = math.atan2(math.sin(ang2) - math.sin(ang), math.cos(ang2) - math.cos(ang))
-            add(mx, mz, len * 0.4, 0.25, edgeAng)
+            add(mx * R, mz * R, len * R * 0.4, 0.25, edgeAng)
         end
 
     elseif pattern == "Cross" then
-        for _, d in ipairs({{0, 0, 0.2, 3, 0}, {0, 0, 3, 0.2, math.pi / 2}}) do
+        for _, d in ipairs({{0, 0, 0.2, 3 * R, 0}, {0, 0, 3 * R, 0.2, math.pi / 2}}) do
             add(d[1], d[2], d[3], d[4], d[5])
         end
 
     elseif pattern == "Burst" then
         for i = 0, 11 do
             local ang = (i / 12) * math.pi * 2
-            add(math.cos(ang) * 0.3, math.sin(ang) * 0.3, 0.15, 1.5, ang)
+            add(math.cos(ang) * R * 0.3, math.sin(ang) * R * 0.3, 0.15, 1.5 * R, ang)
         end
 
     elseif pattern == "Flower" then
         for i = 0, 5 do
             local ang = (i / 6) * math.pi * 2
-            add(math.cos(ang) * 0.4, math.sin(ang) * 0.4, 0.4, 0.8)
+            add(math.cos(ang) * R * 0.4, math.sin(ang) * R * 0.4, 0.4, 0.8)
         end
         add(0, 0, 0.5, 0.5)
 
@@ -1629,21 +1630,21 @@ local function SpawnJumpRingPattern(pos, col, pattern)
         for i = 0, 15 do
             local t = i / 16
             local ang = t * math.pi * 4
-            local r = t * 0.8
+            local r = t * R * 0.8
             add(math.cos(ang) * r, math.sin(ang) * r, 0.12, 0.3)
         end
 
     elseif pattern == "Zigzag" then
         for i = 0, 7 do
             local ang = (i / 8) * math.pi * 2
-            local r = (i % 2 == 0) and 0.6 or 0.3
+            local r = (i % 2 == 0) and R * 0.6 or R * 0.3
             add(math.cos(ang) * r, math.sin(ang) * r, 0.15, 0.4)
         end
 
     elseif pattern == "Dotted" then
         for i = 0, 15 do
             local ang = (i / 16) * math.pi * 2
-            add(math.cos(ang) * 0.7, math.sin(ang) * 0.7, 0.2, 0.2)
+            add(math.cos(ang) * R * 0.7, math.sin(ang) * R * 0.7, 0.2, 0.2)
         end
 
     elseif pattern == "Heart" then
@@ -1651,13 +1652,13 @@ local function SpawnJumpRingPattern(pos, col, pattern)
             local t = (i / 24) * math.pi * 2
             local hx = 16 * math.sin(t)^3
             local hz = 13 * math.cos(t) - 5 * math.cos(2*t) - 2 * math.cos(3*t) - math.cos(4*t)
-            add(hx * 0.03, hz * 0.03, 0.15, 0.25)
+            add(hx * 0.03 * R, hz * 0.03 * R, 0.15, 0.25)
         end
 
     elseif pattern == "Wave" then
         for i = 0, 19 do
             local ang = (i / 20) * math.pi * 2
-            local r = 0.6 + math.sin(ang * 6) * 0.15
+            local r = R * 0.6 + math.sin(ang * 6) * R * 0.15
             add(math.cos(ang) * r, math.sin(ang) * r, 0.12, 0.35)
         end
     end
@@ -1738,6 +1739,13 @@ MT:CreateSlider({
     Increment = 1,
     CurrentValue = 3,
     Callback = function(v) getgenv().ELITE_HUB_JumpRingsCount = v end
+})
+MT:CreateSlider({
+    Name = " Circle Radius",
+    Range = {0.3, 5},
+    Increment = 0.1,
+    CurrentValue = 1,
+    Callback = function(v) getgenv().ELITE_HUB_JumpRingsRadius = v end
 })
 
 -- ============================================================
@@ -2309,9 +2317,7 @@ local function EnsureCrosshairGui()
                 end
             end
         end
-        rotFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
-        rotFrame.Size = UDim2.new(0, 80, 0, 80)
-        rotFrame.Visible = true
+        rotFrame.Visible = false
     end)
 
     return sg
@@ -2388,7 +2394,8 @@ local function GetBillboardForTarget(tgtChar)
 end
 
 local function UpdateTargetHUD()
-    local tgt = LockedTargetPlayer or nil
+    local tgt = LockedTargetPlayer or GetTargetPlayer() or nil
+    if tgt and (not tgt:IsA("Player") or not tgt.Character) then tgt = nil end
     local changed = (tgt ~= currentTarget)
     currentTarget = tgt
 
