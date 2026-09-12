@@ -1,7 +1,5 @@
-local function readModule(path) error('ELITE HUB: readModule called in monolith: ' .. path) end
-local function loadModuleChunk(path) error('ELITE HUB: loadModuleChunk called in monolith: ' .. path) end
+-- ELITE HUB 14.0 loader: builds shared env, creates window+tabs, runs modules
 
-local Rayfield = (function()
 local Rayfield = (function()
 -- моя UI либа в стиле мини-меню (позже переделаю, не трогать)
 -- тёмно-фиолетовая тема: вкладки, кнопки, тогглы, слайдеры, инпуты, дропдауны, пикеры цвета
@@ -1416,7 +1414,6 @@ function EliteHubUI:Destroy()
 end
 
 return EliteHubUI
-end)()
 end)()
 local ES, L
 do
@@ -4276,7 +4273,6 @@ getgenv().ELITE_HUB_CameraTeleportTab = CameraTeleportTab
 getgenv().ELITE_HUB_UtilitiesTab = UtilitiesTab
 getgenv().ELITE_HUB_MusicTab = MusicTab
 getgenv().ELITE_HUB_Log("UI", "Loading modules...")
-(function()
 -- source: ELITE_HUB_14.0.lua OVERLAY/STATUSBAR (lines 2090-2438)
 local _g = getgenv
 local Rayfield = _g().ELITE_HUB_Rayfield
@@ -4645,8 +4641,6 @@ local function NewOverlayCircle()
 end
 
 _g().ELITE_HUB_NewOverlayCircle = NewOverlayCircle
-end)()
-(function()
 -- source: ELITE_HUB_14.0.lua Hubs (lines 2628-2789)
 local _g = getgenv
 local Rayfield = _g().ELITE_HUB_Rayfield
@@ -4825,8 +4819,6 @@ HubsTab:CreateButton({
 })
 
 
-end)()
-(function()
 -- source: ELITE_HUB_14.0.lua FEScripts (lines 2799-3126)
 local _g = getgenv
 local Rayfield = _g().ELITE_HUB_Rayfield
@@ -5171,8 +5163,6 @@ FEScriptsTab:CreateButton({
         LoadScript(" FPS Booster", "https://raw.githubusercontent.com/CasperFlyModz/discord.gg-rips/main/FPSBooster.lua")
     end
 })
-end)()
-(function()
 -- source: ELITE_HUB_14.0.lua GameScripts (lines 3127-4439)
 local _g = getgenv
 local Rayfield = _g().ELITE_HUB_Rayfield
@@ -6502,8 +6492,6 @@ GameScriptsTab:CreateButton({
         LoadScript(" Spot the Differences", "https://script.roscripts.io/spot-the-differences")
     end
 })
-end)()
-(function()
 -- source: ELITE_HUB_14.0.lua MAIN (lines 4445-5467, 9569-9670)
 local _g = getgenv
 local Rayfield = _g().ELITE_HUB_Rayfield
@@ -7544,8 +7532,6 @@ MainTab:CreateInput({
     end
 })
 
-end)()
-(function()
 -- source: ELITE_HUB_14.0.lua Aimbot (lines 5469-7109)
 local _g = getgenv
 local Rayfield = _g().ELITE_HUB_Rayfield
@@ -8959,8 +8945,6 @@ end)
 Players.PlayerAdded:Connect(RefreshTargetDD)
 Players.PlayerRemoving:Connect(RefreshTargetDD)
 task.delay(1, RefreshTargetDD)
-end)()
-(function()
 -- source: ELITE_HUB_14.0.lua ESP (lines 7111-9103)
 local _g = getgenv
 local Rayfield = _g().ELITE_HUB_Rayfield
@@ -10402,8 +10386,6 @@ ESPTab:CreateSlider({
         AimbotConfig.PulseSpeed = value
     end
 })
-end)()
-(function()
 -- source: ELITE_HUB_14.0.lua Chams (lines 7951-12443)
 local _g = getgenv
 local Rayfield = _g().ELITE_HUB_Rayfield
@@ -10872,8 +10854,6 @@ task.spawn(function()
         end)
     end
 end)
-end)()
-(function()
 -- source: ELITE_HUB_14.0.lua ИГРОКИ (players tab)
 local _g = getgenv
 local Rayfield = _g().ELITE_HUB_Rayfield
@@ -11608,8 +11588,6 @@ task.spawn(function()
         RebuildTeamRows()
     end
 end)
-end)()
-(function()
 -- source: ELITE_HUB_14.0.lua Teleport (lines 9246-9387)
 local _g = getgenv
 local Rayfield = _g().ELITE_HUB_Rayfield
@@ -11768,8 +11746,6 @@ Rayfield:Notify({
     Content = "Loaded! Have fun!",
     Duration = 4
 })
-end)()
-(function()
 -- source: ELITE_HUB_14.0.lua KillAll (lines 9389-9590)
 local _g = getgenv
 local Rayfield = _g().ELITE_HUB_Rayfield
@@ -12068,8 +12044,6 @@ for i = 1, #scriptNames do
         end
     })
 end
-end)()
-(function()
 -- source: ELITE_HUB_14.0.lua Visual (lines 9695-11288)
 local _g = getgenv
 local Rayfield = _g().ELITE_HUB_Rayfield
@@ -12817,8 +12791,6 @@ MT:CreateSlider({
         getgenv().ELITE_HUB_Log("MODS", "FOV: " .. value)
     end
 })
-end)()
-(function()
 -- source: ELITE_HUB_14.0.lua VisualPlus (lines 9105-9244)
 local _g = getgenv
 local Rayfield = _g().ELITE_HUB_Rayfield
@@ -12978,8 +12950,6 @@ task.spawn(function()
         end)
     end
 end)
-end)()
-(function()
 -- source: ELITE_HUB_14.0.lua Environment (lines 10481-10547)
 local _g = getgenv
 local Rayfield = _g().ELITE_HUB_Rayfield
@@ -13063,8 +13033,6 @@ MT:CreateToggle({
         end
     end
 })
-end)()
-(function()
 -- source: ELITE_HUB_14.0.lua MOVEMENT (lines 10289-10323, 11213-11264, 11407-11427)
 local _g = getgenv
 local Rayfield = _g().ELITE_HUB_Rayfield
@@ -13192,8 +13160,6 @@ UserInputService.JumpRequest:Connect(function()
     end
 end)
 
-end)()
-(function()
 -- source: ELITE_HUB_14.0.lua COMBAT+ (lines 10327-10388, 10965-11145)
 local _g = getgenv
 local Rayfield = _g().ELITE_HUB_Rayfield
@@ -13455,8 +13421,6 @@ task.spawn(function()
 end)
 end)
 
-end)()
-(function()
 -- source: ELITE_HUB_14.0.lua CAMERA & TELEPORT (lines 10389-10480, 11354-11405, 11429-11567, 11569-11598)
 local _g = getgenv
 local Rayfield = _g().ELITE_HUB_Rayfield
@@ -13790,8 +13754,6 @@ MT:CreateButton({
     end
 })
 
-end)()
-(function()
 -- source: ELITE_HUB_14.0.lua UTILITIES (lines 10600-10697, 11290-11352, 11600-11624)
 local _g = getgenv
 local Rayfield = _g().ELITE_HUB_Rayfield
@@ -13889,8 +13851,6 @@ MT:CreateButton({
     end
 })
 
-end)()
-(function()
 -- source: ELITE_HUB_14.0.lua MUSIC (lines 10698-10963)
 local _g = getgenv
 local Rayfield = _g().ELITE_HUB_Rayfield
@@ -14124,8 +14084,6 @@ MusicTab:CreateButton({
     end
 })
 
-end)()
-(function()
 -- source: ELITE_HUB_14.0.lua Range (lines 11956-12467)
 local _g = getgenv
 local Rayfield = _g().ELITE_HUB_Rayfield
@@ -14520,8 +14478,6 @@ player.CharacterAdded:Connect(function(char)
         end
     end)
 end)
-end)()
-(function()
 -- source: ELITE_HUB_14.0.lua ItemFinder (lines 11626-11954)
 local _g = getgenv
 local Rayfield = _g().ELITE_HUB_Rayfield
@@ -14866,8 +14822,6 @@ task.spawn(function()
     task.wait(0.5)
     refreshItemList()
 end)
-end)()
-(function()
 -- source: ELITE_HUB_14.0.lua SETTINGS (lines 12543-12622)
 local _g = getgenv
 local Rayfield = _g().ELITE_HUB_Rayfield
@@ -14962,8 +14916,6 @@ table.insert(Window._translatables, {element = resetBtn, key = "ResetSettings", 
 
 local verLabel = SettingsTab:CreateLabel(L("Version"))
 table.insert(Window._translatables, {element = verLabel.Frame, key = "Version", type = "label"})
-end)()
-(function()
 -- source: ELITE_HUB_14.0.lua ANTI-FLING (lines 12470-12541)
 local _g = getgenv
 local Rayfield = _g().ELITE_HUB_Rayfield
@@ -15050,8 +15002,6 @@ do
         end
     end)
 end
-end)()
-(function()
 -- source: ELITE_HUB_14.0.lua PERSISTENT WATCHDOG (lines 12624-12722)
 local _g = getgenv
 local Rayfield = _g().ELITE_HUB_Rayfield
@@ -15188,6 +15138,5 @@ task.spawn(function()
         end)
     end
 end)
-end)()
 getgenv().ELITE_HUB_HASKER_LOADED = true
 getgenv().ELITE_HUB_Log("UI", "ELITE HUB modules loaded")

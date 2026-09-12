@@ -11,25 +11,15 @@ $modules = @(
 
 $initText = [System.IO.File]::ReadAllText("$base\modules\init.lua", [System.Text.UTF8Encoding]::new($false))
 
-$oldFuncPattern = '(?s)-- ELITE HUB 14.0 loader.*?return chunk\r?\nend'
-$newFunc = "local function readModule(path) error('ELITE HUB: readModule called in monolith: ' .. path) end`nlocal function loadModuleChunk(path) error('ELITE HUB: loadModuleChunk called in monolith: ' .. path) end"
-$initText = [regex]::Replace($initText, $oldFuncPattern, $newFunc)
+# Remove readModule and loadModuleChunk function definitions
+$initText = $initText -replace "(?s)local function readModule\(path\).*?return chunk\r?\nend\r?\n?", ""
 
-$uiLibCode = [System.IO.File]::ReadAllText("$base\modules\ui_library.lua", [System.Text.UTF8Encoding]::new($false))
-$search1 = 'local Rayfield = loadModuleChunk("modules/ui_library.lua")()'
-$replace1 = 'local Rayfield = (function()
-' + $uiLibCode + '
-end)()'
-$initText = $initText.Replace($search1, $replace1)
-
+# Replace each loadModuleChunk call with the module code
 foreach ($m in $modules) {
-    if ($m -eq "ui_library") { continue }
     $code = [System.IO.File]::ReadAllText("$base\modules\$m.lua", [System.Text.UTF8Encoding]::new($false))
-    $search = 'loadModuleChunk("modules/' + $m + '.lua")()'
-    $replace = '(function()
-' + $code + '
-end)()'
-    $initText = $initText.Replace($search, $replace)
+    # Match both "local X = loadModuleChunk(...)" and bare "loadModuleChunk(...)"
+    $pattern = '(?:local\s+\w+\s*=\s*)?loadModuleChunk\("modules/' + $m + '\.lua"\)\(\)'
+    $initText = [regex]::Replace($initText, $pattern, $code)
     Write-Host "Inlined: $m"
 }
 
