@@ -3003,7 +3003,7 @@ local function CreateTargetScreenGui()
     frame.Size = UDim2.new(0, 280, 0, 100)
     frame.Position = UDim2.new(0.5, -140, 0.15, 0)
     frame.BackgroundColor3 = Color3.fromRGB(15, 15, 25)
-    frame.BackgroundTransparency = 1
+    frame.BackgroundTransparency = 0.1
     frame.BorderSizePixel = 0
     frame.Visible = false
     frame.Parent = sg
@@ -3014,8 +3014,7 @@ local function CreateTargetScreenGui()
 
     local stroke = Instance.new("UIStroke")
     stroke.Color = Color3.fromRGB(100, 100, 255)
-    stroke.Thickness = 1
-    stroke.Transparency = 0.5
+    stroke.Thickness = 2
     stroke.Parent = frame
 
     local avatar = Instance.new("ImageLabel")
@@ -3023,7 +3022,6 @@ local function CreateTargetScreenGui()
     avatar.Size = UDim2.new(0, 60, 0, 60)
     avatar.Position = UDim2.new(0, 10, 0, 18)
     avatar.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
-    avatar.BackgroundTransparency = 1
     avatar.BorderSizePixel = 0
     avatar.Image = ""
     avatar.Parent = frame
@@ -3644,9 +3642,6 @@ MT:CreateToggle({
             StartPlayerHUD()
         else
             if targetScreenGui then pcall(function() targetScreenGui:Destroy() end) targetScreenGui = nil end
-            if not getgenv().ELITE_HUB_NameTagOn and not getgenv().ELITE_HUB_CrosshairOn then
-                RemovePlayerHud()
-            end
         end
     end
 })
@@ -3659,9 +3654,6 @@ MT:CreateToggle({
             StartPlayerHUD()
         else
             if targetBillboard then pcall(function() targetBillboard:Destroy() end) targetBillboard = nil end
-            if not getgenv().ELITE_HUB_PlayerHUDOn and not getgenv().ELITE_HUB_CrosshairOn then
-                RemovePlayerHud()
-            end
         end
     end
 })
@@ -3675,9 +3667,6 @@ MT:CreateToggle({
             StartPlayerHUD()
         else
             RemoveCrosshair()
-            if not getgenv().ELITE_HUB_PlayerHUDOn and not getgenv().ELITE_HUB_NameTagOn then
-                RemovePlayerHud()
-            end
         end
     end
 })
