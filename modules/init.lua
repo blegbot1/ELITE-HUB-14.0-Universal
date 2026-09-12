@@ -424,6 +424,24 @@ local player = Players.LocalPlayer
 task.spawn(function()
 local MT = VisualTab
 getgenv().ELITE_HUB_Log("UI", "Section loaded: CHINESE HAT")
+MT:CreateSection("🌈 RGB MODE")
+
+getgenv().ELITE_HUB_RgbOn = false
+getgenv().ELITE_HUB_RgbSpeed = 1
+
+MT:CreateToggle({
+    Name = " RGB Rainbow",
+    CurrentValue = false,
+    Callback = function(v) getgenv().ELITE_HUB_RgbOn = v end
+})
+MT:CreateSlider({
+    Name = " RGB Speed",
+    Range = {0.2, 5},
+    Increment = 0.1,
+    CurrentValue = 1,
+    Callback = function(v) getgenv().ELITE_HUB_RgbSpeed = v end
+})
+
 MT:CreateSection("🎩 CHINESE HAT")
 
 getgenv().ELITE_HUB_ChineseHatOn = false
@@ -571,6 +589,14 @@ local function BuildHat(char)
                     p.CanCollide = false
                     p.Massless = true
                     p.CFrame = hdCF * spinCF * localCF
+                end
+            end
+            local rgbCol = GetRgbColor()
+            if rgbCol then
+                for p, _ in pairs(hatSpinParts) do
+                    if p and p.Parent then
+                        p.Color = rgbCol
+                    end
                 end
             end
         end)
@@ -800,6 +826,12 @@ local function BuildAura(char)
             for p, lcf in pairs(auraHalo) do
                 if p and p.Parent then p.CFrame = hdCF * spinCF * lcf end
             end
+            local rgbCol = GetRgbColor()
+            if rgbCol then
+                for p, _ in pairs(auraHalo) do
+                    if p and p.Parent then p.Color = rgbCol end
+                end
+            end
         end)
     end)
 end
@@ -920,6 +952,12 @@ local function BuildHorns(char)
             local hdCF = hd.CFrame
             for p, lcf in pairs(hornParts) do
                 if p and p.Parent then p.CFrame = hdCF * lcf end
+            end
+            local rgbCol = GetRgbColor()
+            if rgbCol then
+                for p, _ in pairs(hornParts) do
+                    if p and p.Parent then p.Color = rgbCol end
+                end
             end
         end)
     end)
@@ -1308,6 +1346,12 @@ local function BuildWings(char)
                         p.CFrame = base * CFrame.Angles(0, 0, data.side * amp) * data.lcf
                     end
             end
+            local rgbCol = GetRgbColor()
+            if rgbCol then
+                for p, _ in pairs(wingParts) do
+                    if p and p.Parent then p.Color = rgbCol end
+                end
+            end
         end)
     end)
 end
@@ -1445,7 +1489,7 @@ local function StartJumpRings()
             elseif jumpWasGrounded then
                 jumpWasGrounded = false
                 local groundY = GetGroundY(char, hrp)
-                local col = getgenv().ELITE_HUB_JumpRingsColor
+                local col = ApplyColor(getgenv().ELITE_HUB_JumpRingsColor)
                 local count = getgenv().ELITE_HUB_JumpRingsCount or 3
                 local ringPos = Vector3.new(hrp.Position.X, groundY + 0.1, hrp.Position.Z)
                 for i = 1, count do
@@ -1508,6 +1552,21 @@ local function GetLocalCharacter()
     return h, hrp
 end
 
+local rgbTime = 0
+local function GetRgbColor()
+    if not getgenv().ELITE_HUB_RgbOn then return nil end
+    local speed = getgenv().ELITE_HUB_RgbSpeed or 1
+    rgbTime = rgbTime + (1/60) * speed
+    local r = math.floor(127.5 + 127.5 * math.sin(rgbTime * 2))
+    local g = math.floor(127.5 + 127.5 * math.sin(rgbTime * 2 + 2.094))
+    local b = math.floor(127.5 + 127.5 * math.sin(rgbTime * 2 + 4.189))
+    return Color3.fromRGB(r, g, b)
+end
+
+local function ApplyColor(baseColor)
+    return GetRgbColor() or baseColor
+end
+
 local function FindClosestPlayerByRay()
     local myH, myHRP = GetLocalCharacter()
     if not myH or not myHRP then return nil end
@@ -1554,7 +1613,6 @@ local function GetTargetPlayer()
             local h = LockedTargetPlayer.Character:FindFirstChildOfClass("Humanoid")
             if h and h.Health > 0 then return LockedTargetPlayer end
         end
-        return nil
     end
     return FindClosestPlayerByRay()
 end
@@ -2012,7 +2070,7 @@ local function EnsureCrosshairGui()
             crosshairRotConn = nil
             return
         end
-        local newCol = getgenv().ELITE_HUB_CrosshairColor or Color3.fromRGB(255, 50, 50)
+        local newCol = ApplyColor(getgenv().ELITE_HUB_CrosshairColor or Color3.fromRGB(255, 50, 50))
         local curStyle = getgenv().ELITE_HUB_CrosshairStyle or "Rotating Ring"
         if curStyle ~= lastStyle then
             lastStyle = curStyle
@@ -2139,7 +2197,16 @@ local function UpdateTargetHUD()
                 local frame = targetScreenGui:FindFirstChild("TargetPanel")
                 if frame then frame.Visible = false end
             end
-            if targetBillboard then pcall(function() targetBillboard:Destroy() end) targetBillboard = nil end
+            for _, ch in ipairs(Players:GetPlayers()) do
+                if ch.Character then
+                    local head = ch.Character:FindFirstChild("Head")
+                    if head then
+                        local old = head:FindFirstChild("ELITEHUB_NameTag")
+                        if old then pcall(function() old:Destroy() end) end
+                    end
+                end
+            end
+            targetBillboard = nil
             RemoveCrosshair()
         end
         return
@@ -2186,6 +2253,18 @@ local function UpdateTargetHUD()
 
     -- Name tag billboard
     if getgenv().ELITE_HUB_NameTagOn then
+        if changed then
+            for _, ch in ipairs(Players:GetPlayers()) do
+                if ch.Character then
+                    local head = ch.Character:FindFirstChild("Head")
+                    if head then
+                        local old = head:FindFirstChild("ELITEHUB_NameTag")
+                        if old then pcall(function() old:Destroy() end) end
+                    end
+                end
+            end
+            targetBillboard = nil
+        end
         local bb = GetBillboardForTarget(tgtChar)
         if bb then
             local bg = bb:FindFirstChildWhichIsA("Frame")
