@@ -23,7 +23,6 @@ foreach ($m in $modules) {
 end)()'
     } else {
         $pattern = 'loadModuleChunk\("modules/' + $m + '\.lua"\)\(\)'
-        # Add semicolon to avoid ambiguous syntax with preceding ) 
         $replace = ';(function()
 ' + $code + '
 end)()'
@@ -32,22 +31,6 @@ end)()'
     Write-Host "Inlined: $m"
 }
 
-# Strip non-ASCII from comments only (preserve Cyrillic in strings)
-$lines = $initText -split '\r?\n'
-$fixed = 0
-for ($i = 0; $i -lt $lines.Count; $i++) {
-    $line = $lines[$i]
-    $trimmed = $line.TrimStart()
-    if ($trimmed.StartsWith('--')) {
-        $clean = [regex]::Replace($line, '[\x80-\xFF]', '?')
-        if ($clean -ne $line) {
-            $lines[$i] = $clean
-            $fixed++
-        }
-    }
-}
-$initText = $lines -join "`n"
-
 [System.IO.File]::WriteAllText("$base\ELITE_HUB_14.0.lua", $initText, (New-Object System.Text.UTF8Encoding $false))
 $size = (Get-Item "$base\ELITE_HUB_14.0.lua").Length
-Write-Host "Build complete: $size bytes, stripped $fixed comment lines"
+Write-Host "Build complete: $size bytes"
