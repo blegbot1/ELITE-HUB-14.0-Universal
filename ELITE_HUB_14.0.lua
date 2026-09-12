@@ -844,7 +844,12 @@ function EliteHubUI:CreateTab(name, icon, langKey)
                 dragging = false
             end
         end)
-        game:GetService("RunService").RenderStepped:Connect(function()
+        local sliderConn
+        sliderConn = game:GetService("RunService").RenderStepped:Connect(function()
+            if not knob.Parent or not knob.Parent.Parent then
+                sliderConn:Disconnect()
+                return
+            end
             if dragging then
                 local mouse = game:GetService("Players").LocalPlayer:GetMouse()
                 local relX = (mouse.X - track.AbsolutePosition.X) / track.AbsoluteSize.X
@@ -1831,7 +1836,9 @@ local rgbTime = 0
 local function GetRgbColor()
     if not getgenv().ELITE_HUB_RgbOn then return nil end
     local speed = getgenv().ELITE_HUB_RgbSpeed or 1
-    rgbTime = rgbTime + (1/60) * speed
+    local dt = 1/60
+    pcall(function() dt = game:GetService("RunService").Heartbeat:Wait() end)
+    rgbTime = rgbTime + dt * speed
     local r = math.floor(127.5 + 127.5 * math.sin(rgbTime * 2))
     local g = math.floor(127.5 + 127.5 * math.sin(rgbTime * 2 + 2.094))
     local b = math.floor(127.5 + 127.5 * math.sin(rgbTime * 2 + 4.189))
@@ -9884,6 +9891,8 @@ local function RefreshESPOnRespawn()
     end
 end
 
+local espHandlerConns = {}
+
 local function InitializeESPHandlers()
     local LK = getgenv().ELITE_HUB_LastChars
     game.Players.PlayerAdded:Connect(function(targetPlayer)
@@ -9892,7 +9901,10 @@ local function InitializeESPHandlers()
         if ESPConfig.Enabled then
             CreatePlayerESP(targetPlayer)
         end
-        targetPlayer.CharacterAdded:Connect(function()
+        if espHandlerConns[targetPlayer] then
+            pcall(function() espHandlerConns[targetPlayer]:Disconnect() end)
+        end
+        espHandlerConns[targetPlayer] = targetPlayer.CharacterAdded:Connect(function()
             LK[targetPlayer] = targetPlayer.Character
             if ESPConfig.Enabled then
                 CreatePlayerESP(targetPlayer)
@@ -9902,6 +9914,10 @@ local function InitializeESPHandlers()
 
     game.Players.PlayerRemoving:Connect(function(targetPlayer)
         SafeNotify(" LEFT", targetPlayer.Name .. "   ", 2, "PlayerLeave")
+        if espHandlerConns[targetPlayer] then
+            pcall(function() espHandlerConns[targetPlayer]:Disconnect() end)
+            espHandlerConns[targetPlayer] = nil
+        end
         if targetPlayer == LockedTargetPlayer then
             SafeNotify(" UNLOCK", "   ", 2, "TargetLost")
             LockedTarget = nil
@@ -11841,15 +11857,15 @@ TeleportTab:CreateToggle({
 task.spawn(function()
     while true do
         task.wait(0.12)
-        if autoTp and selectedPlayer and Players:FindFirstChild(selectedPlayer.Name) then
-            local myChar = LocalPlayer.Character
-            local targetChar = selectedPlayer.Character
-            if myChar and targetChar then
-                local myRoot = myChar:FindFirstChild("HumanoidRootPart")
-                local targetRoot = targetChar:FindFirstChild("HumanoidRootPart")
-                if myRoot and targetRoot then
-                    myRoot.CFrame = targetRoot.CFrame
-                end
+        if not autoTp then task.wait(1); continue end
+        if not selectedPlayer or not Players:FindFirstChild(selectedPlayer.Name) then continue end
+        local myChar = LocalPlayer.Character
+        local targetChar = selectedPlayer.Character
+        if myChar and targetChar then
+            local myRoot = myChar:FindFirstChild("HumanoidRootPart")
+            local targetRoot = targetChar:FindFirstChild("HumanoidRootPart")
+            if myRoot and targetRoot then
+                myRoot.CFrame = targetRoot.CFrame
             end
         end
     end
@@ -11858,7 +11874,7 @@ end)
 task.spawn(function()
     while true do
         task.wait(5)
-        UpdateDropdown()
+        if autoTp then UpdateDropdown() end
     end
 end)
 
@@ -13095,6 +13111,7 @@ MT:CreateSection("🌳 ENVIRONMENT")
 
 getgenv().ELITE_HUB_NightMode = false
 getgenv().ELITE_HUB_NightOrigClock = nil
+getgenv().ELITE_HUB_NightOrigAmbient = nil
 MT:CreateToggle({
     Name = " Night Mode",
     CurrentValue = false,
@@ -13104,6 +13121,7 @@ MT:CreateToggle({
         local lighting = game:GetService("Lighting")
         if value then
             getgenv().ELITE_HUB_NightOrigClock = lighting.ClockTime
+            getgenv().ELITE_HUB_NightOrigAmbient = lighting.Ambient
             getgenv().ELITE_HUB_NightOrigOutdoorAmbient = lighting.OutdoorAmbient
             getgenv().ELITE_HUB_NightOrigBrightness = lighting.Brightness
             lighting.ClockTime = 0
@@ -13114,7 +13132,11 @@ MT:CreateToggle({
             if getgenv().ELITE_HUB_NightOrigClock then
                 lighting.ClockTime = getgenv().ELITE_HUB_NightOrigClock
             end
-            lighting.Ambient = Color3.fromRGB(128, 128, 128)
+            if getgenv().ELITE_HUB_NightOrigAmbient then
+                lighting.Ambient = getgenv().ELITE_HUB_NightOrigAmbient
+            else
+                lighting.Ambient = Color3.fromRGB(128, 128, 128)
+            end
             if getgenv().ELITE_HUB_NightOrigOutdoorAmbient then
                 lighting.OutdoorAmbient = getgenv().ELITE_HUB_NightOrigOutdoorAmbient
             end

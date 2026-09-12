@@ -842,7 +842,12 @@ function EliteHubUI:CreateTab(name, icon, langKey)
                 dragging = false
             end
         end)
-        game:GetService("RunService").RenderStepped:Connect(function()
+        local sliderConn
+        sliderConn = game:GetService("RunService").RenderStepped:Connect(function()
+            if not knob.Parent or not knob.Parent.Parent then
+                sliderConn:Disconnect()
+                return
+            end
             if dragging then
                 local mouse = game:GetService("Players").LocalPlayer:GetMouse()
                 local relX = (mouse.X - track.AbsolutePosition.X) / track.AbsoluteSize.X

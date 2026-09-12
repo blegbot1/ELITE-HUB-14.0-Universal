@@ -126,15 +126,15 @@ TeleportTab:CreateToggle({
 task.spawn(function()
     while true do
         task.wait(0.12)
-        if autoTp and selectedPlayer and Players:FindFirstChild(selectedPlayer.Name) then
-            local myChar = LocalPlayer.Character
-            local targetChar = selectedPlayer.Character
-            if myChar and targetChar then
-                local myRoot = myChar:FindFirstChild("HumanoidRootPart")
-                local targetRoot = targetChar:FindFirstChild("HumanoidRootPart")
-                if myRoot and targetRoot then
-                    myRoot.CFrame = targetRoot.CFrame
-                end
+        if not autoTp then task.wait(1); continue end
+        if not selectedPlayer or not Players:FindFirstChild(selectedPlayer.Name) then continue end
+        local myChar = LocalPlayer.Character
+        local targetChar = selectedPlayer.Character
+        if myChar and targetChar then
+            local myRoot = myChar:FindFirstChild("HumanoidRootPart")
+            local targetRoot = targetChar:FindFirstChild("HumanoidRootPart")
+            if myRoot and targetRoot then
+                myRoot.CFrame = targetRoot.CFrame
             end
         end
     end
@@ -143,7 +143,7 @@ end)
 task.spawn(function()
     while true do
         task.wait(5)
-        UpdateDropdown()
+        if autoTp then UpdateDropdown() end
     end
 end)
 

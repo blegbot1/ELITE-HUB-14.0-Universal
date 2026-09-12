@@ -20,6 +20,7 @@ MT:CreateSection("🌳 ENVIRONMENT")
 
 getgenv().ELITE_HUB_NightMode = false
 getgenv().ELITE_HUB_NightOrigClock = nil
+getgenv().ELITE_HUB_NightOrigAmbient = nil
 MT:CreateToggle({
     Name = " Night Mode",
     CurrentValue = false,
@@ -29,6 +30,7 @@ MT:CreateToggle({
         local lighting = game:GetService("Lighting")
         if value then
             getgenv().ELITE_HUB_NightOrigClock = lighting.ClockTime
+            getgenv().ELITE_HUB_NightOrigAmbient = lighting.Ambient
             getgenv().ELITE_HUB_NightOrigOutdoorAmbient = lighting.OutdoorAmbient
             getgenv().ELITE_HUB_NightOrigBrightness = lighting.Brightness
             lighting.ClockTime = 0
@@ -39,7 +41,11 @@ MT:CreateToggle({
             if getgenv().ELITE_HUB_NightOrigClock then
                 lighting.ClockTime = getgenv().ELITE_HUB_NightOrigClock
             end
-            lighting.Ambient = Color3.fromRGB(128, 128, 128)
+            if getgenv().ELITE_HUB_NightOrigAmbient then
+                lighting.Ambient = getgenv().ELITE_HUB_NightOrigAmbient
+            else
+                lighting.Ambient = Color3.fromRGB(128, 128, 128)
+            end
             if getgenv().ELITE_HUB_NightOrigOutdoorAmbient then
                 lighting.OutdoorAmbient = getgenv().ELITE_HUB_NightOrigOutdoorAmbient
             end

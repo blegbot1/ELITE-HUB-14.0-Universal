@@ -421,7 +421,9 @@ local rgbTime = 0
 local function GetRgbColor()
     if not getgenv().ELITE_HUB_RgbOn then return nil end
     local speed = getgenv().ELITE_HUB_RgbSpeed or 1
-    rgbTime = rgbTime + (1/60) * speed
+    local dt = 1/60
+    pcall(function() dt = game:GetService("RunService").Heartbeat:Wait() end)
+    rgbTime = rgbTime + dt * speed
     local r = math.floor(127.5 + 127.5 * math.sin(rgbTime * 2))
     local g = math.floor(127.5 + 127.5 * math.sin(rgbTime * 2 + 2.094))
     local b = math.floor(127.5 + 127.5 * math.sin(rgbTime * 2 + 4.189))

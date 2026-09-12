@@ -921,6 +921,8 @@ local function RefreshESPOnRespawn()
     end
 end
 
+local espHandlerConns = {}
+
 local function InitializeESPHandlers()
     local LK = getgenv().ELITE_HUB_LastChars
     game.Players.PlayerAdded:Connect(function(targetPlayer)
@@ -929,7 +931,10 @@ local function InitializeESPHandlers()
         if ESPConfig.Enabled then
             CreatePlayerESP(targetPlayer)
         end
-        targetPlayer.CharacterAdded:Connect(function()
+        if espHandlerConns[targetPlayer] then
+            pcall(function() espHandlerConns[targetPlayer]:Disconnect() end)
+        end
+        espHandlerConns[targetPlayer] = targetPlayer.CharacterAdded:Connect(function()
             LK[targetPlayer] = targetPlayer.Character
             if ESPConfig.Enabled then
                 CreatePlayerESP(targetPlayer)
@@ -939,6 +944,10 @@ local function InitializeESPHandlers()
 
     game.Players.PlayerRemoving:Connect(function(targetPlayer)
         SafeNotify(" LEFT", targetPlayer.Name .. "   ", 2, "PlayerLeave")
+        if espHandlerConns[targetPlayer] then
+            pcall(function() espHandlerConns[targetPlayer]:Disconnect() end)
+            espHandlerConns[targetPlayer] = nil
+        end
         if targetPlayer == LockedTargetPlayer then
             SafeNotify(" UNLOCK", "   ", 2, "TargetLost")
             LockedTarget = nil
