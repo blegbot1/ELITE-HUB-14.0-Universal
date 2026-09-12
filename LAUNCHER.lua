@@ -40,13 +40,19 @@ local MODULES = {
 
 local function ensureFile(path)
     local okRead = pcall(function() return isfile(path) end)
-    if okRead and isfile(path) then return true end
-    local ok, data = pcall(function() return game:HttpGet(BASE_URL .. path, true) end)
-    if ok and data and #data > 0 then
-        pcall(function() writefile(path, data) end)
-        return true
+    if okRead and isfile(path) then
+        local okTest, testContent = pcall(function() return readfile(path) end)
+        if okTest and testContent and #testContent > 100 then return true end
     end
-    return false
+    local ok, raw = pcall(function() return game:HttpGet(BASE_URL .. path, true) end)
+    if not ok or not raw then return false end
+    local body = raw
+    if type(raw) == "table" then
+        body = raw.Body or raw.body or ""
+    end
+    if type(body) ~= "string" or #body < 100 then return false end
+    pcall(function() writefile(path, body) end)
+    return true
 end
 
 local gui = Instance.new("ScreenGui")
@@ -231,10 +237,12 @@ btn.MouseButton1Click:Connect(function()
     print("[KOLKA] Modules done. Failed: " .. failCount .. "/" .. #MODULES)
 
     print("[KOLKA] Loading ELITE HUB 14.0...")
-    local ok, src = pcall(function()
+    local ok, raw = pcall(function()
         return game:HttpGet(HUB_URL)
     end)
-    if ok and src then
+    if ok and raw then
+        local src = raw
+        if type(raw) == "table" then src = raw.Body or raw.body or "" end
         local fn, err = loadstring(src)
         if fn then
             fn()
