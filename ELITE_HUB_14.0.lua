@@ -1819,6 +1819,21 @@ MT = VisualTab
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 
+local rgbTime = 0
+local function GetRgbColor()
+    if not getgenv().ELITE_HUB_RgbOn then return nil end
+    local speed = getgenv().ELITE_HUB_RgbSpeed or 1
+    rgbTime = rgbTime + (1/60) * speed
+    local r = math.floor(127.5 + 127.5 * math.sin(rgbTime * 2))
+    local g = math.floor(127.5 + 127.5 * math.sin(rgbTime * 2 + 2.094))
+    local b = math.floor(127.5 + 127.5 * math.sin(rgbTime * 2 + 4.189))
+    return Color3.fromRGB(r, g, b)
+end
+
+local function ApplyColor(baseColor)
+    return GetRgbColor() or baseColor
+end
+
 -- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
 -- CHINESE HAT вЂ” РєРѕРЅСѓСЃРЅР°СЏ С€Р»СЏРїР°, ForceField, 3D
 -- Р‘Р•Р— WeldConstraint вЂ” parts СЃР»РµРґСѓСЋС‚ Р·Р° РіРѕР»РѕРІРѕР№ С‡РµСЂРµР· Heartbeat
@@ -2951,21 +2966,6 @@ local function GetLocalCharacter()
     local h = ch:FindFirstChildOfClass("Humanoid")
     local hrp = ch:FindFirstChild("HumanoidRootPart")
     return h, hrp
-end
-
-local rgbTime = 0
-local function GetRgbColor()
-    if not getgenv().ELITE_HUB_RgbOn then return nil end
-    local speed = getgenv().ELITE_HUB_RgbSpeed or 1
-    rgbTime = rgbTime + (1/60) * speed
-    local r = math.floor(127.5 + 127.5 * math.sin(rgbTime * 2))
-    local g = math.floor(127.5 + 127.5 * math.sin(rgbTime * 2 + 2.094))
-    local b = math.floor(127.5 + 127.5 * math.sin(rgbTime * 2 + 4.189))
-    return Color3.fromRGB(r, g, b)
-end
-
-local function ApplyColor(baseColor)
-    return GetRgbColor() or baseColor
 end
 
 local function FindClosestPlayerByRay()
