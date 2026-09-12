@@ -2,15 +2,15 @@
 
 local Rayfield = (function()
 local Rayfield = (function()
--- ___ UI ____ _ _____ ____-____ (_____ _________, __ _______)
--- _____-__________ ____: _______, ______, ______, ________, ______, _________, ______ _____
+-- моя UI либа в стиле мини-меню (позже переделаю, не трогать)
+-- тёмно-фиолетовая тема: вкладки, кнопки, тогглы, слайдеры, инпуты, дропдауны, пикеры цвета
 
 local EliteHubUI = {}
 EliteHubUI.__index = EliteHubUI
 
 local TweenService = game:GetService("TweenService")
 
--- _____ __ ____-____
+-- цвета из мини-меню
 local C = {
     BG = Color3.fromRGB(16, 11, 30),
     BG2 = Color3.fromRGB(25, 18, 45),
@@ -29,7 +29,7 @@ local C = {
     ScrollBar = Color3.fromRGB(95, 60, 165),
     Field = Color3.fromRGB(46, 34, 76),
 }
--- (_____ __ ______ - _________ __ ____)
+-- (цвета не менять - проверено на себе)
 
 local function newCorner(parent, r)
     local c = Instance.new("UICorner")
@@ -95,7 +95,7 @@ local function addScroll(frame)
     return sg
 end
 
--- ======= ____ =======
+-- ======= окно =======
 function EliteHubUI:CreateWindow(config)
     local self = setmetatable({}, EliteHubUI)
     self._tabs = {}
@@ -505,7 +505,7 @@ self._content = content
     return self
 end
 
--- ======= _______ =======
+-- ======= вкладки =======
 function EliteHubUI:CreateTab(name, icon, langKey)
     local tab = {}
     tab._order = 0
@@ -1321,7 +1321,7 @@ for _, p in ipairs(win._popups) do
     return tab
 end
 
--- ======= ___________ =======
+-- ======= уведомления =======
 local notifStack = 0
 
 function EliteHubUI:Notify(config)
@@ -1407,7 +1407,7 @@ task.spawn(function()
     end)
 end
 
--- ======= __________ =======
+-- ======= уничтожить =======
 function EliteHubUI:Destroy()
     if self._gui then
         self._gui:Destroy()
@@ -1508,7 +1508,7 @@ do
 end
 
 
-local debugMode = true  -- __________________ false, __________ __________________ ________
+local debugMode = true  -- РїРѕСЃС‚Р°РІРёС‚СЊ false, С‡С‚РѕР±С‹ РІС‹РєР»СЋС‡РёС‚СЊ Р»РѕРіРё
 
 if getgenv().ELITE_HUB_HASKER_LOADED then
     Rayfield:Notify({ Title = "Already running", Content = "ELITE HUB is already loaded", Duration = 3 })
@@ -1624,9 +1624,9 @@ getgenv().ELITE_HUB_Log = Log
 getgenv().ELITE_HUB_RUN_COUNT = (getgenv().ELITE_HUB_RUN_COUNT or 0) + 1
 Log("SYSTEM", " .   #" .. tostring(getgenv().ELITE_HUB_RUN_COUNT))
 
--- _________________________________________________________________________________________________________________________________________________________________________________________________________
--- LOADING CHECKLIST ___ ___________?_____?__ _?_?_______?___?, _________?_____?__ ______ ____ ___?___?__
--- _________________________________________________________________________________________________________________________________________________________________________________________________________
+-- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+-- LOADING CHECKLIST вЂ” РєРѕРЅСЃРѕР»СЊРЅР°СЏ Р·Р°РіСЂСѓР·РєР°, РїСЂРѕРІРµСЂСЏРµС‚ РІСЃС‘ РїРѕ С€Р°РіР°Рј
+-- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
 do
     local function Check(name, ok, info)
         if ok then
@@ -1770,51 +1770,51 @@ local ThemePurple = {
 	PlaceholderColor = Color3.fromRGB(178, 168, 200)
 }
 local Window = Rayfield:CreateWindow({
-    Name = "__ ELITE HUB 14.0 HASKER __",
-    LoadingTitle = "___ Hasker Edition ___________... ___",
-    LoadingSubtitle = "____ by gerkylesichakes | ______ 14.0 | _________: +Mods, Chams, ESP, Aimbot, Spin Bot ____",
+    Name = "💎 ELITE HUB 14.0 HASKER 💎",
+    LoadingTitle = "⚡🔥 Hasker Edition загружается... 🔥⚡",
+    LoadingSubtitle = "💜👑 by gerkylesichakes | Версия 14.0 | Обновлено: +Mods, Chams, ESP, Aimbot, Spin Bot 👑💜",
     Theme = ThemePurple
 })
 Window._L = L
 
 getgenv().ELITE_HUB_Log("UI", "Creating tabs...")
-local MainTab = Window:CreateTab("__ " .. L("Main"), 11286187172, "Main")
+local MainTab = Window:CreateTab("🏠 " .. L("Main"), 11286187172, "Main")
 getgenv().ELITE_HUB_Log("UI", "Tab loaded: Main")
-local ESPTab = Window:CreateTab("__ " .. L("ESP"), 6026568198, "ESP")
+local ESPTab = Window:CreateTab("👁 " .. L("ESP"), 6026568198, "ESP")
 getgenv().ELITE_HUB_Log("UI", "Tab loaded: ESP")
-local CombatTab = Window:CreateTab("__ " .. L("Aimbot"), 7733960981, "Aimbot")
+local CombatTab = Window:CreateTab("🎯 " .. L("Aimbot"), 7733960981, "Aimbot")
 getgenv().ELITE_HUB_Log("UI", "Tab loaded: Aimbot")
-local VisualTab = Window:CreateTab("__ " .. L("Visual"), 6022668888, "Visual")
+local VisualTab = Window:CreateTab("🎨 " .. L("Visual"), 6022668888, "Visual")
 getgenv().ELITE_HUB_Log("UI", "Tab loaded: Visual")
-local TeleportTab = Window:CreateTab("__ " .. L("Teleport"), 6023426915, "Teleport")
+local TeleportTab = Window:CreateTab("🌀 " .. L("Teleport"), 6023426915, "Teleport")
 getgenv().ELITE_HUB_Log("UI", "Tab loaded: Teleport")
-local KillAllTab = Window:CreateTab("__ " .. L("KillAll"), 0, "KillAll")
+local KillAllTab = Window:CreateTab("💀 " .. L("KillAll"), 0, "KillAll")
 getgenv().ELITE_HUB_Log("UI", "Tab loaded: KillAll")
-local FEScriptsTab = Window:CreateTab("__ " .. L("FEScripts"), 7733960981, "FEScripts")
+local FEScriptsTab = Window:CreateTab("🛡 " .. L("FEScripts"), 7733960981, "FEScripts")
 getgenv().ELITE_HUB_Log("UI", "Tab loaded: FEScripts")
-local HubsTab = Window:CreateTab("__ " .. L("Hubs"), 6022668888, "Hubs")
+local HubsTab = Window:CreateTab("🌐 " .. L("Hubs"), 6022668888, "Hubs")
 getgenv().ELITE_HUB_Log("UI", "Tab loaded: Hubs")
-local GameScriptsTab = Window:CreateTab("__ " .. L("GameScripts"), 7733960981, "GameScripts")
+local GameScriptsTab = Window:CreateTab("🎮 " .. L("GameScripts"), 7733960981, "GameScripts")
 getgenv().ELITE_HUB_Log("UI", "Tab loaded: GameScripts")
 
--- _________? ___?_?___?_?_______? _____?_?______ _____?______ __________ "________"
+-- РќРѕРІС‹Рµ СЂР°Р·РґРµР»СЊРЅС‹Рµ РІРєР»Р°РґРєРё РІРјРµСЃС‚Рѕ РѕРґРЅРѕР№ "РњРѕРґС‹"
 
-local MovementTab = Window:CreateTab("__ " .. "MOVEMENT", 6026568198, "Movement")
+local MovementTab = Window:CreateTab("🏃 " .. "MOVEMENT", 6026568198, "Movement")
 getgenv().ELITE_HUB_Log("UI", "Tab loaded: MOVEMENT")
-local CombatPlusTab = Window:CreateTab("_ " .. "COMBAT+", 7733960981, "CombatPlus")
+local CombatPlusTab = Window:CreateTab("⚔ " .. "COMBAT+", 7733960981, "CombatPlus")
 getgenv().ELITE_HUB_Log("UI", "Tab loaded: COMBAT+")
-local CameraTeleportTab = Window:CreateTab("__ " .. "CAMERA", 6023426915, "CameraTeleport")
+local CameraTeleportTab = Window:CreateTab("📷 " .. "CAMERA", 6023426915, "CameraTeleport")
 getgenv().ELITE_HUB_Log("UI", "Tab loaded: CAMERA")
 
 
-local UtilitiesTab = Window:CreateTab("__ " .. "UTILS", 6022668888, "Utilities")
+local UtilitiesTab = Window:CreateTab("🔧 " .. "UTILS", 6022668888, "Utilities")
 getgenv().ELITE_HUB_Log("UI", "Tab loaded: UTILS")
-local MusicTab = Window:CreateTab("__ " .. "MUSIC", 6022668888, "Music")
+local MusicTab = Window:CreateTab("🎵 " .. "MUSIC", 6022668888, "Music")
 getgenv().ELITE_HUB_Log("UI", "Tab loaded: MUSIC")
-getgenv().ELITE_HUB_ChamsTab = Window:CreateTab("__ " .. "CHAMS", 6026568198, "Chams")
+getgenv().ELITE_HUB_ChamsTab = Window:CreateTab("🎨 " .. "CHAMS", 6026568198, "Chams")
 getgenv().ELITE_HUB_Log("UI", "Tab loaded: CHAMS")
-getgenv().ELITE_HUB_PlayersTab = Window:CreateTab("__ " .. "______", 6026568198, "Players")
-getgenv().ELITE_HUB_Log("UI", "Tab loaded: ______")
+getgenv().ELITE_HUB_PlayersTab = Window:CreateTab("👥 " .. "ИГРОКИ", 6026568198, "Players")
+getgenv().ELITE_HUB_Log("UI", "Tab loaded: ИГРОКИ")
 
 MT = VisualTab
 
@@ -1836,15 +1836,15 @@ local function ApplyColor(baseColor)
     return GetRgbColor() or baseColor
 end
 
--- _________________________________________________________________________________________________________________________________________________________________________________________________________
--- CHINESE HAT ___ _____________?__ ___?_____?, ForceField, 3D
--- ______ WeldConstraint ___ parts ___?_?________ _?_? _____?________ ___?___?_? Heartbeat
--- Massless + PhysicalProperties = ___?__ _____?. ___?__________
--- _________________________________________________________________________________________________________________________________________________________________________________________________________
+-- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+-- CHINESE HAT вЂ” РєРѕРЅСѓСЃРЅР°СЏ С€Р»СЏРїР°, ForceField, 3D
+-- Р‘Р•Р— WeldConstraint вЂ” parts СЃР»РµРґСѓСЋС‚ Р·Р° РіРѕР»РѕРІРѕР№ С‡РµСЂРµР· Heartbeat
+-- Massless + PhysicalProperties = РЅРµС‚ С„РёР·. РІР·СЂС‹РІРѕРІ
+-- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
 task.spawn(function()
 local MT = VisualTab
 getgenv().ELITE_HUB_Log("UI", "Section loaded: CHINESE HAT")
-MT:CreateSection("__ RGB MODE")
+MT:CreateSection("🌈 RGB MODE")
 
 getgenv().ELITE_HUB_RgbOn = false
 getgenv().ELITE_HUB_RgbSpeed = 1
@@ -1862,7 +1862,7 @@ MT:CreateSlider({
     Callback = function(v) getgenv().ELITE_HUB_RgbSpeed = v end
 })
 
-MT:CreateSection("__ CHINESE HAT")
+MT:CreateSection("🎩 CHINESE HAT")
 
 getgenv().ELITE_HUB_ChineseHatOn = false
 getgenv().ELITE_HUB_ChineseHatY = 0.5
@@ -3966,7 +3966,7 @@ end)
 
 local function DestroyScript()
     Rayfield:Notify({
-        Title = "_ Shutting down...",
+        Title = "⚡ Shutting down...",
         Content = "ELITE HUB is being unloaded",
         Duration = 1.5
     })
@@ -4117,7 +4117,7 @@ end
 local function LoadScript(name, url)
     task.spawn(function()
         Rayfield:Notify({
-            Title = "_ Loading...",
+            Title = "⏳ Loading...",
             Content = name .. " is launching",
             Duration = 2
         })
@@ -4132,13 +4132,13 @@ local function LoadScript(name, url)
         
         if success then
             Rayfield:Notify({
-                Title = "_ Done!",
+                Title = "✅ Done!",
                 Content = name .. " loaded",
                 Duration = 3
             })
         else
             Rayfield:Notify({
-                Title = "_ Done!",
+                Title = "✅ Done!",
                 Content = "Failed to load " .. name,
                 Duration = 5
             })
@@ -4299,9 +4299,9 @@ OverlayGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 local _ogParent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 OverlayGui.Parent = _ogParent
 
--- _________________________________________________________________________________________________________________________________________________________________________________________________________
--- TOP STATUS BAR ___ FPS / Ping / Time / Server + ELITE HUB subtitle
--- _________________________________________________________________________________________________________________________________________________________________________________________________________
+-- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+-- TOP STATUS BAR вЂ” FPS / Ping / Time / Server + ELITE HUB subtitle
+-- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
 do
     local holder = Instance.new("Frame")
     holder.Name = "EliteHub_TopHolder"
@@ -4454,9 +4454,9 @@ do
     end)
 end
 
--- _________________________________________________________________________________________________________________________________________________________________________________________________________
+-- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
 -- MOBILE AIMBOT BUTTON (bottom-right, only on touch devices)
--- _________________________________________________________________________________________________________________________________________________________________________________________________________
+-- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
 do
     local UserInputService = game:GetService("UserInputService")
     if UserInputService.TouchEnabled then
@@ -4664,10 +4664,10 @@ local HubsTab = _g().ELITE_HUB_HubsTab
 
 --[[
     ==============================
-    ______________ __________
+    Р’РљР›РђР”РљРђ РҐРђР‘РћР’
     ==============================
 ]]--
-local HubsSection = HubsTab:CreateSection("__ UNIVERSAL HUBS")
+local HubsSection = HubsTab:CreateSection("🌐 UNIVERSAL HUBS")
 
 HubsTab:CreateButton({
     Name = " Ghub V15",
@@ -4844,10 +4844,10 @@ local FEScriptsTab = _g().ELITE_HUB_FEScriptsTab
 
 --[[
     ==============================
-    __________ ______________ FE ______________
+    РќРћР’РђРЇ Р’РљР›РђР”РљРђ FE РЎРљР РРџРўР«
     ==============================
 ]]--
-local FEBasicSection = FEScriptsTab:CreateSection("__ CORE FE SCRIPTS")
+local FEBasicSection = FEScriptsTab:CreateSection("🛡 CORE FE SCRIPTS")
 
 FEScriptsTab:CreateButton({
     Name = " Fe Punch (R15/R6)",
@@ -4903,7 +4903,7 @@ FEScriptsTab:CreateButton({
     end
 })
 
-local FEUtilitiesSection = FEScriptsTab:CreateSection("__ FE UTILITIES")
+local FEUtilitiesSection = FEScriptsTab:CreateSection("🔧 FE UTILITIES")
 
 FEScriptsTab:CreateButton({
     Name = " Fe G-Man (R6 only)",
@@ -4976,7 +4976,7 @@ FEScriptsTab:CreateButton({
     end
 })
 
-local FEEffectsSection = FEScriptsTab:CreateSection("_ FE EFFECTS")
+local FEEffectsSection = FEScriptsTab:CreateSection("✨ FE EFFECTS")
 
 FEScriptsTab:CreateButton({
     Name = " Fe Blackhole",
@@ -5027,7 +5027,7 @@ FEScriptsTab:CreateButton({
     end
 })
 
-local GenesisFESection = FEScriptsTab:CreateSection("__ GENESIS FE SCRIPTS")
+local GenesisFESection = FEScriptsTab:CreateSection("🔰 GENESIS FE SCRIPTS")
 
 FEScriptsTab:CreateButton({
     Name = " Fe Ban Hammer",
@@ -5092,7 +5092,7 @@ FEScriptsTab:CreateButton({
     end
 })
 
-local FEAnimationsSection = FEScriptsTab:CreateSection("__ FE ANIMATIONS")
+local FEAnimationsSection = FEScriptsTab:CreateSection("💃 FE ANIMATIONS")
 
 FEScriptsTab:CreateButton({
     Name = " Fe Animation Man (R6 only)",
@@ -5120,8 +5120,8 @@ FEScriptsTab:CreateButton({
     end
 })
 
-local AdditionalFESection = FEScriptsTab:CreateSection("_ EXTRA FE SCRIPTS")
-local FEUtilitiesSection2 = FEScriptsTab:CreateSection("__ POPULAR UTILITIES")
+local AdditionalFESection = FEScriptsTab:CreateSection("➕ EXTRA FE SCRIPTS")
+local FEUtilitiesSection2 = FEScriptsTab:CreateSection("💰 POPULAR UTILITIES")
 
 FEScriptsTab:CreateButton({
     Name = " Infinite Yield",
@@ -5190,14 +5190,14 @@ local GameScriptsTab = _g().ELITE_HUB_GameScriptsTab
 
 --[[
     ==============================
-    ______________ ________________ ______ ______
+    Р’РљР›РђР”РљРђ РЎРљР РРџРўРћР’ Р”Р›РЇ РР“Р 
     ==============================
 ]]--
 
--- _________________________________________________________________________________________________________________________________
--- ___?___ VISUALS & TOOLS (TOP PICKS)
--- _________________________________________________________________________________________________________________________________
-GameScriptsTab:CreateSection("__ VISUALS & TOOLS")
+-- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+-- рџ› пёЏ VISUALS & TOOLS (TOP PICKS)
+-- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+GameScriptsTab:CreateSection("👁 VISUALS & TOOLS")
 
 GameScriptsTab:CreateButton({
     Name = " Sp3arParvus v4.2.9 (ESP+Aimbot+Explorer)",
@@ -5206,9 +5206,9 @@ GameScriptsTab:CreateButton({
     end
 })
 
--- _________________________________________________________________________________________________________________________________
--- ____ UNIVERSAL HUBS (30+ ______ ___?_?______)
--- _________________________________________________________________________________________________________________________________
+-- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+-- рџЊџ UNIVERSAL HUBS (30+ РёРіСЂ РєР°Р¶РґС‹Р№)
+-- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
 GameScriptsTab:CreateSection(" UNIVERSAL HUBS")
 
 GameScriptsTab:CreateButton({
@@ -5332,10 +5332,10 @@ GameScriptsTab:CreateButton({
     end
 })
 
--- _________________________________________________________________________________________________________________________________
--- ______ RIVALS (FPS)
--- _________________________________________________________________________________________________________________________________
-GameScriptsTab:CreateSection("_ RIVALS")
+-- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+-- вљ”пёЏ RIVALS (FPS)
+-- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+GameScriptsTab:CreateSection("⚔ RIVALS")
 
 GameScriptsTab:CreateButton({
     Name = " Rivals Auto Farm",
@@ -5482,10 +5482,10 @@ GameScriptsTab:CreateButton({
     end
 })
 
--- _________________________________________________________________________________________________________________________________
--- ____ MURDER MYSTERY 2
--- _________________________________________________________________________________________________________________________________
-GameScriptsTab:CreateSection("__ MURDER MYSTERY 2")
+-- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+-- рџ”Є MURDER MYSTERY 2
+-- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+GameScriptsTab:CreateSection("🔪 MURDER MYSTERY 2")
 
 GameScriptsTab:CreateButton({
     Name = " MM2 Auto Farm+ESP+Kill All",
@@ -5656,10 +5656,10 @@ GameScriptsTab:CreateButton({
     end
 })
 
--- _________________________________________________________________________________________________________________________________
--- ______ BLOX FRUITS
--- _________________________________________________________________________________________________________________________________
-GameScriptsTab:CreateSection("__ BLOX FRUITS")
+-- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+-- вљ”пёЏ BLOX FRUITS
+-- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+GameScriptsTab:CreateSection("🍎 BLOX FRUITS")
 
 GameScriptsTab:CreateButton({
     Name = " Blox Fruits Fruit Dupe",
@@ -5728,10 +5728,10 @@ GameScriptsTab:CreateButton({
     end
 })
 
--- _________________________________________________________________________________________________________________________________
--- _______ BLADE BALL
--- _________________________________________________________________________________________________________________________________
-GameScriptsTab:CreateSection("_ BLADE BALL")
+-- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+-- рџ›ЎпёЏ BLADE BALL
+-- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+GameScriptsTab:CreateSection("⚔ BLADE BALL")
 
 GameScriptsTab:CreateButton({
     Name = " Blade Ball Vanish Hub",
@@ -5782,10 +5782,10 @@ GameScriptsTab:CreateButton({
     end
 })
 
--- _________________________________________________________________________________________________________________________________
--- _______ ARSENAL
--- _________________________________________________________________________________________________________________________________
-GameScriptsTab:CreateSection("__ ARSENAL")
+-- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+-- рџЏ‹пёЏ ARSENAL
+-- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+GameScriptsTab:CreateSection("💣 ARSENAL")
 
 GameScriptsTab:CreateButton({
     Name = " Arsenal KEYLESS OP",
@@ -5824,10 +5824,10 @@ GameScriptsTab:CreateButton({
     end
 })
 
--- _________________________________________________________________________________________________________________________________
--- ___? JAILBREAK
--- _________________________________________________________________________________________________________________________________
-GameScriptsTab:CreateSection("__ JAILBREAK")
+-- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+-- рџЏ« JAILBREAK
+-- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+GameScriptsTab:CreateSection("🚔 JAILBREAK")
 
 GameScriptsTab:CreateButton({
     Name = " Jailbreak Money Farm",
@@ -5848,10 +5848,10 @@ GameScriptsTab:CreateButton({
     end
 })
 
--- _________________________________________________________________________________________________________________________________
--- ___? GROW A GARDEN 2
--- _________________________________________________________________________________________________________________________________
-GameScriptsTab:CreateSection("__ GROW A GARDEN 2")
+-- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+-- рџЊ± GROW A GARDEN 2
+-- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+GameScriptsTab:CreateSection("🌿 GROW A GARDEN 2")
 
 GameScriptsTab:CreateButton({
     Name = " GAG2 Script",
@@ -5986,10 +5986,10 @@ GameScriptsTab:CreateButton({
     end
 })
 
--- _________________________________________________________________________________________________________________________________
--- _______ SOUTH BRONX
--- _________________________________________________________________________________________________________________________________
-GameScriptsTab:CreateSection("__ SOUTH BRONX")
+-- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+-- рџЏ™пёЏ SOUTH BRONX
+-- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+GameScriptsTab:CreateSection("🏖 SOUTH BRONX")
 
 GameScriptsTab:CreateButton({
     Name = " South Bronx Saytus Hub",
@@ -6022,10 +6022,10 @@ GameScriptsTab:CreateButton({
     end
 })
 
--- _________________________________________________________________________________________________________________________________
--- ____ SIMULATORS
--- _________________________________________________________________________________________________________________________________
-GameScriptsTab:CreateSection("__ SIMULATORS")
+-- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+-- рџЋЄ SIMULATORS
+-- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+GameScriptsTab:CreateSection("📊 SIMULATORS")
 
 GameScriptsTab:CreateButton({
     Name = " Muscle Legends",
@@ -6058,10 +6058,10 @@ GameScriptsTab:CreateButton({
     end
 })
 
--- _________________________________________________________________________________________________________________________________
--- ___? HORROR GAMES
--- _________________________________________________________________________________________________________________________________
-GameScriptsTab:CreateSection("__ HORROR GAMES")
+-- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+-- рџ‘» HORROR GAMES
+-- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+GameScriptsTab:CreateSection("👻 HORROR GAMES")
 
 GameScriptsTab:CreateButton({
     Name = " Doors (Vynixius)",
@@ -6088,10 +6088,10 @@ GameScriptsTab:CreateButton({
     end
 })
 
--- _________________________________________________________________________________________________________________________________
--- _______ BUILDING & TYCOON
--- _________________________________________________________________________________________________________________________________
-GameScriptsTab:CreateSection("__ BUILDING & TYCOON")
+-- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+-- рџЏ—пёЏ BUILDING & TYCOON
+-- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+GameScriptsTab:CreateSection("🏗 BUILDING & TYCOON")
 
 GameScriptsTab:CreateButton({
     Name = " Build A Boat (Vynixius)",
@@ -6106,10 +6106,10 @@ GameScriptsTab:CreateButton({
     end
 })
 
--- _________________________________________________________________________________________________________________________________
--- ___? OBBY & PARKOUR
--- _________________________________________________________________________________________________________________________________
-GameScriptsTab:CreateSection("__ OBBY & PARKOUR")
+-- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+-- рџЏ° OBBY & PARKOUR
+-- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+GameScriptsTab:CreateSection("🧗 OBBY & PARKOUR")
 
 GameScriptsTab:CreateButton({
     Name = " Tower of Hell (Vynixius)",
@@ -6124,10 +6124,10 @@ GameScriptsTab:CreateButton({
     end
 })
 
--- _________________________________________________________________________________________________________________________________
--- ___ ANIME GAMES
--- _________________________________________________________________________________________________________________________________
-GameScriptsTab:CreateSection("__ ANIME GAMES")
+-- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+-- вљЎ ANIME GAMES
+-- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+GameScriptsTab:CreateSection("👗 ANIME GAMES")
 
 GameScriptsTab:CreateButton({
     Name = " Anime Vanguards",
@@ -6148,10 +6148,10 @@ GameScriptsTab:CreateButton({
     end
 })
 
--- _________________________________________________________________________________________________________________________________
--- ___? FUNKY FRIDAY & RHYTHM
--- _________________________________________________________________________________________________________________________________
-GameScriptsTab:CreateSection("__ RHYTHM GAMES")
+-- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+-- рџЋ® FUNKY FRIDAY & RHYTHM
+-- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+GameScriptsTab:CreateSection("🎵 RHYTHM GAMES")
 
 GameScriptsTab:CreateButton({
     Name = " Funky Friday",
@@ -6160,10 +6160,10 @@ GameScriptsTab:CreateButton({
     end
 })
 
--- _________________________________________________________________________________________________________________________________
--- ___? EXTRA & MISC GAMES
--- _________________________________________________________________________________________________________________________________
-GameScriptsTab:CreateSection("_ EXTRA GAMES")
+-- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+-- рџЋ­ EXTRA & MISC GAMES
+-- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+GameScriptsTab:CreateSection("❓ EXTRA GAMES")
 
 GameScriptsTab:CreateButton({
     Name = " Prison Life (Vynixius)",
@@ -6519,7 +6519,7 @@ local DestroyScript = _g().ELITE_HUB_DestroyScript
 local MT = Window
 
 local MainTab = _g().ELITE_HUB_MainTab
-local AdventureSection = MainTab:CreateSection("_ CORE FUNCTIONS")
+local AdventureSection = MainTab:CreateSection("⚡ CORE FUNCTIONS")
 
 noclipActive = false
 local BindConfig = {
@@ -6549,7 +6549,7 @@ local RunService = game:GetService("RunService")
 
 local raycastParams = RaycastParams.new()
 raycastParams.FilterType = Enum.RaycastFilterType.Exclude
-local InfiniteJumpEnabled = true -- Debounce ______ __________________ wallhop
+local InfiniteJumpEnabled = true -- Debounce РґР»СЏ РѕСЃРЅРѕРІРЅРѕРіРѕ wallhop
 
 local function getWallRaycastResult()
     local player = Players.LocalPlayer
@@ -6676,7 +6676,7 @@ local function ToggleWallhop()
             performWallJump()
         end)
         Rayfield:Notify({
-            Title = "__ WallHop",
+            Title = "🦘 WallHop",
             Content = "WallHop enabled" .. tostring(wallhopBindKey.Name) .. ")",
             Duration = 3
         })
@@ -6686,7 +6686,7 @@ local function ToggleWallhop()
             wallhopConnection = nil
         end
         Rayfield:Notify({
-            Title = "__ WallHop",
+            Title = "🦘 WallHop",
             Content = "WallHop disabled",
             Duration = 3
         })
@@ -7243,7 +7243,7 @@ function ToggleFly()
         end
 
         Rayfield:Notify({
-            Title = "__ Fly",
+            Title = "✈️ Fly",
             Content = "Fly  (: " .. speeds .. ")",
             Duration = 3
         })
@@ -7285,7 +7285,7 @@ function ToggleFly()
         end
 
         Rayfield:Notify({
-            Title = "__ Fly",
+            Title = "✈️ Fly",
             Content = "Fly ",
             Duration = 3
         })
@@ -7355,7 +7355,7 @@ function ToggleNoclip()
             end
         end)
         Rayfield:Notify({
-            Title = "__ Noclip",
+            Title = "👻 Noclip",
             Content = "Noclip ",
             Duration = 3
         })
@@ -7374,7 +7374,7 @@ function ToggleNoclip()
             end
         end
         Rayfield:Notify({
-            Title = "__ Noclip",
+            Title = "👻 Noclip",
             Content = "Noclip ",
             Duration = 3
         })
@@ -7416,7 +7416,7 @@ MainTab:CreateButton({
     Callback = function()
         speeds = speeds + 1
         Rayfield:Notify({
-                Title = "__ Fly Speed",
+                Title = "⬇️ Fly Speed",
                 Content = "Speed: " .. speeds,
             Duration = 2
         })
@@ -7429,13 +7429,13 @@ MainTab:CreateButton({
         if speeds > 1 then
             speeds = speeds - 1
             Rayfield:Notify({
-                Title = "__ Fly Speed",
+                Title = "⬆️ Fly Speed",
                 Content = "Speed: " .. speeds,
                 Duration = 2
             })
         else
             Rayfield:Notify({
-                Title = "_ Reset",
+                Title = "✅ Reset",
                 Content = "Speed: 1",
                 Duration = 2
             })
@@ -7463,13 +7463,13 @@ MainTab:CreateInput({
         if success and keyEnum then
             wallhopBindKey = keyEnum
             Rayfield:Notify({
-                Title = "_ Bind Set",
+                Title = "✅ Bind Set",
                 Content = "Key: " .. keyName,
                 Duration = 3
             })
         else
             Rayfield:Notify({
-                Title = "_ Error",
+                Title = "❌ Error",
                 Content = "Invalid key!",
                 Duration = 3
             })
@@ -7477,7 +7477,7 @@ MainTab:CreateInput({
     end
 })
 
-MainTab:CreateSection("__ BINDS")
+MainTab:CreateSection("📌 BINDS")
 
 MainTab:CreateInput({
     Name = " Fly Bind",
@@ -7488,9 +7488,9 @@ MainTab:CreateInput({
         local success, keyEnum = pcall(function() return Enum.KeyCode[keyName] end)
         if success and keyEnum then
             BindConfig.Fly = keyName
-            Rayfield:Notify({ Title = "_ Fly Bound", Content = "Key: " .. keyName, Duration = 2 })
+            Rayfield:Notify({ Title = "✅ Fly Bound", Content = "Key: " .. keyName, Duration = 2 })
         else
-            Rayfield:Notify({ Title = "_ Error", Content = "Invalid key!", Duration = 2 })
+            Rayfield:Notify({ Title = "❌ Error", Content = "Invalid key!", Duration = 2 })
         end
     end
 })
@@ -7504,9 +7504,9 @@ MainTab:CreateInput({
         local success, keyEnum = pcall(function() return Enum.KeyCode[keyName] end)
         if success and keyEnum then
             BindConfig.Noclip = keyName
-            Rayfield:Notify({ Title = "_ Noclip Bound", Content = "Key: " .. keyName, Duration = 2 })
+            Rayfield:Notify({ Title = "✅ Noclip Bound", Content = "Key: " .. keyName, Duration = 2 })
         else
-            Rayfield:Notify({ Title = "_ Error", Content = "Invalid key!", Duration = 2 })
+            Rayfield:Notify({ Title = "❌ Error", Content = "Invalid key!", Duration = 2 })
         end
     end
 })
@@ -7520,9 +7520,9 @@ MainTab:CreateInput({
         local success, keyEnum = pcall(function() return Enum.KeyCode[keyName] end)
         if success and keyEnum then
             BindConfig.SpeedBoost = keyName
-            Rayfield:Notify({ Title = "_ Speed Bound", Content = "Key: " .. keyName, Duration = 2 })
+            Rayfield:Notify({ Title = "✅ Speed Bound", Content = "Key: " .. keyName, Duration = 2 })
         else
-            Rayfield:Notify({ Title = "_ Error", Content = "Invalid key!", Duration = 2 })
+            Rayfield:Notify({ Title = "❌ Error", Content = "Invalid key!", Duration = 2 })
         end
     end
 })
@@ -7536,9 +7536,9 @@ MainTab:CreateInput({
         local success, keyEnum = pcall(function() return Enum.KeyCode[keyName] end)
         if success and keyEnum then
             BindConfig.SpinBot = keyName
-            Rayfield:Notify({ Title = "_ Spin Bound", Content = "Key: " .. keyName, Duration = 2 })
+            Rayfield:Notify({ Title = "✅ Spin Bound", Content = "Key: " .. keyName, Duration = 2 })
         else
-            Rayfield:Notify({ Title = "_ Error", Content = "Invalid key!", Duration = 2 })
+            Rayfield:Notify({ Title = "❌ Error", Content = "Invalid key!", Duration = 2 })
         end
     end
 })
@@ -7565,10 +7565,10 @@ local NewOverlayLine = _g().ELITE_HUB_NewOverlayLine
 
 --[[
     ==============================
-    ____________________ AIMBOT __ ______________________ ____ __________________
+    РЈР›РЈР§РЁР•РќРќР«Р™ AIMBOT РЎ РџР РРћР РРўР•РўРћРњ РџРћ Р”РРЎРўРђРќР¦РР
     ==============================
 ]]--
-local AimbotSection = CombatTab:CreateSection("__ IMPROVED AIMBOT 3D FOV")
+local AimbotSection = CombatTab:CreateSection("🎯 IMPROVED AIMBOT 3D FOV")
 local AimbotConfig = {
     Enabled = false,
     TeamCheck = true,
@@ -8148,7 +8148,7 @@ local function GetClosestPlayer()
         if ok and part then
             return part
         end
-        LockedTargetPlayer = nil -- ________ ____________ / ________ __ ____________ -> __________________
+        LockedTargetPlayer = nil -- С†РµР»СЊ СѓРјРµСЂР»Р° / СѓС€Р»Р° СЃ СЌРєСЂР°РЅР° -> РѕС‚РїСѓСЃРєР°РµРј
     end
 
     local prioPlayer = GetTargetPlayer()
@@ -8302,7 +8302,7 @@ task.spawn(function()
                             local toCamera = (camPos - hrp.Position).Unit
                             local dot = lookDir:Dot(toCamera)
                             if dot < -0.3 then
-                                SafeNotify("__ ANTI-AIM", LockedTargetPlayer.Name .. "  !", 2, "AntiAim")
+                                SafeNotify("🛡 ANTI-AIM", LockedTargetPlayer.Name .. "  !", 2, "AntiAim")
                             end
                         end
                     end
@@ -8404,7 +8404,7 @@ CombatTab:CreateToggle({
         if value then
             if FOVCircle then FOVCircle.Visible = true end
             Rayfield:Notify({
-                Title = "__ Aimbot",
+                Title = "🎯 Aimbot",
                 Content = "Enabled",
                 Duration = 3
             })
@@ -8413,7 +8413,7 @@ CombatTab:CreateToggle({
             Running = false
             LockedTarget = nil
             Rayfield:Notify({
-                Title = "__ Aimbot",
+                Title = "🎯 Aimbot",
                 Content = "Disabled",
                 Duration = 2
             })
@@ -8461,13 +8461,13 @@ CombatTab:CreateDropdown({
         AimbotConfig.Priority = option
         if option == "Distance" then
             Rayfield:Notify({
-                Title = "__ Target",
+                Title = "🎯 Target",
                 Content = "Enabled",
                 Duration = 3
             })
         else
             Rayfield:Notify({
-                Title = "__ FOV Lock",
+                Title = "🎯 FOV Lock",
                 Content = "Lock enabled",
                 Duration = 3
             })
@@ -8501,7 +8501,7 @@ CombatTab:CreateColorPicker({
     end
 })
 
-CombatTab:CreateSection("_ EXTRA AIMBOT SETTINGS")
+CombatTab:CreateSection("⚙ EXTRA AIMBOT SETTINGS")
 
 CombatTab:CreateToggle({
     Name = " Show FOV circle",
@@ -8532,7 +8532,7 @@ CombatTab:CreateDropdown({
     Callback = function(option)
         AimbotConfig.TriggerKey = option
         Rayfield:Notify({
-            Title = "__ Target Key",
+            Title = "🎯 Target Key",
             Content = "Key: " .. option,
             Duration = 2
         })
@@ -8603,7 +8603,7 @@ CombatTab:CreateDropdown({
     end
 })
 
-CombatTab:CreateSection("__ TARGET INDICATOR")
+CombatTab:CreateSection("📍 TARGET INDICATOR")
 
 CombatTab:CreateToggle({
     Name = " Show target name & HP",
@@ -8689,7 +8689,7 @@ CombatTab:CreateDropdown({
     end
 })
 
-CombatTab:CreateSection("__ AUTO-SHOOT")
+CombatTab:CreateSection("🔫 AUTO-SHOOT")
 
 CombatTab:CreateToggle({
     Name = " Auto-shoot",
@@ -8710,7 +8710,7 @@ CombatTab:CreateSlider({
     end
 })
 
-CombatTab:CreateSection("__ TARGET VISUALS")
+CombatTab:CreateSection("👁 TARGET VISUALS")
 
 CombatTab:CreateToggle({
     Name = " Aim line to target",
@@ -8736,7 +8736,7 @@ CombatTab:CreateToggle({
     end
 })
 
-CombatTab:CreateSection("__ TARGET PRIORITY")
+CombatTab:CreateSection("🔢 TARGET PRIORITY")
 
 CombatTab:CreateDropdown({
     Name = " Target selection priority",
@@ -8747,7 +8747,7 @@ CombatTab:CreateDropdown({
     end
 })
 
-CombatTab:CreateSection("__ PREDICTION")
+CombatTab:CreateSection("🔮 PREDICTION")
 
 CombatTab:CreateToggle({
     Name = " Motion prediction",
@@ -8778,7 +8778,7 @@ CombatTab:CreateToggle({
     end
 })
 
-CombatTab:CreateSection("__ FOV DISTANCE")
+CombatTab:CreateSection("📏 FOV DISTANCE")
 
 CombatTab:CreateToggle({
     Name = " Auto-FOV by distance",
@@ -8810,7 +8810,7 @@ CombatTab:CreateSlider({
     end
 })
 
-CombatTab:CreateSection("__ AIMBOT NOTIFICATIONS")
+CombatTab:CreateSection("🔔 AIMBOT NOTIFICATIONS")
 
 CombatTab:CreateToggle({
     Name = " Kill Notify",
@@ -8884,7 +8884,7 @@ CombatTab:CreateToggle({
     end
 })
 
-CombatTab:CreateSection("__ TARGET LOCK")
+CombatTab:CreateSection("🔒 TARGET LOCK")
 
 CombatTab:CreateToggle({
     Name = " Persistent Lock ( )",
@@ -8894,7 +8894,7 @@ CombatTab:CreateToggle({
     end
 })
 
-CombatTab:CreateSection("__ LOCK OPTIONS")
+CombatTab:CreateSection("🎯 LOCK OPTIONS")
 
 CombatTab:CreateToggle({
     Name = " Don't aim at friendlies",
@@ -8985,7 +8985,7 @@ local UpdateSkeletonLines = _g().ELITE_HUB_UpdateSkeletonLines
 
 --[[
     ==============================
-    ____________ ESP __ 3D BOX
+    РџРћР›РќР«Р™ ESP РЎ 3D BOX
     ==============================
 ]]--
 local ESPConfig = {
@@ -9707,9 +9707,9 @@ local function UpdateBox3DESP()
             end
 
             local connections = {
-                {1, 2}, {2, 3}, {3, 4}, {4, 1}, -- ____________ ______________
-                {5, 6}, {6, 7}, {7, 8}, {8, 5}, -- ______________ ______________
-                {1, 5}, {2, 6}, {3, 7}, {4, 8}  -- ________________________ __________
+                {1, 2}, {2, 3}, {3, 4}, {4, 1}, -- РЅРёР¶РЅРёР№ РєРІР°РґСЂР°С‚
+                {5, 6}, {6, 7}, {7, 8}, {8, 5}, -- РІРµСЂС…РЅРёР№ РєРІР°РґСЂР°С‚
+                {1, 5}, {2, 6}, {3, 7}, {4, 8}  -- РІРµСЂС‚РёРєР°Р»СЊРЅС‹Рµ Р»РёРЅРёРё
             }
 
             for i, connection in ipairs(connections) do
@@ -9846,7 +9846,7 @@ ESPTab:CreateToggle({
             
             UpdateESP()
             Rayfield:Notify({
-                Title = "__ ESP",
+                Title = "👁 ESP",
                 Content = "  ESP ",
                 Duration = 3
             })
@@ -9855,7 +9855,7 @@ ESPTab:CreateToggle({
                 ClearPlayerESP(targetPlayer)
             end
             Rayfield:Notify({
-                Title = "__ ESP",
+                Title = "👁 ESP",
                 Content = "ESP ",
                 Duration = 2
             })
@@ -10086,7 +10086,7 @@ ESPTab:CreateSlider({
     end
 })
 
-ESPTab:CreateSection("_ ARROWS (off-screen pointers)")
+ESPTab:CreateSection("⬅ ARROWS (off-screen pointers)")
 
 ESPTab:CreateToggle({
     Name = " Show arrows off-screen",
@@ -10107,7 +10107,7 @@ ESPTab:CreateColorPicker({
     end
 })
 
-ESPTab:CreateSection("__ TEXT & TRACER COLORS")
+ESPTab:CreateSection("🎨 TEXT & TRACER COLORS")
 
 ESPTab:CreateColorPicker({
     Name = " Name color",
@@ -10129,7 +10129,7 @@ ESPTab:CreateColorPicker({
     end
 })
 
-ESPTab:CreateSection("__ SNAP LINES (wallhack)")
+ESPTab:CreateSection("📸 SNAP LINES (wallhack)")
 
 ESPTab:CreateToggle({
     Name = " Enable snap lines",
@@ -10150,7 +10150,7 @@ ESPTab:CreateColorPicker({
     end
 })
 
-ESPTab:CreateSection("__ AIMBOT TARGET HIGHLIGHT")
+ESPTab:CreateSection("🎯 AIMBOT TARGET HIGHLIGHT")
 
 ESPTab:CreateToggle({
     Name = " Highlight Aimbot target",
@@ -10168,7 +10168,7 @@ ESPTab:CreateColorPicker({
     end
 })
 
-ESPTab:CreateSection("__ SKELETON")
+ESPTab:CreateSection("💀 SKELETON")
 
 ESPTab:CreateToggle({
     Name = " Show skeletons",
@@ -10210,13 +10210,13 @@ ESPTab:CreateDropdown({
     end
 })
 
-ESPTab:CreateSection("_ EXTRA")
+ESPTab:CreateSection("➕ EXTRA")
 
 ESPTab:CreateSlider({
     Name = " Max ESP distance",
     Range = {0, 1000},
     Increment = 25,
-    Suffix = " studs (0 = _)",
+    Suffix = " studs (0 = ∞)",
     CurrentValue = ESPConfig.MaxESPDistance,
     Callback = function(value)
         ESPConfig.MaxESPDistance = value
@@ -10299,9 +10299,9 @@ ESPTab:CreateColorPicker({
     end
 })
 
--- (__________ ________/_______ __________ __ _______ ______)
+-- (управление друзьями/врагами перенесено во вкладку ИГРОКИ)
 
-ESPTab:CreateSection("__ ESP NOTIFICATIONS")
+ESPTab:CreateSection("🔔 ESP NOTIFICATIONS")
 
 ESPTab:CreateToggle({
     Name = " ESP: notifications on",
@@ -10336,7 +10336,7 @@ ESPTab:CreateToggle({
     end
 })
 
-ESPTab:CreateSection("__ VISUAL FEATURES")
+ESPTab:CreateSection("👁 VISUAL FEATURES")
 
 ESPTab:CreateToggle({
     Name = " Low HP warning",
@@ -10623,7 +10623,7 @@ task.spawn(function()
         end
     end)
 end)
-getgenv().ELITE_HUB_ChamsTab:CreateSection("__ PLAYER CHAMS")
+getgenv().ELITE_HUB_ChamsTab:CreateSection("🎨 PLAYER CHAMS")
 
 task.spawn(function()
 getgenv().ELITE_HUB_ChamsTab:CreateToggle({
@@ -10717,7 +10717,7 @@ getgenv().ELITE_HUB_ChamsTab:CreateToggle({
 })
 end)
 
-getgenv().ELITE_HUB_ChamsTab:CreateSection("__ RAINBOW CHAMS")
+getgenv().ELITE_HUB_ChamsTab:CreateSection("🌈 RAINBOW CHAMS")
 
 getgenv().ELITE_HUB_RainbowChams = false
 getgenv().ELITE_HUB_ChamsTab:CreateToggle({
@@ -10740,7 +10740,7 @@ task.spawn(function()
         end)
     end
 end)
-getgenv().ELITE_HUB_ChamsTab:CreateSection("__ WEAPON CHAMS")
+getgenv().ELITE_HUB_ChamsTab:CreateSection("🗡 WEAPON CHAMS")
 
 getgenv().ELITE_HUB_RangeWeaponChams = false
 getgenv().ELITE_HUB_RangeWeaponColor = Color3.fromRGB(150, 70, 255)
@@ -10873,7 +10873,7 @@ task.spawn(function()
 end)
 end)()
 (function()
--- source: ELITE_HUB_14.0.lua ______ (players tab)
+-- source: ELITE_HUB_14.0.lua ИГРОКИ (players tab)
 local _g = getgenv
 local Rayfield = _g().ELITE_HUB_Rayfield
 local Players = _g().ELITE_HUB_Players
@@ -10933,25 +10933,25 @@ local function RefreshESPColors()
 end
 
 local function TeamOf(p)
-    if not p then return "_" end
+    if not p then return "—" end
     local tn = GetTeamName(p)
-    return tn or "_"
+    return tn or "—"
 end
 
 local function HpOf(p)
     local ch = p and p.Character
     local hum = ch and ch:FindFirstChildOfClass("Humanoid")
     if hum then return math.floor(hum.Health) .. "/" .. math.floor(hum.MaxHealth) end
-    return "_"
+    return "—"
 end
 
 local function RelText(p)
-    if not p then return "_" end
+    if not p then return "—" end
     local r = GetPlayerRelation(p)
-    if r == "friend" then return "____ __"
-    elseif r == "enemy" then return "____ __"
-    elseif r == "my" then return "__"
-    else return "_______" end
+    if r == "friend" then return "Друг 💙"
+    elseif r == "enemy" then return "Враг ❤️"
+    elseif r == "my" then return "Ты"
+    else return "Нейтрал" end
 end
 
 local function RelColor(p)
@@ -10962,9 +10962,9 @@ local function RelColor(p)
 end
 
 local function TeamRelText(tn)
-    if HasName(FRIEND_TEAMS, tn) then return "____ __" end
-    if HasName(ENEMY_TEAMS, tn) then return "____ __" end
-    return "_______"
+    if HasName(FRIEND_TEAMS, tn) then return "Друг 💙" end
+    if HasName(ENEMY_TEAMS, tn) then return "Враг ❤️" end
+    return "Нейтрал"
 end
 
 local AvatarCache = {}
@@ -11050,7 +11050,7 @@ local function Avatar(uid, size)
     return holder, letter, img
 end
 
-PlayersTab:CreateSection("__ _____")
+PlayersTab:CreateSection("🔍 ИГРОК")
 
 local pickDD = nil
 local selectedPlr = nil
@@ -11061,26 +11061,26 @@ infoCard.LayoutOrder = PlayersTab._order
 PlayersTab._order = PlayersTab._order + 1
 infoCard.Parent = playersTabScroll
 
-local infoName = PlayersTab:CreateLabel("___: _")
-local infoTeam = PlayersTab:CreateLabel("_______: _")
-local infoHp = PlayersTab:CreateLabel("HP: _")
-local infoRel = PlayersTab:CreateLabel("_____: _")
+local infoName = PlayersTab:CreateLabel("Имя: —")
+local infoTeam = PlayersTab:CreateLabel("Команда: —")
+local infoHp = PlayersTab:CreateLabel("HP: —")
+local infoRel = PlayersTab:CreateLabel("Связь: —")
 
 local function RefreshInfo()
     local p = selectedPlr
     if not p or not p.Parent then
-        infoName:Set("___: _")
-        infoTeam:Set("_______: _")
-        infoHp:Set("HP: _")
-        infoRel:Set("_____: _")
+        infoName:Set("Имя: —")
+        infoTeam:Set("Команда: —")
+        infoHp:Set("HP: —")
+        infoRel:Set("Связь: —")
         infoLetter.Text = "?"
         infoImg.Image = ""
         return
     end
-    infoName:Set("___: " .. p.Name)
-    infoTeam:Set("_______: " .. TeamOf(p))
+    infoName:Set("Имя: " .. p.Name)
+    infoTeam:Set("Команда: " .. TeamOf(p))
     infoHp:Set("HP: " .. HpOf(p))
-    infoRel:Set("_____: " .. RelText(p))
+    infoRel:Set("Связь: " .. RelText(p))
     infoLetter.Text = string.sub(p.Name, 1, 1):upper()
     GetAvatarUrl(p.UserId, function(url)
         if infoImg and infoImg.Parent then
@@ -11090,7 +11090,7 @@ local function RefreshInfo()
 end
 
 pickDD = PlayersTab:CreateDropdown({
-    Name = " _______ ______",
+    Name = " Выбрать игрока",
     Options = {},
     CurrentOption = "",
     Callback = function(option)
@@ -11102,69 +11102,69 @@ pickDD = PlayersTab:CreateDropdown({
     end
 })
 
-PlayersTab:CreateSection("_ ________")
+PlayersTab:CreateSection("⚡ ДЕЙСТВИЯ")
 
 PlayersTab:CreateButton({
-    Name = "__ _ ______",
+    Name = "🔵 В друзья",
     Callback = function()
         if not selectedPlr then
-            Rayfield:Notify({ Title = "__ ______", Content = "_______ ______ ______", Duration = 2 })
+            Rayfield:Notify({ Title = "👥 ИГРОКИ", Content = "Сначала выбери игрока", Duration = 2 })
             return
         end
         local nm = selectedPlr.Name
         AddName(FRIENDS, nm)
         RemoveName(ENEMIES, nm)
-        Rayfield:Notify({ Title = "__ ______", Content = nm .. " _ ____ __", Duration = 2 })
+        Rayfield:Notify({ Title = "👥 ИГРОКИ", Content = nm .. " → друг 💙", Duration = 2 })
         RefreshInfo()
         RefreshAllDynamic()
     end
 })
 
 PlayersTab:CreateButton({
-    Name = "__ __ _____",
+    Name = "🔴 Во враги",
     Callback = function()
         if not selectedPlr then
-            Rayfield:Notify({ Title = "__ ______", Content = "_______ ______ ______", Duration = 2 })
+            Rayfield:Notify({ Title = "👥 ИГРОКИ", Content = "Сначала выбери игрока", Duration = 2 })
             return
         end
         local nm = selectedPlr.Name
         AddName(ENEMIES, nm)
         RemoveName(FRIENDS, nm)
-        Rayfield:Notify({ Title = "__ ______", Content = nm .. " _ ____ __", Duration = 2 })
+        Rayfield:Notify({ Title = "👥 ИГРОКИ", Content = nm .. " → враг ❤️", Duration = 2 })
         RefreshInfo()
         RefreshAllDynamic()
     end
 })
 
 PlayersTab:CreateButton({
-    Name = "_ ________ _____",
+    Name = "⚪ Сбросить метку",
     Callback = function()
         if not selectedPlr then
-            Rayfield:Notify({ Title = "__ ______", Content = "_______ ______ ______", Duration = 2 })
+            Rayfield:Notify({ Title = "👥 ИГРОКИ", Content = "Сначала выбери игрока", Duration = 2 })
             return
         end
         local nm = selectedPlr.Name
         RemoveName(FRIENDS, nm)
         RemoveName(ENEMIES, nm)
-        Rayfield:Notify({ Title = "__ ______", Content = nm .. " _ _______", Duration = 2 })
+        Rayfield:Notify({ Title = "👥 ИГРОКИ", Content = nm .. " — нейтрал", Duration = 2 })
         RefreshInfo()
         RefreshAllDynamic()
     end
 })
 
 PlayersTab:CreateButton({
-    Name = "__ _______ _____",
+    Name = "🎯 Сделать целью",
     Callback = function()
         if not selectedPlr then
-            Rayfield:Notify({ Title = "__ ______", Content = "_______ ______ ______", Duration = 2 })
+            Rayfield:Notify({ Title = "👥 ИГРОКИ", Content = "Сначала выбери игрока", Duration = 2 })
             return
         end
         getgenv().ELITE_HUB_TARGET_NAME = selectedPlr.Name
-        Rayfield:Notify({ Title = "__ ______", Content = "____: " .. selectedPlr.Name, Duration = 2 })
+        Rayfield:Notify({ Title = "🎯 ИГРОКИ", Content = "Цель: " .. selectedPlr.Name, Duration = 2 })
     end
 })
 
-PlayersTab:CreateSection("__ ______")
+PlayersTab:CreateSection("👥 ИГРОКИ")
 
 local playersList = Instance.new("Frame")
 playersList.Name = "PlayersList"
@@ -11232,7 +11232,7 @@ local function PlayerRowItem(p)
     Instance.new("UICorner", dot).CornerRadius = UDim.new(0, 5)
 
     local btnF = Instance.new("TextButton")
-    btnF.Text = "__"
+    btnF.Text = "💙"
     btnF.Size = UDim2.new(0, 32, 0, 26)
     btnF.Position = UDim2.new(1, -80, 0.5, -13)
     btnF.BackgroundColor3 = Color3.fromRGB(30, 60, 120)
@@ -11249,7 +11249,7 @@ local function PlayerRowItem(p)
     end)
 
     local btnE = Instance.new("TextButton")
-    btnE.Text = "__"
+    btnE.Text = "❤️"
     btnE.Size = UDim2.new(0, 32, 0, 26)
     btnE.Position = UDim2.new(1, -42, 0.5, -13)
     btnE.BackgroundColor3 = Color3.fromRGB(120, 30, 40)
@@ -11307,7 +11307,7 @@ local function RebuildPlayerRows()
     end
 end
 
-PlayersTab:CreateSection("__ _______")
+PlayersTab:CreateSection("🏅 КОМАНДЫ")
 
 local teamsList = Instance.new("Frame")
 teamsList.Name = "TeamsList"
@@ -11417,7 +11417,7 @@ local function TeamRowItem(t)
     rel.Parent = row
 
     local btnF = Instance.new("TextButton")
-    btnF.Text = "__"
+    btnF.Text = "💙"
     btnF.Size = UDim2.new(0, 32, 0, 26)
     btnF.Position = UDim2.new(1, -80, 0.5, -13)
     btnF.BackgroundColor3 = Color3.fromRGB(30, 60, 120)
@@ -11434,7 +11434,7 @@ local function TeamRowItem(t)
     end)
 
     local btnE = Instance.new("TextButton")
-    btnE.Text = "__"
+    btnE.Text = "❤️"
     btnE.Size = UDim2.new(0, 32, 0, 26)
     btnE.Position = UDim2.new(1, -42, 0.5, -13)
     btnE.BackgroundColor3 = Color3.fromRGB(120, 30, 40)
@@ -11489,40 +11489,40 @@ RefreshAllDynamic = function()
     RefreshESPColors()
 end
 
-PlayersTab:CreateSection("__ ______")
+PlayersTab:CreateSection("📋 СПИСКИ")
 
 PlayersTab:CreateButton({
-    Name = "__ ________ ______",
+    Name = "💙 Показать друзей",
     Callback = function()
         local s = JoinNames(FRIENDS)
-        Rayfield:Notify({ Title = "__ ______", Content = (s == "" and "______ ___" or "______: " .. s), Duration = 5 })
+        Rayfield:Notify({ Title = "👥 ИГРОКИ", Content = (s == "" and "Друзей нет" or "Друзья: " .. s), Duration = 5 })
     end
 })
 
 PlayersTab:CreateButton({
-    Name = "__ ________ ______",
+    Name = "❤️ Показать врагов",
     Callback = function()
         local s = JoinNames(ENEMIES)
-        Rayfield:Notify({ Title = "__ ______", Content = (s == "" and "______ ___" or "_____: " .. s), Duration = 5 })
+        Rayfield:Notify({ Title = "👥 ИГРОКИ", Content = (s == "" and "Врагов нет" or "Враги: " .. s), Duration = 5 })
     end
 })
 
 PlayersTab:CreateButton({
-    Name = "__ ________ ______",
+    Name = "🧹 Очистить списки",
     Callback = function()
         for i = #FRIENDS, 1, -1 do table.remove(FRIENDS, i) end
         for i = #ENEMIES, 1, -1 do table.remove(ENEMIES, i) end
         for i = #FRIEND_TEAMS, 1, -1 do table.remove(FRIEND_TEAMS, i) end
         for i = #ENEMY_TEAMS, 1, -1 do table.remove(ENEMY_TEAMS, i) end
-        Rayfield:Notify({ Title = "__ ______", Content = "___ ______ _______", Duration = 2 })
+        Rayfield:Notify({ Title = "👥 ИГРОКИ", Content = "Все списки очищены", Duration = 2 })
         RefreshAllDynamic()
     end
 })
 
-PlayersTab:CreateSection("_ _________")
+PlayersTab:CreateSection("⚙ НАСТРОЙКИ")
 
 PlayersTab:CreateToggle({
-    Name = " __ ________ _ ______",
+    Name = " Не целяться в друзей",
     CurrentValue = AimbotConfig.FriendCheck,
     Flag = "AimbotFriendCheck",
     Callback = function(value)
@@ -11531,7 +11531,7 @@ PlayersTab:CreateToggle({
 })
 
 PlayersTab:CreateToggle({
-    Name = " _________ ______",
+    Name = " Приоритет врагов",
     CurrentValue = AimbotConfig.EnemyPriority,
     Flag = "AimbotEnemyPriority",
     Callback = function(value)
@@ -11540,7 +11540,7 @@ PlayersTab:CreateToggle({
 })
 
 PlayersTab:CreateToggle({
-    Name = " ______ ______ _ ESP",
+    Name = " Скрыть друзей в ESP",
     CurrentValue = ESPConfig.FriendCheck,
     Flag = "ESPFriendCheck",
     Callback = function(value)
@@ -11550,7 +11550,7 @@ PlayersTab:CreateToggle({
 })
 
 PlayersTab:CreateToggle({
-    Name = " ___________ ____/_____",
+    Name = " Уведомления вход/выход",
     CurrentValue = AimbotConfig.NotifyPlayerJoin,
     Callback = function(value)
         AimbotConfig.NotifyPlayerJoin = value
@@ -11559,7 +11559,7 @@ PlayersTab:CreateToggle({
 })
 
 PlayersTab:CreateColorPicker({
-    Name = " ____ ______ (ESP)",
+    Name = " Цвет друзей (ESP)",
     Color = ESPConfig.FriendColor,
     Callback = function(value)
         ESPConfig.FriendColor = value
@@ -11568,7 +11568,7 @@ PlayersTab:CreateColorPicker({
 })
 
 PlayersTab:CreateColorPicker({
-    Name = " ____ ______ (ESP)",
+    Name = " Цвет врагов (ESP)",
     Color = ESPConfig.EnemyColor,
     Callback = function(value)
         ESPConfig.EnemyColor = value
@@ -11627,7 +11627,7 @@ local TeleportTab = _g().ELITE_HUB_TeleportTab
 
 --[[
     ==============================
-    __________ ________________-____________
+    РќРћР’Р«Р™ РўР•Р›Р•РџРћР Рў-РЎРљР РРџРў
     ==============================
 ]]--
 local LocalPlayer = Players.LocalPlayer
@@ -11638,7 +11638,7 @@ local onlineLabel = nil
 
 local function TeleportToPlayer(targetPlayer)
     if not targetPlayer or not targetPlayer:IsA("Player") then
-        Rayfield:Notify({ Title = "__ Teleport", Content = "No target!", Duration = 2 })
+        Rayfield:Notify({ Title = "🚀 Teleport", Content = "No target!", Duration = 2 })
         return
     end
     local myChar = LocalPlayer.Character
@@ -11648,7 +11648,7 @@ local function TeleportToPlayer(targetPlayer)
         local targetRoot = targetChar:FindFirstChild("HumanoidRootPart")
         if myRoot and targetRoot then
             myRoot.CFrame = targetRoot.CFrame
-            Rayfield:Notify({ Title = "__ Teleport", Content = "Teleported to " .. targetPlayer.Name, Duration = 2 })
+            Rayfield:Notify({ Title = "🚀 Teleport", Content = "Teleported to " .. targetPlayer.Name, Duration = 2 })
         end
     end
 end
@@ -11668,21 +11668,21 @@ local function UpdateDropdown()
         end
     end
     table.sort(opts)
-    dropdown:Refresh(opts) -- __________________ ____________ ______ ________________________
+    dropdown:Refresh(opts) -- РѕР±РЅРѕРІР»СЏРµРј СЃРїРёСЃРѕРє Р±РµР· РїРµСЂРµСЃРѕР·РґР°РЅРёСЏ
     UpdateOnlineCount()
     if selectedPlayer and not Players:FindFirstChild(selectedPlayer.Name) then
         selectedPlayer = nil
-        dropdown:Set("") -- __________
+        dropdown:Set("") -- СЃР±СЂРѕСЃ
         autoTp = false
         Rayfield:Notify({
-            Title = "__ Teleport",
+            Title = "🚀 Teleport",
             Content = "Player left!",
             Duration = 2
         })
     end
 end
 
-TeleportTab:CreateSection("__ PLAYERS")
+TeleportTab:CreateSection("🪐 PLAYERS")
 onlineLabel = TeleportTab:CreateLabel(" Players online: 0")
 dropdown = TeleportTab:CreateDropdown({
     Name = "Select a player",
@@ -11702,7 +11702,7 @@ dropdown = TeleportTab:CreateDropdown({
         end
         if selectedPlayer then
             Rayfield:Notify({
-                Title = "__ Selected",
+                Title = "🚀 Selected",
                 Content = selectedPlayer.Name,
                 Duration = 1.5
             })
@@ -11714,7 +11714,7 @@ TeleportTab:CreateButton({
     Name = " Teleport to selected",
     Callback = function()
         if not selectedPlayer then
-            Rayfield:Notify({ Title = "__ Teleport", Content = "No player selected!", Duration = 2 })
+            Rayfield:Notify({ Title = "🚀 Teleport", Content = "No player selected!", Duration = 2 })
             return
         end
         TeleportToPlayer(selectedPlayer)
@@ -11727,9 +11727,9 @@ TeleportTab:CreateToggle({
     Callback = function(value)
         autoTp = value
         if value and selectedPlayer then
-            Rayfield:Notify({ Title = "__ Auto-TP", Content = "Following " .. selectedPlayer.Name, Duration = 2 })
+            Rayfield:Notify({ Title = "🚀 Auto-TP", Content = "Following " .. selectedPlayer.Name, Duration = 2 })
         elseif not value then
-            Rayfield:Notify({ Title = "__ Auto-TP", Content = "Disabled", Duration = 2 })
+            Rayfield:Notify({ Title = "🚀 Auto-TP", Content = "Disabled", Duration = 2 })
         end
     end
 })
@@ -11788,10 +11788,10 @@ local MainTab = _g().ELITE_HUB_MainTab
 
 --[[
     ==============================
-    ____________ __________ ________ (______________________)
+    Р РђР—Р”Р•Р› РЈР‘РРўР¬ Р’РЎР•РҐ (РћР‘РќРћР’Р›Р•РќРќР«Р™)
     ==============================
 ]]--
-local KillAllSection = KillAllTab:CreateSection("_ KILL ALL ENEMIES")
+local KillAllSection = KillAllTab:CreateSection("☠ KILL ALL ENEMIES")
 local safeZoneRadius = 20
 local isActive = false
 local killAllEnabled = true
@@ -11888,10 +11888,10 @@ end)
 
 --[[
     ==============================
-    ______________________ ____________________________ ______________
+    РћР‘РќРћР’Р›Р•РќРќР«Р• Р”РћРџРћР›РќРРўР•Р›Р¬РќР«Р• РЎРљР РРџРўР«
     ==============================
 ]]--
-local ScriptsSection = MainTab:CreateSection("_ EXTRA SCRIPTS")
+local ScriptsSection = MainTab:CreateSection("➕ EXTRA SCRIPTS")
 
 local function LoadImprovedFlight()
     local UserInputService = game:GetService("UserInputService")
@@ -11994,7 +11994,7 @@ for i, scriptInfo in ipairs(newScripts) do
         Name = scriptInfo.Name,
         Callback = function()
             Rayfield:Notify({
-                Title = "_ Loading...",
+                Title = "⏳ Loading...",
                 Content = "Loading: "..scriptInfo.Name,
                 Duration = 3
             })
@@ -12009,13 +12009,13 @@ for i, scriptInfo in ipairs(newScripts) do
 
             if success then
                 Rayfield:Notify({
-                    Title = "_ Done!",
+                    Title = "✅ Done!",
                     Content = scriptInfo.Name.." loaded",
                     Duration = 4
                 })
             else
                 Rayfield:Notify({
-                    Title = "_ Error",
+                    Title = "❌ Error",
                     Content = "Error loading "..scriptInfo.Name..":\n"..tostring(err),
                     Duration = 6
                 })
@@ -12048,7 +12048,7 @@ for i = 1, #scriptNames do
         Name = scriptNames[i],
         Callback = function()
             Rayfield:Notify({
-                Title = "_ Loading...",
+                Title = "⏳ Loading...",
                 Content = "Loading: "..scriptNames[i],
                 Duration = 3
             })
@@ -12059,7 +12059,7 @@ for i = 1, #scriptNames do
 
             if not success then
                 Rayfield:Notify({
-                    Title = "_ Error",
+                    Title = "❌ Error",
                     Content = "Error:\n"..tostring(err),
                     Duration = 6
                 })
@@ -12271,7 +12271,7 @@ local function SetupParticles(char)
     end)
 end
 
-VisualTab:CreateSection("_ PARTICLES")
+VisualTab:CreateSection("✨ PARTICLES")
 
 VisualTab:CreateToggle({
     Name = " Enable particles",
@@ -12396,7 +12396,7 @@ end)
 
 getgenv().ELITE_HUB_NeonBody = false
 getgenv().ELITE_HUB_NeonBodyColor = Color3.fromRGB(0, 255, 255)
-VisualTab:CreateSection("__ NEON BODY")
+VisualTab:CreateSection("💡 NEON BODY")
 VisualTab:CreateToggle({
     Name = " Neon Body",
     CurrentValue = false,
@@ -12473,7 +12473,7 @@ getgenv().ELITE_HUB_DamageNumbers = false
 getgenv().ELITE_HUB_DamageNumberColor = Color3.fromRGB(255, 255, 0)
 
 task.spawn(function()
-VisualTab:CreateSection("__ HIT EFFECTS")
+VisualTab:CreateSection("💥 HIT EFFECTS")
 VisualTab:CreateToggle({
     Name = " Hit Markers",
     CurrentValue = false,
@@ -12600,7 +12600,7 @@ end)
 getgenv().ELITE_HUB_FireTrail = false
 getgenv().ELITE_HUB_FireTrailColor = Color3.fromRGB(255, 100, 0)
 task.spawn(function()
-VisualTab:CreateSection("__ FIRE TRAIL")
+VisualTab:CreateSection("🔥 FIRE TRAIL")
 VisualTab:CreateToggle({
     Name = " Fire Trail",
     CurrentValue = false,
@@ -12680,7 +12680,7 @@ end)
 end)
 MT = VisualTab
 getgenv().ELITE_HUB_Log("UI", "Section loaded: VISUAL+")
-MT:CreateSection("__ ESP+")
+MT:CreateSection("👁 ESP+")
 
 getgenv().ELITE_HUB_ItemESP = false
 MT:CreateToggle({
@@ -12730,7 +12730,7 @@ task.spawn(function()
 end)
 MT = VisualTab
 getgenv().ELITE_HUB_Log("UI", "Section loaded: VISUAL+ (2)")
-MT:CreateSection("__ VISUAL+")
+MT:CreateSection("👁 VISUAL+")
 
 getgenv().ELITE_HUB_XRay = false
 MT:CreateToggle({
@@ -12794,7 +12794,7 @@ MT:CreateToggle({
     end
 })
 MT = VisualTab
-MT:CreateSection("__ WORLD SLIDERS")
+MT:CreateSection("🌍 WORLD SLIDERS")
 MT:CreateSlider({
     Name = " Gravity",
     Range = {0, 300},
@@ -12997,7 +12997,7 @@ local VisualTab = _g().ELITE_HUB_VisualTab
 
 MT = VisualTab
 getgenv().ELITE_HUB_Log("UI", "Section loaded: ENV")
-MT:CreateSection("__ ENVIRONMENT")
+MT:CreateSection("🌳 ENVIRONMENT")
 
 getgenv().ELITE_HUB_NightMode = false
 getgenv().ELITE_HUB_NightOrigClock = nil
@@ -13082,7 +13082,7 @@ local MT = Window
 local MovementTab = _g().ELITE_HUB_MovementTab
 local MT = MovementTab
 getgenv().ELITE_HUB_Log("UI", "Section loaded: MOVEMENT")
-MT:CreateSection("__ MOVEMENT")
+MT:CreateSection("🏃 MOVEMENT")
 
 getgenv().ELITE_HUB_JumpBoost = false
 MT:CreateToggle({
@@ -13118,7 +13118,7 @@ end)
 
 MT = MovementTab
 getgenv().ELITE_HUB_Log("UI", "Section loaded: MOVEMENT sliders")
-MT:CreateSection("__ SPEED")
+MT:CreateSection("🏃 SPEED")
 
 MT:CreateSlider({
     Name = " WalkSpeed",
@@ -13170,7 +13170,7 @@ player.CharacterAdded:Connect(function(char)
 end)
 
 MT = MovementTab
-MT:CreateSection("__ JUMP")
+MT:CreateSection("👟 JUMP")
 getgenv().ELITE_HUB_InfiniteJump = false
 MT:CreateToggle({
     Name = " Infinite Jump",
@@ -13211,7 +13211,7 @@ local MT = Window
 local CombatPlusTab = _g().ELITE_HUB_CombatPlusTab
 MT = CombatPlusTab
 getgenv().ELITE_HUB_Log("UI", "Section loaded: COMBAT+")
-MT:CreateSection("_ COMBAT+")
+MT:CreateSection("⚔ COMBAT+")
 MT:CreateToggle({
     Name = " Hitbox Expander",
     CurrentValue = false,
@@ -13274,7 +13274,7 @@ end)
 
 MT = CombatPlusTab
 getgenv().ELITE_HUB_Log("UI", "Section loaded: COMBAT+ (2)")
-MT:CreateSection("_ COMBAT")
+MT:CreateSection("⚔ COMBAT")
 
 getgenv().ELITE_HUB_AutoParry = false
 MT:CreateToggle({
@@ -13365,7 +13365,7 @@ task.spawn(function()
     end
 end)
 
--- Spin Bot (__________ ___? RANGE: Heartbeat + _________?___?_____? AutoRotate)
+-- Spin Bot (РєРѕРїРёСЏ РёР· RANGE: Heartbeat + СЃРѕС…СЂР°РЅРµРЅРёРµ AutoRotate)
 task.spawn(function()
 local spinAngle = 0
 local spinConn = nil
@@ -13474,7 +13474,7 @@ local MT = Window
 local CameraTeleportTab = _g().ELITE_HUB_CameraTeleportTab
 MT = CameraTeleportTab
 getgenv().ELITE_HUB_Log("UI", "Section loaded: CAMERA")
-MT:CreateSection("__ CAMERA & TELEPORT")
+MT:CreateSection("📷 CAMERA & TELEPORT")
 
 getgenv().ELITE_HUB_FreeCam = false
 MT:CreateToggle({
@@ -13566,7 +13566,7 @@ MT:CreateButton({
 
 
 MT = CameraTeleportTab
-MT:CreateSection("__ TELEPORT")
+MT:CreateSection("🌀 TELEPORT")
 MT:CreateButton({
     Name = " Teleport to Spawn",
     Callback = function()
@@ -13759,7 +13759,7 @@ MT:CreateToggle({
 
 
 MT = CameraTeleportTab
-MT:CreateSection("__ WAYPOINT")
+MT:CreateSection("📍 WAYPOINT")
 MT:CreateButton({
     Name = " Set Waypoint",
     Callback = function()
@@ -13809,7 +13809,7 @@ local MT = Window
 local UtilitiesTab = _g().ELITE_HUB_UtilitiesTab
 MT = UtilitiesTab
 getgenv().ELITE_HUB_Log("UI", "Section loaded: UTILS")
-MT:CreateSection("__ UTILITIES")
+MT:CreateSection("🔧 UTILITIES")
 
 MT:CreateToggle({
     Name = " Anti-AFK",
@@ -13835,7 +13835,7 @@ MT:CreateToggle({
 
 
 MT = UtilitiesTab
-MT:CreateSection("_ SYSTEM")
+MT:CreateSection("⚙ SYSTEM")
 
 getgenv().ELITE_HUB_RejoinOnKick = false
 MT:CreateToggle({
@@ -13863,7 +13863,7 @@ MT:CreateToggle({
 })
 
 MT = UtilitiesTab
-MT:CreateSection("__ SERVER")
+MT:CreateSection("📡 SERVER")
 MT:CreateButton({
     Name = " Rejoin Server",
     Callback = function()
@@ -13979,7 +13979,7 @@ local function ELITE_HUB_MusicPlayTrack(track)
         local id, err = ELITE_HUB_MusicGetId(track.url)
         if not id then
             getgenv().ELITE_HUB_Log("MUSIC", "Load error: " .. tostring(err))
-            Rayfield:Notify({ Title = "__ Error", Content = "Failed: " .. tostring(err), Duration = 3 })
+            Rayfield:Notify({ Title = "🎵 Error", Content = "Failed: " .. tostring(err), Duration = 3 })
             return
         end
         local snd = ELITE_HUB_MusicEnsureSound()
@@ -14013,7 +14013,7 @@ getgenv().ELITE_HUB_MusicShuffle = false
 getgenv().ELITE_HUB_MusicRepeatOne = false
 getgenv().ELITE_HUB_MusicPlaybackSpeed = 1
 
-MusicTab:CreateSection("__ MUSIC PLAYER")
+MusicTab:CreateSection("🎵 MUSIC PLAYER")
 
 local musicDropdown = MusicTab:CreateDropdown({
     Name = " Select Track",
@@ -14140,7 +14140,7 @@ local SafeNotify = _g().ELITE_HUB_SafeNotify
 local DestroyScript = _g().ELITE_HUB_DestroyScript
 local MT = Window
 
-local RangeTab = Window:CreateTab("__ " .. "RANGE", 7733960981, "Range")
+local RangeTab = Window:CreateTab("📏 " .. "RANGE", 7733960981, "Range")
 
 local RC = {
     Color1 = Color3.fromRGB(150, 70, 255),
@@ -14251,7 +14251,7 @@ local function clearEffects(char, source)
     end
 end
 
-local re1 = RangeTab:CreateSection("_ EFFECTS")
+local re1 = RangeTab:CreateSection("✨ EFFECTS")
 
 RangeTab:CreateSlider({
     Name = " R",
@@ -14335,7 +14335,7 @@ RangeTab:CreateSlider({
     end
 })
 
-local re2 = RangeTab:CreateSection("__ SPIN BOT")
+local re2 = RangeTab:CreateSection("🔄 SPIN BOT")
 
 local spinAngle = 0
 local spinConn = nil
@@ -14447,7 +14447,7 @@ RangeTab:CreateToggle({
     end
 })
 
-local re3 = RangeTab:CreateSection("_ SPEED BOOST")
+local re3 = RangeTab:CreateSection("⚡ SPEED BOOST")
 
 getgenv().ELITE_HUB_RangeSpeed = false
 getgenv().ELITE_HUB_RangeSpeedVal = 24
@@ -14536,7 +14536,7 @@ local SafeNotify = _g().ELITE_HUB_SafeNotify
 local DestroyScript = _g().ELITE_HUB_DestroyScript
 local MT = Window
 
-local ItemFinderTab = Window:CreateTab("__ " .. L("ItemFinder"), 6026568198, "ItemFinder")
+local ItemFinderTab = Window:CreateTab("🔍 " .. L("ItemFinder"), 6026568198, "ItemFinder")
 
 local if1 = ItemFinderTab:CreateSection(L("ItemFinder"))
 table.insert(Window._translatables, {element = if1, key = "ItemFinder", type = "section", prefix = ""})
@@ -14881,7 +14881,7 @@ local LoadScript = _g().ELITE_HUB_LoadScript
 local SafeNotify = _g().ELITE_HUB_SafeNotify
 local DestroyScript = _g().ELITE_HUB_DestroyScript
 local MT = Window
-local SettingsTab = Window:CreateTab("_ " .. L("Settings"), 0, "Settings")
+local SettingsTab = Window:CreateTab("⚙ " .. L("Settings"), 0, "Settings")
 
 local s1 = SettingsTab:CreateSection(L("Settings"))
 table.insert(Window._translatables, {element = s1, key = "Settings", type = "section", prefix = ""})
@@ -14924,7 +14924,7 @@ local saveBtn = SettingsTab:CreateButton({
                 Lang = ES.Lang,
             })
             writefile("EliteHub_Config.json", data)
-            Rayfield:Notify({Title = "_ OK", Content = L("ConfigSaved"), Duration = 2})
+            Rayfield:Notify({Title = "✅ OK", Content = L("ConfigSaved"), Duration = 2})
         end)
     end
 })
@@ -14935,14 +14935,14 @@ local loadBtn = SettingsTab:CreateButton({
     Callback = function()
         pcall(function()
             if not isfile("EliteHub_Config.json") then
-                Rayfield:Notify({Title = "__ Warning", Content = L("NoConfig"), Duration = 2})
+                Rayfield:Notify({Title = "⚠️ Warning", Content = L("NoConfig"), Duration = 2})
                 return
             end
             local data = game:GetService("HttpService"):JSONDecode(readfile("EliteHub_Config.json"))
             if data.Animations ~= nil then ES.Animations = data.Animations end
             if data.Lang then ES.Lang = data.Lang end
             Window:_updateAll()
-            Rayfield:Notify({Title = "_ OK", Content = L("ConfigLoaded"), Duration = 2})
+            Rayfield:Notify({Title = "✅ OK", Content = L("ConfigLoaded"), Duration = 2})
         end)
     end
 })
@@ -14954,7 +14954,7 @@ local resetBtn = SettingsTab:CreateButton({
         ES.Animations = true
         ES.Lang = "RU"
         Window:_updateAll()
-        Rayfield:Notify({Title = "_ OK", Content = L("SettingsReset"), Duration = 2})
+        Rayfield:Notify({Title = "✅ OK", Content = L("SettingsReset"), Duration = 2})
     end
 })
 table.insert(Window._translatables, {element = resetBtn, key = "ResetSettings", type = "button"})
@@ -14977,8 +14977,8 @@ local LoadScript = _g().ELITE_HUB_LoadScript
 local SafeNotify = _g().ELITE_HUB_SafeNotify
 local DestroyScript = _g().ELITE_HUB_DestroyScript
 local MT = Window
--- _______ ANTI-FLING ___ _?_________?_______?______ _?_?_________?_?______ ______ _____?_____? _____________?
--- _________________________________________________________________________________________________________________________________________________________________________________________________________
+-- рџ›ЎпёЏ ANTI-FLING вЂ” Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРё Р·Р°РїСѓСЃРєР°РµС‚СЃСЏ РїСЂРё СЃС‚Р°СЂС‚Рµ СЃРєСЂРёРїС‚Р°
+-- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
 do
     local AF_VELOCITY_THRESHOLD = 150
     local AF_ANGULAR_THRESHOLD = 20
@@ -15065,10 +15065,10 @@ local LoadScript = _g().ELITE_HUB_LoadScript
 local SafeNotify = _g().ELITE_HUB_SafeNotify
 local DestroyScript = _g().ELITE_HUB_DestroyScript
 local MT = Window
--- _________________________________________________________________________________________________________________________________________________________________________________________________________
--- PERSISTENT WATCHDOG ___ ___?_?_____? 2 ___?__________ _________?_____?__ _?_____________? ________
--- __ ___?___?_________?_____?__ _?___?__ ______ _________?_?__ (___?_____?____, _____?______, _?_?____)
--- _________________________________________________________________________________________________________________________________________________________________________________________________________
+-- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+-- PERSISTENT WATCHDOG вЂ” РєР°Р¶РґС‹Рµ 2 СЃРµРєСѓРЅРґС‹ РїСЂРѕРІРµСЂСЏРµС‚ Р°РєС‚РёРІРЅС‹Рµ С„РёС‡Рё
+-- Рё РїРµСЂРµРїСЂРёРјРµРЅСЏРµС‚ РµСЃР»Рё РѕРЅРё РїСЂРѕРїР°Р»Рё (СЂРµСЃРїР°РІРЅ, СЃРјРµСЂС‚СЊ, Р±Р°РіРё)
+-- в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
 task.spawn(function()
     while task.wait(2) do
         pcall(function()
