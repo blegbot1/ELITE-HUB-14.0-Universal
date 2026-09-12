@@ -3229,6 +3229,8 @@ local function GetTargetPlayer()
 end
 
 local function MakeDraggable(frame)
+    frame.Active = true
+    frame.Draggable = true
     local dragging, dragInput, dragStart, startPos
     frame.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
@@ -3929,6 +3931,17 @@ MT:CreateToggle({
         getgenv().ELITE_HUB_PlayerHUDOn = v
         if v then
             StartPlayerHUD()
+            if not targetScreenGui or not targetScreenGui.Parent then
+                CreateTargetScreenGui()
+            end
+            local frame = targetScreenGui and targetScreenGui:FindFirstChild("TargetPanel")
+            if frame then
+                frame.Visible = true
+                frame.PlayerName.Text = "Select target..."
+                frame.HPText.Text = ""
+                local hpBar = frame:FindFirstChild("HPBarBG") and frame.HPBarBG:FindFirstChild("HPBar")
+                if hpBar then hpBar.Size = UDim2.new(0, 0, 1, 0) end
+            end
         else
             if targetScreenGui then pcall(function() targetScreenGui:Destroy() end) targetScreenGui = nil end
         end
