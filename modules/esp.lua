@@ -997,7 +997,8 @@ ESPTab:CreateToggle({
                     line:Remove()
                 end
             end
-            Box3DObjects = {}
+            for k in pairs(Box3DObjects) do Box3DObjects[k] = nil end
+            getgenv().ELITE_HUB_Box3DObjects = Box3DObjects
         else
             UpdateESP()
         end
@@ -1057,17 +1058,6 @@ ESPTab:CreateSlider({
 })
 
 ESPTab:CreateSlider({
-    Name = " Transparency",
-    Range = {0, 1},
-    Increment = 0.1,
-    CurrentValue = ESPConfig.FillTransparency,
-    Callback = function(value)
-        ESPConfig.FillTransparency = value
-        UpdateESP()
-    end
-})
-
-ESPTab:CreateSlider({
     Name = " Line thickness",
     Range = {1, 5},
     Increment = 1,
@@ -1095,7 +1085,7 @@ ESPTab:CreateSlider({
 
 ESPTab:CreateSlider({
     Name = " 3D Box size",
-    Range = {0.5, 5.0},
+    Range = {0.5, 8.0},
     Increment = 0.1,
     Suffix = "x",
     CurrentValue = ESPConfig.Box3DSize,
@@ -1103,8 +1093,6 @@ ESPTab:CreateSlider({
         ESPConfig.Box3DSize = value
     end
 })
-
-ESPTab:CreateLabel(" Frequency: min (0.05 sec)")
 
 ESPTab:CreateSlider({
     Name = " Box fill transparency",
@@ -1114,17 +1102,6 @@ ESPTab:CreateSlider({
     Callback = function(value)
         ESPConfig.FillTransparency = value
         UpdateESP()
-    end
-})
-
-ESPTab:CreateSlider({
-    Name = " 3D Box size (multiplier)",
-    Range = {0.5, 8.0},
-    Increment = 0.1,
-    Suffix = "x",
-    CurrentValue = ESPConfig.Box3DSize,
-    Callback = function(value)
-        ESPConfig.Box3DSize = value
     end
 })
 
@@ -1166,7 +1143,7 @@ ESPTab:CreateColorPicker({
     Callback = function(value)
         ESPConfig.TracerColor = value
         for targetPlayer, tracer in pairs(TracerLines) do
-            tracer.Color = value
+            if tracer then pcall(function() tracer.Color = value end) end
         end
     end
 })
