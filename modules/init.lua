@@ -1,9 +1,18 @@
 -- ELITE HUB 14.0 loader: builds shared env, creates window+tabs, runs modules
+local GITHUB_BASE = "https://raw.githubusercontent.com/blegbot1/ELITE-HUB-14.0-Universal/main/"
 local function readModule(path)
-    assert(readfile, "ELITE HUB: executor lacks readfile")
-    local ok, src = pcall(readfile, path)
-    assert(ok and src and src ~= "", "ELITE HUB: cannot read " .. path)
-    return src
+    if readfile then
+        local ok, src = pcall(readfile, path)
+        if ok and src and src ~= "" then return src end
+    end
+    if game and game.HttpGet then
+        local ok, src = pcall(function() return game:HttpGet(GITHUB_BASE .. path, true) end)
+        if ok and src and src ~= "" then
+            if writefile then pcall(function() writefile(path, src) end) end
+            return src
+        end
+    end
+    error("ELITE HUB: cannot read " .. path)
 end
 local function loadModuleChunk(path)
     local chunk, err = loadstring(readModule(path), "@" .. path)
