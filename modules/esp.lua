@@ -99,7 +99,9 @@ local ESPConfig = {
     CrosshairSpread = false,
     LowHPWarning = false,
     LowHPThreshold = 30,
-    LowHPColor = Color3.fromRGB(255, 0, 0)
+    LowHPColor = Color3.fromRGB(255, 0, 0),
+    WeaponDisplay = false,
+    WeaponDisplayColor = Color3.fromRGB(255, 255, 255)
 }
 
 local ESPObjects = {}
@@ -258,6 +260,21 @@ local function IsTeammate(targetPlayer)
     return player.Team == targetPlayer.Team
 end
 getgenv().ELITE_HUB_IsTeammate = IsTeammate
+
+local function GetWeaponInfo(targetPlayer)
+    local char = targetPlayer.Character
+    local tool = char and char:FindFirstChildOfClass("Tool")
+    if not tool then
+        local backpack = targetPlayer:FindFirstChild("Backpack")
+        if backpack then
+            tool = backpack:FindFirstChildOfClass("Tool")
+        end
+    end
+    if tool then
+        return tool.Name, tool.TextureId
+    end
+    return nil, nil
+end
 
 local function CreatePlayerSkeleton(targetPlayer)
     if ESPSkeletons[targetPlayer] then return end
@@ -447,6 +464,10 @@ local function ClearPlayerESP(targetPlayer)
     DestroyPlayerSkeleton(targetPlayer)
     DestroyHeadDot(targetPlayer)
     DestroyHealthBar(targetPlayer)
+    local espGroup = ESPObjects[targetPlayer]
+    if espGroup then
+        if espGroup.WeaponBillboard then pcall(function() espGroup.WeaponBillboard:Remove() end) end
+    end
 end
 
 local function CreatePlayerESP(targetPlayer)
@@ -507,6 +528,47 @@ local function CreatePlayerESP(targetPlayer)
         textLabel.Parent = billboard
         espGroup.Billboard = billboard
         espGroup.TextLabel = textLabel
+    end
+
+    if ESPConfig.WeaponDisplay and rootPart then
+        local wBillboard = Instance.new("BillboardGui")
+        wBillboard.Name = "ESP_Weapon_" .. targetPlayer.Name
+        wBillboard.AlwaysOnTop = true
+        wBillboard.ExtentsOffset = Vector3.new(0, -1.5, 0)
+        wBillboard.Size = UDim2.new(0, 200, 0, 30)
+        wBillboard.Adornee = rootPart
+        wBillboard.Parent = rootPart
+
+        local wFrame = Instance.new("Frame")
+        wFrame.Size = UDim2.new(1, 0, 1, 0)
+        wFrame.BackgroundTransparency = 1
+        wFrame.Parent = wBillboard
+
+        local wImg = Instance.new("ImageLabel")
+        wImg.Name = "WeaponIcon"
+        wImg.Size = UDim2.new(0, 24, 0, 24)
+        wImg.Position = UDim2.new(0.5, -40, 0.5, -12)
+        wImg.BackgroundTransparency = 1
+        wImg.Image = ""
+        wImg.Visible = false
+        wImg.Parent = wFrame
+
+        local wLabel = Instance.new("TextLabel")
+        wLabel.Name = "WeaponText"
+        wLabel.Size = UDim2.new(0, 80, 1, 0)
+        wLabel.Position = UDim2.new(0.5, -40, 0, 0)
+        wLabel.BackgroundTransparency = 1
+        wLabel.TextColor3 = ESPConfig.WeaponDisplayColor
+        wLabel.TextSize = 12
+        wLabel.Font = Enum.Font.SourceSansBold
+        wLabel.TextStrokeTransparency = 0
+        wLabel.TextStrokeColor3 = Color3.new(0, 0, 0)
+        wLabel.Text = ""
+        wLabel.Parent = wFrame
+
+        espGroup.WeaponBillboard = wBillboard
+        espGroup.WeaponIcon = wImg
+        espGroup.WeaponLabel = wLabel
     end
 
     if ESPConfig.ShowScriptUserTag and rootPart then
@@ -651,6 +713,30 @@ local function UpdateESPText()
                 end
 
                 espGroup.TextLabel.Text = text
+
+                if espGroup.WeaponLabel then
+                    if ESPConfig.WeaponDisplay and not isDead then
+                        local wName, wIcon = GetWeaponInfo(targetPlayer)
+                        if wName then
+                            if wIcon and wIcon ~= "" then
+                                espGroup.WeaponIcon.Image = wIcon
+                                espGroup.WeaponIcon.Visible = true
+                                espGroup.WeaponLabel.Text = ""
+                            else
+                                espGroup.WeaponLabel.Text = wName
+                                espGroup.WeaponIcon.Visible = false
+                            end
+                            espGroup.WeaponLabel.TextColor3 = fillColor
+                            espGroup.WeaponLabel.Visible = true
+                        else
+                            espGroup.WeaponLabel.Visible = false
+                            espGroup.WeaponIcon.Visible = false
+                        end
+                    else
+                        espGroup.WeaponLabel.Visible = false
+                        espGroup.WeaponIcon.Visible = false
+                    end
+                end
             end
         end
     end
@@ -1225,6 +1311,23 @@ ESPTab:CreateDropdown({
 })
 
 ESPTab:CreateSection("➕ EXTRA")
+
+ESPTab:CreateToggle({
+    Name = " Weapon Display",
+    CurrentValue = ESPConfig.WeaponDisplay,
+    Callback = function(value)
+        ESPConfig.WeaponDisplay = value
+        UpdateESP()
+    end
+})
+
+ESPTab:CreateColorPicker({
+    Name = " Weapon color",
+    Color = ESPConfig.WeaponDisplayColor,
+    Callback = function(value)
+        ESPConfig.WeaponDisplayColor = value
+    end
+})
 
 ESPTab:CreateSlider({
     Name = " Max ESP distance",
