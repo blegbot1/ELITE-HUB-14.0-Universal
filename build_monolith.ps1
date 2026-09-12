@@ -31,6 +31,18 @@ end)()'
     Write-Host "Inlined: $m"
 }
 
+# Fix ambiguous syntax: add ; before lines starting with (function (IIFE patterns)
+$lines = $initText -split '\r?\n'
+$fixed = 0
+for ($i = 0; $i -lt $lines.Count; $i++) {
+    $line = $lines[$i]
+    if ($line -match '^\s*\(function') {
+        $lines[$i] = ';' + $line.TrimStart()
+        $fixed++
+    }
+}
+$initText = $lines -join "`n"
+
 [System.IO.File]::WriteAllText("$base\ELITE_HUB_14.0.lua", $initText, (New-Object System.Text.UTF8Encoding $false))
 $size = (Get-Item "$base\ELITE_HUB_14.0.lua").Length
-Write-Host "Build complete: $size bytes"
+Write-Host "Build complete: $size bytes, fixed $fixed ambiguous lines"
