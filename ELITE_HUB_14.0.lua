@@ -2889,8 +2889,11 @@ MT:CreateSlider({
 getgenv().ELITE_HUB_PlayerHUDOn = false
 getgenv().ELITE_HUB_NameTagOn = false
 getgenv().ELITE_HUB_CrosshairOn = false
+getgenv().ELITE_HUB_CrosshairColor = Color3.fromRGB(255, 50, 50)
+getgenv().ELITE_HUB_CrosshairSpeed = 2
 
 local playerHudConn = nil
+local crosshairRotConn = nil
 local currentTarget = nil
 local targetScreenGui = nil
 local targetBillboard = nil
@@ -3100,11 +3103,13 @@ end
 local function UpdateCrosshairOnHead(tgtChar)
     if not getgenv().ELITE_HUB_CrosshairOn then
         if crosshairPart and crosshairPart ~= "pending" then pcall(function() crosshairPart:Destroy() end) crosshairPart = nil end
+        if crosshairRotConn then pcall(function() crosshairRotConn:Disconnect() end) crosshairRotConn = nil end
         return
     end
     local head = tgtChar and tgtChar:FindFirstChild("Head")
     if not head then
         if crosshairPart and crosshairPart ~= "pending" then pcall(function() crosshairPart:Destroy() end) crosshairPart = nil end
+        if crosshairRotConn then pcall(function() crosshairRotConn:Disconnect() end) crosshairRotConn = nil end
         return
     end
     local existing = head:FindFirstChild("ELITEHUB_CrosshairBB")
@@ -3112,19 +3117,30 @@ local function UpdateCrosshairOnHead(tgtChar)
         crosshairPart = existing
         return
     end
+    if crosshairPart and crosshairPart ~= "pending" then pcall(function() crosshairPart:Destroy() end) crosshairPart = nil end
+    if crosshairRotConn then pcall(function() crosshairRotConn:Disconnect() end) crosshairRotConn = nil end
+
     local bb = Instance.new("BillboardGui")
     bb.Name = "ELITEHUB_CrosshairBB"
-    bb.Size = UDim2.new(0, 50, 0, 50)
+    bb.Size = UDim2.new(0, 60, 0, 60)
     bb.StudsOffset = Vector3.new(0, 0, 0)
     bb.AlwaysOnTop = true
     bb.LightInfluence = 0
+    bb.ClipsDescendants = false
     bb.Adornee = head
     bb.Parent = head
 
-    local col = Color3.fromRGB(255, 50, 50)
-    local radius = 16
-    local lineLen = 6
-    local gap = 4
+    local rotFrame = Instance.new("Frame")
+    rotFrame.Name = "Rotator"
+    rotFrame.Size = UDim2.new(1, 0, 1, 0)
+    rotFrame.BackgroundTransparency = 1
+    rotFrame.BorderSizePixel = 0
+    rotFrame.Parent = bb
+
+    local col = getgenv().ELITE_HUB_CrosshairColor or Color3.fromRGB(255, 50, 50)
+    local radius = 18
+    local lineLen = 7
+    local gap = 5
     local thick = 2
 
     local circle = Instance.new("Frame")
@@ -3133,7 +3149,7 @@ local function UpdateCrosshairOnHead(tgtChar)
     circle.Position = UDim2.new(0.5, -radius, 0.5, -radius)
     circle.BackgroundTransparency = 1
     circle.BorderSizePixel = 0
-    circle.Parent = bb
+    circle.Parent = rotFrame
     Instance.new("UICorner", circle).CornerRadius = UDim.new(0.5, 0)
     local cs = Instance.new("UIStroke")
     cs.Color = col
@@ -3148,7 +3164,7 @@ local function UpdateCrosshairOnHead(tgtChar)
         f.AnchorPoint = Vector2.new(0.5, 0.5)
         f.BackgroundColor3 = col
         f.BorderSizePixel = 0
-        f.Parent = bb
+        f.Parent = rotFrame
     end
     ml("Top", UDim2.new(0, thick, 0, lineLen), UDim2.new(0.5, 0, 0.5, -radius - gap - lineLen/2))
     ml("Bot", UDim2.new(0, thick, 0, lineLen), UDim2.new(0.5, 0, 0.5, radius + gap + lineLen/2))
@@ -3156,9 +3172,28 @@ local function UpdateCrosshairOnHead(tgtChar)
     ml("Right", UDim2.new(0, lineLen, 0, thick), UDim2.new(0.5, radius + gap + lineLen/2, 0.5, 0))
 
     crosshairPart = bb
+
+    local rotAngle = 0
+    crosshairRotConn = RunService.Heartbeat:Connect(function(dt)
+        if not bb or not bb.Parent then
+            if crosshairRotConn then pcall(function() crosshairRotConn:Disconnect() end) crosshairRotConn = nil end
+            return
+        end
+        local speed = getgenv().ELITE_HUB_CrosshairSpeed or 2
+        rotAngle = rotAngle + dt * speed * 360
+        rotFrame.Rotation = rotAngle
+        local newCol = getgenv().ELITE_HUB_CrosshairColor or Color3.fromRGB(255, 50, 50)
+        cs.Color = newCol
+        for _, child in ipairs(rotFrame:GetChildren()) do
+            if child:IsA("Frame") and child.Name ~= "Circle" then
+                child.BackgroundColor3 = newCol
+            end
+        end
+    end)
 end
 
 local function RemoveCrosshair()
+    if crosshairRotConn then pcall(function() crosshairRotConn:Disconnect() end) crosshairRotConn = nil end
     if crosshairPart and crosshairPart ~= "pending" then
         pcall(function() crosshairPart:Destroy() end)
     end
@@ -3396,6 +3431,20 @@ MT:CreateToggle({
             end
         end
     end
+})
+MT:CreateColorPicker({
+    Name = " Crosshair Color",
+    Color = Color3.fromRGB(255, 50, 50),
+    Callback = function(v)
+        getgenv().ELITE_HUB_CrosshairColor = v
+    end
+})
+MT:CreateSlider({
+    Name = " Crosshair Speed",
+    Range = {0.5, 5},
+    Increment = 0.5,
+    CurrentValue = 2,
+    Callback = function(v) getgenv().ELITE_HUB_CrosshairSpeed = v end
 })
 
 -- respawn re-apply for fun visuals
