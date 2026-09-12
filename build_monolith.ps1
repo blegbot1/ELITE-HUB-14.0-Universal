@@ -14,12 +14,22 @@ $initText = [System.IO.File]::ReadAllText("$base\modules\init.lua", [System.Text
 # Remove readModule and loadModuleChunk function definitions
 $initText = $initText -replace "(?s)local function readModule\(path\).*?return chunk\r?\nend\r?\n?", ""
 
-# Replace each loadModuleChunk call with the module code
 foreach ($m in $modules) {
     $code = [System.IO.File]::ReadAllText("$base\modules\$m.lua", [System.Text.UTF8Encoding]::new($false))
-    # Match both "local X = loadModuleChunk(...)" and bare "loadModuleChunk(...)"
-    $pattern = '(?:local\s+\w+\s*=\s*)?loadModuleChunk\("modules/' + $m + '\.lua"\)\(\)'
-    $initText = [regex]::Replace($initText, $pattern, $code)
+    if ($m -eq "ui_library") {
+        # ui_library returns EliteHubUI; keep "local Rayfield = " prefix
+        $pattern = 'local\s+Rayfield\s*=\s*loadModuleChunk\("modules/ui_library\.lua"\)\(\)'
+        $replace = 'local Rayfield = (function()
+' + $code + '
+end)()'
+    } else {
+        # Other modules are side-effect only
+        $pattern = 'loadModuleChunk\("modules/' + $m + '\.lua"\)\(\)'
+        $replace = '(function()
+' + $code + '
+end)()'
+    }
+    $initText = [regex]::Replace($initText, $pattern, $replace)
     Write-Host "Inlined: $m"
 }
 
