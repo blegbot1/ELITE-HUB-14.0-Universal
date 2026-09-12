@@ -1511,40 +1511,30 @@ local function FindClosestPlayerByRay()
     local myH, myHRP = GetLocalCharacter()
     if not myH or not myHRP then return nil end
     local camPos = Camera.CFrame.Position
-    local mousePos = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)
     local ac = getgenv().ELITE_HUB_AimbotConfig
     local aimbotOn = ac and ac.Enabled
     local fovRadius = ac and ac.FOV or 200
     local best = nil
-    local bestScore = math.huge
+    local bestDist = math.huge
     for _, p in ipairs(Players:GetPlayers()) do
         if p ~= player and p.Character then
             local tH = p.Character:FindFirstChildOfClass("Humanoid")
             local tHRP = p.Character:FindFirstChild("HumanoidRootPart")
             if tH and tHRP and tH.Health > 0 then
-                local toTarget = (tHRP.Position - camPos)
-                local gameDist = toTarget.Magnitude
-                if gameDist < 200 then
-                    local score
+                local dist = (tHRP.Position - camPos).Magnitude
+                if dist < 200 then
                     if aimbotOn then
                         local screenPos, onScreen = Camera:WorldToViewportPoint(tHRP.Position)
                         if onScreen then
-                            local screenPoint = Vector2.new(screenPos.X, screenPos.Y)
-                            local screenDist = (screenPoint - mousePos).Magnitude
-                            if screenDist <= fovRadius then
-                                score = screenDist
+                            local screenDist = (Vector2.new(screenPos.X, screenPos.Y) - Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)).Magnitude
+                            if screenDist <= fovRadius and screenDist < bestDist then
+                                bestDist = screenDist
+                                best = p
                             end
                         end
                     else
-                        score = gameDist
-                    end
-                    if score and score < bestScore then
-                        local params = RaycastParams.new()
-                        params.FilterDescendantsInstances = {player.Character}
-                        params.FilterType = Enum.RaycastFilterType.Exclude
-                        local result = workspace:Raycast(camPos, toTarget, params)
-                        if not result or result.Instance:IsDescendantOf(p.Character) then
-                            bestScore = score
+                        if dist < bestDist then
+                            bestDist = dist
                             best = p
                         end
                     end
@@ -1558,9 +1548,12 @@ end
 local function GetTargetPlayer()
     local ac = getgenv().ELITE_HUB_AimbotConfig
     local aimbotOn = ac and ac.Enabled
-    if aimbotOn and LockedTargetPlayer and LockedTargetPlayer.Character then
-        local h = LockedTargetPlayer.Character:FindFirstChildOfClass("Humanoid")
-        if h and h.Health > 0 then return LockedTargetPlayer end
+    if aimbotOn then
+        if LockedTargetPlayer and LockedTargetPlayer.Character then
+            local h = LockedTargetPlayer.Character:FindFirstChildOfClass("Humanoid")
+            if h and h.Health > 0 then return LockedTargetPlayer end
+        end
+        return nil
     end
     return FindClosestPlayerByRay()
 end
