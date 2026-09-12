@@ -2951,7 +2951,7 @@ end
 
 local function GetTargetPlayer()
     local ac = getgenv().ELITE_HUB_AimbotConfig
-    local aimbotOn = ac and ac.Enabled
+    local aimbotOn = (ac and ac.Enabled) or getgenv().ELITE_HUB_AimbotEnabled
     if aimbotOn then
         if LockedTargetPlayer and LockedTargetPlayer.Character then
             local h = LockedTargetPlayer.Character:FindFirstChildOfClass("Humanoid")
@@ -3425,7 +3425,6 @@ local function EnsureCrosshairGui()
 
     local lastStyle = nil
     local rotAngle = 0
-    local pulseTime = 0
     if crosshairRotConn then pcall(function() crosshairRotConn:Disconnect() end) end
     crosshairRotConn = RunService.Heartbeat:Connect(function(dt)
         if not sg or not sg.Parent then
@@ -3441,7 +3440,6 @@ local function EnsureCrosshairGui()
         end
         local speed = getgenv().ELITE_HUB_CrosshairSpeed or 2
         rotAngle = rotAngle + dt * speed * 360
-        pulseTime = pulseTime + dt * 3
         rotFrame.Rotation = rotAngle
         for _, child in ipairs(rotFrame:GetChildren()) do
             if child:IsA("Frame") and child.Name ~= "OuterGlow" and not child.Name:find("Glow") then
@@ -3456,7 +3454,7 @@ local function EnsureCrosshairGui()
         local og = rotFrame:FindFirstChild("OuterGlow")
         if og then
             og.BackgroundColor3 = newCol
-            og.BackgroundTransparency = 0.3 + 0.4 * math.sin(pulseTime * 1.5)
+            og.BackgroundTransparency = 0.5
         end
         if currentTarget and currentTarget.Character then
             local head = currentTarget.Character:FindFirstChild("Head")
