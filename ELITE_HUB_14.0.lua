@@ -2891,6 +2891,7 @@ getgenv().ELITE_HUB_NameTagOn = false
 getgenv().ELITE_HUB_CrosshairOn = false
 getgenv().ELITE_HUB_CrosshairColor = Color3.fromRGB(255, 50, 50)
 getgenv().ELITE_HUB_CrosshairSpeed = 2
+getgenv().ELITE_HUB_CrosshairStyle = "Rotating Ring"
 
 local playerHudConn = nil
 local crosshairRotConn = nil
@@ -3103,7 +3104,7 @@ local function EnsureCrosshairGui()
 
     local rotFrame = Instance.new("Frame")
     rotFrame.Name = "Rotator"
-    rotFrame.Size = UDim2.new(0, 160, 0, 160)
+    rotFrame.Size = UDim2.new(0, 130, 0, 130)
     rotFrame.AnchorPoint = Vector2.new(0.5, 0.5)
     rotFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
     rotFrame.BackgroundTransparency = 1
@@ -3111,70 +3112,318 @@ local function EnsureCrosshairGui()
     rotFrame.Visible = false
     rotFrame.Parent = sg
 
-    local col = getgenv().ELITE_HUB_CrosshairColor or Color3.fromRGB(255, 50, 50)
-    local radius = 40
-    local lineLen = 16
-    local gap = 10
-    local thick = 4
-
-    local outerGlow = Instance.new("Frame")
-    outerGlow.Name = "OuterGlow"
-    outerGlow.Size = UDim2.new(0, radius * 2 + 50, 0, radius * 2 + 50)
-    outerGlow.AnchorPoint = Vector2.new(0.5, 0.5)
-    outerGlow.Position = UDim2.new(0.5, 0, 0.5, 0)
-    outerGlow.BackgroundTransparency = 0.5
-    outerGlow.BackgroundColor3 = col
-    outerGlow.BorderSizePixel = 0
-    outerGlow.ZIndex = 0
-    outerGlow.Parent = rotFrame
-    Instance.new("UICorner", outerGlow).CornerRadius = UDim.new(0.5, 0)
-
-    local circle = Instance.new("Frame")
-    circle.Name = "Circle"
-    circle.Size = UDim2.new(0, radius * 2, 0, radius * 2)
-    circle.Position = UDim2.new(0.5, -radius, 0.5, -radius)
-    circle.BackgroundTransparency = 1
-    circle.BorderSizePixel = 0
-    circle.Parent = rotFrame
-    Instance.new("UICorner", circle).CornerRadius = UDim.new(0.5, 0)
-    local cs = Instance.new("UIStroke")
-    cs.Color = col
-    cs.Thickness = thick
-    cs.Transparency = 0
-    cs.Parent = circle
-    local csGlow = Instance.new("UIStroke")
-    csGlow.Color = col
-    csGlow.Thickness = thick + 10
-    csGlow.Transparency = 0.4
-    csGlow.Parent = circle
-
-    local function ml(name, sz, pos)
-        local f = Instance.new("Frame")
-        f.Name = name
-        f.Size = sz
-        f.Position = pos
-        f.AnchorPoint = Vector2.new(0.5, 0.5)
-        f.BackgroundColor3 = col
-        f.BorderSizePixel = 0
-        f.Parent = rotFrame
-        local fg = Instance.new("Frame")
-        fg.Name = name .. "Glow"
-        fg.Size = UDim2.new(1, 14, 1, 14)
-        fg.AnchorPoint = Vector2.new(0.5, 0.5)
-        fg.Position = UDim2.new(0.5, 0, 0.5, 0)
-        fg.BackgroundColor3 = col
-        fg.BackgroundTransparency = 0.3
-        fg.BorderSizePixel = 0
-        fg.ZIndex = 0
-        fg.Parent = f
-    end
-    ml("Top", UDim2.new(0, thick, 0, lineLen), UDim2.new(0.5, 0, 0.5, -radius - gap - lineLen/2))
-    ml("Bot", UDim2.new(0, thick, 0, lineLen), UDim2.new(0.5, 0, 0.5, radius + gap + lineLen/2))
-    ml("Left", UDim2.new(0, lineLen, 0, thick), UDim2.new(0.5, -radius - gap - lineLen/2, 0.5, 0))
-    ml("Right", UDim2.new(0, lineLen, 0, thick), UDim2.new(0.5, radius + gap + lineLen/2, 0.5, 0))
-
     crosshairScreenGui = sg
 
+    local function clearRotator()
+        for _, c in ipairs(rotFrame:GetChildren()) do
+            pcall(function() c:Destroy() end)
+        end
+    end
+
+    local function buildStyle(style, col)
+        clearRotator()
+        local r = 32
+        local lw = 3
+        local ll = 14
+        local gp = 10
+
+        local outerGlow = Instance.new("Frame")
+        outerGlow.Name = "OuterGlow"
+        outerGlow.Size = UDim2.new(0, r * 2 + 50, 0, r * 2 + 50)
+        outerGlow.AnchorPoint = Vector2.new(0.5, 0.5)
+        outerGlow.Position = UDim2.new(0.5, 0, 0.5, 0)
+        outerGlow.BackgroundTransparency = 0.5
+        outerGlow.BackgroundColor3 = col
+        outerGlow.BorderSizePixel = 0
+        outerGlow.ZIndex = 0
+        outerGlow.Parent = rotFrame
+        Instance.new("UICorner", outerGlow).CornerRadius = UDim.new(0.5, 0)
+
+        if style == "Rotating Ring" then
+            local circle = Instance.new("Frame")
+            circle.Name = "Circle"
+            circle.Size = UDim2.new(0, r * 2, 0, r * 2)
+            circle.Position = UDim2.new(0.5, -r, 0.5, -r)
+            circle.BackgroundTransparency = 1
+            circle.BorderSizePixel = 0
+            circle.Parent = rotFrame
+            Instance.new("UICorner", circle).CornerRadius = UDim.new(0.5, 0)
+            local cs = Instance.new("UIStroke")
+            cs.Color = col
+            cs.Thickness = lw
+            cs.Transparency = 0
+            cs.Parent = circle
+            local csG = Instance.new("UIStroke")
+            csG.Color = col
+            csG.Thickness = lw + 10
+            csG.Transparency = 0.4
+            csG.Parent = circle
+            local function ml(n, sz, pos)
+                local f = Instance.new("Frame")
+                f.Name = n
+                f.Size = sz
+                f.Position = pos
+                f.AnchorPoint = Vector2.new(0.5, 0.5)
+                f.BackgroundColor3 = col
+                f.BorderSizePixel = 0
+                f.Parent = rotFrame
+                local fg = Instance.new("Frame")
+                fg.Name = n.."G"
+                fg.Size = UDim2.new(1, 12, 1, 12)
+                fg.AnchorPoint = Vector2.new(0.5, 0.5)
+                fg.Position = UDim2.new(0.5, 0, 0.5, 0)
+                fg.BackgroundColor3 = col
+                fg.BackgroundTransparency = 0.35
+                fg.BorderSizePixel = 0
+                fg.ZIndex = 0
+                fg.Parent = f
+            end
+            ml("T", UDim2.new(0, lw, 0, ll), UDim2.new(0.5, 0, 0.5, -r - gp - ll/2))
+            ml("B", UDim2.new(0, lw, 0, ll), UDim2.new(0.5, 0, 0.5, r + gp + ll/2))
+            ml("L", UDim2.new(0, ll, 0, lw), UDim2.new(0.5, -r - gp - ll/2, 0.5, 0))
+            ml("R", UDim2.new(0, ll, 0, lw), UDim2.new(0.5, r + gp + ll/2, 0.5, 0))
+
+        elseif style == "Simple Cross" then
+            local function ln(n, sz, pos)
+                local f = Instance.new("Frame")
+                f.Name = n
+                f.Size = sz
+                f.Position = pos
+                f.AnchorPoint = Vector2.new(0.5, 0.5)
+                f.BackgroundColor3 = col
+                f.BorderSizePixel = 0
+                f.Parent = rotFrame
+            end
+            ln("V", UDim2.new(0, lw, 0, r * 2), UDim2.new(0.5, 0, 0.5, 0))
+            ln("H", UDim2.new(0, r * 2, 0, lw), UDim2.new(0.5, 0, 0.5, 0))
+            local gap = Instance.new("Frame")
+            gap.Name = "Gap"
+            gap.Size = UDim2.new(0, 14, 0, 14)
+            gap.AnchorPoint = Vector2.new(0.5, 0.5)
+            gap.Position = UDim2.new(0.5, 0, 0.5, 0)
+            gap.BackgroundColor3 = col
+            gap.BorderSizePixel = 0
+            gap.Parent = rotFrame
+            Instance.new("UICorner", gap).CornerRadius = UDim.new(0.5, 0)
+
+        elseif style == "Dot Ring" then
+            local dot = Instance.new("Frame")
+            dot.Name = "Dot"
+            dot.Size = UDim2.new(0, 10, 0, 10)
+            dot.AnchorPoint = Vector2.new(0.5, 0.5)
+            dot.Position = UDim2.new(0.5, 0, 0.5, 0)
+            dot.BackgroundColor3 = col
+            dot.BorderSizePixel = 0
+            dot.Parent = rotFrame
+            Instance.new("UICorner", dot).CornerRadius = UDim.new(0.5, 0)
+            local ring = Instance.new("Frame")
+            ring.Name = "Ring"
+            ring.Size = UDim2.new(0, r * 2, 0, r * 2)
+            ring.Position = UDim2.new(0.5, -r, 0.5, -r)
+            ring.BackgroundTransparency = 1
+            ring.BorderSizePixel = 0
+            ring.Parent = rotFrame
+            Instance.new("UICorner", ring).CornerRadius = UDim.new(0.5, 0)
+            local rs = Instance.new("UIStroke")
+            rs.Color = col
+            rs.Thickness = lw
+            rs.Parent = ring
+            local rsG = Instance.new("UIStroke")
+            rsG.Color = col
+            rsG.Thickness = lw + 8
+            rsG.Transparency = 0.45
+            rsG.Parent = ring
+            local function ln(n, sz, pos)
+                local f = Instance.new("Frame")
+                f.Name = n
+                f.Size = sz
+                f.Position = pos
+                f.AnchorPoint = Vector2.new(0.5, 0.5)
+                f.BackgroundColor3 = col
+                f.BorderSizePixel = 0
+                f.Parent = rotFrame
+            end
+            ln("T", UDim2.new(0, lw, 0, ll), UDim2.new(0.5, 0, 0.5, -r - gp - ll/2))
+            ln("B", UDim2.new(0, lw, 0, ll), UDim2.new(0.5, 0, 0.5, r + gp + ll/2))
+            ln("L", UDim2.new(0, ll, 0, lw), UDim2.new(0.5, -r - gp - ll/2, 0.5, 0))
+            ln("R", UDim2.new(0, ll, 0, lw), UDim2.new(0.5, r + gp + ll/2, 0.5, 0))
+
+        elseif style == "Diamond" then
+            local d = Instance.new("Frame")
+            d.Name = "Diamond"
+            d.Size = UDim2.new(0, r * 1.4, 0, r * 1.4)
+            d.AnchorPoint = Vector2.new(0.5, 0.5)
+            d.Position = UDim2.new(0.5, 0, 0.5, 0)
+            d.BackgroundTransparency = 1
+            d.BorderSizePixel = 0
+            d.Rotation = 45
+            d.Parent = rotFrame
+            local ds = Instance.new("UIStroke")
+            ds.Color = col
+            ds.Thickness = lw
+            ds.Parent = d
+            local dsG = Instance.new("UIStroke")
+            dsG.Color = col
+            dsG.Thickness = lw + 8
+            dsG.Transparency = 0.4
+            dsG.Parent = d
+            local dot = Instance.new("Frame")
+            dot.Size = UDim2.new(0, 8, 0, 8)
+            dot.AnchorPoint = Vector2.new(0.5, 0.5)
+            dot.Position = UDim2.new(0.5, 0, 0.5, 0)
+            dot.BackgroundColor3 = col
+            dot.BorderSizePixel = 0
+            dot.Parent = rotFrame
+            Instance.new("UICorner", dot).CornerRadius = UDim.new(0.5, 0)
+
+        elseif style == "Double Ring" then
+            for i, rr in ipairs({r, r * 0.6}) do
+                local ring = Instance.new("Frame")
+                ring.Name = "Ring"..i
+                ring.Size = UDim2.new(0, rr * 2, 0, rr * 2)
+                ring.Position = UDim2.new(0.5, -rr, 0.5, -rr)
+                ring.BackgroundTransparency = 1
+                ring.BorderSizePixel = 0
+                ring.Parent = rotFrame
+                Instance.new("UICorner", ring).CornerRadius = UDim.new(0.5, 0)
+                local rs = Instance.new("UIStroke")
+                rs.Color = col
+                rs.Thickness = i == 1 and lw or lw - 1
+                rs.Transparency = i == 2 and 0.3 or 0
+                rs.Parent = ring
+            end
+            local function ln(n, sz, pos)
+                local f = Instance.new("Frame")
+                f.Name = n
+                f.Size = sz
+                f.Position = pos
+                f.AnchorPoint = Vector2.new(0.5, 0.5)
+                f.BackgroundColor3 = col
+                f.BorderSizePixel = 0
+                f.Parent = rotFrame
+            end
+            ln("T", UDim2.new(0, lw, 0, ll), UDim2.new(0.5, 0, 0.5, -r - gp - ll/2))
+            ln("B", UDim2.new(0, lw, 0, ll), UDim2.new(0.5, 0, 0.5, r + gp + ll/2))
+            ln("L", UDim2.new(0, ll, 0, lw), UDim2.new(0.5, -r - gp - ll/2, 0.5, 0))
+            ln("R", UDim2.new(0, ll, 0, lw), UDim2.new(0.5, r + gp + ll/2, 0.5, 0))
+
+        elseif style == "Sniper" then
+            local function ln(n, sz, pos)
+                local f = Instance.new("Frame")
+                f.Name = n
+                f.Size = sz
+                f.Position = pos
+                f.AnchorPoint = Vector2.new(0.5, 0.5)
+                f.BackgroundColor3 = col
+                f.BorderSizePixel = 0
+                f.Parent = rotFrame
+            end
+            ln("V", UDim2.new(0, 1, 0, r * 2.2), UDim2.new(0.5, 0, 0.5, 0))
+            ln("H", UDim2.new(0, r * 2.2, 0, 1), UDim2.new(0.5, 0, 0.5, 0))
+            local ring = Instance.new("Frame")
+            ring.Size = UDim2.new(0, r * 1.8, 0, r * 1.8)
+            ring.Position = UDim2.new(0.5, -r * 0.9, 0.5, -r * 0.9)
+            ring.BackgroundTransparency = 1
+            ring.BorderSizePixel = 0
+            ring.Parent = rotFrame
+            Instance.new("UICorner", ring).CornerRadius = UDim.new(0.5, 0)
+            local rs = Instance.new("UIStroke")
+            rs.Color = col
+            rs.Thickness = lw - 1
+            rs.Transparency = 0.2
+            rs.Parent = ring
+
+        elseif style == "Triangle" then
+            local dot = Instance.new("Frame")
+            dot.Size = UDim2.new(0, 8, 0, 8)
+            dot.AnchorPoint = Vector2.new(0.5, 0.5)
+            dot.Position = UDim2.new(0.5, 0, 0.5, 0)
+            dot.BackgroundColor3 = col
+            dot.BorderSizePixel = 0
+            dot.Parent = rotFrame
+            Instance.new("UICorner", dot).CornerRadius = UDim.new(0.5, 0)
+            local s = r * 1.3
+            local function tp(sz, pos)
+                local f = Instance.new("Frame")
+                f.Size = sz
+                f.Position = pos
+                f.AnchorPoint = Vector2.new(0.5, 0.5)
+                f.BackgroundColor3 = col
+                f.BorderSizePixel = 0
+                f.Parent = rotFrame
+            end
+            tp(UDim2.new(0, lw, 0, s), UDim2.new(0.5, 0, 0.5, -s * 0.3))
+            tp(UDim2.new(0, s, 0, lw), UDim2.new(0.5, 0, 0.5, s * 0.4))
+            tp(UDim2.new(0, s, 0, lw), UDim2.new(0.5, 0, 0.5, -s * 0.5))
+
+        elseif style == "Square" then
+            local sq = Instance.new("Frame")
+            sq.Name = "Square"
+            sq.Size = UDim2.new(0, r * 1.6, 0, r * 1.6)
+            sq.AnchorPoint = Vector2.new(0.5, 0.5)
+            sq.Position = UDim2.new(0.5, 0, 0.5, 0)
+            sq.BackgroundTransparency = 1
+            sq.BorderSizePixel = 0
+            sq.Parent = rotFrame
+            local ss = Instance.new("UIStroke")
+            ss.Color = col
+            ss.Thickness = lw
+            ss.Parent = sq
+            local ssG = Instance.new("UIStroke")
+            ssG.Color = col
+            ssG.Thickness = lw + 8
+            ssG.Transparency = 0.4
+            ssG.Parent = sq
+            local dot = Instance.new("Frame")
+            dot.Size = UDim2.new(0, 8, 0, 8)
+            dot.AnchorPoint = Vector2.new(0.5, 0.5)
+            dot.Position = UDim2.new(0.5, 0, 0.5, 0)
+            dot.BackgroundColor3 = col
+            dot.BorderSizePixel = 0
+            dot.Parent = rotFrame
+            Instance.new("UICorner", dot).CornerRadius = UDim.new(0.5, 0)
+
+        elseif style == "Star" then
+            local function ln(n, sz, pos, rot)
+                local f = Instance.new("Frame")
+                f.Name = n
+                f.Size = sz
+                f.Position = pos
+                f.AnchorPoint = Vector2.new(0.5, 0.5)
+                f.BackgroundColor3 = col
+                f.BorderSizePixel = 0
+                f.Rotation = rot or 0
+                f.Parent = rotFrame
+            end
+            ln("V", UDim2.new(0, lw, 0, r * 2), UDim2.new(0.5, 0, 0.5, 0), 0)
+            ln("H", UDim2.new(0, r * 2, 0, lw), UDim2.new(0.5, 0, 0.5, 0), 0)
+            ln("D1", UDim2.new(0, lw, 0, r * 1.6), UDim2.new(0.5, 0, 0.5, 0), 45)
+            ln("D2", UDim2.new(0, r * 1.6, 0, lw), UDim2.new(0.5, 0, 0.5, 0), 45)
+            local dot = Instance.new("Frame")
+            dot.Size = UDim2.new(0, 10, 0, 10)
+            dot.AnchorPoint = Vector2.new(0.5, 0.5)
+            dot.Position = UDim2.new(0.5, 0, 0.5, 0)
+            dot.BackgroundColor3 = col
+            dot.BorderSizePixel = 0
+            dot.Parent = rotFrame
+            Instance.new("UICorner", dot).CornerRadius = UDim.new(0.5, 0)
+
+        else
+            local circle = Instance.new("Frame")
+            circle.Size = UDim2.new(0, r * 2, 0, r * 2)
+            circle.Position = UDim2.new(0.5, -r, 0.5, -r)
+            circle.BackgroundTransparency = 1
+            circle.BorderSizePixel = 0
+            circle.Parent = rotFrame
+            Instance.new("UICorner", circle).CornerRadius = UDim.new(0.5, 0)
+            local cs = Instance.new("UIStroke")
+            cs.Color = col
+            cs.Thickness = lw
+            cs.Parent = circle
+        end
+    end
+
+    local lastStyle = nil
     local rotAngle = 0
     local pulseTime = 0
     if crosshairRotConn then pcall(function() crosshairRotConn:Disconnect() end) end
@@ -3184,23 +3433,30 @@ local function EnsureCrosshairGui()
             crosshairRotConn = nil
             return
         end
+        local newCol = getgenv().ELITE_HUB_CrosshairColor or Color3.fromRGB(255, 50, 50)
+        local curStyle = getgenv().ELITE_HUB_CrosshairStyle or "Rotating Ring"
+        if curStyle ~= lastStyle then
+            lastStyle = curStyle
+            buildStyle(curStyle, newCol)
+        end
         local speed = getgenv().ELITE_HUB_CrosshairSpeed or 2
         rotAngle = rotAngle + dt * speed * 360
         pulseTime = pulseTime + dt * 3
-        local pulse = 0.8 + 0.2 * math.sin(pulseTime)
-        local neonPulse = 0.3 + 0.4 * math.sin(pulseTime * 1.5)
         rotFrame.Rotation = rotAngle
-        local newCol = getgenv().ELITE_HUB_CrosshairColor or Color3.fromRGB(255, 50, 50)
-        cs.Color = newCol
-        cs.Thickness = thick * pulse
-        csGlow.Color = newCol
-        csGlow.Transparency = 0.3 + 0.3 * math.sin(pulseTime * 2)
-        outerGlow.BackgroundColor3 = newCol
-        outerGlow.BackgroundTransparency = 0.3 + neonPulse * 0.3
         for _, child in ipairs(rotFrame:GetChildren()) do
-            if child:IsA("Frame") and child.Name ~= "Circle" and child.Name ~= "OuterGlow" and not child.Name:find("Glow") then
-                child.BackgroundColor3 = newCol
+            if child:IsA("Frame") and child.Name ~= "OuterGlow" and not child.Name:find("Glow") then
+                if child:FindFirstChildOfClass("UIStroke") then
+                    child:FindFirstChildOfClass("UIStroke").Color = newCol
+                end
+                pcall(function()
+                    if child.BackgroundColor3 then child.BackgroundColor3 = newCol end
+                end)
             end
+        end
+        local og = rotFrame:FindFirstChild("OuterGlow")
+        if og then
+            og.BackgroundColor3 = newCol
+            og.BackgroundTransparency = 0.3 + 0.4 * math.sin(pulseTime * 1.5)
         end
         if currentTarget and currentTarget.Character then
             local head = currentTarget.Character:FindFirstChild("Head")
@@ -3213,7 +3469,7 @@ local function EnsureCrosshairGui()
                     rotFrame.Position = UDim2.new(0, sp.X, 0, sp.Y)
                     rotFrame.Visible = true
                     local scale = math.clamp(150 / dist, 0.5, 3.5)
-                    local sz = 160 * scale
+                    local sz = 130 * scale
                     rotFrame.Size = UDim2.new(0, sz, 0, sz)
                     return
                 end
@@ -3442,6 +3698,14 @@ MT:CreateToggle({
                 RemovePlayerHud()
             end
         end
+    end
+})
+MT:CreateDropdown({
+    Name = " Crosshair Style",
+    Options = {"Rotating Ring", "Simple Cross", "Dot Ring", "Diamond", "Double Ring", "Sniper", "Triangle", "Square", "Star"},
+    CurrentOption = {"Rotating Ring"},
+    Callback = function(v)
+        getgenv().ELITE_HUB_CrosshairStyle = v
     end
 })
 MT:CreateColorPicker({
