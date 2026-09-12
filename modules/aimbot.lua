@@ -1209,7 +1209,7 @@ CombatTab:CreateToggle({
 })
 
 CombatTab:CreateSlider({
-    Name = "  ",
+    Name = " Prediction Factor",
     Range = {0.05, 0.5},
     Increment = 0.05,
     Suffix = "x",
@@ -1240,7 +1240,7 @@ CombatTab:CreateToggle({
 })
 
 CombatTab:CreateSlider({
-    Name = " . FOV ()",
+    Name = " Min FOV (studs)",
     Range = {30, 100},
     Increment = 5,
     Suffix = "",
@@ -1251,7 +1251,7 @@ CombatTab:CreateSlider({
 })
 
 CombatTab:CreateSlider({
-    Name = " . FOV ()",
+    Name = " Max FOV (studs)",
     Range = {100, 400},
     Increment = 10,
     Suffix = "",
@@ -1272,7 +1272,7 @@ CombatTab:CreateToggle({
 })
 
 CombatTab:CreateToggle({
-    Name = " Lock Notify ( )",
+    Name = " Lock Notify",
     CurrentValue = AimbotConfig.NotifyLock,
     Callback = function(value)
         AimbotConfig.NotifyLock = value
@@ -1280,7 +1280,7 @@ CombatTab:CreateToggle({
 })
 
 CombatTab:CreateToggle({
-    Name = " Unlock Notify ( )",
+    Name = " Unlock Notify",
     CurrentValue = AimbotConfig.NotifyUnlock,
     Callback = function(value)
         AimbotConfig.NotifyUnlock = value
@@ -1296,7 +1296,7 @@ CombatTab:CreateToggle({
 })
 
 CombatTab:CreateToggle({
-    Name = " Low HP Notify ( < 30 HP)",
+    Name = " Low HP Notify (< 30 HP)",
     CurrentValue = AimbotConfig.NotifyLowHP,
     Callback = function(value)
         AimbotConfig.NotifyLowHP = value
@@ -1304,7 +1304,7 @@ CombatTab:CreateToggle({
 })
 
 CombatTab:CreateToggle({
-    Name = " Auto-Shot Notify ()",
+    Name = " Auto-Shot Notify",
     CurrentValue = AimbotConfig.NotifyShot,
     Callback = function(value)
         AimbotConfig.NotifyShot = value
@@ -1338,7 +1338,7 @@ CombatTab:CreateToggle({
 CombatTab:CreateSection("🔒 TARGET LOCK")
 
 CombatTab:CreateToggle({
-    Name = " Persistent Lock ( )",
+    Name = " Persistent Lock",
     CurrentValue = AimbotConfig.PersistentLock,
     Callback = function(value)
         AimbotConfig.PersistentLock = value

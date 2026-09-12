@@ -2899,21 +2899,40 @@ local function SpawnJumpRingPattern(pos, col, pattern)
     end
 
     if pattern == "Circle" then
-        add(0, 0, 2, 2)
+        local radius = 1.0
+        for i = 0, 15 do
+            local ang = (i / 16) * math.pi * 2
+            add(math.cos(ang) * radius, math.sin(ang) * radius, 0.15, 0.3)
+        end
 
     elseif pattern == "Double Ring" then
-        add(0, 0, 2, 2)
+        for i = 0, 15 do
+            local ang = (i / 16) * math.pi * 2
+            add(math.cos(ang) * 1.0, math.sin(ang) * 1.0, 0.15, 0.3)
+        end
         task.delay(0.05, function()
-            add(0, 0, 3, 3)
+            for i = 0, 15 do
+                local ang = (i / 16) * math.pi * 2
+                add(math.cos(ang) * 1.5, math.sin(ang) * 1.5, 0.15, 0.3)
+            end
         end)
 
     elseif pattern == "Triple Ring" then
-        add(0, 0, 2, 2)
+        for i = 0, 15 do
+            local ang = (i / 16) * math.pi * 2
+            add(math.cos(ang) * 1.0, math.sin(ang) * 1.0, 0.15, 0.3)
+        end
         task.delay(0.04, function()
-            add(0, 0, 3, 3)
+            for i = 0, 15 do
+                local ang = (i / 16) * math.pi * 2
+                add(math.cos(ang) * 1.5, math.sin(ang) * 1.5, 0.15, 0.3)
+            end
         end)
         task.delay(0.08, function()
-            add(0, 0, 4, 4)
+            for i = 0, 19 do
+                local ang = (i / 20) * math.pi * 2
+                add(math.cos(ang) * 2.0, math.sin(ang) * 2.0, 0.15, 0.3)
+            end
         end)
 
     elseif pattern == "Star 5" then
@@ -3091,9 +3110,9 @@ local function StartJumpRings()
     end)
 end
 
-MT:CreateSection(" JUMP RINGS")
+MT:CreateSection(" JUMP CIRCLES")
 MT:CreateToggle({
-    Name = " Jump Rings",
+    Name = " Jump Circles",
     CurrentValue = false,
     Callback = function(v)
         getgenv().ELITE_HUB_JumpRingsOn = v
@@ -3101,7 +3120,7 @@ MT:CreateToggle({
     end
 })
 MT:CreateDropdown({
-    Name = " Ring Pattern",
+    Name = " Circle Pattern",
     Options = JUMP_RING_PATTERNS,
     CurrentOption = {"Circle"},
     Callback = function(v) getgenv().ELITE_HUB_JumpRingsPattern = v end
@@ -3690,7 +3709,9 @@ local function EnsureCrosshairGui()
                 end
             end
         end
-        rotFrame.Visible = false
+        rotFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
+        rotFrame.Size = UDim2.new(0, 80, 0, 80)
+        rotFrame.Visible = true
     end)
 
     return sg
@@ -3767,7 +3788,8 @@ local function GetBillboardForTarget(tgtChar)
 end
 
 local function UpdateTargetHUD()
-    local tgt = GetTargetPlayer()
+    local locked = getgenv().ELITE_HUB_AimbotConfig and getgenv().ELITE_HUB_AimbotConfig.Enabled and LockedTargetPlayer
+    local tgt = locked or nil
     local changed = (tgt ~= currentTarget)
     currentTarget = tgt
 
