@@ -2191,8 +2191,8 @@ local function UpdateTargetHUD()
             local bg = bb:FindFirstChildWhichIsA("Frame")
             if bg then
                 bg.NameLabel.Text = tgt.Name
-                bg.HPBar.HPBar.Size = UDim2.new(math.clamp(ratio, 0, 1), 0, 1, 0)
-                bg.HPBar.HPBar.BackgroundColor3 = barColor
+                bg.HPBarBG.HPBar.Size = UDim2.new(math.clamp(ratio, 0, 1), 0, 1, 0)
+                bg.HPBarBG.HPBar.BackgroundColor3 = barColor
                 bg.HPText.Text = hp .. " HP"
             end
         end
