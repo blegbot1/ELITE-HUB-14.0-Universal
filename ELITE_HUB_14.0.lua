@@ -1,7 +1,6 @@
 -- ELITE HUB 14.0 loader: builds shared env, creates window+tabs, runs modules
 
 local Rayfield = (function()
-local Rayfield = (function()
 -- моя UI либа в стиле мини-меню (позже переделаю, не трогать)
 -- тёмно-фиолетовая тема: вкладки, кнопки, тогглы, слайдеры, инпуты, дропдауны, пикеры цвета
 
@@ -1415,7 +1414,6 @@ function EliteHubUI:Destroy()
 end
 
 return EliteHubUI
-end)()
 end)()
 local ES, L
 do
