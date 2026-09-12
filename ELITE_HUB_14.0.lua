@@ -2897,7 +2897,7 @@ local crosshairRotConn = nil
 local currentTarget = nil
 local targetScreenGui = nil
 local targetBillboard = nil
-local crosshairPart = nil
+local crosshairScreenGui = nil
 
 local RunService = game:GetService("RunService")
 local Camera = workspace.CurrentCamera
@@ -3085,47 +3085,52 @@ local function CreateTargetScreenGui()
     return sg
 end
 
-local function CreateCrosshair()
-    if crosshairPart then pcall(function() crosshairPart:Destroy() end) crosshairPart = nil end
-    crosshairPart = "pending"
+local function RemoveCrosshair()
+    if crosshairRotConn then pcall(function() crosshairRotConn:Disconnect() end) crosshairRotConn = nil end
+    if crosshairScreenGui then pcall(function() crosshairScreenGui:Destroy() end) crosshairScreenGui = nil end
 end
 
-local function UpdateCrosshairOnHead(tgtChar)
-    if not getgenv().ELITE_HUB_CrosshairOn then
-        if crosshairPart and crosshairPart ~= "pending" then pcall(function() crosshairPart:Destroy() end) crosshairPart = nil end
-        if crosshairRotConn then pcall(function() crosshairRotConn:Disconnect() end) crosshairRotConn = nil end
+local function UpdateCrosshairTrack()
+    if not crosshairScreenGui or not crosshairScreenGui.Parent then return end
+    local rotFrame = crosshairScreenGui:FindFirstChild("Rotator")
+    if not rotFrame then return end
+    if not getgenv().ELITE_HUB_CrosshairOn or not currentTarget or not currentTarget.Character then
+        rotFrame.Visible = false
         return
     end
-    local head = tgtChar and tgtChar:FindFirstChild("Head")
-    if not head then
-        if crosshairPart and crosshairPart ~= "pending" then pcall(function() crosshairPart:Destroy() end) crosshairPart = nil end
-        if crosshairRotConn then pcall(function() crosshairRotConn:Disconnect() end) crosshairRotConn = nil end
-        return
-    end
-    local existing = head:FindFirstChild("ELITEHUB_CrosshairBB")
-    if existing then
-        crosshairPart = existing
-        return
-    end
-    if crosshairPart and crosshairPart ~= "pending" then pcall(function() crosshairPart:Destroy() end) crosshairPart = nil end
-    if crosshairRotConn then pcall(function() crosshairRotConn:Disconnect() end) crosshairRotConn = nil end
+    local head = currentTarget.Character:FindFirstChild("Head")
+    if not head then rotFrame.Visible = false return end
+    local hrp = currentTarget.Character:FindFirstChild("HumanoidRootPart")
+    if not hrp then rotFrame.Visible = false return end
+    local dist = (Camera.CFrame.Position - hrp.Position).Magnitude
+    local screenPos, onScreen = Camera:WorldToViewportPoint(head.Position + Vector3.new(0, 1, 0))
+    if not onScreen or dist > 200 then rotFrame.Visible = false return end
+    rotFrame.Position = UDim2.new(0, screenPos.X, 0, screenPos.Y)
+    rotFrame.Visible = true
+    local scale = math.clamp(150 / dist, 0.3, 3)
+    local sz = 60 * scale
+    rotFrame.Size = UDim2.new(0, sz, 0, sz)
+end
 
-    local bb = Instance.new("BillboardGui")
-    bb.Name = "ELITEHUB_CrosshairBB"
-    bb.Size = UDim2.new(0, 60, 0, 60)
-    bb.StudsOffset = Vector3.new(0, 0, 0)
-    bb.AlwaysOnTop = true
-    bb.LightInfluence = 0
-    bb.ClipsDescendants = false
-    bb.Adornee = head
-    bb.Parent = head
+local function EnsureCrosshairGui()
+    if crosshairScreenGui and crosshairScreenGui.Parent then return end
+    RemoveCrosshair()
+    local sg = Instance.new("ScreenGui")
+    sg.Name = "ELITEHUB_CrosshairGui"
+    sg.ResetOnSpawn = false
+    sg.DisplayOrder = 200
+    sg.IgnoreGuiInset = true
+    sg.Parent = player.PlayerGui
 
     local rotFrame = Instance.new("Frame")
     rotFrame.Name = "Rotator"
-    rotFrame.Size = UDim2.new(1, 0, 1, 0)
+    rotFrame.Size = UDim2.new(0, 60, 0, 60)
+    rotFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+    rotFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
     rotFrame.BackgroundTransparency = 1
     rotFrame.BorderSizePixel = 0
-    rotFrame.Parent = bb
+    rotFrame.Visible = false
+    rotFrame.Parent = sg
 
     local col = getgenv().ELITE_HUB_CrosshairColor or Color3.fromRGB(255, 50, 50)
     local radius = 18
@@ -3161,11 +3166,11 @@ local function UpdateCrosshairOnHead(tgtChar)
     ml("Left", UDim2.new(0, lineLen, 0, thick), UDim2.new(0.5, -radius - gap - lineLen/2, 0.5, 0))
     ml("Right", UDim2.new(0, lineLen, 0, thick), UDim2.new(0.5, radius + gap + lineLen/2, 0.5, 0))
 
-    crosshairPart = bb
+    crosshairScreenGui = sg
 
     local rotAngle = 0
     crosshairRotConn = RunService.Heartbeat:Connect(function(dt)
-        if not bb or not bb.Parent then
+        if not sg or not sg.Parent then
             if crosshairRotConn then pcall(function() crosshairRotConn:Disconnect() end) crosshairRotConn = nil end
             return
         end
@@ -3179,24 +3184,8 @@ local function UpdateCrosshairOnHead(tgtChar)
                 child.BackgroundColor3 = newCol
             end
         end
+        UpdateCrosshairTrack()
     end)
-end
-
-local function RemoveCrosshair()
-    if crosshairRotConn then pcall(function() crosshairRotConn:Disconnect() end) crosshairRotConn = nil end
-    if crosshairPart and crosshairPart ~= "pending" then
-        pcall(function() crosshairPart:Destroy() end)
-    end
-    crosshairPart = nil
-    for _, ch in ipairs(Players:GetPlayers()) do
-        if ch.Character then
-            local head = ch.Character:FindFirstChild("Head")
-            if head then
-                local old = head:FindFirstChild("ELITEHUB_CrosshairBB")
-                if old then pcall(function() old:Destroy() end) end
-            end
-        end
-    end
 end
 
 local function RemovePlayerHud()
@@ -3353,9 +3342,9 @@ local function UpdateTargetHUD()
         end
     end
 
-    -- Crosshair on head
+    -- Crosshair on target
     if getgenv().ELITE_HUB_CrosshairOn then
-        UpdateCrosshairOnHead(tgtChar)
+        EnsureCrosshairGui()
     else
         RemoveCrosshair()
     end
