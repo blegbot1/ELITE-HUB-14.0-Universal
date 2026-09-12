@@ -1433,40 +1433,212 @@ MT:CreateSlider({
 })
 
 -- ============================================================
--- JUMP RINGS (expanding circles on jump)
+-- JUMP RINGS (20 patterns on jump)
 -- ============================================================
 getgenv().ELITE_HUB_JumpRingsOn = false
 getgenv().ELITE_HUB_JumpRingsColor = Color3.fromRGB(255, 255, 255)
 getgenv().ELITE_HUB_JumpRingsCount = 3
+getgenv().ELITE_HUB_JumpRingsPattern = "Circle"
 local jumpRingConn = nil
 local jumpWasGrounded = true
 
-local function SpawnJumpRing(pos, col)
-    local ring = Instance.new("Part")
-    ring.Shape = Enum.PartType.Cylinder
-    ring.Anchored = true
-    ring.CanCollide = false
-    ring.Material = Enum.Material.Neon
-    ring.Color = col
-    ring.Size = Vector3.new(0.15, 2, 2)
-    ring.CFrame = CFrame.new(pos) * CFrame.Angles(0, 0, math.rad(90))
-    ring.Transparency = 0
-    ring.Parent = workspace
+local JUMP_RING_PATTERNS = {
+    "Circle", "Double Ring", "Triple Ring", "Star 5", "Star 6", "Star 8",
+    "Hexagon", "Square", "Diamond", "Triangle", "Pentagon", "Octagon",
+    "Cross", "Burst", "Flower", "Spiral", "Zigzag", "Dotted", "Heart", "Wave"
+}
+
+local function SpawnPart(pos, col, size)
+    local p = Instance.new("Part")
+    p.Anchored = true
+    p.CanCollide = false
+    p.Material = Enum.Material.Neon
+    p.Color = col
+    p.Size = size
+    p.CFrame = CFrame.new(pos) * CFrame.Angles(math.rad(90), 0, 0)
+    p.Transparency = 0
+    p.Parent = workspace
+    return p
+end
+
+local function AnimateRing(parts, dur)
     local t = 0
-    local dur = 0.5
     local conn
     conn = game:GetService("RunService").Heartbeat:Connect(function(dt)
         t = t + dt
-        if t >= dur or not ring or not ring.Parent then
-            pcall(function() ring:Destroy() end)
+        if t >= dur then
+            for _, p in ipairs(parts) do pcall(function() p:Destroy() end) end
             if conn then conn:Disconnect() end
             return
         end
-        local p = t / dur
-        local scale = 1 + p * 8
-        ring.Size = Vector3.new(0.15, 2 * scale, 2 * scale)
-        ring.Transparency = 0 + p * 0.8
+        local prog = t / dur
+        local scale = 1 + prog * 8
+        local alpha = prog * 0.8
+        for _, p in ipairs(parts) do
+            if p and p.Parent then
+                local base = p:GetAttribute("BaseSize")
+                if base then
+                    p.Size = Vector3.new(base, base * scale, base * scale)
+                end
+                p.Transparency = alpha
+            end
+        end
     end)
+end
+
+local function SpawnJumpRingPattern(pos, col, pattern)
+    local parts = {}
+    local dur = 0.5
+    local function add(x, z, sx, sz)
+        local p = SpawnPart(Vector3.new(pos.X + x, pos.Y, pos.Z + z), col, Vector3.new(0.15, sx, sz))
+        p:SetAttribute("BaseSize", 0.15)
+        parts[#parts + 1] = p
+    end
+
+    if pattern == "Circle" then
+        add(0, 0, 2, 2)
+
+    elseif pattern == "Double Ring" then
+        add(0, 0, 2, 2)
+        task.delay(0.05, function()
+            add(0, 0, 3, 3)
+        end)
+
+    elseif pattern == "Triple Ring" then
+        add(0, 0, 2, 2)
+        task.delay(0.04, function()
+            add(0, 0, 3, 3)
+        end)
+        task.delay(0.08, function()
+            add(0, 0, 4, 4)
+        end)
+
+    elseif pattern == "Star 5" then
+        for i = 0, 4 do
+            local ang = (i / 5) * math.pi * 2
+            add(math.cos(ang) * 0.5, math.sin(ang) * 0.5, 0.3, 2)
+        end
+
+    elseif pattern == "Star 6" then
+        for i = 0, 5 do
+            local ang = (i / 6) * math.pi * 2
+            add(math.cos(ang) * 0.5, math.sin(ang) * 0.5, 0.3, 2)
+        end
+
+    elseif pattern == "Star 8" then
+        for i = 0, 7 do
+            local ang = (i / 8) * math.pi * 2
+            add(math.cos(ang) * 0.5, math.sin(ang) * 0.5, 0.3, 2)
+        end
+
+    elseif pattern == "Hexagon" then
+        for i = 0, 5 do
+            local ang = (i / 6) * math.pi * 2
+            local ang2 = ((i + 1) / 6) * math.pi * 2
+            local mx = (math.cos(ang) + math.cos(ang2)) * 0.5
+            local mz = (math.sin(ang) + math.sin(ang2)) * 0.5
+            local len = math.sqrt((math.cos(ang2) - math.cos(ang))^2 + (math.sin(ang2) - math.sin(ang))^2)
+            add(mx * 0.5, mz * 0.5, len * 0.5, 0.3)
+        end
+
+    elseif pattern == "Square" then
+        local s = 0.6
+        for _, d in ipairs({{0, s, 0.3, s * 2}, {0, -s, 0.3, s * 2}, {s, 0, s * 2, 0.3}, {-s, 0, s * 2, 0.3}}) do
+            add(d[1], d[2], d[3], d[4])
+        end
+
+    elseif pattern == "Diamond" then
+        local s = 0.7
+        for _, d in ipairs({{0, s, 0.3, s * 1.5}, {0, -s, 0.3, s * 1.5}, {s, 0, s * 1.5, 0.3}, {-s, 0, s * 1.5, 0.3}}) do
+            add(d[1], d[2], d[3], d[4])
+        end
+
+    elseif pattern == "Triangle" then
+        for i = 0, 2 do
+            local ang = (i / 3) * math.pi * 2 - math.pi / 2
+            local ang2 = ((i + 1) / 3) * math.pi * 2 - math.pi / 2
+            local mx = (math.cos(ang) + math.cos(ang2)) * 0.33
+            local mz = (math.sin(ang) + math.sin(ang2)) * 0.33
+            local len = math.sqrt((math.cos(ang2) - math.cos(ang))^2 + (math.sin(ang2) - math.sin(ang))^2)
+            add(mx, mz, len * 0.5, 0.3)
+        end
+
+    elseif pattern == "Pentagon" then
+        for i = 0, 4 do
+            local ang = (i / 5) * math.pi * 2 - math.pi / 2
+            local ang2 = ((i + 1) / 5) * math.pi * 2 - math.pi / 2
+            local mx = (math.cos(ang) + math.cos(ang2)) * 0.3
+            local mz = (math.sin(ang) + math.sin(ang2)) * 0.3
+            local len = math.sqrt((math.cos(ang2) - math.cos(ang))^2 + (math.sin(ang2) - math.sin(ang))^2)
+            add(mx, mz, len * 0.5, 0.3)
+        end
+
+    elseif pattern == "Octagon" then
+        for i = 0, 7 do
+            local ang = (i / 8) * math.pi * 2
+            local ang2 = ((i + 1) / 8) * math.pi * 2
+            local mx = (math.cos(ang) + math.cos(ang2)) * 0.3
+            local mz = (math.sin(ang) + math.sin(ang2)) * 0.3
+            local len = math.sqrt((math.cos(ang2) - math.cos(ang))^2 + (math.sin(ang2) - math.sin(ang))^2)
+            add(mx, mz, len * 0.4, 0.25)
+        end
+
+    elseif pattern == "Cross" then
+        for _, d in ipairs({{0, 0, 0.2, 3}, {0, 0, 3, 0.2}}) do
+            add(d[1], d[2], d[3], d[4])
+        end
+
+    elseif pattern == "Burst" then
+        for i = 0, 11 do
+            local ang = (i / 12) * math.pi * 2
+            add(math.cos(ang) * 0.3, math.sin(ang) * 0.3, 0.15, 1.5)
+        end
+
+    elseif pattern == "Flower" then
+        for i = 0, 5 do
+            local ang = (i / 6) * math.pi * 2
+            add(math.cos(ang) * 0.4, math.sin(ang) * 0.4, 0.4, 0.8)
+        end
+        add(0, 0, 0.5, 0.5)
+
+    elseif pattern == "Spiral" then
+        for i = 0, 15 do
+            local t = i / 16
+            local ang = t * math.pi * 4
+            local r = t * 0.8
+            add(math.cos(ang) * r, math.sin(ang) * r, 0.12, 0.3)
+        end
+
+    elseif pattern == "Zigzag" then
+        for i = 0, 7 do
+            local ang = (i / 8) * math.pi * 2
+            local r = (i % 2 == 0) and 0.6 or 0.3
+            add(math.cos(ang) * r, math.sin(ang) * r, 0.15, 0.4)
+        end
+
+    elseif pattern == "Dotted" then
+        for i = 0, 15 do
+            local ang = (i / 16) * math.pi * 2
+            add(math.cos(ang) * 0.7, math.sin(ang) * 0.7, 0.2, 0.2)
+        end
+
+    elseif pattern == "Heart" then
+        for i = 0, 23 do
+            local t = (i / 24) * math.pi * 2
+            local hx = 16 * math.sin(t)^3
+            local hz = 13 * math.cos(t) - 5 * math.cos(2*t) - 2 * math.cos(3*t) - math.cos(4*t)
+            add(hx * 0.03, hz * 0.03, 0.15, 0.25)
+        end
+
+    elseif pattern == "Wave" then
+        for i = 0, 19 do
+            local ang = (i / 20) * math.pi * 2
+            local r = 0.6 + math.sin(ang * 6) * 0.15
+            add(math.cos(ang) * r, math.sin(ang) * r, 0.12, 0.35)
+        end
+    end
+
+    AnimateRing(parts, dur)
 end
 
 local function GetGroundY(char, hrp)
@@ -1504,10 +1676,11 @@ local function StartJumpRings()
                 local groundY = GetGroundY(char, hrp)
                 local col = ApplyColor(getgenv().ELITE_HUB_JumpRingsColor)
                 local count = getgenv().ELITE_HUB_JumpRingsCount or 3
+                local pattern = getgenv().ELITE_HUB_JumpRingsPattern or "Circle"
                 local ringPos = Vector3.new(hrp.Position.X, groundY + 0.1, hrp.Position.Z)
                 for i = 1, count do
-                    task.delay((i - 1) * 0.08, function()
-                        SpawnJumpRing(ringPos, col)
+                    task.delay((i - 1) * 0.1, function()
+                        SpawnJumpRingPattern(ringPos, col, pattern)
                     end)
                 end
             end
@@ -1523,6 +1696,12 @@ MT:CreateToggle({
         getgenv().ELITE_HUB_JumpRingsOn = v
         if v then StartJumpRings() end
     end
+})
+MT:CreateDropdown({
+    Name = " Ring Pattern",
+    Options = JUMP_RING_PATTERNS,
+    CurrentOption = {"Circle"},
+    Callback = function(v) getgenv().ELITE_HUB_JumpRingsPattern = v end
 })
 MT:CreateColorPicker({
     Name = " Rings Color",
