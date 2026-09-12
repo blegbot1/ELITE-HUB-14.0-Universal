@@ -318,7 +318,7 @@ getgenv().ELITE_HUB_SpinBtn = CreateMiniButton("SpinBotBtn", " Spin Bot", 4, fun
                         if ch then
                             local hrp = ch:FindFirstChild("HumanoidRootPart")
                             if hrp then
-                                hrp.CFrame = hrp.CFrame * CFrame.Angles(0, math.rad(getgenv().ELITE_HUB_SpinSpeed * 0.1), 0)
+                                hrp.CFrame = hrp.CFrame * CFrame.Angles(0, math.rad((getgenv().ELITE_HUB_SpinSpeed or 30) * 0.1), 0)
                             end
                         end
                     end
@@ -594,7 +594,7 @@ function ToggleFly()
             end
 
             task.spawn(function()
-                while nowe == true or game:GetService("Players").LocalPlayer.Character.Humanoid.Health == 0 do
+                while nowe == true do
                     game:GetService("RunService").RenderStepped:Wait()
 
                     if _G.flyCtrl.l + _G.flyCtrl.r ~= 0 or _G.flyCtrl.f + _G.flyCtrl.b ~= 0 then
@@ -623,7 +623,7 @@ function ToggleFly()
                     if flyBg then
                         local spinY = 0
                         if getgenv().ELITE_HUB_SpinBot then
-                            spinY = math.rad(getgenv().ELITE_HUB_SpinSpeed * 0.1)
+                            spinY = math.rad((getgenv().ELITE_HUB_SpinSpeed or 30) * 0.1)
                         end
                         flyBg.cframe = workspace.CurrentCamera.CFrame * CFrame.Angles(-math.rad((_G.flyCtrl.f + _G.flyCtrl.b) * 50 * speed / maxspeed), spinY, 0)
                     end
@@ -676,7 +676,7 @@ function ToggleFly()
             end
 
             task.spawn(function()
-                while nowe == true or game:GetService("Players").LocalPlayer.Character.Humanoid.Health == 0 do
+                while nowe == true do
                     wait()
 
                     if _G.flyCtrl.l + _G.flyCtrl.r ~= 0 or _G.flyCtrl.f + _G.flyCtrl.b ~= 0 then
@@ -705,7 +705,7 @@ function ToggleFly()
                     if flyBg then
                         local spinY = 0
                         if getgenv().ELITE_HUB_SpinBot then
-                            spinY = math.rad(getgenv().ELITE_HUB_SpinSpeed * 0.1)
+                            spinY = math.rad((getgenv().ELITE_HUB_SpinSpeed or 30) * 0.1)
                         end
                         flyBg.cframe = workspace.CurrentCamera.CFrame * CFrame.Angles(-math.rad((_G.flyCtrl.f + _G.flyCtrl.b) * 50 * speed / maxspeed), spinY, 0)
                     end

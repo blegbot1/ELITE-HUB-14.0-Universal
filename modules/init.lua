@@ -299,7 +299,7 @@ do
     if http_request then table.insert(reqNames, "http_request") end
     if syn and syn.request then table.insert(reqNames, "syn.request") end
     if http and http.request then table.insert(reqNames, "http.request") end
-    Check("HTTP request()", #reqNames > 0, "N/A" or (#reqNames > 0 and table.concat(reqNames, ", ") or "N/A"))
+    Check("HTTP request()", #reqNames > 0, #reqNames > 0 and table.concat(reqNames, ", ") or "N/A")
 
     task.wait(0.1)
     pcall(function() game:GetService("UserInputService") end)
@@ -1963,7 +1963,7 @@ local function EnsureCrosshairGui()
 
     local outerGlow = Instance.new("Frame")
     outerGlow.Name = "OuterGlow"
-    outerGlow.Size = UDim2.new(0, radius * 2 + 50, 0, radius * 2 + 50)
+    outerGlow.Size = UDim2.new(0, r * 2 + 50, 0, r * 2 + 50)
     outerGlow.AnchorPoint = Vector2.new(0.5, 0.5)
     outerGlow.Position = UDim2.new(0.5, 0, 0.5, 0)
     outerGlow.BackgroundTransparency = 1
@@ -2420,8 +2420,11 @@ local function UpdateTargetHUD()
             frame.PlayerName.Text = tgt.Name
             frame.HPText.Text = hp .. " / " .. maxHp .. " HP"
             frame.HPText.TextColor3 = barColor
-            frame.HPBar.Size = UDim2.new(math.clamp(ratio, 0, 1), 0, 1, 0)
-            frame.HPBar.BackgroundColor3 = barColor
+            local hpBar = frame:FindFirstChild("HPBarBG") and frame.HPBarBG:FindFirstChild("HPBar")
+            if hpBar then
+                hpBar.Size = UDim2.new(math.clamp(ratio, 0, 1), 0, 1, 0)
+                hpBar.BackgroundColor3 = barColor
+            end
             pcall(function()
                 local content = Players:GetUserThumbnailAsync(tgt.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size100x100)
                 if content and content ~= "" then frame.Avatar.Image = content end
@@ -2476,7 +2479,9 @@ local function StartPlayerHUD()
             if not getgenv().ELITE_HUB_PlayerHUDOn
                 and not getgenv().ELITE_HUB_NameTagOn
                 and not getgenv().ELITE_HUB_CrosshairOn then
-                RemovePlayerHud()
+                if playerHudConn then pcall(function() playerHudConn:Disconnect() end) playerHudConn = nil end
+                if targetScreenGui then pcall(function() targetScreenGui:Destroy() end) targetScreenGui = nil end
+                if crosshairScreenGui then pcall(function() crosshairScreenGui:Destroy() end) crosshairScreenGui = nil end
                 return
             end
             UpdateTargetHUD()

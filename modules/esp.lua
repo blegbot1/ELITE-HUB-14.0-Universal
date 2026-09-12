@@ -21,6 +21,9 @@ local IsFriendName = _g().ELITE_HUB_IsFriendName
 local GetPlayerRelation = _g().ELITE_HUB_GetPlayerRelation or GetTeamRelation
 local UpdateSkeletonLines = _g().ELITE_HUB_UpdateSkeletonLines
 local RunService = game:GetService("RunService")
+local GetTargetPlayer = _g().ELITE_HUB_GetTargetPlayer
+local CreateSkeletonLines = _g().ELITE_HUB_CreateSkeletonLines
+local RemoveSkeletonLines = _g().ELITE_HUB_RemoveSkeletonLines
 
 --[[
     ==============================

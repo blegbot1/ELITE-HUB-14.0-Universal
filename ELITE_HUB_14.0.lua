@@ -1701,7 +1701,7 @@ do
     if http_request then table.insert(reqNames, "http_request") end
     if syn and syn.request then table.insert(reqNames, "syn.request") end
     if http and http.request then table.insert(reqNames, "http.request") end
-    Check("HTTP request()", #reqNames > 0, "N/A" or (#reqNames > 0 and table.concat(reqNames, ", ") or "N/A"))
+    Check("HTTP request()", #reqNames > 0, #reqNames > 0 and table.concat(reqNames, ", ") or "N/A")
 
     task.wait(0.1)
     pcall(function() game:GetService("UserInputService") end)
@@ -3365,7 +3365,7 @@ local function EnsureCrosshairGui()
 
     local outerGlow = Instance.new("Frame")
     outerGlow.Name = "OuterGlow"
-    outerGlow.Size = UDim2.new(0, radius * 2 + 50, 0, radius * 2 + 50)
+    outerGlow.Size = UDim2.new(0, r * 2 + 50, 0, r * 2 + 50)
     outerGlow.AnchorPoint = Vector2.new(0.5, 0.5)
     outerGlow.Position = UDim2.new(0.5, 0, 0.5, 0)
     outerGlow.BackgroundTransparency = 1
@@ -3822,8 +3822,11 @@ local function UpdateTargetHUD()
             frame.PlayerName.Text = tgt.Name
             frame.HPText.Text = hp .. " / " .. maxHp .. " HP"
             frame.HPText.TextColor3 = barColor
-            frame.HPBar.Size = UDim2.new(math.clamp(ratio, 0, 1), 0, 1, 0)
-            frame.HPBar.BackgroundColor3 = barColor
+            local hpBar = frame:FindFirstChild("HPBarBG") and frame.HPBarBG:FindFirstChild("HPBar")
+            if hpBar then
+                hpBar.Size = UDim2.new(math.clamp(ratio, 0, 1), 0, 1, 0)
+                hpBar.BackgroundColor3 = barColor
+            end
             pcall(function()
                 local content = Players:GetUserThumbnailAsync(tgt.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size100x100)
                 if content and content ~= "" then frame.Avatar.Image = content end
@@ -3878,7 +3881,9 @@ local function StartPlayerHUD()
             if not getgenv().ELITE_HUB_PlayerHUDOn
                 and not getgenv().ELITE_HUB_NameTagOn
                 and not getgenv().ELITE_HUB_CrosshairOn then
-                RemovePlayerHud()
+                if playerHudConn then pcall(function() playerHudConn:Disconnect() end) playerHudConn = nil end
+                if targetScreenGui then pcall(function() targetScreenGui:Destroy() end) targetScreenGui = nil end
+                if crosshairScreenGui then pcall(function() crosshairScreenGui:Destroy() end) crosshairScreenGui = nil end
                 return
             end
             UpdateTargetHUD()
@@ -4504,6 +4509,9 @@ do
 
         aimBtn.MouseButton1Click:Connect(function()
             getgenv().ELITE_HUB_AimbotEnabled = not (getgenv().ELITE_HUB_AimbotEnabled or false)
+            if getgenv().ELITE_HUB_AimbotConfig then
+                getgenv().ELITE_HUB_AimbotConfig.Enabled = getgenv().ELITE_HUB_AimbotEnabled
+            end
             updateAimVisual()
         end)
 
@@ -6821,7 +6829,7 @@ getgenv().ELITE_HUB_SpinBtn = CreateMiniButton("SpinBotBtn", " Spin Bot", 4, fun
                         if ch then
                             local hrp = ch:FindFirstChild("HumanoidRootPart")
                             if hrp then
-                                hrp.CFrame = hrp.CFrame * CFrame.Angles(0, math.rad(getgenv().ELITE_HUB_SpinSpeed * 0.1), 0)
+                                hrp.CFrame = hrp.CFrame * CFrame.Angles(0, math.rad((getgenv().ELITE_HUB_SpinSpeed or 30) * 0.1), 0)
                             end
                         end
                     end
@@ -7097,7 +7105,7 @@ function ToggleFly()
             end
 
             task.spawn(function()
-                while nowe == true or game:GetService("Players").LocalPlayer.Character.Humanoid.Health == 0 do
+                while nowe == true do
                     game:GetService("RunService").RenderStepped:Wait()
 
                     if _G.flyCtrl.l + _G.flyCtrl.r ~= 0 or _G.flyCtrl.f + _G.flyCtrl.b ~= 0 then
@@ -7126,7 +7134,7 @@ function ToggleFly()
                     if flyBg then
                         local spinY = 0
                         if getgenv().ELITE_HUB_SpinBot then
-                            spinY = math.rad(getgenv().ELITE_HUB_SpinSpeed * 0.1)
+                            spinY = math.rad((getgenv().ELITE_HUB_SpinSpeed or 30) * 0.1)
                         end
                         flyBg.cframe = workspace.CurrentCamera.CFrame * CFrame.Angles(-math.rad((_G.flyCtrl.f + _G.flyCtrl.b) * 50 * speed / maxspeed), spinY, 0)
                     end
@@ -7179,7 +7187,7 @@ function ToggleFly()
             end
 
             task.spawn(function()
-                while nowe == true or game:GetService("Players").LocalPlayer.Character.Humanoid.Health == 0 do
+                while nowe == true do
                     wait()
 
                     if _G.flyCtrl.l + _G.flyCtrl.r ~= 0 or _G.flyCtrl.f + _G.flyCtrl.b ~= 0 then
@@ -7208,7 +7216,7 @@ function ToggleFly()
                     if flyBg then
                         local spinY = 0
                         if getgenv().ELITE_HUB_SpinBot then
-                            spinY = math.rad(getgenv().ELITE_HUB_SpinSpeed * 0.1)
+                            spinY = math.rad((getgenv().ELITE_HUB_SpinSpeed or 30) * 0.1)
                         end
                         flyBg.cframe = workspace.CurrentCamera.CFrame * CFrame.Angles(-math.rad((_G.flyCtrl.f + _G.flyCtrl.b) * 50 * speed / maxspeed), spinY, 0)
                     end
@@ -7966,6 +7974,9 @@ end
 
 _g().ELITE_HUB_IsFriendName = IsFriendName
 _g().ELITE_HUB_IsFriend = IsFriend
+_g().ELITE_HUB_CreateSkeletonLines = CreateSkeletonLines
+_g().ELITE_HUB_RemoveSkeletonLines = RemoveSkeletonLines
+_g().ELITE_HUB_GetTargetPlayer = GetTargetPlayer
 
 local function GetTargetPlayer()
     local targetName = tostring(getgenv().ELITE_HUB_TARGET_NAME or "")
@@ -8119,13 +8130,7 @@ local function TargetIsValid(targetPlayer)
     local gameDistance = (targetPart.Position - camera.CFrame.Position).Magnitude
     if gameDistance > AimbotConfig.MaxDistance or gameDistance < AimbotConfig.MinDistance then return false end
     if AimbotConfig.PersistentLock and targetPlayer == LockedTargetPlayer then
-        if IsVisible(targetPart) then
-            local sPos, sOn = camera:WorldToViewportPoint(targetPart.Position)
-            if sOn then
-                return true, targetPart
-            end
-        end
-        return false
+        return true, targetPart
     end
     if not IsVisible(targetPart) then return false end
     local screenPos, onScreen = camera:WorldToViewportPoint(targetPart.Position)
@@ -8266,7 +8271,8 @@ task.spawn(function()
             if Running and AimbotConfig.Enabled then
                 local target = GetClosestPlayer()
                 if target then
-                    local isNewTarget = LockedTargetPlayer ~= nil and LockedTargetPlayer ~= LockedTargetPlayer
+                    local prevTarget = LockedTargetPlayer
+                    LockedTargetPlayer = target
                     if LockedTarget == nil then
                         SafeNotify(" LOCK", LockedTargetPlayer.Name, 1.5, "Lock")
                     end
@@ -8741,7 +8747,7 @@ CombatTab:CreateDropdown({
     Options = {"Distance", "Health"},
     CurrentOption = "Distance",
     Callback = function(value)
-        AimbotConfig.AimPriority = value
+        AimbotConfig.Priority = value
     end
 })
 
@@ -8981,6 +8987,9 @@ local IsFriendName = _g().ELITE_HUB_IsFriendName
 local GetPlayerRelation = _g().ELITE_HUB_GetPlayerRelation or GetTeamRelation
 local UpdateSkeletonLines = _g().ELITE_HUB_UpdateSkeletonLines
 local RunService = game:GetService("RunService")
+local GetTargetPlayer = _g().ELITE_HUB_GetTargetPlayer
+local CreateSkeletonLines = _g().ELITE_HUB_CreateSkeletonLines
+local RemoveSkeletonLines = _g().ELITE_HUB_RemoveSkeletonLines
 
 --[[
     ==============================
@@ -10621,10 +10630,15 @@ task.spawn(function()
             pcall(ApplyCham, plr)
         end
     end)
+    getgenv().ELITE_HUB_ChamHighlights = chamHighlights
+    getgenv().ELITE_HUB_RestoreOriginals = RestoreOriginals
+    getgenv().ELITE_HUB_ChamOrigMats = origMats
 end)
 getgenv().ELITE_HUB_ChamsTab:CreateSection("🎨 PLAYER CHAMS")
 
 task.spawn(function()
+local chamHighlights = getgenv().ELITE_HUB_ChamHighlights or {}
+local RestoreOriginals = getgenv().ELITE_HUB_RestoreOriginals or function() end
 getgenv().ELITE_HUB_ChamsTab:CreateToggle({
     Name = " Enable Chams",
     CurrentValue = ESPConfig.ChamsEnabled,
@@ -12691,7 +12705,8 @@ MT:CreateToggle({
         if not value then
             for _, v in ipairs(workspace:GetDescendants()) do
                 if v:GetAttribute("EliteHubItemTag") then
-                    v:FindFirstChildOfClass("BillboardGui"):Destroy()
+                    local bb = v:FindFirstChildOfClass("BillboardGui")
+                    if bb then pcall(function() bb:Destroy() end) end
                     v:SetAttribute("EliteHubItemTag", nil)
                 end
             end
@@ -13076,6 +13091,7 @@ local OverlayGui = _g().ELITE_HUB_OverlayGui
 local LoadScript = _g().ELITE_HUB_LoadScript
 local SafeNotify = _g().ELITE_HUB_SafeNotify
 local DestroyScript = _g().ELITE_HUB_DestroyScript
+local UserInputService = game:GetService("UserInputService")
 local MT = Window
 
 local MovementTab = _g().ELITE_HUB_MovementTab
@@ -13230,27 +13246,32 @@ MT:CreateSlider({
     end
 })
 local origHitboxData = {}
+local hitboxActive = false
 task.spawn(function()
     while task.wait(0.5) do
         pcall(function()
             if not getgenv().ELITE_HUB_HitboxExpander then
-                for plrName, data in pairs(origHitboxData) do
-                    local p = game:GetService("Players"):FindFirstChild(plrName)
-                    if p and p.Character then
-                        local hrp = p.Character:FindFirstChild("HumanoidRootPart")
-                        if hrp then
-                            pcall(function()
-                                hrp.Size = data.Size
-                                hrp.Transparency = data.Transparency
-                                hrp.BrickColor = data.BrickColor
-                                hrp.Material = data.Material
-                            end)
+                if hitboxActive then
+                    for plrName, data in pairs(origHitboxData) do
+                        local p = game:GetService("Players"):FindFirstChild(plrName)
+                        if p and p.Character then
+                            local hrp = p.Character:FindFirstChild("HumanoidRootPart")
+                            if hrp then
+                                pcall(function()
+                                    hrp.Size = data.Size
+                                    hrp.Transparency = data.Transparency
+                                    hrp.BrickColor = data.BrickColor
+                                    hrp.Material = data.Material
+                                end)
+                            end
                         end
                     end
+                    origHitboxData = {}
+                    hitboxActive = false
                 end
-                origHitboxData = {}
                 return
             end
+            hitboxActive = true
             for _, plr in ipairs(game:GetService("Players"):GetPlayers()) do
                 if plr ~= player and plr.Character then
                     local hrp = plr.Character:FindFirstChild("HumanoidRootPart")
@@ -13468,6 +13489,8 @@ local OverlayGui = _g().ELITE_HUB_OverlayGui
 local LoadScript = _g().ELITE_HUB_LoadScript
 local SafeNotify = _g().ELITE_HUB_SafeNotify
 local DestroyScript = _g().ELITE_HUB_DestroyScript
+local UserInputService = game:GetService("UserInputService")
+local UIS = UserInputService
 local MT = Window
 
 local CameraTeleportTab = _g().ELITE_HUB_CameraTeleportTab
@@ -13582,7 +13605,7 @@ MT:CreateButton({
     end
 })
 
-MT = UtilitiesTab
+MT = _g().ELITE_HUB_UtilitiesTab
 MT:CreateToggle({
     Name = " Fullbright",
     CurrentValue = false,
@@ -13730,7 +13753,7 @@ task.spawn(function()
 end)
 
 getgenv().ELITE_HUB_BunnyHop = false
-MT = MovementTab
+MT = _g().ELITE_HUB_MovementTab
 MT:CreateToggle({
     Name = " Bunny Hop",
     CurrentValue = false,
@@ -13947,6 +13970,10 @@ end
 getgenv().ELITE_HUB_MusicGetId = ELITE_HUB_MusicGetId
 
 local function ELITE_HUB_MusicStop()
+    if getgenv().ELITE_HUB_MusicEndConn then
+        pcall(function() getgenv().ELITE_HUB_MusicEndConn:Disconnect() end)
+        getgenv().ELITE_HUB_MusicEndConn = nil
+    end
     if getgenv().ELITE_HUB_MusicPlayer then
         pcall(function()
             getgenv().ELITE_HUB_MusicPlayer:Stop()
@@ -14034,13 +14061,7 @@ MusicTab:CreateToggle({
     Callback = function(value)
         getgenv().ELITE_HUB_Log("MUSIC", "Play: " .. tostring(value))
         if value then
-            if not getgenv().ELITE_HUB_MusicPlayer then
-                getgenv().ELITE_HUB_MusicPlayer = Instance.new("Sound")
-                getgenv().ELITE_HUB_MusicPlayer.Name = "EliteHubMusic"
-                getgenv().ELITE_HUB_MusicPlayer.Volume = getgenv().ELITE_HUB_MusicVolume
-                getgenv().ELITE_HUB_MusicPlayer.Looped = true
-                getgenv().ELITE_HUB_MusicPlayer.Parent = game:GetService("SoundService")
-            end
+            ELITE_HUB_MusicEnsureSound()
             local playlist = getgenv().ELITE_HUB_MusicPlaylist
             local idx = getgenv().ELITE_HUB_MusicIndex
             if #playlist > 0 and playlist[idx] then

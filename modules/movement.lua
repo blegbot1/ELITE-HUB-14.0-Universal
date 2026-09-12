@@ -11,6 +11,7 @@ local OverlayGui = _g().ELITE_HUB_OverlayGui
 local LoadScript = _g().ELITE_HUB_LoadScript
 local SafeNotify = _g().ELITE_HUB_SafeNotify
 local DestroyScript = _g().ELITE_HUB_DestroyScript
+local UserInputService = game:GetService("UserInputService")
 local MT = Window
 
 local MovementTab = _g().ELITE_HUB_MovementTab

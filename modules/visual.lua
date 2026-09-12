@@ -621,7 +621,8 @@ MT:CreateToggle({
         if not value then
             for _, v in ipairs(workspace:GetDescendants()) do
                 if v:GetAttribute("EliteHubItemTag") then
-                    v:FindFirstChildOfClass("BillboardGui"):Destroy()
+                    local bb = v:FindFirstChildOfClass("BillboardGui")
+                    if bb then pcall(function() bb:Destroy() end) end
                     v:SetAttribute("EliteHubItemTag", nil)
                 end
             end

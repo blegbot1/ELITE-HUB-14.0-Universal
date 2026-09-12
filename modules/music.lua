@@ -56,6 +56,10 @@ end
 getgenv().ELITE_HUB_MusicGetId = ELITE_HUB_MusicGetId
 
 local function ELITE_HUB_MusicStop()
+    if getgenv().ELITE_HUB_MusicEndConn then
+        pcall(function() getgenv().ELITE_HUB_MusicEndConn:Disconnect() end)
+        getgenv().ELITE_HUB_MusicEndConn = nil
+    end
     if getgenv().ELITE_HUB_MusicPlayer then
         pcall(function()
             getgenv().ELITE_HUB_MusicPlayer:Stop()
@@ -143,13 +147,7 @@ MusicTab:CreateToggle({
     Callback = function(value)
         getgenv().ELITE_HUB_Log("MUSIC", "Play: " .. tostring(value))
         if value then
-            if not getgenv().ELITE_HUB_MusicPlayer then
-                getgenv().ELITE_HUB_MusicPlayer = Instance.new("Sound")
-                getgenv().ELITE_HUB_MusicPlayer.Name = "EliteHubMusic"
-                getgenv().ELITE_HUB_MusicPlayer.Volume = getgenv().ELITE_HUB_MusicVolume
-                getgenv().ELITE_HUB_MusicPlayer.Looped = true
-                getgenv().ELITE_HUB_MusicPlayer.Parent = game:GetService("SoundService")
-            end
+            ELITE_HUB_MusicEnsureSound()
             local playlist = getgenv().ELITE_HUB_MusicPlaylist
             local idx = getgenv().ELITE_HUB_MusicIndex
             if #playlist > 0 and playlist[idx] then

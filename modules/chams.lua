@@ -217,10 +217,15 @@ task.spawn(function()
             pcall(ApplyCham, plr)
         end
     end)
+    getgenv().ELITE_HUB_ChamHighlights = chamHighlights
+    getgenv().ELITE_HUB_RestoreOriginals = RestoreOriginals
+    getgenv().ELITE_HUB_ChamOrigMats = origMats
 end)
 getgenv().ELITE_HUB_ChamsTab:CreateSection("🎨 PLAYER CHAMS")
 
 task.spawn(function()
+local chamHighlights = getgenv().ELITE_HUB_ChamHighlights or {}
+local RestoreOriginals = getgenv().ELITE_HUB_RestoreOriginals or function() end
 getgenv().ELITE_HUB_ChamsTab:CreateToggle({
     Name = " Enable Chams",
     CurrentValue = ESPConfig.ChamsEnabled,

@@ -36,27 +36,32 @@ MT:CreateSlider({
     end
 })
 local origHitboxData = {}
+local hitboxActive = false
 task.spawn(function()
     while task.wait(0.5) do
         pcall(function()
             if not getgenv().ELITE_HUB_HitboxExpander then
-                for plrName, data in pairs(origHitboxData) do
-                    local p = game:GetService("Players"):FindFirstChild(plrName)
-                    if p and p.Character then
-                        local hrp = p.Character:FindFirstChild("HumanoidRootPart")
-                        if hrp then
-                            pcall(function()
-                                hrp.Size = data.Size
-                                hrp.Transparency = data.Transparency
-                                hrp.BrickColor = data.BrickColor
-                                hrp.Material = data.Material
-                            end)
+                if hitboxActive then
+                    for plrName, data in pairs(origHitboxData) do
+                        local p = game:GetService("Players"):FindFirstChild(plrName)
+                        if p and p.Character then
+                            local hrp = p.Character:FindFirstChild("HumanoidRootPart")
+                            if hrp then
+                                pcall(function()
+                                    hrp.Size = data.Size
+                                    hrp.Transparency = data.Transparency
+                                    hrp.BrickColor = data.BrickColor
+                                    hrp.Material = data.Material
+                                end)
+                            end
                         end
                     end
+                    origHitboxData = {}
+                    hitboxActive = false
                 end
-                origHitboxData = {}
                 return
             end
+            hitboxActive = true
             for _, plr in ipairs(game:GetService("Players"):GetPlayers()) do
                 if plr ~= player and plr.Character then
                     local hrp = plr.Character:FindFirstChild("HumanoidRootPart")

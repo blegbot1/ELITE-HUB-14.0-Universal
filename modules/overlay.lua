@@ -228,6 +228,9 @@ do
 
         aimBtn.MouseButton1Click:Connect(function()
             getgenv().ELITE_HUB_AimbotEnabled = not (getgenv().ELITE_HUB_AimbotEnabled or false)
+            if getgenv().ELITE_HUB_AimbotConfig then
+                getgenv().ELITE_HUB_AimbotConfig.Enabled = getgenv().ELITE_HUB_AimbotEnabled
+            end
             updateAimVisual()
         end)
 

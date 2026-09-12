@@ -11,6 +11,8 @@ local OverlayGui = _g().ELITE_HUB_OverlayGui
 local LoadScript = _g().ELITE_HUB_LoadScript
 local SafeNotify = _g().ELITE_HUB_SafeNotify
 local DestroyScript = _g().ELITE_HUB_DestroyScript
+local UserInputService = game:GetService("UserInputService")
+local UIS = UserInputService
 local MT = Window
 
 local CameraTeleportTab = _g().ELITE_HUB_CameraTeleportTab
@@ -125,7 +127,7 @@ MT:CreateButton({
     end
 })
 
-MT = UtilitiesTab
+MT = _g().ELITE_HUB_UtilitiesTab
 MT:CreateToggle({
     Name = " Fullbright",
     CurrentValue = false,
@@ -273,7 +275,7 @@ task.spawn(function()
 end)
 
 getgenv().ELITE_HUB_BunnyHop = false
-MT = MovementTab
+MT = _g().ELITE_HUB_MovementTab
 MT:CreateToggle({
     Name = " Bunny Hop",
     CurrentValue = false,

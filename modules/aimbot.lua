@@ -421,6 +421,9 @@ end
 
 _g().ELITE_HUB_IsFriendName = IsFriendName
 _g().ELITE_HUB_IsFriend = IsFriend
+_g().ELITE_HUB_CreateSkeletonLines = CreateSkeletonLines
+_g().ELITE_HUB_RemoveSkeletonLines = RemoveSkeletonLines
+_g().ELITE_HUB_GetTargetPlayer = GetTargetPlayer
 
 local function GetTargetPlayer()
     local targetName = tostring(getgenv().ELITE_HUB_TARGET_NAME or "")
@@ -574,13 +577,7 @@ local function TargetIsValid(targetPlayer)
     local gameDistance = (targetPart.Position - camera.CFrame.Position).Magnitude
     if gameDistance > AimbotConfig.MaxDistance or gameDistance < AimbotConfig.MinDistance then return false end
     if AimbotConfig.PersistentLock and targetPlayer == LockedTargetPlayer then
-        if IsVisible(targetPart) then
-            local sPos, sOn = camera:WorldToViewportPoint(targetPart.Position)
-            if sOn then
-                return true, targetPart
-            end
-        end
-        return false
+        return true, targetPart
     end
     if not IsVisible(targetPart) then return false end
     local screenPos, onScreen = camera:WorldToViewportPoint(targetPart.Position)
@@ -721,7 +718,8 @@ task.spawn(function()
             if Running and AimbotConfig.Enabled then
                 local target = GetClosestPlayer()
                 if target then
-                    local isNewTarget = LockedTargetPlayer ~= nil and LockedTargetPlayer ~= LockedTargetPlayer
+                    local prevTarget = LockedTargetPlayer
+                    LockedTargetPlayer = target
                     if LockedTarget == nil then
                         SafeNotify(" LOCK", LockedTargetPlayer.Name, 1.5, "Lock")
                     end
@@ -1196,7 +1194,7 @@ CombatTab:CreateDropdown({
     Options = {"Distance", "Health"},
     CurrentOption = "Distance",
     Callback = function(value)
-        AimbotConfig.AimPriority = value
+        AimbotConfig.Priority = value
     end
 })
 
