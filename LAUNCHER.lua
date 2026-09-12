@@ -6,7 +6,7 @@ local TweenService = game:GetService("TweenService")
 local player = Players.LocalPlayer
 
 local BASE_URL = "https://raw.githubusercontent.com/blegbot1/ELITE-HUB-14.0-Universal/main/"
-local HUB_URL = BASE_URL .. "ELITE_HUB_14.0.lua?v=mono9"
+local HUB_URL = BASE_URL .. "ELITE_HUB_14.0.lua?v=mono10"
 local IMAGE_URL = BASE_URL .. "launcher/kotik.jpg"
 local IMAGE_FILE = "elitehub_kotik.jpg"
 
