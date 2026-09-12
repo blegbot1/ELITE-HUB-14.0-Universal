@@ -3140,24 +3140,6 @@ local function EnsureCrosshairGui()
         Instance.new("UICorner", outerGlow).CornerRadius = UDim.new(0.5, 0)
 
         if style == "Rotating Ring" then
-            local circle = Instance.new("Frame")
-            circle.Name = "Circle"
-            circle.Size = UDim2.new(0, r * 2, 0, r * 2)
-            circle.Position = UDim2.new(0.5, -r, 0.5, -r)
-            circle.BackgroundTransparency = 1
-            circle.BorderSizePixel = 0
-            circle.Parent = rotFrame
-            Instance.new("UICorner", circle).CornerRadius = UDim.new(0.5, 0)
-            local cs = Instance.new("UIStroke")
-            cs.Color = col
-            cs.Thickness = lw
-            cs.Transparency = 0
-            cs.Parent = circle
-            local csG = Instance.new("UIStroke")
-            csG.Color = col
-            csG.Thickness = lw + 10
-            csG.Transparency = 0.4
-            csG.Parent = circle
             local function ml(n, sz, pos)
                 local f = Instance.new("Frame")
                 f.Name = n
@@ -7606,12 +7588,16 @@ local function IsFriend(targetPlayer)
 end
 
 local function GetTargetPlayer()
-    local targetName = tostring(getgenv().ELITE_HUB_TARGET_NAME or "")
-    if targetName == "" then return nil end
-    for _, p in ipairs(Players:GetPlayers()) do
-        if p.Name:lower() == targetName:lower() then return p end
+    local ac = getgenv().ELITE_HUB_AimbotConfig
+    local aimbotOn = (ac and ac.Enabled) or getgenv().ELITE_HUB_AimbotEnabled
+    if aimbotOn then
+        if LockedTargetPlayer and LockedTargetPlayer.Character then
+            local h = LockedTargetPlayer.Character:FindFirstChildOfClass("Humanoid")
+            if h and h.Health > 0 then return LockedTargetPlayer end
+        end
+        return FindClosestPlayerByRay()
     end
-    return nil
+    return FindClosestPlayerByRay()
 end
 
 getgenv().ELITE_HUB_FRIEND_TEAMS = getgenv().ELITE_HUB_FRIEND_TEAMS or {}
