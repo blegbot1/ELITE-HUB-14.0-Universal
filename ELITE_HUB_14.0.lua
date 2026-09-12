@@ -2928,23 +2928,27 @@ local function FindClosestPlayerByRay()
                 local toTarget = (tHRP.Position - camPos)
                 local gameDist = toTarget.Magnitude
                 if gameDist < 200 then
-                    local screenPos, onScreen = Camera:WorldToViewportPoint(tHRP.Position)
-                    if onScreen then
-                        local screenPoint = Vector2.new(screenPos.X, screenPos.Y)
-                        local screenDist = (screenPoint - mousePos).Magnitude
-                        local inRange = true
-                        if aimbotOn then
-                            inRange = screenDist <= fovRadius
-                        end
-                        if inRange and screenDist < bestScore then
-                            local params = RaycastParams.new()
-                            params.FilterDescendantsInstances = {player.Character}
-                            params.FilterType = Enum.RaycastFilterType.Exclude
-                            local result = workspace:Raycast(camPos, toTarget, params)
-                            if not result or result.Instance:IsDescendantOf(p.Character) then
-                                bestScore = screenDist
-                                best = p
+                    local score
+                    if aimbotOn then
+                        local screenPos, onScreen = Camera:WorldToViewportPoint(tHRP.Position)
+                        if onScreen then
+                            local screenPoint = Vector2.new(screenPos.X, screenPos.Y)
+                            local screenDist = (screenPoint - mousePos).Magnitude
+                            if screenDist <= fovRadius then
+                                score = screenDist
                             end
+                        end
+                    else
+                        score = gameDist
+                    end
+                    if score and score < bestScore then
+                        local params = RaycastParams.new()
+                        params.FilterDescendantsInstances = {player.Character}
+                        params.FilterType = Enum.RaycastFilterType.Exclude
+                        local result = workspace:Raycast(camPos, toTarget, params)
+                        if not result or result.Instance:IsDescendantOf(p.Character) then
+                            bestScore = score
+                            best = p
                         end
                     end
                 end
