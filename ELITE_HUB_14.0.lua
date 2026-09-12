@@ -3090,34 +3090,13 @@ local function RemoveCrosshair()
     if crosshairScreenGui then pcall(function() crosshairScreenGui:Destroy() end) crosshairScreenGui = nil end
 end
 
-local function UpdateCrosshairTrack()
-    if not crosshairScreenGui or not crosshairScreenGui.Parent then return end
-    local rotFrame = crosshairScreenGui:FindFirstChild("Rotator")
-    if not rotFrame then return end
-    if not getgenv().ELITE_HUB_CrosshairOn or not currentTarget or not currentTarget.Character then
-        rotFrame.Visible = false
-        return
-    end
-    local head = currentTarget.Character:FindFirstChild("Head")
-    if not head then rotFrame.Visible = false return end
-    local hrp = currentTarget.Character:FindFirstChild("HumanoidRootPart")
-    if not hrp then rotFrame.Visible = false return end
-    local dist = (Camera.CFrame.Position - hrp.Position).Magnitude
-    local screenPos, onScreen = Camera:WorldToViewportPoint(head.Position + Vector3.new(0, 1, 0))
-    if not onScreen or dist > 200 then rotFrame.Visible = false return end
-    rotFrame.Position = UDim2.new(0, screenPos.X, 0, screenPos.Y)
-    rotFrame.Visible = true
-    local scale = math.clamp(150 / dist, 0.3, 3)
-    local sz = 60 * scale
-    rotFrame.Size = UDim2.new(0, sz, 0, sz)
-end
-
 local function EnsureCrosshairGui()
-    if crosshairScreenGui and crosshairScreenGui.Parent then return end
+    if crosshairScreenGui and crosshairScreenGui.Parent then return crosshairScreenGui end
     RemoveCrosshair()
+
     local sg = Instance.new("ScreenGui")
     sg.Name = "ELITEHUB_CrosshairGui"
-    sg.ResetOnSpawn = false
+    sg.ResetOnSpawn = true
     sg.DisplayOrder = 200
     sg.IgnoreGuiInset = true
     sg.Parent = player.PlayerGui
@@ -3169,9 +3148,11 @@ local function EnsureCrosshairGui()
     crosshairScreenGui = sg
 
     local rotAngle = 0
+    if crosshairRotConn then pcall(function() crosshairRotConn:Disconnect() end) end
     crosshairRotConn = RunService.Heartbeat:Connect(function(dt)
         if not sg or not sg.Parent then
-            if crosshairRotConn then pcall(function() crosshairRotConn:Disconnect() end) crosshairRotConn = nil end
+            pcall(function() crosshairRotConn:Disconnect() end)
+            crosshairRotConn = nil
             return
         end
         local speed = getgenv().ELITE_HUB_CrosshairSpeed or 2
@@ -3184,8 +3165,25 @@ local function EnsureCrosshairGui()
                 child.BackgroundColor3 = newCol
             end
         end
-        UpdateCrosshairTrack()
+        if currentTarget and currentTarget.Character then
+            local head = currentTarget.Character:FindFirstChild("Head")
+            local hrp = currentTarget.Character:FindFirstChild("HumanoidRootPart")
+            if head and hrp then
+                local dist = (Camera.CFrame.Position - hrp.Position).Magnitude
+                local sp, onScr = Camera:WorldToViewportPoint(head.Position + Vector3.new(0, 1, 0))
+                if onScr and dist < 200 then
+                    rotFrame.Position = UDim2.new(0, sp.X, 0, sp.Y)
+                    rotFrame.Visible = true
+                    local scale = math.clamp(150 / dist, 0.3, 3)
+                    rotFrame.Size = UDim2.new(0, 60 * scale, 0, 60 * scale)
+                    return
+                end
+            end
+        end
+        rotFrame.Visible = false
     end)
+
+    return sg
 end
 
 local function RemovePlayerHud()
@@ -3342,12 +3340,7 @@ local function UpdateTargetHUD()
         end
     end
 
-    -- Crosshair on target
-    if getgenv().ELITE_HUB_CrosshairOn then
-        EnsureCrosshairGui()
-    else
-        RemoveCrosshair()
-    end
+    -- Crosshair position handled by heartbeat in EnsureCrosshairGui
 end
 
 local function StartPlayerHUD()
@@ -3402,6 +3395,7 @@ MT:CreateToggle({
     Callback = function(v)
         getgenv().ELITE_HUB_CrosshairOn = v
         if v then
+            EnsureCrosshairGui()
             StartPlayerHUD()
         else
             RemoveCrosshair()
