@@ -185,19 +185,19 @@ task.spawn(function()
         {1.0,  "Done!"},
     }
     for _, step in ipairs(steps) do
-        TweenService:Create(bar, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(step[1], 0, 1, 0)}):Play()
+        TweenService:Create(bar, TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(step[1], 0, 1, 0)}):Play()
         status.Text = step[2]
-        task.wait(0.3)
+        task.wait(0.15)
     end
 
-    task.wait(0.3)
-    TweenService:Create(bg, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = 1}):Play()
-    TweenService:Create(title, TweenInfo.new(0.5), {TextTransparency = 1, TextStrokeTransparency = 1}):Play()
-    TweenService:Create(sub, TweenInfo.new(0.5), {TextTransparency = 1}):Play()
-    TweenService:Create(status, TweenInfo.new(0.5), {TextTransparency = 1}):Play()
-    TweenService:Create(barBg, TweenInfo.new(0.5), {BackgroundTransparency = 1}):Play()
-    TweenService:Create(bar, TweenInfo.new(0.5), {BackgroundTransparency = 1}):Play()
-    task.wait(0.6)
+    task.wait(0.15)
+    TweenService:Create(bg, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = 1}):Play()
+    TweenService:Create(title, TweenInfo.new(0.3), {TextTransparency = 1, TextStrokeTransparency = 1}):Play()
+    TweenService:Create(sub, TweenInfo.new(0.3), {TextTransparency = 1}):Play()
+    TweenService:Create(status, TweenInfo.new(0.3), {TextTransparency = 1}):Play()
+    TweenService:Create(barBg, TweenInfo.new(0.3), {BackgroundTransparency = 1}):Play()
+    TweenService:Create(bar, TweenInfo.new(0.3), {BackgroundTransparency = 1}):Play()
+    task.wait(0.35)
     LG:Destroy()
 end)
 
@@ -1869,7 +1869,7 @@ local function CreateTargetScreenGui()
     local frame = Instance.new("Frame")
     frame.Name = "TargetPanel"
     frame.Size = UDim2.new(0, 280, 0, 100)
-    frame.Position = UDim2.new(0.5, -140, 0.15, 0)
+    frame.Position = UDim2.new(1, -300, 0.15, 0)
     frame.BackgroundColor3 = Color3.fromRGB(15, 15, 25)
     frame.BackgroundTransparency = 0.1
     frame.BorderSizePixel = 0

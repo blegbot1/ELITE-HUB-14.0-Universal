@@ -35,6 +35,7 @@ local ESPConfig = {
     TeamCheck = true,
     ShowTeammates = true,
     Boxes = true,
+    BoxStyle = "Highlight",
     Names = true,
     Health = true,
     Distance = true,
@@ -107,6 +108,7 @@ local ESPConfig = {
 local ESPObjects = {}
 local TracerLines = {}
 local Box3DObjects = {}
+local CornerBoxObjects = {}
 local ESPArrows = {}
 local ESPSkeletons = {}
 local ESPHeadDots = {}
@@ -465,6 +467,7 @@ local function ClearPlayerESP(targetPlayer)
     DestroyPlayerSkeleton(targetPlayer)
     DestroyHeadDot(targetPlayer)
     DestroyHealthBar(targetPlayer)
+    ClearCornerBox(targetPlayer)
 end
 
 local function CreatePlayerESP(targetPlayer)
@@ -496,7 +499,7 @@ local function CreatePlayerESP(targetPlayer)
         fillColor = isTeammate and ESPConfig.TeammateColor or ESPConfig.EnemyColor
     end
 
-    if ESPConfig.Boxes and rootPart then
+    if ESPConfig.Boxes and rootPart and ESPConfig.BoxStyle ~= "Corners" then
         local highlight = Instance.new("Highlight")
         highlight.FillColor = fillColor
         highlight.OutlineColor = ESPConfig.OutlineColor
@@ -831,8 +834,9 @@ local function UpdateBox3DESP()
 
             if not allVisible then
                 for i = 1, 8 do
-                    local sp = camera:WorldToViewportPoint(corners[i])
-                    screenCorners[i] = Vector2.new(math.clamp(sp.X, 0, camera.ViewportSize.X), math.clamp(sp.Y, 0, camera.ViewportSize.Y))
+                    local sp, vis = camera:WorldToViewportPoint(corners[i])
+                    screenCorners[i] = Vector2.new(sp.X, sp.Y)
+                    if not vis then screenCorners[i] = nil end
                 end
             end
 
@@ -843,15 +847,105 @@ local function UpdateBox3DESP()
             }
 
             for i, connection in ipairs(connections) do
-                if lines[i] then
+                if lines[i] and screenCorners[connection[1]] and screenCorners[connection[2]] then
                     lines[i].From = screenCorners[connection[1]]
                     lines[i].To = screenCorners[connection[2]]
                     lines[i].Visible = true
                     lines[i].Color = isDead and ESPConfig.DeadColor or ESPConfig.Box3DColor
                     lines[i].Thickness = ESPConfig.Box3DThickness
+                elseif lines[i] then
+                    lines[i].Visible = false
                 end
             end
             boxCount = boxCount + 1
+        end)
+    end
+end
+
+local function ClearCornerBox(targetPlayer)
+    if CornerBoxObjects[targetPlayer] then
+        for _, line in ipairs(CornerBoxObjects[targetPlayer]) do
+            if line then pcall(function() line:Remove() end) end
+        end
+        CornerBoxObjects[targetPlayer] = nil
+    end
+end
+
+local function UpdateCornerBoxESP()
+    if not ESPConfig.Enabled or not ESPConfig.Boxes or ESPConfig.BoxStyle ~= "Corners" then return end
+    local camera = workspace.CurrentCamera
+    for targetPlayer, espGroup in pairs(ESPObjects) do
+        pcall(function()
+            local character = targetPlayer.Character
+            local rootPart = character and character:FindFirstChild("HumanoidRootPart")
+            local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+            if not rootPart or not humanoid then
+                ClearCornerBox(targetPlayer)
+                return
+            end
+            if humanoid.Health <= 0 and not ESPConfig.ShowDead then
+                ClearCornerBox(targetPlayer)
+                return
+            end
+            local screenPos, onScreen = camera:WorldToViewportPoint(rootPart.Position)
+            if not onScreen then
+                ClearCornerBox(targetPlayer)
+                return
+            end
+            local size = Vector3.new(2, 5, 1) * 1.2
+            local cf = rootPart.CFrame
+            local corners = {
+                cf * CFrame.new(-size.X/2, -size.Y/2, 0),
+                cf * CFrame.new(size.X/2, -size.Y/2, 0),
+                cf * CFrame.new(size.X/2, size.Y/2, 0),
+                cf * CFrame.new(-size.X/2, size.Y/2, 0),
+            }
+            local sc = {}
+            for i, c in ipairs(corners) do
+                local sp = camera:WorldToViewportPoint(c.Position)
+                sc[i] = Vector2.new(sp.X, sp.Y)
+            end
+            local w = math.abs(sc[2].X - sc[1].X)
+            local h = math.abs(sc[3].Y - sc[2].Y)
+            if w < 5 or h < 5 then ClearCornerBox(targetPlayer); return end
+            local cornerLen = math.min(w, h) * 0.25
+            local lines = CornerBoxObjects[targetPlayer]
+            if not lines or #lines ~= 8 then
+                if lines then for _, l in ipairs(lines) do if l then pcall(function() l:Remove() end) end end end
+                lines = {}
+                for i = 1, 8 do lines[i] = NewOverlayLine() end
+                CornerBoxObjects[targetPlayer] = lines
+            end
+            local isDead = humanoid.Health <= 0
+            local col = isDead and ESPConfig.DeadColor or (espGroup.Highlight and espGroup.Highlight.FillColor or ESPConfig.EnemyColor)
+            local thick = ESPConfig.TracerThickness or 2
+            local tl = cornerLen
+            local cx1, cy1 = sc[1].X, sc[1].Y
+            local cx2, cy2 = sc[2].X, sc[2].Y
+            local cx3, cy3 = sc[3].X, sc[3].Y
+            local cx4, cy4 = sc[4].X, sc[4].Y
+            local corners2d = {
+                {pos = sc[1], dx = 1, dy = -1},
+                {pos = sc[2], dx = -1, dy = -1},
+                {pos = sc[3], dx = -1, dy = 1},
+                {pos = sc[4], dx = 1, dy = 1},
+            }
+            local segIdx = 1
+            for _, c in ipairs(corners2d) do
+                local p = c.pos
+                lines[segIdx].From = p
+                lines[segIdx].To = Vector2.new(p.X + c.dx * tl, p.Y)
+                lines[segIdx].Visible = true
+                lines[segIdx].Color = col
+                lines[segIdx].Thickness = thick
+                segIdx = segIdx + 1
+                lines[segIdx].From = p
+                lines[segIdx].To = Vector2.new(p.X, p.Y + c.dy * tl)
+                lines[segIdx].Visible = true
+                lines[segIdx].Color = col
+                lines[segIdx].Thickness = thick
+                segIdx = segIdx + 1
+            end
         end)
     end
 end
@@ -974,6 +1068,7 @@ RunService.RenderStepped:Connect(function(dt)
         pcall(UpdateESPSkeletons)
         pcall(UpdateHeadDots)
         pcall(UpdateHealthBars)
+        pcall(UpdateCornerBoxESP)
         if ESPConfig.Box3DEnabled then
             pcall(UpdateBox3DESP)
         end
@@ -1093,6 +1188,23 @@ ESPTab:CreateToggle({
         ESPConfig.ShowDead = value
         UpdateESP()
     end
+})
+
+ESPTab:CreateDropdown({
+    Name = " Box style",
+    Options = {"Highlight", "Corners"},
+    CurrentOption = {ESPConfig.BoxStyle},
+    MultipleOptions = false,
+    Callback = function(opt)
+        local style = (typeof(opt) == "table" and opt[1]) or opt or "Highlight"
+        ESPConfig.BoxStyle = style
+        if style == "Corners" then
+            for targetPlayer, espGroup in pairs(ESPObjects) do
+                if espGroup.Highlight then pcall(function() espGroup.Highlight:Destroy() end) espGroup.Highlight = nil end
+            end
+        end
+        UpdateESP()
+    end,
 })
 
 ESPTab:CreateToggle({
