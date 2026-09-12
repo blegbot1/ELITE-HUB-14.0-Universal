@@ -2207,7 +2207,6 @@ local function BuildAura(char)
         seg.Parent = au
         auraHalo[seg] = ccf
     end
-    Unanchor(au)
     if auraConn then pcall(function() auraConn:Disconnect() end) end
     local spinA = 0
     auraConn = game:GetService("RunService").Heartbeat:Connect(function(dt)
@@ -2339,7 +2338,6 @@ local function BuildHorns(char)
     end
     sideHorn(-1)
     sideHorn(1)
-    Unanchor(hrn)
     if hornConn then pcall(function() hornConn:Disconnect() end) end
     hornConn = game:GetService("RunService").Heartbeat:Connect(function()
         pcall(function()
