@@ -1,4 +1,4 @@
-﻿-- ELITE HUB 14.0 loader: builds shared env, creates window+tabs, runs modules
+-- ELITE HUB 14.0 loader: builds shared env, creates window+tabs, runs modules
 local function readModule(path)
     assert(readfile, "ELITE HUB: executor lacks readfile")
     local ok, src = pcall(readfile, path)
