@@ -1600,7 +1600,7 @@ local function CreateTargetScreenGui()
     frame.Size = UDim2.new(0, 280, 0, 100)
     frame.Position = UDim2.new(0.5, -140, 0.15, 0)
     frame.BackgroundColor3 = Color3.fromRGB(15, 15, 25)
-    frame.BackgroundTransparency = 0.1
+    frame.BackgroundTransparency = 1
     frame.BorderSizePixel = 0
     frame.Visible = false
     frame.Parent = sg
@@ -1611,7 +1611,8 @@ local function CreateTargetScreenGui()
 
     local stroke = Instance.new("UIStroke")
     stroke.Color = Color3.fromRGB(100, 100, 255)
-    stroke.Thickness = 2
+    stroke.Thickness = 1
+    stroke.Transparency = 0.5
     stroke.Parent = frame
 
     local avatar = Instance.new("ImageLabel")
@@ -1619,6 +1620,7 @@ local function CreateTargetScreenGui()
     avatar.Size = UDim2.new(0, 60, 0, 60)
     avatar.Position = UDim2.new(0, 10, 0, 20)
     avatar.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+    avatar.BackgroundTransparency = 1
     avatar.BorderSizePixel = 0
     avatar.Image = ""
     avatar.Parent = frame
@@ -1725,17 +1727,17 @@ local function EnsureCrosshairGui()
         local ll = 14
         local gp = 10
 
-        local outerGlow = Instance.new("Frame")
-        outerGlow.Name = "OuterGlow"
-        outerGlow.Size = UDim2.new(0, r * 2 + 50, 0, r * 2 + 50)
-        outerGlow.AnchorPoint = Vector2.new(0.5, 0.5)
-        outerGlow.Position = UDim2.new(0.5, 0, 0.5, 0)
-        outerGlow.BackgroundTransparency = 0.5
-        outerGlow.BackgroundColor3 = col
-        outerGlow.BorderSizePixel = 0
-        outerGlow.ZIndex = 0
-        outerGlow.Parent = rotFrame
-        Instance.new("UICorner", outerGlow).CornerRadius = UDim.new(0.5, 0)
+    local outerGlow = Instance.new("Frame")
+    outerGlow.Name = "OuterGlow"
+    outerGlow.Size = UDim2.new(0, radius * 2 + 50, 0, radius * 2 + 50)
+    outerGlow.AnchorPoint = Vector2.new(0.5, 0.5)
+    outerGlow.Position = UDim2.new(0.5, 0, 0.5, 0)
+    outerGlow.BackgroundTransparency = 1
+    outerGlow.BackgroundColor3 = col
+    outerGlow.BorderSizePixel = 0
+    outerGlow.ZIndex = 0
+    outerGlow.Parent = rotFrame
+    Instance.new("UICorner", outerGlow).CornerRadius = UDim.new(0.5, 0)
 
         if style == "Rotating Ring" then
             local function ml(n, sz, pos)
@@ -2034,7 +2036,6 @@ local function EnsureCrosshairGui()
         local og = rotFrame:FindFirstChild("OuterGlow")
         if og then
             og.BackgroundColor3 = newCol
-            og.BackgroundTransparency = 0.5
         end
         if currentTarget and currentTarget.Character then
             local head = currentTarget.Character:FindFirstChild("Head")
