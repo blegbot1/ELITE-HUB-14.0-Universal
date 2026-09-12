@@ -3094,58 +3094,84 @@ end
 
 local function CreateCrosshair()
     if crosshairPart then pcall(function() crosshairPart:Destroy() end) crosshairPart = nil end
-    local cam = workspace.CurrentCamera
-    if not cam then return end
-    local sg = Instance.new("ScreenGui")
-    sg.Name = "ELITEHUB_Crosshair"
-    sg.ResetOnSpawn = false
-    sg.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-    sg.DisplayOrder = 999
-    sg.Parent = player.PlayerGui
+    crosshairPart = "pending"
+end
 
-    local centerX = cam.ViewportSize.X / 2
-    local centerY = cam.ViewportSize.Y / 2
-    local radius = 20
-    local lineLen = 8
-    local gap = 6
-    local thickness = 2
+local function UpdateCrosshairOnHead(tgtChar)
+    if not getgenv().ELITE_HUB_CrosshairOn then
+        if crosshairPart and crosshairPart ~= "pending" then pcall(function() crosshairPart:Destroy() end) crosshairPart = nil end
+        return
+    end
+    local head = tgtChar and tgtChar:FindFirstChild("Head")
+    if not head then
+        if crosshairPart and crosshairPart ~= "pending" then pcall(function() crosshairPart:Destroy() end) crosshairPart = nil end
+        return
+    end
+    local existing = head:FindFirstChild("ELITEHUB_CrosshairBB")
+    if existing then
+        crosshairPart = existing
+        return
+    end
+    local bb = Instance.new("BillboardGui")
+    bb.Name = "ELITEHUB_CrosshairBB"
+    bb.Size = UDim2.new(0, 50, 0, 50)
+    bb.StudsOffset = Vector3.new(0, 0, 0)
+    bb.AlwaysOnTop = true
+    bb.LightInfluence = 0
+    bb.Adornee = head
+    bb.Parent = head
+
     local col = Color3.fromRGB(255, 50, 50)
+    local radius = 16
+    local lineLen = 6
+    local gap = 4
+    local thick = 2
 
     local circle = Instance.new("Frame")
     circle.Name = "Circle"
     circle.Size = UDim2.new(0, radius * 2, 0, radius * 2)
-    circle.Position = UDim2.new(0, centerX - radius, 0, centerY - radius)
+    circle.Position = UDim2.new(0.5, -radius, 0.5, -radius)
     circle.BackgroundTransparency = 1
     circle.BorderSizePixel = 0
-    circle.Parent = sg
+    circle.Parent = bb
     Instance.new("UICorner", circle).CornerRadius = UDim.new(0.5, 0)
-    local circleStroke = Instance.new("UIStroke")
-    circleStroke.Color = col
-    circleStroke.Thickness = thickness
-    circleStroke.Parent = circle
+    local cs = Instance.new("UIStroke")
+    cs.Color = col
+    cs.Thickness = thick
+    cs.Parent = circle
 
-    local function makeLine(name, size, pos)
-        local l = Instance.new("Frame")
-        l.Name = name
-        l.Size = size
-        l.Position = pos
-        l.BackgroundColor3 = col
-        l.BorderSizePixel = 0
-        l.Parent = sg
-        return l
+    local function ml(name, sz, pos)
+        local f = Instance.new("Frame")
+        f.Name = name
+        f.Size = sz
+        f.Position = pos
+        f.AnchorPoint = Vector2.new(0.5, 0.5)
+        f.BackgroundColor3 = col
+        f.BorderSizePixel = 0
+        f.Parent = bb
     end
+    ml("Top", UDim2.new(0, thick, 0, lineLen), UDim2.new(0.5, 0, 0.5, -radius - gap - lineLen/2))
+    ml("Bot", UDim2.new(0, thick, 0, lineLen), UDim2.new(0.5, 0, 0.5, radius + gap + lineLen/2))
+    ml("Left", UDim2.new(0, lineLen, 0, thick), UDim2.new(0.5, -radius - gap - lineLen/2, 0.5, 0))
+    ml("Right", UDim2.new(0, lineLen, 0, thick), UDim2.new(0.5, radius + gap + lineLen/2, 0.5, 0))
 
-    makeLine("Top", UDim2.new(0, thickness, 0, lineLen),
-        UDim2.new(0, centerX - thickness / 2, 0, centerY - radius - gap - lineLen))
-    makeLine("Bottom", UDim2.new(0, thickness, 0, lineLen),
-        UDim2.new(0, centerX - thickness / 2, 0, centerY + radius + gap))
-    makeLine("Left", UDim2.new(0, lineLen, 0, thickness),
-        UDim2.new(0, centerX - radius - gap - lineLen, 0, centerY - thickness / 2))
-    makeLine("Right", UDim2.new(0, lineLen, 0, thickness),
-        UDim2.new(0, centerX + radius + gap, 0, centerY - thickness / 2))
+    crosshairPart = bb
+end
 
-    crosshairPart = sg
-    return sg
+local function RemoveCrosshair()
+    if crosshairPart and crosshairPart ~= "pending" then
+        pcall(function() crosshairPart:Destroy() end)
+    end
+    crosshairPart = nil
+    for _, ch in ipairs(Players:GetPlayers()) do
+        if ch.Character then
+            local head = ch.Character:FindFirstChild("Head")
+            if head then
+                local old = head:FindFirstChild("ELITEHUB_CrosshairBB")
+                if old then pcall(function() old:Destroy() end) end
+            end
+        end
+    end
 end
 
 local function RemovePlayerHud()
@@ -3153,7 +3179,7 @@ local function RemovePlayerHud()
     currentTarget = nil
     if targetScreenGui then pcall(function() targetScreenGui:Destroy() end) targetScreenGui = nil end
     if targetBillboard then pcall(function() targetBillboard:Destroy() end) targetBillboard = nil end
-    if crosshairPart then pcall(function() crosshairPart:Destroy() end) crosshairPart = nil end
+    RemoveCrosshair()
 end
 
 local function GetBillboardForTarget(tgtChar)
@@ -3238,7 +3264,7 @@ local function UpdateTargetHUD()
                 if frame then frame.Visible = false end
             end
             if targetBillboard then pcall(function() targetBillboard:Destroy() end) targetBillboard = nil end
-            if crosshairPart then crosshairPart.Enabled = false end
+            RemoveCrosshair()
         end
         return
     end
@@ -3302,12 +3328,11 @@ local function UpdateTargetHUD()
         end
     end
 
-    -- Crosshair
+    -- Crosshair on head
     if getgenv().ELITE_HUB_CrosshairOn then
-        if not crosshairPart or not crosshairPart.Parent then CreateCrosshair() end
-        crosshairPart.Enabled = true
+        UpdateCrosshairOnHead(tgtChar)
     else
-        if crosshairPart then crosshairPart.Enabled = false end
+        RemoveCrosshair()
     end
 end
 
@@ -3363,10 +3388,9 @@ MT:CreateToggle({
     Callback = function(v)
         getgenv().ELITE_HUB_CrosshairOn = v
         if v then
-            CreateCrosshair()
             StartPlayerHUD()
         else
-            if crosshairPart then pcall(function() crosshairPart:Destroy() end) crosshairPart = nil end
+            RemoveCrosshair()
             if not getgenv().ELITE_HUB_PlayerHUDOn and not getgenv().ELITE_HUB_NameTagOn then
                 RemovePlayerHud()
             end
