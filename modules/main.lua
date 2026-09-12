@@ -528,9 +528,18 @@ function ToggleFly()
             hum:ChangeState(Enum.HumanoidStateType.Swimming)
         end
 
-        if game:GetService("Players").LocalPlayer.Character:FindFirstChildOfClass("Humanoid").RigType == Enum.HumanoidRigType.R6 then
-            local plr = game.Players.LocalPlayer
-            local torso = plr.Character.Torso
+        local plr = game.Players.LocalPlayer
+        local ch = plr.Character
+        local hum = ch and ch:FindFirstChildOfClass("Humanoid")
+        local rootPart = ch and ch:FindFirstChild("HumanoidRootPart")
+        if not ch or not hum or not rootPart then
+            nowe = false
+            return
+        end
+
+        if hum.RigType == Enum.HumanoidRigType.R6 then
+            local torso = ch:FindFirstChild("Torso") or rootPart
+            if not torso then nowe = false; return end
             local lastctrl = {f = 0, b = 0, l = 0, r = 0}
             local maxspeed = 50
             local speed = 0
@@ -812,7 +821,7 @@ function ToggleNoclip()
         local character = player.Character
         if character then
             for _, part in pairs(character:GetDescendants()) do
-                if part:IsA("BasePart") then
+                if part:IsA("BasePart") and not (part.Parent and part.Parent:IsA("Accessory")) then
                     part.CanCollide = true
                 end
             end

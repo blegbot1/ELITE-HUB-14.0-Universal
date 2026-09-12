@@ -570,7 +570,11 @@ function EliteHubUI:CreateTab(name, icon, langKey)
         for _, f in pairs(self._tabFrames) do
             if f.Visible then
                 TweenService:Create(f, TweenInfo.new(0.12, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {BackgroundTransparency = 1}):Play()
-                task.delay(0.12, function() f.Visible = false end)
+                local frameToHide = f
+                task.delay(0.12, function()
+                    if self._currentTab ~= name then return end
+                    frameToHide.Visible = false
+                end)
             else
                 f.Visible = false
             end
@@ -910,9 +914,13 @@ function EliteHubUI:CreateTab(name, icon, langKey)
         newPadding(box, 0, 0, 10, 10)
 
         box.Focused:Connect(function()
+            local existing = box:FindFirstChildOfClass("UIStroke")
+            if existing then existing:Destroy() end
             newStroke(box, C.Accent, 1.5, 0)
         end)
         box.FocusLost:Connect(function(enterPressed)
+            local existing = box:FindFirstChildOfClass("UIStroke")
+            if existing then existing:Destroy() end
             newStroke(box, C.Stroke, 1, 0.6)
             if config.Callback then
                 config.Callback(box.Text)
@@ -4332,11 +4340,12 @@ local Log = _g().ELITE_HUB_Log
 local Players = _g().ELITE_HUB_Players
 local player = _g().ELITE_HUB_Player
 local OverlayGui = _g().ELITE_HUB_OverlayGui
+if OverlayGui then pcall(function() OverlayGui:Destroy() end) end
 local LoadScript = _g().ELITE_HUB_LoadScript
 local SafeNotify = _g().ELITE_HUB_SafeNotify
 local DestroyScript = _g().ELITE_HUB_DestroyScript
 local MT = Window
-local OverlayGui = Instance.new("ScreenGui")
+OverlayGui = Instance.new("ScreenGui")
 _g().ELITE_HUB_OverlayGui = OverlayGui
 OverlayGui.Name = "ELITE_HUB_Overlay"
 OverlayGui.ResetOnSpawn = false
@@ -7082,9 +7091,18 @@ function ToggleFly()
             hum:ChangeState(Enum.HumanoidStateType.Swimming)
         end
 
-        if game:GetService("Players").LocalPlayer.Character:FindFirstChildOfClass("Humanoid").RigType == Enum.HumanoidRigType.R6 then
-            local plr = game.Players.LocalPlayer
-            local torso = plr.Character.Torso
+        local plr = game.Players.LocalPlayer
+        local ch = plr.Character
+        local hum = ch and ch:FindFirstChildOfClass("Humanoid")
+        local rootPart = ch and ch:FindFirstChild("HumanoidRootPart")
+        if not ch or not hum or not rootPart then
+            nowe = false
+            return
+        end
+
+        if hum.RigType == Enum.HumanoidRigType.R6 then
+            local torso = ch:FindFirstChild("Torso") or rootPart
+            if not torso then nowe = false; return end
             local lastctrl = {f = 0, b = 0, l = 0, r = 0}
             local maxspeed = 50
             local speed = 0
@@ -7366,7 +7384,7 @@ function ToggleNoclip()
         local character = player.Character
         if character then
             for _, part in pairs(character:GetDescendants()) do
-                if part:IsA("BasePart") then
+                if part:IsA("BasePart") and not (part.Parent and part.Parent:IsA("Accessory")) then
                     part.CanCollide = true
                 end
             end
@@ -7629,6 +7647,7 @@ local PredictionLastPos = {}
 local PredictionLastTime = {}
 
 local PreviousTargetHP = {}
+local AutoShootCooldown = false
 
 local NotifyCooldown = {}
 local NotifyScreenGui = Instance.new("ScreenGui")
@@ -8152,48 +8171,51 @@ local function GetClosestPlayer()
         local skip = false
         if targetPlayer == localPlayer then skip = true end
         if not skip and not targetPlayer.Character then skip = true end
-        if not skip and AimbotConfig.TeamCheck and targetPlayer.Team == localPlayer.Team then skip = true end
+        if not skip and AimbotConfig.TeamCheck and targetPlayer.Team ~= nil and targetPlayer.Team == localPlayer.Team then skip = true end
         if not skip and AimbotConfig.FriendCheck and GetPlayerRelation(targetPlayer) == "friend" then skip = true end
         if not skip and AimbotConfig.TeamFilter and (IsFriendlyTeam(targetPlayer) or IsSameTeam(targetPlayer)) then skip = true end
 
         if not skip then
             local character = targetPlayer.Character
-            local humanoid = character:FindFirstChildOfClass("Humanoid")
-            local targetPart = GetLockPart(character)
-
-            if AimbotConfig.AliveCheck and (not humanoid or humanoid.Health <= 0) then skip = true end
-            if not skip and AimbotConfig.SpawnCheck and character:FindFirstChildOfClass("ForceField") then skip = true end
-            if not skip and not targetPart then skip = true end
-
+            if not character then skip = true end
             if not skip then
-                local gameDistance = (targetPart.Position - cameraPos).Magnitude
-                if gameDistance > AimbotConfig.MaxDistance then skip = true end
-                if not skip and gameDistance < AimbotConfig.MinDistance then skip = true end
+                local humanoid = character:FindFirstChildOfClass("Humanoid")
+                local targetPart = GetLockPart(character)
+
+                if AimbotConfig.AliveCheck and (not humanoid or humanoid.Health <= 0) then skip = true end
+                if not skip and AimbotConfig.SpawnCheck and character:FindFirstChildOfClass("ForceField") then skip = true end
+                if not skip and not targetPart then skip = true end
 
                 if not skip then
-                    local screenPos, onScreen = camera:WorldToViewportPoint(targetPart.Position)
-                    if onScreen then
-                        local screenPoint = Vector2.new(screenPos.X, screenPos.Y)
-                        local screenDistance = (screenPoint - mousePos).Magnitude
-                        if screenDistance <= AimbotConfig.FOV and IsVisible(targetPart) then
-                            local hp = humanoid and humanoid.Health or 999
-                            local score
-                            if AimbotConfig.Priority == "Health" then
-                                score = hp * 0.01 + screenDistance * 0.001
-                            else
-                                score = gameDistance
-                            end
-                            local isEnemy = AimbotConfig.EnemyPriority and GetPlayerRelation(targetPlayer) == "enemy"
-                            if isEnemy and score < bestEnemyScore then
-                                bestEnemyScore = score
-                                bestEnemyTarget = targetPart
-                                bestEnemyPlayer = targetPlayer
-                            end
-                            if score < bestScore then
-                                bestScore = score
-                                bestHealth = hp
-                                bestTarget = targetPart
-                                bestTargetPlayer = targetPlayer
+                    local gameDistance = (targetPart.Position - cameraPos).Magnitude
+                    if gameDistance > AimbotConfig.MaxDistance then skip = true end
+                    if not skip and gameDistance < AimbotConfig.MinDistance then skip = true end
+
+                    if not skip then
+                        local screenPos, onScreen = camera:WorldToViewportPoint(targetPart.Position)
+                        if onScreen then
+                            local screenPoint = Vector2.new(screenPos.X, screenPos.Y)
+                            local screenDistance = (screenPoint - mousePos).Magnitude
+                            if screenDistance <= AimbotConfig.FOV and IsVisible(targetPart) then
+                                local hp = humanoid and humanoid.Health or 999
+                                local score
+                                if AimbotConfig.Priority == "Health" then
+                                    score = hp * 0.01 + screenDistance * 0.001
+                                else
+                                    score = gameDistance
+                                end
+                                local isEnemy = AimbotConfig.EnemyPriority and GetPlayerRelation(targetPlayer) == "enemy"
+                                if isEnemy and score < bestEnemyScore then
+                                    bestEnemyScore = score
+                                    bestEnemyTarget = targetPart
+                                    bestEnemyPlayer = targetPlayer
+                                end
+                                if score < bestScore then
+                                    bestScore = score
+                                    bestHealth = hp
+                                    bestTarget = targetPart
+                                    bestTargetPlayer = targetPlayer
+                                end
                             end
                         end
                     end
@@ -8304,12 +8326,13 @@ task.spawn(function()
                         end
                     end
 
-                    if AimbotConfig.AutoShoot then
+                    if AimbotConfig.AutoShoot and not AutoShootCooldown then
                         local screenPos2, onScreen2 = camera:WorldToViewportPoint(target.Position)
                         if onScreen2 then
                             local screenCenter = Vector2.new(camera.ViewportSize.X / 2, camera.ViewportSize.Y / 2)
                             local screenDist = (Vector2.new(screenPos2.X, screenPos2.Y) - screenCenter).Magnitude
                             if screenDist < 30 then
+                                AutoShootCooldown = true
                                 SafeNotify(" SHOT", LockedTargetPlayer.Name, 0.5, "Shot")
                                 task.delay(AimbotConfig.AutoShootDelay, function()
                                     pcall(function()
@@ -8318,6 +8341,7 @@ task.spawn(function()
                                         task.wait(0.05)
                                         vup:Button1Up(Vector2.new(0, 0))
                                     end)
+                                    AutoShootCooldown = false
                                 end)
                             end
                         end
@@ -9381,6 +9405,7 @@ local function ClearPlayerESP(targetPlayer)
         if ESPObjects[targetPlayer].ScriptTag then
             ESPObjects[targetPlayer].ScriptTag:Destroy()
         end
+        if ESPObjects[targetPlayer].WeaponBillboard then pcall(function() ESPObjects[targetPlayer].WeaponBillboard:Remove() end) end
         ESPObjects[targetPlayer] = nil
     end
 
@@ -9403,10 +9428,6 @@ local function ClearPlayerESP(targetPlayer)
     DestroyPlayerSkeleton(targetPlayer)
     DestroyHeadDot(targetPlayer)
     DestroyHealthBar(targetPlayer)
-    local espGroup = ESPObjects[targetPlayer]
-    if espGroup then
-        if espGroup.WeaponBillboard then pcall(function() espGroup.WeaponBillboard:Remove() end) end
-    end
 end
 
 local function CreatePlayerESP(targetPlayer)
@@ -9568,21 +9589,24 @@ local function CreatePlayerESP(targetPlayer)
         Box3DObjects[targetPlayer] = boxLines
     end
 
-    ESPObjects[targetPlayer] = espGroup
+        ESPObjects[targetPlayer] = espGroup
         CreateESPArrow(targetPlayer)
         CreateSnapLine(targetPlayer)
         CreatePlayerSkeleton(targetPlayer)
         CreateHeadDot(targetPlayer)
         CreateHealthBar(targetPlayer)
 
+    if espGroup._ancestryConn then pcall(function() espGroup._ancestryConn:Disconnect() end) end
+    if espGroup._diedConn then pcall(function() espGroup._diedConn:Disconnect() end) end
+
     if character then
-        character.AncestryChanged:Connect(function(_, parent)
+        espGroup._ancestryConn = character.AncestryChanged:Connect(function(_, parent)
             if not parent then ClearPlayerESP(targetPlayer) end
         end)
     end
 
     if humanoid then
-        humanoid.Died:Connect(function()
+        espGroup._diedConn = humanoid.Died:Connect(function()
             if not ESPConfig.ShowDead then
                 ClearPlayerESP(targetPlayer)
             end
@@ -9769,8 +9793,10 @@ local function UpdateBox3DESP()
             end
 
             if not allVisible then
-                for _, line in ipairs(lines) do line.Visible = false end
-                return
+                for i = 1, 8 do
+                    local sp = camera:WorldToViewportPoint(corners[i])
+                    screenCorners[i] = Vector2.new(math.clamp(sp.X, 0, camera.ViewportSize.X), math.clamp(sp.Y, 0, camera.ViewportSize.Y))
+                end
             end
 
             local connections = {
@@ -9800,8 +9826,12 @@ local function UpdateESP()
     if espUpdateDebounce then return end
     espUpdateDebounce = true
     task.delay(0.1, function() espUpdateDebounce = false end)
+    local playersToClear = {}
     for targetPlayer, _ in pairs(ESPObjects) do
-        ClearPlayerESP(targetPlayer)
+        table.insert(playersToClear, targetPlayer)
+    end
+    for _, tp in ipairs(playersToClear) do
+        ClearPlayerESP(tp)
     end
 
     if not ESPConfig.Enabled then return end
@@ -9842,11 +9872,15 @@ local function RefreshESPOnRespawn()
             end
         end
     end
+    local playersToRemove = {}
     for targetPlayer, _ in pairs(ESPObjects) do
         if not Players:FindFirstChild(targetPlayer.Name) then
-            ClearPlayerESP(targetPlayer)
-            LK[targetPlayer] = nil
+            table.insert(playersToRemove, targetPlayer)
         end
+    end
+    for _, tp in ipairs(playersToRemove) do
+        ClearPlayerESP(tp)
+        LK[tp] = nil
     end
 end
 
@@ -9918,8 +9952,12 @@ ESPTab:CreateToggle({
                 Duration = 3
             })
         else
+            local playersToClear2 = {}
             for targetPlayer, _ in pairs(ESPObjects) do
-                ClearPlayerESP(targetPlayer)
+                table.insert(playersToClear2, targetPlayer)
+            end
+            for _, tp in ipairs(playersToClear2) do
+                ClearPlayerESP(tp)
             end
             Rayfield:Notify({
                 Title = "👁 ESP",
@@ -11655,18 +11693,22 @@ end
 task.spawn(function()
     while true do
         task.wait(0.5)
-        RefreshInfo()
-        UpdatePlayerRows()
-        UpdateTeamRows()
+        pcall(function()
+            RefreshInfo()
+            UpdatePlayerRows()
+            UpdateTeamRows()
+        end)
     end
 end)
 
 task.spawn(function()
     while true do
         task.wait(2)
-        RefreshDDs()
-        RebuildPlayerRows()
-        RebuildTeamRows()
+        pcall(function()
+            RefreshDDs()
+            RebuildPlayerRows()
+            RebuildTeamRows()
+        end)
     end
 end)
 end)()
@@ -11930,7 +11972,7 @@ task.spawn(function()
                         local oRoot = other.Character.HumanoidRootPart
                         local dist = (oRoot.Position - root.Position).Magnitude
 
-                        local shouldAttack = killAllEnabled or (dist > safeZoneRadius)
+                        local shouldAttack = killAllEnabled and (dist > safeZoneRadius)
 
                         if shouldAttack and dist <= 10000 then
                             tool:Activate()
@@ -13159,14 +13201,23 @@ MT:CreateToggle({
 })
 player.CharacterAdded:Connect(function(char)
     task.wait(1)
-    if getgenv().ELITE_HUB_JumpBoost then
+    pcall(function()
         local hum = char:FindFirstChildOfClass("Humanoid")
         if hum then
-            hum.UseJumpPower = true
-            getgenv().ELITE_HUB_JumpBoostOrig = hum.JumpPower
-            hum.JumpPower = 120
+            if getgenv().ELITE_HUB_JumpBoost then
+                hum.UseJumpPower = true
+                getgenv().ELITE_HUB_JumpBoostOrig = 50
+                hum.JumpPower = 120
+            end
+            if getgenv().ELITE_HUB_WalkSpeed then
+                hum.WalkSpeed = getgenv().ELITE_HUB_WalkSpeed
+            end
+            if getgenv().ELITE_HUB_JumpPower then
+                hum.UseJumpPower = true
+                hum.JumpPower = getgenv().ELITE_HUB_JumpPower
+            end
         end
-    end
+    end)
 end)
 
 MT = MovementTab
@@ -13205,22 +13256,6 @@ MT:CreateSlider({
         getgenv().ELITE_HUB_Log("MODS", "JumpPower: " .. value)
     end
 })
-
-player.CharacterAdded:Connect(function(char)
-    task.wait(1)
-    pcall(function()
-        local hum = char:FindFirstChildOfClass("Humanoid")
-        if hum then
-            if getgenv().ELITE_HUB_WalkSpeed then
-                hum.WalkSpeed = getgenv().ELITE_HUB_WalkSpeed
-            end
-            if getgenv().ELITE_HUB_JumpPower then
-                hum.UseJumpPower = true
-                hum.JumpPower = getgenv().ELITE_HUB_JumpPower
-            end
-        end
-    end)
-end)
 
 MT = MovementTab
 MT:CreateSection("👟 JUMP")
@@ -13480,9 +13515,18 @@ task.spawn(function()
     local pitch = 0
     local lastMousePos = nil
     local mouseLocked = false
+    local wasEnabled = false
     while task.wait(0.03) do
         pcall(function()
-            if not getgenv().ELITE_HUB_FreeCam then return end
+            local isEnabled = getgenv().ELITE_HUB_FreeCam
+            if isEnabled and not wasEnabled then
+                yaw = 0
+                pitch = 0
+                lastMousePos = nil
+                mouseLocked = false
+            end
+            wasEnabled = isEnabled
+            if not isEnabled then return end
             local cam = workspace.CurrentCamera
             local speed = 2
             local mousePos = UserInputService:GetMouseLocation()
@@ -14397,9 +14441,9 @@ player.CharacterAdded:Connect(function(char)
         if getgenv().ELITE_HUB_RangeSpin then
             local hrp = char:FindFirstChild("HumanoidRootPart")
             if hrp then
-                createTrail(hrp, RC.Color1, RC.Color2)
-                createSparkles(hrp, RC.Color3)
-                createAuraParticles(hrp, RC.Color1)
+                createTrail(hrp, RC.Color1, RC.Color2, "SPIN")
+                createSparkles(hrp, RC.Color3, "SPIN")
+                createAuraParticles(hrp, RC.Color1, "SPIN")
             end
             startSpin()
         end
@@ -14408,8 +14452,8 @@ player.CharacterAdded:Connect(function(char)
         if getgenv().ELITE_HUB_RangeSpeed then
             local hrp = char:FindFirstChild("HumanoidRootPart")
             if hrp then
-                createTrail(hrp, RC.Color1, RC.Color2)
-                createAuraParticles(hrp, RC.Color3)
+                createTrail(hrp, RC.Color1, RC.Color2, "SPEED")
+                createAuraParticles(hrp, RC.Color3, "SPEED")
             end
         end
     end)
@@ -14782,6 +14826,7 @@ local s1 = SettingsTab:CreateSection(L("Settings"))
 table.insert(Window._translatables, {element = s1, key = "Settings", type = "section", prefix = ""})
 
 local CONFIG_DIR = "EliteHub_Configs/"
+pcall(function() makefolder(CONFIG_DIR) end)
 
 local function getListFile()
     return CONFIG_DIR .. "_list.json"
@@ -14843,6 +14888,19 @@ local function collectSettings()
             CrosshairOn = g.ELITE_HUB_CrosshairOn,
             CrosshairStyle = g.ELITE_HUB_CrosshairStyle,
         },
+        Range = {
+            RangeSpin = g.ELITE_HUB_RangeSpin,
+            RangeSpinSpeed = g.ELITE_HUB_RangeSpinSpeed,
+            RangeSpinDuringMove = g.ELITE_HUB_RangeSpinDuringMove,
+            RangeSpeed = g.ELITE_HUB_RangeSpeed,
+            RangeSpeedVal = g.ELITE_HUB_RangeSpeedVal,
+        },
+        Music = {
+            MusicVolume = g.ELITE_HUB_MusicVolume,
+            MusicShuffle = g.ELITE_HUB_MusicShuffle,
+            MusicRepeatOne = g.ELITE_HUB_MusicRepeatOne,
+            MusicPlaybackSpeed = g.ELITE_HUB_MusicPlaybackSpeed,
+        },
     }
 end
 
@@ -14863,6 +14921,16 @@ local function applySettings(data)
     end
     if data.Visual then
         for k, v in pairs(data.Visual) do
+            g["ELITE_HUB_" .. k] = v
+        end
+    end
+    if data.Range then
+        for k, v in pairs(data.Range) do
+            g["ELITE_HUB_" .. k] = v
+        end
+    end
+    if data.Music then
+        for k, v in pairs(data.Music) do
             g["ELITE_HUB_" .. k] = v
         end
     end

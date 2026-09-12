@@ -97,7 +97,7 @@ task.spawn(function()
                         local oRoot = other.Character.HumanoidRootPart
                         local dist = (oRoot.Position - root.Position).Magnitude
 
-                        local shouldAttack = killAllEnabled or (dist > safeZoneRadius)
+                        local shouldAttack = killAllEnabled and (dist > safeZoneRadius)
 
                         if shouldAttack and dist <= 10000 then
                             tool:Activate()

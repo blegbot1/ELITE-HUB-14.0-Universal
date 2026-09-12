@@ -442,6 +442,7 @@ local function ClearPlayerESP(targetPlayer)
         if ESPObjects[targetPlayer].ScriptTag then
             ESPObjects[targetPlayer].ScriptTag:Destroy()
         end
+        if ESPObjects[targetPlayer].WeaponBillboard then pcall(function() ESPObjects[targetPlayer].WeaponBillboard:Remove() end) end
         ESPObjects[targetPlayer] = nil
     end
 
@@ -464,10 +465,6 @@ local function ClearPlayerESP(targetPlayer)
     DestroyPlayerSkeleton(targetPlayer)
     DestroyHeadDot(targetPlayer)
     DestroyHealthBar(targetPlayer)
-    local espGroup = ESPObjects[targetPlayer]
-    if espGroup then
-        if espGroup.WeaponBillboard then pcall(function() espGroup.WeaponBillboard:Remove() end) end
-    end
 end
 
 local function CreatePlayerESP(targetPlayer)
@@ -629,21 +626,24 @@ local function CreatePlayerESP(targetPlayer)
         Box3DObjects[targetPlayer] = boxLines
     end
 
-    ESPObjects[targetPlayer] = espGroup
+        ESPObjects[targetPlayer] = espGroup
         CreateESPArrow(targetPlayer)
         CreateSnapLine(targetPlayer)
         CreatePlayerSkeleton(targetPlayer)
         CreateHeadDot(targetPlayer)
         CreateHealthBar(targetPlayer)
 
+    if espGroup._ancestryConn then pcall(function() espGroup._ancestryConn:Disconnect() end) end
+    if espGroup._diedConn then pcall(function() espGroup._diedConn:Disconnect() end) end
+
     if character then
-        character.AncestryChanged:Connect(function(_, parent)
+        espGroup._ancestryConn = character.AncestryChanged:Connect(function(_, parent)
             if not parent then ClearPlayerESP(targetPlayer) end
         end)
     end
 
     if humanoid then
-        humanoid.Died:Connect(function()
+        espGroup._diedConn = humanoid.Died:Connect(function()
             if not ESPConfig.ShowDead then
                 ClearPlayerESP(targetPlayer)
             end
@@ -830,8 +830,10 @@ local function UpdateBox3DESP()
             end
 
             if not allVisible then
-                for _, line in ipairs(lines) do line.Visible = false end
-                return
+                for i = 1, 8 do
+                    local sp = camera:WorldToViewportPoint(corners[i])
+                    screenCorners[i] = Vector2.new(math.clamp(sp.X, 0, camera.ViewportSize.X), math.clamp(sp.Y, 0, camera.ViewportSize.Y))
+                end
             end
 
             local connections = {
@@ -861,8 +863,12 @@ local function UpdateESP()
     if espUpdateDebounce then return end
     espUpdateDebounce = true
     task.delay(0.1, function() espUpdateDebounce = false end)
+    local playersToClear = {}
     for targetPlayer, _ in pairs(ESPObjects) do
-        ClearPlayerESP(targetPlayer)
+        table.insert(playersToClear, targetPlayer)
+    end
+    for _, tp in ipairs(playersToClear) do
+        ClearPlayerESP(tp)
     end
 
     if not ESPConfig.Enabled then return end
@@ -903,11 +909,15 @@ local function RefreshESPOnRespawn()
             end
         end
     end
+    local playersToRemove = {}
     for targetPlayer, _ in pairs(ESPObjects) do
         if not Players:FindFirstChild(targetPlayer.Name) then
-            ClearPlayerESP(targetPlayer)
-            LK[targetPlayer] = nil
+            table.insert(playersToRemove, targetPlayer)
         end
+    end
+    for _, tp in ipairs(playersToRemove) do
+        ClearPlayerESP(tp)
+        LK[tp] = nil
     end
 end
 
@@ -979,8 +989,12 @@ ESPTab:CreateToggle({
                 Duration = 3
             })
         else
+            local playersToClear2 = {}
             for targetPlayer, _ in pairs(ESPObjects) do
-                ClearPlayerESP(targetPlayer)
+                table.insert(playersToClear2, targetPlayer)
+            end
+            for _, tp in ipairs(playersToClear2) do
+                ClearPlayerESP(tp)
             end
             Rayfield:Notify({
                 Title = "👁 ESP",

@@ -273,9 +273,9 @@ end
                             if tag then
                                 if cfg.Pulse then
                                     local s = 1 + math.sin(t * 3) * 0.03
-                                    tag.Scale = Vector3.new(s, s, s)
+                                    tag.Size = UDim2.new(0, cfg.Width * s, 0, cfg.Height * s)
                                 else
-                                    tag.Scale = Vector3.new(1, 1, 1)
+                                    tag.Size = UDim2.new(0, cfg.Width, 0, cfg.Height)
                                 end
                                 local bg = tag:FindFirstChild("TagFrame")
                                 if bg then

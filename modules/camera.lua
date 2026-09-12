@@ -53,9 +53,18 @@ task.spawn(function()
     local pitch = 0
     local lastMousePos = nil
     local mouseLocked = false
+    local wasEnabled = false
     while task.wait(0.03) do
         pcall(function()
-            if not getgenv().ELITE_HUB_FreeCam then return end
+            local isEnabled = getgenv().ELITE_HUB_FreeCam
+            if isEnabled and not wasEnabled then
+                yaw = 0
+                pitch = 0
+                lastMousePos = nil
+                mouseLocked = false
+            end
+            wasEnabled = isEnabled
+            if not isEnabled then return end
             local cam = workspace.CurrentCamera
             local speed = 2
             local mousePos = UserInputService:GetMouseLocation()

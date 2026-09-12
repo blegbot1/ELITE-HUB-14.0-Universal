@@ -18,6 +18,7 @@ local s1 = SettingsTab:CreateSection(L("Settings"))
 table.insert(Window._translatables, {element = s1, key = "Settings", type = "section", prefix = ""})
 
 local CONFIG_DIR = "EliteHub_Configs/"
+pcall(function() makefolder(CONFIG_DIR) end)
 
 local function getListFile()
     return CONFIG_DIR .. "_list.json"
@@ -79,6 +80,19 @@ local function collectSettings()
             CrosshairOn = g.ELITE_HUB_CrosshairOn,
             CrosshairStyle = g.ELITE_HUB_CrosshairStyle,
         },
+        Range = {
+            RangeSpin = g.ELITE_HUB_RangeSpin,
+            RangeSpinSpeed = g.ELITE_HUB_RangeSpinSpeed,
+            RangeSpinDuringMove = g.ELITE_HUB_RangeSpinDuringMove,
+            RangeSpeed = g.ELITE_HUB_RangeSpeed,
+            RangeSpeedVal = g.ELITE_HUB_RangeSpeedVal,
+        },
+        Music = {
+            MusicVolume = g.ELITE_HUB_MusicVolume,
+            MusicShuffle = g.ELITE_HUB_MusicShuffle,
+            MusicRepeatOne = g.ELITE_HUB_MusicRepeatOne,
+            MusicPlaybackSpeed = g.ELITE_HUB_MusicPlaybackSpeed,
+        },
     }
 end
 
@@ -99,6 +113,16 @@ local function applySettings(data)
     end
     if data.Visual then
         for k, v in pairs(data.Visual) do
+            g["ELITE_HUB_" .. k] = v
+        end
+    end
+    if data.Range then
+        for k, v in pairs(data.Range) do
+            g["ELITE_HUB_" .. k] = v
+        end
+    end
+    if data.Music then
+        for k, v in pairs(data.Music) do
             g["ELITE_HUB_" .. k] = v
         end
     end

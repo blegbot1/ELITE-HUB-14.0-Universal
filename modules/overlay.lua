@@ -8,11 +8,12 @@ local Log = _g().ELITE_HUB_Log
 local Players = _g().ELITE_HUB_Players
 local player = _g().ELITE_HUB_Player
 local OverlayGui = _g().ELITE_HUB_OverlayGui
+if OverlayGui then pcall(function() OverlayGui:Destroy() end) end
 local LoadScript = _g().ELITE_HUB_LoadScript
 local SafeNotify = _g().ELITE_HUB_SafeNotify
 local DestroyScript = _g().ELITE_HUB_DestroyScript
 local MT = Window
-local OverlayGui = Instance.new("ScreenGui")
+OverlayGui = Instance.new("ScreenGui")
 _g().ELITE_HUB_OverlayGui = OverlayGui
 OverlayGui.Name = "ELITE_HUB_Overlay"
 OverlayGui.ResetOnSpawn = false

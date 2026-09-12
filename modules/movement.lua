@@ -41,14 +41,23 @@ MT:CreateToggle({
 })
 player.CharacterAdded:Connect(function(char)
     task.wait(1)
-    if getgenv().ELITE_HUB_JumpBoost then
+    pcall(function()
         local hum = char:FindFirstChildOfClass("Humanoid")
         if hum then
-            hum.UseJumpPower = true
-            getgenv().ELITE_HUB_JumpBoostOrig = hum.JumpPower
-            hum.JumpPower = 120
+            if getgenv().ELITE_HUB_JumpBoost then
+                hum.UseJumpPower = true
+                getgenv().ELITE_HUB_JumpBoostOrig = 50
+                hum.JumpPower = 120
+            end
+            if getgenv().ELITE_HUB_WalkSpeed then
+                hum.WalkSpeed = getgenv().ELITE_HUB_WalkSpeed
+            end
+            if getgenv().ELITE_HUB_JumpPower then
+                hum.UseJumpPower = true
+                hum.JumpPower = getgenv().ELITE_HUB_JumpPower
+            end
         end
-    end
+    end)
 end)
 
 MT = MovementTab
@@ -87,22 +96,6 @@ MT:CreateSlider({
         getgenv().ELITE_HUB_Log("MODS", "JumpPower: " .. value)
     end
 })
-
-player.CharacterAdded:Connect(function(char)
-    task.wait(1)
-    pcall(function()
-        local hum = char:FindFirstChildOfClass("Humanoid")
-        if hum then
-            if getgenv().ELITE_HUB_WalkSpeed then
-                hum.WalkSpeed = getgenv().ELITE_HUB_WalkSpeed
-            end
-            if getgenv().ELITE_HUB_JumpPower then
-                hum.UseJumpPower = true
-                hum.JumpPower = getgenv().ELITE_HUB_JumpPower
-            end
-        end
-    end)
-end)
 
 MT = MovementTab
 MT:CreateSection("👟 JUMP")

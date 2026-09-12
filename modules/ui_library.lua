@@ -568,7 +568,11 @@ function EliteHubUI:CreateTab(name, icon, langKey)
         for _, f in pairs(self._tabFrames) do
             if f.Visible then
                 TweenService:Create(f, TweenInfo.new(0.12, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {BackgroundTransparency = 1}):Play()
-                task.delay(0.12, function() f.Visible = false end)
+                local frameToHide = f
+                task.delay(0.12, function()
+                    if self._currentTab ~= name then return end
+                    frameToHide.Visible = false
+                end)
             else
                 f.Visible = false
             end
@@ -908,9 +912,13 @@ function EliteHubUI:CreateTab(name, icon, langKey)
         newPadding(box, 0, 0, 10, 10)
 
         box.Focused:Connect(function()
+            local existing = box:FindFirstChildOfClass("UIStroke")
+            if existing then existing:Destroy() end
             newStroke(box, C.Accent, 1.5, 0)
         end)
         box.FocusLost:Connect(function(enterPressed)
+            local existing = box:FindFirstChildOfClass("UIStroke")
+            if existing then existing:Destroy() end
             newStroke(box, C.Stroke, 1, 0.6)
             if config.Callback then
                 config.Callback(box.Text)

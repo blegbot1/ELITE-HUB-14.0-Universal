@@ -100,6 +100,7 @@ local PredictionLastPos = {}
 local PredictionLastTime = {}
 
 local PreviousTargetHP = {}
+local AutoShootCooldown = false
 
 local NotifyCooldown = {}
 local NotifyScreenGui = Instance.new("ScreenGui")
@@ -623,48 +624,51 @@ local function GetClosestPlayer()
         local skip = false
         if targetPlayer == localPlayer then skip = true end
         if not skip and not targetPlayer.Character then skip = true end
-        if not skip and AimbotConfig.TeamCheck and targetPlayer.Team == localPlayer.Team then skip = true end
+        if not skip and AimbotConfig.TeamCheck and targetPlayer.Team ~= nil and targetPlayer.Team == localPlayer.Team then skip = true end
         if not skip and AimbotConfig.FriendCheck and GetPlayerRelation(targetPlayer) == "friend" then skip = true end
         if not skip and AimbotConfig.TeamFilter and (IsFriendlyTeam(targetPlayer) or IsSameTeam(targetPlayer)) then skip = true end
 
         if not skip then
             local character = targetPlayer.Character
-            local humanoid = character:FindFirstChildOfClass("Humanoid")
-            local targetPart = GetLockPart(character)
-
-            if AimbotConfig.AliveCheck and (not humanoid or humanoid.Health <= 0) then skip = true end
-            if not skip and AimbotConfig.SpawnCheck and character:FindFirstChildOfClass("ForceField") then skip = true end
-            if not skip and not targetPart then skip = true end
-
+            if not character then skip = true end
             if not skip then
-                local gameDistance = (targetPart.Position - cameraPos).Magnitude
-                if gameDistance > AimbotConfig.MaxDistance then skip = true end
-                if not skip and gameDistance < AimbotConfig.MinDistance then skip = true end
+                local humanoid = character:FindFirstChildOfClass("Humanoid")
+                local targetPart = GetLockPart(character)
+
+                if AimbotConfig.AliveCheck and (not humanoid or humanoid.Health <= 0) then skip = true end
+                if not skip and AimbotConfig.SpawnCheck and character:FindFirstChildOfClass("ForceField") then skip = true end
+                if not skip and not targetPart then skip = true end
 
                 if not skip then
-                    local screenPos, onScreen = camera:WorldToViewportPoint(targetPart.Position)
-                    if onScreen then
-                        local screenPoint = Vector2.new(screenPos.X, screenPos.Y)
-                        local screenDistance = (screenPoint - mousePos).Magnitude
-                        if screenDistance <= AimbotConfig.FOV and IsVisible(targetPart) then
-                            local hp = humanoid and humanoid.Health or 999
-                            local score
-                            if AimbotConfig.Priority == "Health" then
-                                score = hp * 0.01 + screenDistance * 0.001
-                            else
-                                score = gameDistance
-                            end
-                            local isEnemy = AimbotConfig.EnemyPriority and GetPlayerRelation(targetPlayer) == "enemy"
-                            if isEnemy and score < bestEnemyScore then
-                                bestEnemyScore = score
-                                bestEnemyTarget = targetPart
-                                bestEnemyPlayer = targetPlayer
-                            end
-                            if score < bestScore then
-                                bestScore = score
-                                bestHealth = hp
-                                bestTarget = targetPart
-                                bestTargetPlayer = targetPlayer
+                    local gameDistance = (targetPart.Position - cameraPos).Magnitude
+                    if gameDistance > AimbotConfig.MaxDistance then skip = true end
+                    if not skip and gameDistance < AimbotConfig.MinDistance then skip = true end
+
+                    if not skip then
+                        local screenPos, onScreen = camera:WorldToViewportPoint(targetPart.Position)
+                        if onScreen then
+                            local screenPoint = Vector2.new(screenPos.X, screenPos.Y)
+                            local screenDistance = (screenPoint - mousePos).Magnitude
+                            if screenDistance <= AimbotConfig.FOV and IsVisible(targetPart) then
+                                local hp = humanoid and humanoid.Health or 999
+                                local score
+                                if AimbotConfig.Priority == "Health" then
+                                    score = hp * 0.01 + screenDistance * 0.001
+                                else
+                                    score = gameDistance
+                                end
+                                local isEnemy = AimbotConfig.EnemyPriority and GetPlayerRelation(targetPlayer) == "enemy"
+                                if isEnemy and score < bestEnemyScore then
+                                    bestEnemyScore = score
+                                    bestEnemyTarget = targetPart
+                                    bestEnemyPlayer = targetPlayer
+                                end
+                                if score < bestScore then
+                                    bestScore = score
+                                    bestHealth = hp
+                                    bestTarget = targetPart
+                                    bestTargetPlayer = targetPlayer
+                                end
                             end
                         end
                     end
@@ -775,12 +779,13 @@ task.spawn(function()
                         end
                     end
 
-                    if AimbotConfig.AutoShoot then
+                    if AimbotConfig.AutoShoot and not AutoShootCooldown then
                         local screenPos2, onScreen2 = camera:WorldToViewportPoint(target.Position)
                         if onScreen2 then
                             local screenCenter = Vector2.new(camera.ViewportSize.X / 2, camera.ViewportSize.Y / 2)
                             local screenDist = (Vector2.new(screenPos2.X, screenPos2.Y) - screenCenter).Magnitude
                             if screenDist < 30 then
+                                AutoShootCooldown = true
                                 SafeNotify(" SHOT", LockedTargetPlayer.Name, 0.5, "Shot")
                                 task.delay(AimbotConfig.AutoShootDelay, function()
                                     pcall(function()
@@ -789,6 +794,7 @@ task.spawn(function()
                                         task.wait(0.05)
                                         vup:Button1Up(Vector2.new(0, 0))
                                     end)
+                                    AutoShootCooldown = false
                                 end)
                             end
                         end

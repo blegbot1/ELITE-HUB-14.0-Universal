@@ -719,17 +719,21 @@ end
 task.spawn(function()
     while true do
         task.wait(0.5)
-        RefreshInfo()
-        UpdatePlayerRows()
-        UpdateTeamRows()
+        pcall(function()
+            RefreshInfo()
+            UpdatePlayerRows()
+            UpdateTeamRows()
+        end)
     end
 end)
 
 task.spawn(function()
     while true do
         task.wait(2)
-        RefreshDDs()
-        RebuildPlayerRows()
-        RebuildTeamRows()
+        pcall(function()
+            RefreshDDs()
+            RebuildPlayerRows()
+            RebuildTeamRows()
+        end)
     end
 end)

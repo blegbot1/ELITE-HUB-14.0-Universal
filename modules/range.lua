@@ -304,9 +304,9 @@ player.CharacterAdded:Connect(function(char)
         if getgenv().ELITE_HUB_RangeSpin then
             local hrp = char:FindFirstChild("HumanoidRootPart")
             if hrp then
-                createTrail(hrp, RC.Color1, RC.Color2)
-                createSparkles(hrp, RC.Color3)
-                createAuraParticles(hrp, RC.Color1)
+                createTrail(hrp, RC.Color1, RC.Color2, "SPIN")
+                createSparkles(hrp, RC.Color3, "SPIN")
+                createAuraParticles(hrp, RC.Color1, "SPIN")
             end
             startSpin()
         end
@@ -315,8 +315,8 @@ player.CharacterAdded:Connect(function(char)
         if getgenv().ELITE_HUB_RangeSpeed then
             local hrp = char:FindFirstChild("HumanoidRootPart")
             if hrp then
-                createTrail(hrp, RC.Color1, RC.Color2)
-                createAuraParticles(hrp, RC.Color3)
+                createTrail(hrp, RC.Color1, RC.Color2, "SPEED")
+                createAuraParticles(hrp, RC.Color3, "SPEED")
             end
         end
     end)
