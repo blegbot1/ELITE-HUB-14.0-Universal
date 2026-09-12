@@ -625,6 +625,7 @@ local function GetClosestPlayer()
         if targetPlayer == localPlayer then skip = true end
         if not skip and not targetPlayer.Character then skip = true end
         if not skip and AimbotConfig.TeamCheck and targetPlayer.Team ~= nil and targetPlayer.Team == localPlayer.Team then skip = true end
+        if not skip and AimbotConfig.TeamCheck and targetPlayer.TeamColor and localPlayer.TeamColor and targetPlayer.TeamColor == localPlayer.TeamColor then skip = true end
         if not skip and AimbotConfig.FriendCheck and GetPlayerRelation(targetPlayer) == "friend" then skip = true end
         if not skip and AimbotConfig.TeamFilter and (IsFriendlyTeam(targetPlayer) or IsSameTeam(targetPlayer)) then skip = true end
 

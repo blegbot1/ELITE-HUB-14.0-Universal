@@ -3812,9 +3812,30 @@ local function GetBillboardForTarget(tgtChar)
     return bb
 end
 
+local function TargetIsVisible(targetPart)
+    local camera = workspace.CurrentCamera
+    local origin = camera.CFrame.Position
+    local direction = (targetPart.Position - origin)
+    local params = RaycastParams.new()
+    params.FilterType = Enum.RaycastFilterType.Exclude
+    local ignoreList = {}
+    if player.Character then table.insert(ignoreList, player.Character) end
+    params.FilterDescendantsInstances = ignoreList
+    local result = workspace:Raycast(origin, direction, params)
+    if not result then return true end
+    local hit = result.Instance
+    return hit and hit:IsDescendantOf(targetPart.Parent)
+end
+
 local function UpdateTargetHUD()
     local tgt = LockedTargetPlayer or GetTargetPlayer() or nil
     if tgt and (not tgt:IsA("Player") or not tgt.Character) then tgt = nil end
+    if tgt and tgt.Character then
+        local tgtHRP = tgt.Character:FindFirstChild("HumanoidRootPart")
+        if tgtHRP and not TargetIsVisible(tgtHRP) then
+            tgt = nil
+        end
+    end
     local changed = (tgt ~= currentTarget)
     currentTarget = tgt
 
@@ -3839,6 +3860,11 @@ local function UpdateTargetHUD()
         return
     end
 
+    local shouldShowHUD = getgenv().ELITE_HUB_PlayerHUDOn
+    if not shouldShowHUD and LockedTargetPlayer then
+        shouldShowHUD = true
+    end
+
     local tgtChar = tgt.Character
     local tgtH = tgtChar:FindFirstChildOfClass("Humanoid")
     local tgtHRP = tgtChar:FindFirstChild("HumanoidRootPart")
@@ -3859,7 +3885,7 @@ local function UpdateTargetHUD()
     end
 
     -- Screen panel
-    if getgenv().ELITE_HUB_PlayerHUDOn then
+    if shouldShowHUD then
         if not targetScreenGui or not targetScreenGui.Parent then
             CreateTargetScreenGui()
         end
@@ -8179,6 +8205,7 @@ local function GetClosestPlayer()
         if targetPlayer == localPlayer then skip = true end
         if not skip and not targetPlayer.Character then skip = true end
         if not skip and AimbotConfig.TeamCheck and targetPlayer.Team ~= nil and targetPlayer.Team == localPlayer.Team then skip = true end
+        if not skip and AimbotConfig.TeamCheck and targetPlayer.TeamColor and localPlayer.TeamColor and targetPlayer.TeamColor == localPlayer.TeamColor then skip = true end
         if not skip and AimbotConfig.FriendCheck and GetPlayerRelation(targetPlayer) == "friend" then skip = true end
         if not skip and AimbotConfig.TeamFilter and (IsFriendlyTeam(targetPlayer) or IsSameTeam(targetPlayer)) then skip = true end
 
@@ -15191,7 +15218,8 @@ local SafeNotify = _g().ELITE_HUB_SafeNotify
 local DestroyScript = _g().ELITE_HUB_DestroyScript
 local RunService = game:GetService("RunService")
 local CoreGui = game:GetService("CoreGui")
-local MT = Window
+local CombatPlusTab = _g().ELITE_HUB_CombatPlusTab
+local MT = CombatPlusTab
 
 do
     local AF_ENABLED = true

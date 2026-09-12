@@ -10,7 +10,8 @@ local SafeNotify = _g().ELITE_HUB_SafeNotify
 local DestroyScript = _g().ELITE_HUB_DestroyScript
 local RunService = game:GetService("RunService")
 local CoreGui = game:GetService("CoreGui")
-local MT = Window
+local CombatPlusTab = _g().ELITE_HUB_CombatPlusTab
+local MT = CombatPlusTab
 
 do
     local AF_ENABLED = true
