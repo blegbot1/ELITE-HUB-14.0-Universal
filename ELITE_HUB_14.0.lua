@@ -7595,7 +7595,7 @@ local function GetTargetPlayer()
             local h = LockedTargetPlayer.Character:FindFirstChildOfClass("Humanoid")
             if h and h.Health > 0 then return LockedTargetPlayer end
         end
-        return FindClosestPlayerByRay()
+        return nil
     end
     return FindClosestPlayerByRay()
 end
