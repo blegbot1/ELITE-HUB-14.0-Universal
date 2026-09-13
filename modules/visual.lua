@@ -769,40 +769,46 @@ task.spawn(function()
 end)
 
 local function DownloadAndSetSky(filename)
-    SafeNotify("SKYBOX", "Loading sky...", 3)
-    pcall(function()
+    task.spawn(function()
         local lighting = game:GetService("Lighting")
-        if not SkyboxBackup.done then
-            SkyboxBackup.Sky = lighting:FindFirstChildOfClass("Sky")
-            SkyboxBackup.SkyProps = {}
-            if SkyboxBackup.Sky then
-                for _, p in ipairs({"SkyboxBk","SkyboxDn","SkyboxFt","SkyboxLf","SkyboxRt","SkyboxUp"}) do
-                    SkyboxBackup.SkyProps[p] = SkyboxBackup.Sky[p]
+
+        pcall(function()
+            if not SkyboxBackup.done then
+                SkyboxBackup.Sky = lighting:FindFirstChildOfClass("Sky")
+                SkyboxBackup.SkyProps = {}
+                if SkyboxBackup.Sky then
+                    for _, p in ipairs({"SkyboxBk","SkyboxDn","SkyboxFt","SkyboxLf","SkyboxRt","SkyboxUp"}) do
+                        SkyboxBackup.SkyProps[p] = SkyboxBackup.Sky[p]
+                    end
                 end
+                SkyboxBackup.CB = lighting.CelestialBrightnessOffset
+                SkyboxBackup.Brightness = lighting.Brightness
+                SkyboxBackup.ClockTime = lighting.ClockTime
+                SkyboxBackup.done = true
             end
-            SkyboxBackup.CB = lighting.CelestialBrightnessOffset
-            SkyboxBackup.Brightness = lighting.Brightness
-            SkyboxBackup.ClockTime = lighting.ClockTime
-            SkyboxBackup.done = true
-        end
+        end)
+
         pcall(function() makefolder("elitehub") end)
         local path = "elitehub/" .. filename
+
         if not isfile(path) then
-            SafeNotify("SKYBOX", "Downloading " .. filename .. "...", 2)
+            SafeNotify("SKYBOX", "Downloading " .. filename, 3)
             local url = SKYBOX_BASE .. filename
-            local ok, body = pcall(function() return game:HttpGet(url, true) end)
-            if not ok or not body then
-                SafeNotify("SKYBOX", "Download failed: " .. tostring(body), 3)
+            local body = game:HttpGet(url, true)
+            if not body or #body < 100 then
+                SafeNotify("SKYBOX", "Download failed!", 3)
                 return
             end
             writefile(path, body)
             task.wait(0.5)
         end
-        local asset = getcustomasset(path)
-        if not asset then
-            SafeNotify("SKYBOX", "getcustomasset failed", 3)
+
+        local ok, asset = pcall(getcustomasset, path)
+        if not ok or not asset then
+            SafeNotify("SKYBOX", "getcustomasset error: " .. tostring(asset), 5)
             return
         end
+
         local sky = lighting:FindFirstChildOfClass("Sky")
         if not sky then
             sky = Instance.new("Sky")
@@ -825,7 +831,7 @@ local function DownloadAndSetSky(filename)
         if not clouds then clouds = Instance.new("Clouds") clouds.Parent = workspace.Terrain end
         clouds.Cover = 0.4
         clouds.Density = 0.5
-        SafeNotify("SKYBOX", "Sky applied!", 2)
+        SafeNotify("SKYBOX", "Sky set! asset: " .. asset, 5)
     end)
 end
 
