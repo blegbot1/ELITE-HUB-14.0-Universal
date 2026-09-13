@@ -15958,7 +15958,11 @@ local function removeOverlay()
         overlayImage = nil
     end
     if overlaySound then
-        pcall(function() overlaySound:Stop() end)
+        pcall(function()
+            overlaySound:Stop()
+            overlaySound.SoundId = ""
+            overlaySound.Parent = nil
+        end)
         pcall(function() overlaySound:Destroy() end)
         overlaySound = nil
     end
