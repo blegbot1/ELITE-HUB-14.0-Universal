@@ -743,6 +743,43 @@ getgenv().ELITE_HUB_SkyboxEnabled = false
 getgenv().ELITE_HUB_SkyboxId = ""
 local SkyboxBackup = {}
 
+local SKYBOX_BASE = "https://raw.githubusercontent.com/blegbot1/ELITE-HUB-14.0-Universal/main/skybox/"
+
+local SkyboxPresets = {
+    ["Anime Sky"] = "anime_sky.jpg",
+    ["Custom ID"] = "",
+}
+
+local function DownloadSkyTexture(url)
+    local hasReq = (type(request) == "function" or type(http_request) == "function")
+    local canWrite = (type(writefile) == "function" and type(isfile) == "function")
+    if not (hasReq and canWrite and type(getcustomasset) == "function") then
+        return nil
+    end
+    local fn = url:match("/([^/]+)$") or "sky.jpg"
+    fn = fn:gsub("[^%w%.%-]", "_")
+    local path = "elitehub_sky_" .. fn
+    if getgenv().ELITE_HUB_SkyCache and getgenv().ELITE_HUB_SkyCache[path] and isfile(path) then
+        return getgenv().ELITE_HUB_SkyCache[path]
+    end
+    if not isfile(path) then
+        local res
+        if type(request) == "function" then
+            res = request({ Url = url, Method = "GET" })
+        else
+            res = http_request({ Url = url, Method = "GET" })
+        end
+        if not res or not res.Success then return nil end
+        writefile(path, res.Body)
+        task.wait(0.3)
+    end
+    local ok, asset = pcall(function() return getcustomasset(path) end)
+    if not ok or not asset then return nil end
+    if not getgenv().ELITE_HUB_SkyCache then getgenv().ELITE_HUB_SkyCache = {} end
+    getgenv().ELITE_HUB_SkyCache[path] = asset
+    return asset
+end
+
 local function ApplyCustomSkybox()
     pcall(function()
         local lighting = game:GetService("Lighting")
@@ -790,17 +827,41 @@ local function ApplyCustomSkybox()
     end)
 end
 
-MT:CreateToggle({
-    Name = " Custom Skybox",
-    CurrentValue = false,
-    Callback = function(value)
-        getgenv().ELITE_HUB_SkyboxEnabled = value
-        ApplyCustomSkybox()
+MT:CreateDropdown({
+    Name = " Sky Preset",
+    Options = {"Off", "Anime Sky", "Custom ID"},
+    CurrentOption = {"Off"},
+    MultipleOptions = false,
+    Callback = function(opt)
+        local choice = (typeof(opt) == "table" and opt[1]) or opt or "Off"
+        if choice == "Off" then
+            getgenv().ELITE_HUB_SkyboxEnabled = false
+            getgenv().ELITE_HUB_SkyboxId = ""
+            ApplyCustomSkybox()
+            return
+        end
+        if choice == "Anime Sky" then
+            local assetUrl = SKYBOX_BASE .. "anime_sky.jpg"
+            local assetId = DownloadSkyTexture(assetUrl)
+            if assetId then
+                getgenv().ELITE_HUB_SkyboxId = assetId
+                getgenv().ELITE_HUB_SkyboxEnabled = true
+                ApplyCustomSkybox()
+                SafeNotify("SKYBOX", "Anime Sky applied!", 2)
+            else
+                SafeNotify("SKYBOX", "Failed to load sky texture", 3)
+            end
+        elseif choice == "Custom ID" then
+            if getgenv().ELITE_HUB_SkyboxId ~= "" then
+                getgenv().ELITE_HUB_SkyboxEnabled = true
+                ApplyCustomSkybox()
+            end
+        end
     end
 })
 
 MT:CreateInput({
-    Name = " Skybox Texture ID",
+    Name = " Custom Skybox ID",
     PlaceholderText = "Enter Roblox Decal ID (e.g. 1234567890)",
     RemoveTextAfterFocusLost = false,
     Callback = function(value)
