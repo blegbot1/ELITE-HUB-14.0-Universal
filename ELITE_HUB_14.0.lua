@@ -15913,13 +15913,13 @@ local _g = getgenv
 local OVERLAY_BASE = "https://raw.githubusercontent.com/blegbot1/ELITE-HUB-14.0-Universal/main/overlays/"
 
 local OVERLAY_FILES = {
-    { name = "Kotik Big",      file = "kotik_big.png",    type = "image" },
-    { name = "Smysl Zhizni",   file = "smysl_zhizni.jpg", type = "image" },
-    { name = "Vranie",         file = "vranie.jpg",       type = "image" },
-    { name = "Sobaka Kot",     file = "sobaka_kot.jpg",   type = "image" },
-    { name = "Epstein",        file = "epstein.jpg",      type = "image" },
-    { name = "Femboy",         file = "femboy.mp4",       type = "video" },
-    { name = "Femboy Love",    file = "femboy_love.mp4",  type = "video" },
+    { name = "Kotik Big",      file = "kotik_big.png",       type = "image" },
+    { name = "Smysl Zhizni",   file = "smysl_zhizni.jpg",    type = "image" },
+    { name = "Vranie",         file = "vranie.jpg",          type = "image" },
+    { name = "Sobaka Kot",     file = "sobaka_kot.jpg",      type = "image" },
+    { name = "Epstein",        file = "epstein.jpg",         type = "image" },
+    { name = "Femboy",         file = "femboy.webm",         type = "video", sound = "femboy_sound.mp3" },
+    { name = "Femboy Love",    file = "femboy_love.webm",    type = "video", sound = "femboy_love_sound.mp3" },
 }
 
 local overlayGui = nil
@@ -16041,13 +16041,21 @@ local function showOverlay(entry)
         overlayVideo.Parent = overlayFrame
         overlayVideo:Play()
 
-        overlaySound = Instance.new("Sound")
-        overlaySound.SoundId = asset
-        overlaySound.Looped = true
-        overlaySound.Volume = _g().ELITE_HUB_OverlaySoundVol or 0.5
-        overlaySound.Parent = game:GetService("SoundService")
-        overlaySound:Play()
-        _g().ELITE_HUB_OverlaySoundPlaying = true
+        if entry.sound then
+            local soundPath = downloadFile(entry.sound)
+            if soundPath then
+                local sOK, sAsset = pcall(getcustomasset, soundPath)
+                if sOK and sAsset then
+                    overlaySound = Instance.new("Sound")
+                    overlaySound.SoundId = sAsset
+                    overlaySound.Looped = true
+                    overlaySound.Volume = _g().ELITE_HUB_OverlaySoundVol or 0.5
+                    overlaySound.Parent = game:GetService("SoundService")
+                    overlaySound:Play()
+                    _g().ELITE_HUB_OverlaySoundPlaying = true
+                end
+            end
+        end
     else
         overlayImage = Instance.new("ImageLabel")
         overlayImage.Size = UDim2.new(1, 0, 1, 0)
