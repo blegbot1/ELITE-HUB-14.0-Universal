@@ -748,6 +748,19 @@ local SKYBOX_BASE = "https://raw.githubusercontent.com/blegbot1/ELITE-HUB-14.0-U
 local function DownloadAndSetSky(url)
     pcall(function()
         local lighting = game:GetService("Lighting")
+        if not SkyboxBackup.done then
+            SkyboxBackup.Sky = lighting:FindFirstChildOfClass("Sky")
+            SkyboxBackup.SkyProps = {}
+            if SkyboxBackup.Sky then
+                for _, p in ipairs({"SkyboxBk","SkyboxDn","SkyboxFt","SkyboxLf","SkyboxRt","SkyboxUp"}) do
+                    SkyboxBackup.SkyProps[p] = SkyboxBackup.Sky[p]
+                end
+            end
+            SkyboxBackup.CB = lighting.CelestialBrightnessOffset
+            SkyboxBackup.Brightness = lighting.Brightness
+            SkyboxBackup.ClockTime = lighting.ClockTime
+            SkyboxBackup.done = true
+        end
         local path = "elitehub_anime_sky.jpg"
         if not isfile(path) then
             local body = game:HttpGet(url, true)
@@ -825,6 +838,8 @@ local function ApplyCustomSkybox()
                     end
                 end
                 lighting.CelestialBrightnessOffset = SkyboxBackup.CB or 0
+                lighting.Brightness = SkyboxBackup.Brightness or 2
+                lighting.ClockTime = SkyboxBackup.ClockTime or 14.5
                 SkyboxBackup = {}
             end
         end
