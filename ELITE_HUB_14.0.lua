@@ -15202,7 +15202,7 @@ local verLabel = SettingsTab:CreateLabel(L("Version"))
 table.insert(Window._translatables, {element = verLabel.Frame, key = "Version", type = "label"})
 
 end)()
-pcall(function() ;(function()
+;(function()
 local _g = getgenv
 local Rayfield = _g().ELITE_HUB_Rayfield
 local Window = _g().ELITE_HUB_Window
@@ -15328,7 +15328,7 @@ do
     end)
 end
 
-end)() end)
+end)()
 ;(function()
 -- source: ELITE_HUB_14.0.lua PERSISTENT WATCHDOG (lines 12624-12722)
 local _g = getgenv
