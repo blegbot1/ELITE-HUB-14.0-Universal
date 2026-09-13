@@ -7774,13 +7774,17 @@ local function UpdateSkeletonLines(character, lines, color, thickness, skeletonT
             local pa = a and a.Position
             local pb = b and b.Position
             if pa and pb then
-                local sa, _ = camera:WorldToViewportPoint(pa)
-                local sb, _ = camera:WorldToViewportPoint(pb)
-                line.From = Vector2.new(sa.X, sa.Y)
-                line.To = Vector2.new(sb.X, sb.Y)
-                line.Color = color
-                line.Thickness = thickness
-                line.Visible = true
+                local sa, saOnScreen = camera:WorldToViewportPoint(pa)
+                local sb, sbOnScreen = camera:WorldToViewportPoint(pb)
+                if saOnScreen and sbOnScreen then
+                    line.From = Vector2.new(sa.X, sa.Y)
+                    line.To = Vector2.new(sb.X, sb.Y)
+                    line.Color = color
+                    line.Thickness = thickness
+                    line.Visible = true
+                else
+                    line.Visible = false
+                end
             else
                 line.Visible = false
             end
@@ -9866,15 +9870,42 @@ local function UpdateBox3DESP()
 end
 
 
+local function GetCharacterScreenBounds(character, camera)
+    local minX, minY, maxX, maxY = math.huge, math.huge, -math.huge, -math.huge
+    local anyOnScreen = false
+    for _, partName in ipairs({"Head","Torso","UpperTorso","LowerTorso","Left Arm","Right Arm","Left Upper Arm","Right Upper Arm","Left Lower Arm","Right Lower Arm","Left Hand","Right Hand","Left Leg","Right Leg","Left Upper Leg","Right Upper Leg","Left Lower Leg","Right Lower Leg","Left Foot","Right Foot"}) do
+        local part = character and character:FindFirstChild(partName)
+        if part then
+            local sp, onScreen = camera:WorldToViewportPoint(part.Position)
+            if onScreen then
+                anyOnScreen = true
+                local halfW, halfH
+                if part.Name == "Head" then
+                    halfW, halfH = 1, 0.75
+                else
+                    local sz = part.Size
+                    halfW = math.max(sz.X, sz.Z) * 0.6
+                    halfH = sz.Y * 0.55
+                end
+                minX = math.min(minX, sp.X - halfW)
+                maxX = math.max(maxX, sp.X + halfW)
+                minY = math.min(minY, sp.Y - halfH)
+                maxY = math.max(maxY, sp.Y + halfH)
+            end
+        end
+    end
+    if not anyOnScreen then return nil end
+    return minX, minY, maxX, maxY
+end
+
 local function UpdateCornerBoxESP()
     if not ESPConfig.Enabled or not ESPConfig.Boxes or ESPConfig.BoxStyle ~= "Corners" then return end
     local camera = workspace.CurrentCamera
     for targetPlayer, espGroup in pairs(ESPObjects) do
         pcall(function()
             local character = targetPlayer.Character
-            local rootPart = character and character:FindFirstChild("HumanoidRootPart")
             local humanoid = character and character:FindFirstChildOfClass("Humanoid")
-            if not rootPart or not humanoid then
+            if not humanoid then
                 ClearCornerBox(targetPlayer)
                 return
             end
@@ -9882,28 +9913,15 @@ local function UpdateCornerBoxESP()
                 ClearCornerBox(targetPlayer)
                 return
             end
-            local screenPos, onScreen = camera:WorldToViewportPoint(rootPart.Position)
-            if not onScreen then
+            local minX, minY, maxX, maxY = GetCharacterScreenBounds(character, camera)
+            if not minX then
                 ClearCornerBox(targetPlayer)
                 return
             end
-            local size = Vector3.new(2, 5, 1) * 1.2
-            local cf = rootPart.CFrame
-            local corners = {
-                cf * CFrame.new(-size.X/2, -size.Y/2, 0),
-                cf * CFrame.new(size.X/2, -size.Y/2, 0),
-                cf * CFrame.new(size.X/2, size.Y/2, 0),
-                cf * CFrame.new(-size.X/2, size.Y/2, 0),
-            }
-            local sc = {}
-            for i, c in ipairs(corners) do
-                local sp = camera:WorldToViewportPoint(c.Position)
-                sc[i] = Vector2.new(sp.X, sp.Y)
-            end
-            local w = math.abs(sc[2].X - sc[1].X)
-            local h = math.abs(sc[3].Y - sc[2].Y)
+            local w = maxX - minX
+            local h = maxY - minY
             if w < 5 or h < 5 then ClearCornerBox(targetPlayer); return end
-            local cornerLen = math.min(w, h) * 0.25
+            local cornerLen = math.min(w, h) * 0.3
             local lines = CornerBoxObjects[targetPlayer]
             if not lines or #lines ~= 8 then
                 if lines then for _, l in ipairs(lines) do if l then pcall(function() l:Remove() end) end end end
@@ -9913,17 +9931,19 @@ local function UpdateCornerBoxESP()
             end
             local isDead = humanoid.Health <= 0
             local col = isDead and ESPConfig.DeadColor or (espGroup.Highlight and espGroup.Highlight.FillColor or ESPConfig.EnemyColor)
-            local thick = ESPConfig.TracerThickness or 2
+            local thick = ESPConfig.BoxThickness or 2
             local tl = cornerLen
-            local cx1, cy1 = sc[1].X, sc[1].Y
-            local cx2, cy2 = sc[2].X, sc[2].Y
-            local cx3, cy3 = sc[3].X, sc[3].Y
-            local cx4, cy4 = sc[4].X, sc[4].Y
+            local sc = {
+                Vector2.new(minX, minY),
+                Vector2.new(maxX, minY),
+                Vector2.new(maxX, maxY),
+                Vector2.new(minX, maxY),
+            }
             local corners2d = {
-                {pos = sc[1], dx = 1, dy = -1},
-                {pos = sc[2], dx = -1, dy = -1},
-                {pos = sc[3], dx = -1, dy = 1},
-                {pos = sc[4], dx = 1, dy = 1},
+                {pos = sc[1], dx = 1, dy = 1},
+                {pos = sc[2], dx = -1, dy = 1},
+                {pos = sc[3], dx = -1, dy = -1},
+                {pos = sc[4], dx = 1, dy = -1},
             }
             local segIdx = 1
             for _, c in ipairs(corners2d) do

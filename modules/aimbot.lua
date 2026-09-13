@@ -197,13 +197,17 @@ local function UpdateSkeletonLines(character, lines, color, thickness, skeletonT
             local pa = a and a.Position
             local pb = b and b.Position
             if pa and pb then
-                local sa, _ = camera:WorldToViewportPoint(pa)
-                local sb, _ = camera:WorldToViewportPoint(pb)
-                line.From = Vector2.new(sa.X, sa.Y)
-                line.To = Vector2.new(sb.X, sb.Y)
-                line.Color = color
-                line.Thickness = thickness
-                line.Visible = true
+                local sa, saOnScreen = camera:WorldToViewportPoint(pa)
+                local sb, sbOnScreen = camera:WorldToViewportPoint(pb)
+                if saOnScreen and sbOnScreen then
+                    line.From = Vector2.new(sa.X, sa.Y)
+                    line.To = Vector2.new(sb.X, sb.Y)
+                    line.Color = color
+                    line.Thickness = thickness
+                    line.Visible = true
+                else
+                    line.Visible = false
+                end
             else
                 line.Visible = false
             end
