@@ -838,12 +838,15 @@ local function ApplyCustomSkybox()
             if not SkyboxBackup.done then
                 SkyboxBackup.Sky = lighting:FindFirstChildOfClass("Sky")
                 SkyboxBackup.SkyProps = {}
+                SkyboxBackup.SkyExisted = (SkyboxBackup.Sky ~= nil)
                 if SkyboxBackup.Sky then
                     for _, p in ipairs({"SkyboxBk","SkyboxDn","SkyboxFt","SkyboxLf","SkyboxRt","SkyboxUp"}) do
                         SkyboxBackup.SkyProps[p] = SkyboxBackup.Sky[p]
                     end
                 end
                 SkyboxBackup.CB = lighting.CelestialBrightnessOffset
+                SkyboxBackup.Brightness = lighting.Brightness
+                SkyboxBackup.ClockTime = lighting.ClockTime
                 SkyboxBackup.done = true
             end
             local sky = lighting:FindFirstChildOfClass("Sky")
@@ -861,14 +864,16 @@ local function ApplyCustomSkybox()
         else
             if SkyboxBackup.done then
                 local sky = lighting:FindFirstChildOfClass("Sky")
-                if sky and SkyboxBackup.Sky then
+                if SkyboxBackup.SkyExisted and sky and SkyboxBackup.Sky then
                     for _, p in ipairs({"SkyboxBk","SkyboxDn","SkyboxFt","SkyboxLf","SkyboxRt","SkyboxUp"}) do
                         sky[p] = SkyboxBackup.SkyProps[p] or ""
                     end
+                elseif sky and not SkyboxBackup.SkyExisted then
+                    sky:Destroy()
                 end
                 lighting.CelestialBrightnessOffset = SkyboxBackup.CB or 0
-                lighting.Brightness = SkyboxBackup.Brightness or 2
-                lighting.ClockTime = SkyboxBackup.ClockTime or 14.5
+                lighting.Brightness = SkyboxBackup.Brightness or 1
+                lighting.ClockTime = SkyboxBackup.ClockTime or 14
                 SkyboxBackup = {}
             end
         end
@@ -905,8 +910,8 @@ MT:CreateDropdown({
 })
 
 MT:CreateInput({
-    Name = " Custom Skybox ID",
-    PlaceholderText = "Enter Roblox Decal ID (e.g. 1234567890)",
+    Name = " Custom Skybox Image ID",
+    PlaceholderText = "Enter Roblox Image ID (e.g. 1234567890)",
     RemoveTextAfterFocusLost = false,
     Callback = function(value)
         local id = tostring(value):gsub("%s+", ""):gsub("[^0-9]", "")
