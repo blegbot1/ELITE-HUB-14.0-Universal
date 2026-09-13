@@ -390,5 +390,13 @@
     {
         "name":  "Маленькая - T1One, Денис Happy",
         "url":  "https://raw.githubusercontent.com/blegbot1/ELITE-HUB-14.0-Universal/main/music/125_malenkaya_t1one.mp3"
+    },
+    {
+        "name":  "Кровь руки вены - Мелтрой",
+        "url":  "https://raw.githubusercontent.com/blegbot1/ELITE-HUB-14.0-Universal/main/music/126_krov_ruki_veny_meltroy.mp3"
+    },
+    {
+        "name":  "Мурино - Мелтрой",
+        "url":  "https://raw.githubusercontent.com/blegbot1/ELITE-HUB-14.0-Universal/main/music/127_murino_meltroy.mp3"
     }
 ]
