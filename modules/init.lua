@@ -2413,7 +2413,7 @@ local function TargetIsVisible(targetPart)
 end
 
 local function UpdateTargetHUD()
-    local tgt = LockedTargetPlayer or GetTargetPlayer() or nil
+    local tgt = LockedTargetPlayer or nil
     if tgt and (not tgt:IsA("Player") or not tgt.Character) then tgt = nil end
     if tgt and tgt.Character then
         local tgtHRP = tgt.Character:FindFirstChild("HumanoidRootPart")
@@ -2445,10 +2445,7 @@ local function UpdateTargetHUD()
         return
     end
 
-    local shouldShowHUD = getgenv().ELITE_HUB_PlayerHUDOn
-    if not shouldShowHUD and LockedTargetPlayer then
-        shouldShowHUD = true
-    end
+    local shouldShowHUD = getgenv().ELITE_HUB_PlayerHUDOn or LockedTargetPlayer ~= nil
 
     local tgtChar = tgt.Character
     local tgtH = tgtChar:FindFirstChildOfClass("Humanoid")
