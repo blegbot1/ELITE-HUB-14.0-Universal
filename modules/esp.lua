@@ -42,7 +42,6 @@ local ESPConfig = {
     Tracers = true,
     TracersForTeammates = false,
     ShowDead = true,
-    Box3DEnabled = true,
     Box3DFilled = false,
     UpdateFrequency = 0.016,
     EnemyColor = Color3.fromRGB(255, 50, 50),
@@ -508,7 +507,7 @@ local function CreatePlayerESP(targetPlayer)
         fillColor = isTeammate and ESPConfig.TeammateColor or ESPConfig.EnemyColor
     end
 
-    if ESPConfig.Boxes and rootPart and ESPConfig.BoxStyle ~= "Corners" then
+    if ESPConfig.Boxes and rootPart and ESPConfig.BoxStyle == "Highlight" then
         local highlight = Instance.new("Highlight")
         highlight.FillColor = fillColor
         highlight.OutlineColor = ESPConfig.OutlineColor
@@ -626,7 +625,7 @@ local function CreatePlayerESP(targetPlayer)
         TracerLines[targetPlayer] = tracer
     end
 
-    if ESPConfig.Box3DEnabled then
+    if ESPConfig.BoxStyle == "3D Box" then
         local boxLines = {}
         for i = 1, 12 do
             local line = NewOverlayLine()
@@ -792,7 +791,7 @@ local function UpdateTracers()
 end
 
 local function UpdateBox3DESP()
-    if not ESPConfig.Enabled or not ESPConfig.Box3DEnabled then return end
+    if not ESPConfig.Enabled or ESPConfig.BoxStyle ~= "3D Box" then return end
 
     local camera = workspace.CurrentCamera
     local boxCount = 0
@@ -872,34 +871,6 @@ local function UpdateBox3DESP()
 end
 
 
-local function GetCharacterScreenBounds(character, camera)
-    local minX, minY, maxX, maxY = math.huge, math.huge, -math.huge, -math.huge
-    local anyOnScreen = false
-    for _, partName in ipairs({"Head","Torso","UpperTorso","LowerTorso","Left Arm","Right Arm","Left Upper Arm","Right Upper Arm","Left Lower Arm","Right Lower Arm","Left Hand","Right Hand","Left Leg","Right Leg","Left Upper Leg","Right Upper Leg","Left Lower Leg","Right Lower Leg","Left Foot","Right Foot"}) do
-        local part = character and character:FindFirstChild(partName)
-        if part then
-            local sp, onScreen = camera:WorldToViewportPoint(part.Position)
-            if onScreen then
-                anyOnScreen = true
-                local halfW, halfH
-                if part.Name == "Head" then
-                    halfW, halfH = 1, 0.75
-                else
-                    local sz = part.Size
-                    halfW = math.max(sz.X, sz.Z) * 0.6
-                    halfH = sz.Y * 0.55
-                end
-                minX = math.min(minX, sp.X - halfW)
-                maxX = math.max(maxX, sp.X + halfW)
-                minY = math.min(minY, sp.Y - halfH)
-                maxY = math.max(maxY, sp.Y + halfH)
-            end
-        end
-    end
-    if not anyOnScreen then return nil end
-    return minX, minY, maxX, maxY
-end
-
 local function UpdateCornerBoxESP()
     if not ESPConfig.Enabled or not ESPConfig.Boxes or ESPConfig.BoxStyle ~= "Corners" then return end
     local camera = workspace.CurrentCamera
@@ -907,7 +878,8 @@ local function UpdateCornerBoxESP()
         pcall(function()
             local character = targetPlayer.Character
             local humanoid = character and character:FindFirstChildOfClass("Humanoid")
-            if not humanoid then
+            local rootPart = character and character:FindFirstChild("HumanoidRootPart")
+            if not humanoid or not rootPart then
                 ClearCornerBox(targetPlayer)
                 return
             end
@@ -915,53 +887,63 @@ local function UpdateCornerBoxESP()
                 ClearCornerBox(targetPlayer)
                 return
             end
-            local minX, minY, maxX, maxY = GetCharacterScreenBounds(character, camera)
-            if not minX then
-                ClearCornerBox(targetPlayer)
-                return
+            local size = Vector3.new(3, 5, 3) * ESPConfig.Box3DSize
+            local cf = rootPart.CFrame
+            local corners3D = {
+                cf * CFrame.new(-size.X/2, -size.Y/2, -size.Z/2),
+                cf * CFrame.new(size.X/2, -size.Y/2, -size.Z/2),
+                cf * CFrame.new(size.X/2, size.Y/2, -size.Z/2),
+                cf * CFrame.new(-size.X/2, size.Y/2, -size.Z/2),
+                cf * CFrame.new(-size.X/2, -size.Y/2, size.Z/2),
+                cf * CFrame.new(size.X/2, -size.Y/2, size.Z/2),
+                cf * CFrame.new(size.X/2, size.Y/2, size.Z/2),
+                cf * CFrame.new(-size.X/2, size.Y/2, size.Z/2),
+            }
+            local sc = {}
+            local scVis = {}
+            for i, c in ipairs(corners3D) do
+                local sp, vis = camera:WorldToViewportPoint(c.Position)
+                sc[i] = Vector2.new(sp.X, sp.Y)
+                scVis[i] = vis
             end
-            local w = maxX - minX
-            local h = maxY - minY
-            if w < 5 or h < 5 then ClearCornerBox(targetPlayer); return end
-            local cornerLen = math.min(w, h) * 0.3
+            local needed = 24
             local lines = CornerBoxObjects[targetPlayer]
-            if not lines or #lines ~= 8 then
+            if not lines or #lines ~= needed then
                 if lines then for _, l in ipairs(lines) do if l then pcall(function() l:Remove() end) end end end
                 lines = {}
-                for i = 1, 8 do lines[i] = NewOverlayLine() end
+                for i = 1, needed do lines[i] = NewOverlayLine() end
                 CornerBoxObjects[targetPlayer] = lines
             end
             local isDead = humanoid.Health <= 0
-            local col = isDead and ESPConfig.DeadColor or (espGroup.Highlight and espGroup.Highlight.FillColor or ESPConfig.EnemyColor)
-            local thick = ESPConfig.BoxThickness or 2
-            local tl = cornerLen
-            local sc = {
-                Vector2.new(minX, minY),
-                Vector2.new(maxX, minY),
-                Vector2.new(maxX, maxY),
-                Vector2.new(minX, maxY),
-            }
-            local corners2d = {
-                {pos = sc[1], dx = 1, dy = 1},
-                {pos = sc[2], dx = -1, dy = 1},
-                {pos = sc[3], dx = -1, dy = -1},
-                {pos = sc[4], dx = 1, dy = -1},
+            local col = isDead and ESPConfig.DeadColor or ESPConfig.Box3DColor
+            local thick = ESPConfig.Box3DThickness or 2
+            local cornerLen = math.max(size.X, size.Y, size.Z) * 0.25
+            local dirs = {
+                cf:VectorToWorldSpace(Vector3.new(cornerLen, 0, 0)),
+                cf:VectorToWorldSpace(Vector3.new(0, cornerLen, 0)),
+                cf:VectorToWorldSpace(Vector3.new(0, 0, cornerLen)),
             }
             local segIdx = 1
-            for _, c in ipairs(corners2d) do
-                local p = c.pos
-                lines[segIdx].From = p
-                lines[segIdx].To = Vector2.new(p.X + c.dx * tl, p.Y)
-                lines[segIdx].Visible = true
-                lines[segIdx].Color = col
-                lines[segIdx].Thickness = thick
-                segIdx = segIdx + 1
-                lines[segIdx].From = p
-                lines[segIdx].To = Vector2.new(p.X, p.Y + c.dy * tl)
-                lines[segIdx].Visible = true
-                lines[segIdx].Color = col
-                lines[segIdx].Thickness = thick
-                segIdx = segIdx + 1
+            for ci = 1, 8 do
+                local origin = corners3D[ci].Position
+                for d = 1, 3 do
+                    if scVis[ci] then
+                        local endpoint = origin + dirs[d]
+                        local sp2, vis2 = camera:WorldToViewportPoint(endpoint)
+                        if vis2 then
+                            lines[segIdx].From = sc[ci]
+                            lines[segIdx].To = Vector2.new(sp2.X, sp2.Y)
+                            lines[segIdx].Visible = true
+                            lines[segIdx].Color = col
+                            lines[segIdx].Thickness = thick
+                        else
+                            lines[segIdx].Visible = false
+                        end
+                    else
+                        lines[segIdx].Visible = false
+                    end
+                    segIdx = segIdx + 1
+                end
             end
         end)
     end
@@ -1086,7 +1068,7 @@ RunService.RenderStepped:Connect(function(dt)
         pcall(UpdateHeadDots)
         pcall(UpdateHealthBars)
         pcall(UpdateCornerBoxESP)
-        if ESPConfig.Box3DEnabled then
+        if ESPConfig.BoxStyle == "3D Box" then
             pcall(UpdateBox3DESP)
         end
     end
@@ -1209,38 +1191,27 @@ ESPTab:CreateToggle({
 
 ESPTab:CreateDropdown({
     Name = " Box style",
-    Options = {"Highlight", "Corners"},
+    Options = {"Highlight", "Corners", "3D Box"},
     CurrentOption = {ESPConfig.BoxStyle},
     MultipleOptions = false,
     Callback = function(opt)
         local style = (typeof(opt) == "table" and opt[1]) or opt or "Highlight"
         ESPConfig.BoxStyle = style
-        if style == "Corners" then
+        if style == "Highlight" then
             for targetPlayer, espGroup in pairs(ESPObjects) do
                 if espGroup.Highlight then pcall(function() espGroup.Highlight:Destroy() end) espGroup.Highlight = nil end
             end
         end
+        for targetPlayer, lines in pairs(Box3DObjects) do
+            for _, line in ipairs(lines) do pcall(function() line:Remove() end) end
+            Box3DObjects[targetPlayer] = nil
+        end
+        for targetPlayer, lines in pairs(CornerBoxObjects) do
+            for _, line in ipairs(lines) do pcall(function() line:Remove() end) end
+            CornerBoxObjects[targetPlayer] = nil
+        end
         UpdateESP()
     end,
-})
-
-ESPTab:CreateToggle({
-    Name = " 3D Box ESP",
-    CurrentValue = ESPConfig.Box3DEnabled,
-    Callback = function(value)
-        ESPConfig.Box3DEnabled = value
-        if not value then
-            for targetPlayer, lines in pairs(Box3DObjects) do
-                for _, line in ipairs(lines) do
-                    line:Remove()
-                end
-            end
-            for k in pairs(Box3DObjects) do Box3DObjects[k] = nil end
-            getgenv().ELITE_HUB_Box3DObjects = Box3DObjects
-        else
-            UpdateESP()
-        end
-    end
 })
 
 ESPTab:CreateColorPicker({
