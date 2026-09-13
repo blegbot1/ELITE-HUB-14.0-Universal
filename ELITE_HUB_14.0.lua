@@ -13103,7 +13103,9 @@ local function DownloadAndSetSky(url)
             SkyboxBackup.ClockTime = lighting.ClockTime
             SkyboxBackup.done = true
         end
-        local path = "elitehub_anime_sky.jpg"
+        pcall(function() makefolder("elitehub") end)
+        pcall(function() makefolder("elitehub/sky") end)
+        local path = "elitehub/sky/anime_sky.jpg"
         if not isfile(path) then
             local body = game:HttpGet(url, true)
             writefile(path, body)
@@ -14498,7 +14500,9 @@ local function ELITE_HUB_MusicGetId(url)
     end
     local fn = url:match("/([^/]+)$") or "track.mp3"
     fn = fn:gsub("[^%w%.%-]", "_")
-    local path = "elitehub_" .. fn .. ".mp3"
+    pcall(function() makefolder("elitehub") end)
+    pcall(function() makefolder("elitehub/music") end)
+    local path = "elitehub/music/" .. fn
     if getgenv().ELITE_HUB_MusicCache[path] and isfile(path) then
         return getgenv().ELITE_HUB_MusicCache[path]
     end

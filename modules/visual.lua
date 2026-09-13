@@ -761,7 +761,9 @@ local function DownloadAndSetSky(url)
             SkyboxBackup.ClockTime = lighting.ClockTime
             SkyboxBackup.done = true
         end
-        local path = "elitehub_anime_sky.jpg"
+        pcall(function() makefolder("elitehub") end)
+        pcall(function() makefolder("elitehub/sky") end)
+        local path = "elitehub/sky/anime_sky.jpg"
         if not isfile(path) then
             local body = game:HttpGet(url, true)
             writefile(path, body)
