@@ -9916,17 +9916,28 @@ local function UpdateCornerBoxESP()
             local col = isDead and ESPConfig.DeadColor or ESPConfig.Box3DColor
             local thick = ESPConfig.Box3DThickness or 2
             local cornerLen = math.max(size.X, size.Y, size.Z) * 0.25
-            local dirs = {
-                cf:VectorToWorldSpace(Vector3.new(cornerLen, 0, 0)),
-                cf:VectorToWorldSpace(Vector3.new(0, cornerLen, 0)),
-                cf:VectorToWorldSpace(Vector3.new(0, 0, cornerLen)),
+            local signs = {
+                {sx = -1, sy = -1, sz = -1},
+                {sx =  1, sy = -1, sz = -1},
+                {sx =  1, sy =  1, sz = -1},
+                {sx = -1, sy =  1, sz = -1},
+                {sx = -1, sy = -1, sz =  1},
+                {sx =  1, sy = -1, sz =  1},
+                {sx =  1, sy =  1, sz =  1},
+                {sx = -1, sy =  1, sz =  1},
             }
             local segIdx = 1
             for ci = 1, 8 do
                 local origin = corners3D[ci].Position
+                local s = signs[ci]
+                local inwardDirs = {
+                    cf:VectorToWorldSpace(Vector3.new(-s.sx * cornerLen, 0, 0)),
+                    cf:VectorToWorldSpace(Vector3.new(0, -s.sy * cornerLen, 0)),
+                    cf:VectorToWorldSpace(Vector3.new(0, 0, -s.sz * cornerLen)),
+                }
                 for d = 1, 3 do
                     if scVis[ci] then
-                        local endpoint = origin + dirs[d]
+                        local endpoint = origin + inwardDirs[d]
                         local sp2, vis2 = camera:WorldToViewportPoint(endpoint)
                         if vis2 then
                             lines[segIdx].From = sc[ci]
