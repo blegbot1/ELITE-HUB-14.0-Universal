@@ -762,18 +762,23 @@ local function DownloadAndSetSky(url)
             SkyboxBackup.done = true
         end
         pcall(function() makefolder("elitehub") end)
-        pcall(function() makefolder("elitehub/sky") end)
-        local path = "elitehub/sky/anime_sky.jpg"
+        local path = "elitehub/anime_sky.jpg"
         if not isfile(path) then
-            local body = game:HttpGet(url, true)
+            SafeNotify("SKYBOX", "Downloading...", 2)
+            local ok, body = pcall(function() return game:HttpGet(url, true) end)
+            if not ok or not body then
+                SafeNotify("SKYBOX", "Download failed: " .. tostring(body), 3)
+                return
+            end
             writefile(path, body)
             task.wait(0.5)
         end
         local asset = getcustomasset(path)
         if not asset then
-            SafeNotify("SKYBOX", "getcustomasset failed", 3)
+            SafeNotify("SKYBOX", "getcustomasset failed for " .. path, 3)
             return
         end
+        SafeNotify("SKYBOX", "asset: " .. tostring(asset), 2)
         local sky = lighting:FindFirstChildOfClass("Sky")
         if not sky then
             sky = Instance.new("Sky")

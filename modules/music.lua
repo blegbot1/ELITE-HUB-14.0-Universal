@@ -32,8 +32,7 @@ local function ELITE_HUB_MusicGetId(url)
     local fn = url:match("/([^/]+)$") or "track.mp3"
     fn = fn:gsub("[^%w%.%-]", "_")
     pcall(function() makefolder("elitehub") end)
-    pcall(function() makefolder("elitehub/music") end)
-    local path = "elitehub/music/" .. fn
+    local path = "elitehub/" .. fn
     if getgenv().ELITE_HUB_MusicCache[path] and isfile(path) then
         return getgenv().ELITE_HUB_MusicCache[path]
     end
