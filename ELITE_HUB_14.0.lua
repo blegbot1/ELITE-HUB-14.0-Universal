@@ -13189,6 +13189,21 @@ MT:CreateDropdown({
                 getgenv().ELITE_HUB_SkyboxId = assetId
                 getgenv().ELITE_HUB_SkyboxEnabled = true
                 ApplyCustomSkybox()
+                pcall(function()
+                    local l = game:GetService("Lighting")
+                    l.Brightness = 2
+                    l.ClockTime = 14.5
+                    local atmo = l:FindFirstChildOfClass("Atmosphere")
+                    if not atmo then atmo = Instance.new("Atmosphere") atmo.Parent = l end
+                    atmo.Density = 0.3
+                    atmo.Color = Color3.fromRGB(180, 200, 255)
+                    local sky = l:FindFirstChildOfClass("Sky")
+                    if sky then sky.StarCount = 500 end
+                    local clouds = workspace:FindFirstChildOfClass("Clouds")
+                    if not clouds then clouds = Instance.new("Clouds") clouds.Parent = workspace.Terrain end
+                    clouds.Cover = 0.4
+                    clouds.Density = 0.5
+                end)
                 SafeNotify("SKYBOX", "Anime Sky applied!", 2)
             else
                 SafeNotify("SKYBOX", "Failed to load sky texture", 3)
@@ -13212,6 +13227,99 @@ MT:CreateInput({
         if getgenv().ELITE_HUB_SkyboxEnabled then
             ApplyCustomSkybox()
         end
+    end
+})
+
+MT:CreateSlider({
+    Name = " Sky Brightness",
+    Range = {0.5, 4},
+    Increment = 0.1,
+    CurrentValue = 2,
+    Callback = function(value)
+        pcall(function()
+            game:GetService("Lighting").Brightness = value
+        end)
+    end
+})
+
+MT:CreateSlider({
+    Name = " Time of Day",
+    Range = {0, 24},
+    Increment = 0.5,
+    CurrentValue = 14.5,
+    Callback = function(value)
+        pcall(function()
+            game:GetService("Lighting").ClockTime = value
+        end)
+    end
+})
+
+MT:CreateSlider({
+    Name = " Atmosphere Density",
+    Range = {0, 1},
+    Increment = 0.05,
+    CurrentValue = 0.3,
+    Callback = function(value)
+        pcall(function()
+            local l = game:GetService("Lighting")
+            local atmo = l:FindFirstChildOfClass("Atmosphere")
+            if not atmo then
+                atmo = Instance.new("Atmosphere")
+                atmo.Parent = l
+            end
+            atmo.Density = value
+        end)
+    end
+})
+
+MT:CreateColorPicker({
+    Name = " Atmosphere Color",
+    Color = Color3.fromRGB(180, 200, 255),
+    Callback = function(value)
+        pcall(function()
+            local l = game:GetService("Lighting")
+            local atmo = l:FindFirstChildOfClass("Atmosphere")
+            if not atmo then
+                atmo = Instance.new("Atmosphere")
+                atmo.Parent = l
+            end
+            atmo.Color = value
+        end)
+    end
+})
+
+MT:CreateSlider({
+    Name = " Star Count",
+    Range = {0, 2000},
+    Increment = 50,
+    CurrentValue = 500,
+    Callback = function(value)
+        pcall(function()
+            local sky = game:GetService("Lighting"):FindFirstChildOfClass("Sky")
+            if sky then sky.StarCount = value end
+        end)
+    end
+})
+
+MT:CreateSlider({
+    Name = " Clouds Density",
+    Range = {0, 1},
+    Increment = 0.05,
+    CurrentValue = 0.4,
+    Callback = function(value)
+        pcall(function()
+            local clouds = workspace:FindFirstChildOfClass("Clouds")
+            if value > 0 then
+                if not clouds then
+                    clouds = Instance.new("Clouds")
+                    clouds.Parent = workspace.Terrain
+                end
+                clouds.Cover = value
+                clouds.Density = 0.5
+            elseif clouds then
+                clouds:Destroy()
+            end
+        end)
     end
 })
 end)()
