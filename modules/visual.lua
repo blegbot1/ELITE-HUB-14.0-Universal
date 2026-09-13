@@ -792,22 +792,15 @@ local function DownloadAndSetSky(filename)
         local path = "elitehub/" .. filename
 
         if not isfile(path) then
-            SafeNotify("SKYBOX", "Downloading " .. filename, 3)
             local url = SKYBOX_BASE .. filename
             local body = game:HttpGet(url, true)
-            if not body or #body < 100 then
-                SafeNotify("SKYBOX", "Download failed!", 3)
-                return
-            end
+            if not body or #body < 100 then return end
             writefile(path, body)
             task.wait(0.5)
         end
 
         local ok, asset = pcall(getcustomasset, path)
-        if not ok or not asset then
-            SafeNotify("SKYBOX", "getcustomasset error: " .. tostring(asset), 5)
-            return
-        end
+        if not ok or not asset then return end
 
         local sky = lighting:FindFirstChildOfClass("Sky")
         if not sky then
@@ -831,7 +824,6 @@ local function DownloadAndSetSky(filename)
         if not clouds then clouds = Instance.new("Clouds") clouds.Parent = workspace.Terrain end
         clouds.Cover = 0.4
         clouds.Density = 0.5
-        SafeNotify("SKYBOX", "Sky set! asset: " .. asset, 5)
     end)
 end
 
