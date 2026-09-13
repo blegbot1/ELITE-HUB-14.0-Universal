@@ -15918,8 +15918,8 @@ local OVERLAY_FILES = {
     { name = "Vranie",         file = "vranie.jpg",          type = "image" },
     { name = "Sobaka Kot",     file = "sobaka_kot.jpg",      type = "image" },
     { name = "Epstein",        file = "epstein.jpg",         type = "image" },
-    { name = "Femboy",         file = "femboy.webm",         type = "video", frameDir = "femboy_frames", frameCount = 11, sound = "femboy_sound.mp3" },
-    { name = "Femboy Love",    file = "femboy_love.webm",    type = "video", frameDir = "femboy_love_frames", frameCount = 12, sound = "femboy_love_sound.mp3" },
+    { name = "Femboy",         file = "femboy.webm",         type = "video", frameDir = "femboy_frames", frameCount = 69, sound = "femboy_sound.mp3" },
+    { name = "Femboy Love",    file = "femboy_love.webm",    type = "video", frameDir = "femboy_love_frames", frameCount = 69, sound = "femboy_love_sound.mp3" },
 }
 
 local overlayGui = nil
@@ -16032,8 +16032,8 @@ local function showOverlay(entry)
 
     if entry.type == "video" then
         local frames = {}
-        for i = 1, (entry.frameCount or 12) do
-            local fname = string.format("frame_%02d.jpg", i)
+        for i = 1, (entry.frameCount or 69) do
+            local fname = string.format("frame_%03d.jpg", i)
             local fpath = downloadFile(entry.frameDir .. "/" .. fname)
             if fpath then
                 local fOK, fAsset = pcall(getcustomasset, fpath)
@@ -16053,13 +16053,20 @@ local function showOverlay(entry)
         overlayImage.Image = frames[1]
         overlayImage.Parent = overlayFrame
 
-        overlayAnimConn = game:GetService("RunService").Heartbeat:Connect(function()
+        _g().ELITE_HUB_OverlayFrameDelay = _g().ELITE_HUB_OverlayFrameDelay or 0.15
+        local elapsed = 0
+        overlayAnimConn = game:GetService("RunService").Heartbeat:Connect(function(dt)
             if not overlayImage or not overlayFrame then return end
-            overlayAnimIndex = overlayAnimIndex + 1
-            if overlayAnimIndex > #overlayAnimFrames then
-                overlayAnimIndex = 1
+            elapsed = elapsed + dt
+            local delay = _g().ELITE_HUB_OverlayFrameDelay
+            if elapsed >= delay then
+                elapsed = elapsed - delay
+                overlayAnimIndex = overlayAnimIndex + 1
+                if overlayAnimIndex > #overlayAnimFrames then
+                    overlayAnimIndex = 1
+                end
+                overlayImage.Image = overlayAnimFrames[overlayAnimIndex]
             end
-            overlayImage.Image = overlayAnimFrames[overlayAnimIndex]
         end)
 
         if entry.sound then
@@ -16166,6 +16173,18 @@ local function initOverlayUI()
                     local s = overlayFrame.Size
                     overlayFrame.Position = UDim2.new(overlayFrame.Position.X.Scale, overlayFrame.Position.X.Offset, value / 100, -s.Y.Offset / 2)
                 end
+            end
+        })
+    end)
+
+    pcall(function()
+        tab:CreateSlider({
+            Name = " Frame Speed",
+            Range = {0.03, 0.5},
+            Increment = 0.01,
+            CurrentValue = 0.15,
+            Callback = function(value)
+                _g().ELITE_HUB_OverlayFrameDelay = value
             end
         })
     end)
