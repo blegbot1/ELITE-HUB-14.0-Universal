@@ -15929,6 +15929,7 @@ local overlayFrame = nil
 local overlayVideo = nil
 local overlayImage = nil
 local overlaySound = nil
+local overlayDragConn = nil
 local currentFile = nil
 local dragging = false
 local dragStart, startPos
@@ -15951,6 +15952,7 @@ local function removeOverlay()
         overlayVideo = nil
     end
     if overlayImage then
+        pcall(function() overlayImage:Destroy() end)
         overlayImage = nil
     end
     if overlaySound then
@@ -15961,6 +15963,10 @@ local function removeOverlay()
     if overlayFrame then
         overlayFrame:Destroy()
         overlayFrame = nil
+    end
+    if overlayDragConn then
+        pcall(function() overlayDragConn:Disconnect() end)
+        overlayDragConn = nil
     end
     if overlayGui then
         overlayGui:Destroy()
@@ -16000,8 +16006,11 @@ local function createOverlayGui()
             dragging = false
         end
     end)
-    _g().ELITE_HUB_Player:WaitForChild("PlayerGui").InputChanged:Connect(function(input)
-        if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+    if overlayDragConn then
+        pcall(function() overlayDragConn:Disconnect() end)
+    end
+    overlayDragConn = _g().ELITE_HUB_Player:WaitForChild("PlayerGui").InputChanged:Connect(function(input)
+        if dragging and overlayFrame and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
             local delta = input.Position - dragStart
             overlayFrame.Position = UDim2.new(
                 startPos.X.Scale, startPos.X.Offset + delta.X,
