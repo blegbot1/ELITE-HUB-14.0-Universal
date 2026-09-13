@@ -745,13 +745,20 @@ local SkyboxBackup = {}
 
 local SKYBOX_BASE = "https://raw.githubusercontent.com/blegbot1/ELITE-HUB-14.0-Universal/main/skybox/"
 
-local SKY_PRESETS = {
-    { name = "Alya Nebo",          file = "alya_nebo.jpg" },
-    { name = "Boykiser Love",      file = "boykiser_love.jpg" },
-    { name = "Boykiser Happy",     file = "boykiser_happy.jpg" },
-    { name = "My Photo",           file = "my_photo.png" },
-    { name = "Nebo Simple",        file = "nebo_simple.jpg" },
-}
+local SKY_PRESETS = {}
+do
+    local ok, json = pcall(function() return game:HttpGet(SKYBOX_BASE .. "presets.json", true) end)
+    if ok and json then
+        local dOK, decoded = pcall(function() return game:GetService("HttpService"):JSONDecode(json) end)
+        if dOK and decoded then
+            for _, entry in ipairs(decoded) do
+                if type(entry) == "table" and entry.name and entry.file then
+                    table.insert(SKY_PRESETS, entry)
+                end
+            end
+        end
+    end
+end
 
 local function DownloadAndSetSky(filename)
     SafeNotify("SKYBOX", "Loading sky...", 3)
