@@ -15918,16 +15918,18 @@ local OVERLAY_FILES = {
     { name = "Vranie",         file = "vranie.jpg",          type = "image" },
     { name = "Sobaka Kot",     file = "sobaka_kot.jpg",      type = "image" },
     { name = "Epstein",        file = "epstein.jpg",         type = "image" },
-    { name = "Femboy",         file = "femboy.webm",         type = "video", sound = "femboy_sound.mp3" },
-    { name = "Femboy Love",    file = "femboy_love.webm",    type = "video", sound = "femboy_love_sound.mp3" },
+    { name = "Femboy",         file = "femboy.webm",         type = "video", frameDir = "femboy_frames", frameCount = 11, sound = "femboy_sound.mp3" },
+    { name = "Femboy Love",    file = "femboy_love.webm",    type = "video", frameDir = "femboy_love_frames", frameCount = 12, sound = "femboy_love_sound.mp3" },
 }
 
 local overlayGui = nil
 local overlayFrame = nil
-local overlayVideo = nil
 local overlayImage = nil
 local overlaySound = nil
 local overlayDragConn = nil
+local overlayAnimConn = nil
+local overlayAnimFrames = {}
+local overlayAnimIndex = 1
 local currentFile = nil
 local dragging = false
 local dragStart, startPos
@@ -15945,10 +15947,12 @@ local function downloadFile(filename)
 end
 
 local function removeOverlay()
-    if overlayVideo then
-        pcall(function() overlayVideo:Stop() end)
-        overlayVideo = nil
+    if overlayAnimConn then
+        pcall(function() overlayAnimConn:Disconnect() end)
+        overlayAnimConn = nil
     end
+    overlayAnimFrames = {}
+    overlayAnimIndex = 1
     if overlayImage then
         pcall(function() overlayImage:Destroy() end)
         overlayImage = nil
@@ -16024,22 +16028,39 @@ local function showOverlay(entry)
     if not entry then return end
     currentFile = entry
 
-    local path = downloadFile(entry.file)
-    if not path then return end
-
-    local ok, asset = pcall(getcustomasset, path)
-    if not ok or not asset then return end
-
     createOverlayGui()
 
     if entry.type == "video" then
-        overlayVideo = Instance.new("VideoFrame")
-        overlayVideo.Size = UDim2.new(1, 0, 1, 0)
-        overlayVideo.BackgroundTransparency = 1
-        overlayVideo.Video = asset
-        overlayVideo.Looped = true
-        overlayVideo.Parent = overlayFrame
-        overlayVideo:Play()
+        local frames = {}
+        for i = 1, (entry.frameCount or 12) do
+            local fname = string.format("frame_%02d.jpg", i)
+            local fpath = downloadFile(entry.frameDir .. "/" .. fname)
+            if fpath then
+                local fOK, fAsset = pcall(getcustomasset, fpath)
+                if fOK and fAsset then
+                    table.insert(frames, fAsset)
+                end
+            end
+        end
+        if #frames == 0 then return end
+        overlayAnimFrames = frames
+        overlayAnimIndex = 1
+
+        overlayImage = Instance.new("ImageLabel")
+        overlayImage.Size = UDim2.new(1, 0, 1, 0)
+        overlayImage.BackgroundTransparency = 1
+        overlayImage.ScaleType = Enum.ScaleType.Fit
+        overlayImage.Image = frames[1]
+        overlayImage.Parent = overlayFrame
+
+        overlayAnimConn = game:GetService("RunService").Heartbeat:Connect(function()
+            if not overlayImage or not overlayFrame then return end
+            overlayAnimIndex = overlayAnimIndex + 1
+            if overlayAnimIndex > #overlayAnimFrames then
+                overlayAnimIndex = 1
+            end
+            overlayImage.Image = overlayAnimFrames[overlayAnimIndex]
+        end)
 
         if entry.sound then
             local soundPath = downloadFile(entry.sound)
@@ -16057,6 +16078,11 @@ local function showOverlay(entry)
             end
         end
     else
+        local path = downloadFile(entry.file)
+        if not path then return end
+        local ok, asset = pcall(getcustomasset, path)
+        if not ok or not asset then return end
+
         overlayImage = Instance.new("ImageLabel")
         overlayImage.Size = UDim2.new(1, 0, 1, 0)
         overlayImage.BackgroundTransparency = 1
