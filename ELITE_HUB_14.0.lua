@@ -13087,8 +13087,16 @@ local SkyboxBackup = {}
 
 local SKYBOX_BASE = "https://raw.githubusercontent.com/blegbot1/ELITE-HUB-14.0-Universal/main/skybox/"
 
-local function DownloadAndSetSky(url)
-    SafeNotify("SKYBOX", "DownloadAndSetSky called!", 3)
+local SKY_PRESETS = {
+    { name = "Alya Nebo",          file = "alya_nebo.jpg" },
+    { name = "Boykiser Love",      file = "boykiser_love.jpg" },
+    { name = "Boykiser Happy",     file = "boykiser_happy.jpg" },
+    { name = "My Photo",           file = "my_photo.png" },
+    { name = "Nebo Simple",        file = "nebo_simple.jpg" },
+}
+
+local function DownloadAndSetSky(filename)
+    SafeNotify("SKYBOX", "Loading sky...", 3)
     pcall(function()
         local lighting = game:GetService("Lighting")
         if not SkyboxBackup.done then
@@ -13105,9 +13113,10 @@ local function DownloadAndSetSky(url)
             SkyboxBackup.done = true
         end
         pcall(function() makefolder("elitehub") end)
-        local path = "elitehub/anime_sky.jpg"
+        local path = "elitehub/" .. filename
         if not isfile(path) then
-            SafeNotify("SKYBOX", "Downloading...", 2)
+            SafeNotify("SKYBOX", "Downloading " .. filename .. "...", 2)
+            local url = SKYBOX_BASE .. filename
             local ok, body = pcall(function() return game:HttpGet(url, true) end)
             if not ok or not body then
                 SafeNotify("SKYBOX", "Download failed: " .. tostring(body), 3)
@@ -13118,10 +13127,9 @@ local function DownloadAndSetSky(url)
         end
         local asset = getcustomasset(path)
         if not asset then
-            SafeNotify("SKYBOX", "getcustomasset failed for " .. path, 3)
+            SafeNotify("SKYBOX", "getcustomasset failed", 3)
             return
         end
-        SafeNotify("SKYBOX", "asset: " .. tostring(asset), 2)
         local sky = lighting:FindFirstChildOfClass("Sky")
         if not sky then
             sky = Instance.new("Sky")
@@ -13144,7 +13152,7 @@ local function DownloadAndSetSky(url)
         if not clouds then clouds = Instance.new("Clouds") clouds.Parent = workspace.Terrain end
         clouds.Cover = 0.4
         clouds.Density = 0.5
-        SafeNotify("SKYBOX", "Anime Sky applied!", 2)
+        SafeNotify("SKYBOX", "Sky applied!", 2)
     end)
 end
 
@@ -13198,7 +13206,7 @@ end
 
 MT:CreateDropdown({
     Name = " Sky Preset",
-    Options = {"Off", "Anime Sky", "Custom ID"},
+    Options = (function() local o = {"Off", "Custom ID"} for _, s in ipairs(SKY_PRESETS) do table.insert(o, 2, s.name) end return o end)(),
     CurrentOption = {"Off"},
     MultipleOptions = false,
     Callback = function(opt)
@@ -13209,12 +13217,17 @@ MT:CreateDropdown({
             ApplyCustomSkybox()
             return
         end
-        if choice == "Anime Sky" then
-            DownloadAndSetSky(SKYBOX_BASE .. "anime_sky.jpg")
-        elseif choice == "Custom ID" then
+        if choice == "Custom ID" then
             if getgenv().ELITE_HUB_SkyboxId ~= "" then
                 getgenv().ELITE_HUB_SkyboxEnabled = true
                 ApplyCustomSkybox()
+            end
+            return
+        end
+        for _, preset in ipairs(SKY_PRESETS) do
+            if preset.name == choice then
+                DownloadAndSetSky(preset.file)
+                return
             end
         end
     end
