@@ -1,6 +1,6 @@
 local _g = getgenv
-local Window = _g().ELITE_HUB_Window
-local MT = Window
+local VisualTab = _g().ELITE_HUB_VisualTab
+local MT = VisualTab
 
 local OVERLAY_BASE = "https://raw.githubusercontent.com/blegbot1/ELITE-HUB-14.0-Universal/main/overlays/"
 
