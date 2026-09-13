@@ -1,6 +1,4 @@
 local _g = getgenv
-local VisualTab = _g().ELITE_HUB_VisualTab
-local MT = VisualTab
 
 local OVERLAY_BASE = "https://raw.githubusercontent.com/blegbot1/ELITE-HUB-14.0-Universal/main/overlays/"
 
@@ -50,16 +48,16 @@ local function removeOverlay()
         pcall(function() overlaySound:Destroy() end)
         overlaySound = nil
     end
-    if overlayFrame then
-        overlayFrame:Destroy()
-        overlayFrame = nil
-    end
     if overlayDragConn then
         pcall(function() overlayDragConn:Disconnect() end)
         overlayDragConn = nil
     end
+    if overlayFrame then
+        pcall(function() overlayFrame:Destroy() end)
+        overlayFrame = nil
+    end
     if overlayGui then
-        overlayGui:Destroy()
+        pcall(function() overlayGui:Destroy() end)
         overlayGui = nil
     end
     currentFile = nil
@@ -99,7 +97,8 @@ local function createOverlayGui()
     if overlayDragConn then
         pcall(function() overlayDragConn:Disconnect() end)
     end
-    overlayDragConn = _g().ELITE_HUB_Player:WaitForChild("PlayerGui").InputChanged:Connect(function(input)
+    local UIS = game:GetService("UserInputService")
+    overlayDragConn = UIS.InputChanged:Connect(function(input)
         if dragging and overlayFrame and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
             local delta = input.Position - dragStart
             overlayFrame.Position = UDim2.new(
@@ -118,8 +117,8 @@ local function showOverlay(entry)
     local path = downloadFile(entry.file)
     if not path then return end
 
-    local asset = getcustomasset(path)
-    if not asset then return end
+    local ok, asset = pcall(getcustomasset, path)
+    if not ok or not asset then return end
 
     createOverlayGui()
 
@@ -153,92 +152,112 @@ _g().ELITE_HUB_OverlaySoundVol = 0.5
 _g().ELITE_HUB_OverlaySoundPlaying = false
 _g().ELITE_HUB_OverlaySize = 200
 
-local OverlaySection = MT:CreateSection("🎬 OVERLAY")
+local function initOverlayUI()
+    local tab = _g().ELITE_HUB_VisualTab
+    if not tab then tab = _g().ELITE_HUB_Window end
+    if not tab then return end
 
-local overlayDropdown = MT:CreateDropdown({
-    Name = " Select Overlay",
-    Options = (function() local o = {"None"} for _, v in ipairs(OVERLAY_FILES) do table.insert(o, v.name) end return o end)(),
-    CurrentOption = {"None"},
-    MultipleOptions = false,
-    Callback = function(opt)
-        local choice = (typeof(opt) == "table" and opt[1]) or opt or "None"
-        if choice == "None" then
-            removeOverlay()
-            return
-        end
-        for _, entry in ipairs(OVERLAY_FILES) do
-            if entry.name == choice then
-                showOverlay(entry)
-                return
+    pcall(function() tab:CreateSection("🎬 OVERLAY") end)
+
+    pcall(function()
+        tab:CreateDropdown({
+            Name = " Select Overlay",
+            Options = (function() local o = {"None"} for _, v in ipairs(OVERLAY_FILES) do table.insert(o, v.name) end return o end)(),
+            CurrentOption = {"None"},
+            MultipleOptions = false,
+            Callback = function(opt)
+                local choice = (typeof(opt) == "table" and opt[1]) or opt or "None"
+                if choice == "None" then
+                    removeOverlay()
+                    return
+                end
+                for _, entry in ipairs(OVERLAY_FILES) do
+                    if entry.name == choice then
+                        showOverlay(entry)
+                        return
+                    end
+                end
             end
-        end
-    end
-})
+        })
+    end)
 
-MT:CreateSlider({
-    Name = " Overlay Size",
-    Range = {50, 600},
-    Increment = 10,
-    CurrentValue = 200,
-    Callback = function(value)
-        _g().ELITE_HUB_OverlaySize = value
-        if overlayFrame then
-            overlayFrame.Size = UDim2.new(0, value, 0, value)
-        end
-    end
-})
-
-MT:CreateSlider({
-    Name = " Position X",
-    Range = {0, 100},
-    Increment = 1,
-    CurrentValue = 50,
-    Callback = function(value)
-        if overlayFrame then
-            local s = overlayFrame.Size
-            overlayFrame.Position = UDim2.new(value / 100, -s.X.Offset / 2, overlayFrame.Position.Y.Scale, overlayFrame.Position.Y.Offset)
-        end
-    end
-})
-
-MT:CreateSlider({
-    Name = " Position Y",
-    Range = {0, 100},
-    Increment = 1,
-    CurrentValue = 50,
-    Callback = function(value)
-        if overlayFrame then
-            local s = overlayFrame.Size
-            overlayFrame.Position = UDim2.new(overlayFrame.Position.X.Scale, overlayFrame.Position.X.Offset, value / 100, -s.Y.Offset / 2)
-        end
-    end
-})
-
-MT:CreateToggle({
-    Name = " Sound On/Off",
-    CurrentValue = false,
-    Callback = function(value)
-        if overlaySound then
-            if value then
-                pcall(function() overlaySound:Play() end)
-                _g().ELITE_HUB_OverlaySoundPlaying = true
-            else
-                pcall(function() overlaySound:Stop() end)
-                _g().ELITE_HUB_OverlaySoundPlaying = false
+    pcall(function()
+        tab:CreateSlider({
+            Name = " Overlay Size",
+            Range = {50, 600},
+            Increment = 10,
+            CurrentValue = 200,
+            Callback = function(value)
+                _g().ELITE_HUB_OverlaySize = value
+                if overlayFrame then
+                    overlayFrame.Size = UDim2.new(0, value, 0, value)
+                end
             end
-        end
-    end
-})
+        })
+    end)
 
-MT:CreateSlider({
-    Name = " Sound Volume",
-    Range = {0, 10},
-    Increment = 0.5,
-    CurrentValue = 0.5,
-    Callback = function(value)
-        _g().ELITE_HUB_OverlaySoundVol = value
-        if overlaySound then
-            overlaySound.Volume = value
-        end
-    end
-})
+    pcall(function()
+        tab:CreateSlider({
+            Name = " Position X",
+            Range = {0, 100},
+            Increment = 1,
+            CurrentValue = 50,
+            Callback = function(value)
+                if overlayFrame then
+                    local s = overlayFrame.Size
+                    overlayFrame.Position = UDim2.new(value / 100, -s.X.Offset / 2, overlayFrame.Position.Y.Scale, overlayFrame.Position.Y.Offset)
+                end
+            end
+        })
+    end)
+
+    pcall(function()
+        tab:CreateSlider({
+            Name = " Position Y",
+            Range = {0, 100},
+            Increment = 1,
+            CurrentValue = 50,
+            Callback = function(value)
+                if overlayFrame then
+                    local s = overlayFrame.Size
+                    overlayFrame.Position = UDim2.new(overlayFrame.Position.X.Scale, overlayFrame.Position.X.Offset, value / 100, -s.Y.Offset / 2)
+                end
+            end
+        })
+    end)
+
+    pcall(function()
+        tab:CreateToggle({
+            Name = " Sound On/Off",
+            CurrentValue = false,
+            Callback = function(value)
+                if overlaySound then
+                    if value then
+                        pcall(function() overlaySound:Play() end)
+                        _g().ELITE_HUB_OverlaySoundPlaying = true
+                    else
+                        pcall(function() overlaySound:Stop() end)
+                        _g().ELITE_HUB_OverlaySoundPlaying = false
+                    end
+                end
+            end
+        })
+    end)
+
+    pcall(function()
+        tab:CreateSlider({
+            Name = " Sound Volume",
+            Range = {0, 10},
+            Increment = 0.5,
+            CurrentValue = 0.5,
+            Callback = function(value)
+                _g().ELITE_HUB_OverlaySoundVol = value
+                if overlaySound then
+                    overlaySound.Volume = value
+                end
+            end
+        })
+    end)
+end
+
+task.spawn(initOverlayUI)
