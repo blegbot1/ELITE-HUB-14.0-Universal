@@ -13088,11 +13088,9 @@ local SkyboxBackup = {}
 local SKYBOX_BASE = "https://raw.githubusercontent.com/blegbot1/ELITE-HUB-14.0-Universal/main/skybox/"
 
 local function DownloadSkyTexture(url)
-    local hasReq = (type(request) == "function" or type(http_request) == "function")
     local canWrite = (type(writefile) == "function" and type(isfile) == "function")
-    if not (hasReq and canWrite and type(getcustomasset) == "function") then
-        return nil
-    end
+    local canGetCustom = (type(getcustomasset) == "function")
+    if not canWrite or not canGetCustom then return nil end
     local fn = url:match("/([^/]+)$") or "sky.jpg"
     fn = fn:gsub("[^%w%.%-]", "_")
     local path = "elitehub_sky_" .. fn
@@ -13100,21 +13098,56 @@ local function DownloadSkyTexture(url)
         return getgenv().ELITE_HUB_SkyCache[path]
     end
     if not isfile(path) then
-        local res
-        if type(request) == "function" then
-            res = request({ Url = url, Method = "GET" })
-        else
-            res = http_request({ Url = url, Method = "GET" })
-        end
-        if not res or not res.Success then return nil end
-        writefile(path, res.Body)
-        task.wait(0.3)
+        local ok, body = pcall(function() return game:HttpGet(url, true) end)
+        if not ok or not body then return nil end
+        writefile(path, body)
+        task.wait(0.5)
     end
     local ok, asset = pcall(function() return getcustomasset(path) end)
     if not ok or not asset then return nil end
     if not getgenv().ELITE_HUB_SkyCache then getgenv().ELITE_HUB_SkyCache = {} end
     getgenv().ELITE_HUB_SkyCache[path] = asset
     return asset
+end
+
+local function RemoveSkyDome()
+    local old = workspace:FindFirstChild("EliteHubSkyDome")
+    if old then pcall(function() old:Destroy() end) end
+end
+
+local function CreateSkyDome(assetId)
+    RemoveSkyDome()
+    local cam = workspace.CurrentCamera
+    local pos = cam and cam.CFrame.Position or Vector3.new(0, 50, 0)
+    local part = Instance.new("Part")
+    part.Name = "EliteHubSkyDome"
+    part.Anchored = true
+    part.CanCollide = false
+    part.CanQuery = false
+    part.CastShadow = false
+    part.Size = Vector3.new(4, 4, 4)
+    part.CFrame = CFrame.new(pos)
+    part.Transparency = 0
+    part.Material = Enum.Material.SmoothPlastic
+    part.TopSurface = Enum.SurfaceType.Smooth
+    part.BottomSurface = Enum.SurfaceType.Smooth
+    local mesh = Instance.new("SpecialMesh")
+    mesh.MeshType = Enum.MeshType.Sphere
+    mesh.Scale = Vector3.new(1000, 1000, 1000)
+    mesh.Parent = part
+    for _, face in ipairs({Enum.NormalId.Front, Enum.NormalId.Back, Enum.NormalId.Left, Enum.NormalId.Right, Enum.NormalId.Top, Enum.NormalId.Bottom}) do
+        local gui = Instance.new("SurfaceGui")
+        gui.Face = face
+        gui.LightInfluence = 0
+        gui.Parent = part
+        local img = Instance.new("ImageLabel")
+        img.Size = UDim2.new(1, 0, 1, 0)
+        img.BackgroundTransparency = 1
+        img.ScaleType = Enum.ScaleType.Stretch
+        img.Image = assetId
+        img.Parent = gui
+    end
+    part.Parent = workspace
 end
 
 local function ApplyCustomSkybox()
@@ -13148,7 +13181,9 @@ local function ApplyCustomSkybox()
             sky.SkyboxRt = id
             sky.SkyboxUp = id
             lighting.CelestialBrightnessOffset = 0
+            pcall(function() CreateSkyDome(id) end)
         else
+            RemoveSkyDome()
             if SkyboxBackup.done then
                 local sky = lighting:FindFirstChildOfClass("Sky")
                 if sky and SkyboxBackup.Sky then
