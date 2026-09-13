@@ -736,19 +736,14 @@ MT:CreateSlider({
     end
 })
 
-getgenv().ELITE_HUB_Log("UI", "Section loaded: CUSTOM SKYBOX")
-MT:CreateSection("🌌 CUSTOM SKYBOX")
+getgenv().ELITE_HUB_Log("UI", "Section loaded: SKYBOX & GRAPHICS")
+MT:CreateSection("🌌 SKYBOX & GRAPHICS")
 
 getgenv().ELITE_HUB_SkyboxEnabled = false
 getgenv().ELITE_HUB_SkyboxId = ""
 local SkyboxBackup = {}
 
 local SKYBOX_BASE = "https://raw.githubusercontent.com/blegbot1/ELITE-HUB-14.0-Universal/main/skybox/"
-
-local SkyboxPresets = {
-    ["Anime Sky"] = "anime_sky.jpg",
-    ["Custom ID"] = "",
-}
 
 local function DownloadSkyTexture(url)
     local hasReq = (type(request) == "function" or type(http_request) == "function")
@@ -810,7 +805,6 @@ local function ApplyCustomSkybox()
             sky.SkyboxLf = id
             sky.SkyboxRt = id
             sky.SkyboxUp = id
-            sky.SkyboxHidden = false
             lighting.CelestialBrightnessOffset = 0
         else
             if SkyboxBackup.done then
@@ -977,6 +971,151 @@ MT:CreateSlider({
             elseif clouds then
                 clouds:Destroy()
             end
+        end)
+    end
+})
+
+MT:CreateSection("🎨 REALISTIC GRAPHICS")
+
+local RealGfxBackup = {}
+
+MT:CreateToggle({
+    Name = " Realistic Atmosphere",
+    CurrentValue = false,
+    Callback = function(value)
+        pcall(function()
+            local l = game:GetService("Lighting")
+            local terrain = workspace:FindFirstChildOfClass("Terrain")
+            if value then
+                if not RealGfxBackup.done then
+                    RealGfxBackup.Brightness = l.Brightness
+                    RealGfxBackup.ClockTime = l.ClockTime
+                    RealGfxBackup.GlobalShadows = l.GlobalShadows
+                    RealGfxBackup.OutdoorAmbient = l.OutdoorAmbient
+                    RealGfxBackup.Ambient = l.Ambient
+                    RealGfxBackup.FogEnd = l.FogEnd
+                    RealGfxBackup.FogStart = l.FogStart
+                    RealGfxBackup.ExposureCompensation = l.ExposureCompensation
+                    RealGfxBackup.EnvDiffuse = l.EnvironmentDiffuseScale
+                    RealGfxBackup.EnvSpecular = l.EnvironmentSpecularScale
+                    RealGfxBackup.GeoLat = l.GeographicLatitude
+                    if terrain then
+                        RealGfxBackup.WaveSize = terrain.WaterWaveSize
+                        RealGfxBackup.WaveSpeed = terrain.WaterWaveSpeed
+                        RealGfxBackup.WaterTrans = terrain.WaterTransparency
+                        RealGfxBackup.WaterRefl = terrain.WaterReflectance
+                    end
+                    RealGfxBackup.done = true
+                end
+                l.GeographicLatitude = 0
+                l.Brightness = 2.4
+                l.ClockTime = 15
+                l.GlobalShadows = true
+                l.EnvironmentDiffuseScale = 1
+                l.EnvironmentSpecularScale = 1
+                l.ExposureCompensation = 0.1
+                l.OutdoorAmbient = Color3.fromRGB(140, 145, 150)
+                l.Ambient = Color3.fromRGB(80, 85, 90)
+                l.FogEnd = 100000
+                if terrain then
+                    terrain.WaterWaveSize = 0.12
+                    terrain.WaterWaveSpeed = 7
+                    terrain.WaterTransparency = 0.85
+                    terrain.WaterReflectance = 1
+                    terrain.WaterColor = Color3.fromRGB(35, 85, 115)
+                end
+                local atmo = l:FindFirstChild("RealAtmosphere")
+                if not atmo then atmo = Instance.new("Atmosphere") atmo.Name = "RealAtmosphere" atmo.Parent = l end
+                atmo.Enabled = true
+                atmo.Density = 0.22
+                atmo.Offset = 0.25
+                atmo.Haze = 0.8
+                atmo.Color = Color3.fromRGB(200, 220, 240)
+                atmo.Decay = Color3.fromRGB(150, 170, 190)
+                local cc = l:FindFirstChild("RealCC")
+                if not cc then cc = Instance.new("ColorCorrectionEffect") cc.Name = "RealCC" cc.Parent = l end
+                cc.Enabled = true
+                cc.Saturation = 0.1
+                cc.Contrast = 0.08
+                cc.TintColor = Color3.fromRGB(255, 255, 255)
+                local sun = l:FindFirstChild("RealSun")
+                if not sun then sun = Instance.new("SunRaysEffect") sun.Name = "RealSun" sun.Parent = l end
+                sun.Enabled = true
+                sun.Intensity = 0.15
+                sun.Spread = 0.85
+                local dof = l:FindFirstChild("RealDOF")
+                if not dof then dof = Instance.new("DepthOfFieldEffect") dof.Name = "RealDOF" dof.Parent = l end
+                dof.Enabled = true
+                dof.FarIntensity = 0.12
+                dof.FocusDistance = 90
+                dof.InFocusRadius = 50
+                dof.NearIntensity = 0
+                SafeNotify("GRAPHICS", "Realistic Atmosphere ON", 2)
+            else
+                if RealGfxBackup.done then
+                    l.Brightness = RealGfxBackup.Brightness
+                    l.ClockTime = RealGfxBackup.ClockTime
+                    l.GlobalShadows = RealGfxBackup.GlobalShadows
+                    l.OutdoorAmbient = RealGfxBackup.OutdoorAmbient
+                    l.Ambient = RealGfxBackup.Ambient
+                    l.FogEnd = RealGfxBackup.FogEnd
+                    l.FogStart = RealGfxBackup.FogStart
+                    l.ExposureCompensation = RealGfxBackup.ExposureCompensation
+                    l.EnvironmentDiffuseScale = RealGfxBackup.EnvDiffuse
+                    l.EnvironmentSpecularScale = RealGfxBackup.EnvSpecular
+                    l.GeographicLatitude = RealGfxBackup.GeoLat
+                    if terrain then
+                        terrain.WaterWaveSize = RealGfxBackup.WaveSize
+                        terrain.WaterWaveSpeed = RealGfxBackup.WaveSpeed
+                        terrain.WaterTransparency = RealGfxBackup.WaterTrans
+                        terrain.WaterReflectance = RealGfxBackup.WaterRefl
+                    end
+                end
+                for _, name in ipairs({"RealAtmosphere","RealCC","RealSun","RealDOF"}) do
+                    local fx = l:FindFirstChild(name)
+                    if fx then fx.Enabled = false end
+                end
+                RealGfxBackup = {}
+                SafeNotify("GRAPHICS", "Realistic Atmosphere OFF", 2)
+            end
+        end)
+    end
+})
+
+MT:CreateSlider({
+    Name = " Fog Distance",
+    Range = {1000, 200000},
+    Increment = 5000,
+    CurrentValue = 100000,
+    Callback = function(value)
+        pcall(function()
+            game:GetService("Lighting").FogEnd = value
+        end)
+    end
+})
+
+MT:CreateSlider({
+    Name = " Sun Intensity",
+    Range = {0, 1},
+    Increment = 0.05,
+    CurrentValue = 0.15,
+    Callback = function(value)
+        pcall(function()
+            local sun = game:GetService("Lighting"):FindFirstChild("RealSun")
+            if sun then sun.Intensity = value end
+        end)
+    end
+})
+
+MT:CreateSlider({
+    Name = " Water Transparency",
+    Range = {0, 1},
+    Increment = 0.05,
+    CurrentValue = 0.85,
+    Callback = function(value)
+        pcall(function()
+            local terrain = workspace:FindFirstChildOfClass("Terrain")
+            if terrain then terrain.WaterTransparency = value end
         end)
     end
 })
