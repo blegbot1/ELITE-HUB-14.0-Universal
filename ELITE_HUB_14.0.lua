@@ -13077,6 +13077,82 @@ MT:CreateSlider({
         getgenv().ELITE_HUB_Log("MODS", "Gravity: " .. value)
     end
 })
+
+getgenv().ELITE_HUB_Log("UI", "Section loaded: CUSTOM SKYBOX")
+MT:CreateSection("🌌 CUSTOM SKYBOX")
+
+getgenv().ELITE_HUB_SkyboxEnabled = false
+getgenv().ELITE_HUB_SkyboxId = ""
+local SkyboxBackup = {}
+
+local function ApplyCustomSkybox()
+    pcall(function()
+        local lighting = game:GetService("Lighting")
+        if getgenv().ELITE_HUB_SkyboxEnabled and getgenv().ELITE_HUB_SkyboxId ~= "" then
+            local id = getgenv().ELITE_HUB_SkyboxId
+            if not id:match("^rbxassetid://") then
+                id = "rbxassetid://" .. id
+            end
+            if not SkyboxBackup.done then
+                SkyboxBackup.Sky = lighting:FindFirstChildOfClass("Sky")
+                SkyboxBackup.SkyProps = {}
+                if SkyboxBackup.Sky then
+                    for _, p in ipairs({"SkyboxBk","SkyboxDn","SkyboxFt","SkyboxLf","SkyboxRt","SkyboxUp"}) do
+                        SkyboxBackup.SkyProps[p] = SkyboxBackup.Sky[p]
+                    end
+                end
+                SkyboxBackup.CB = lighting.CelestialBrightnessOffset
+                SkyboxBackup.done = true
+            end
+            local sky = lighting:FindFirstChildOfClass("Sky")
+            if not sky then
+                sky = Instance.new("Sky")
+                sky.Parent = lighting
+            end
+            sky.SkyboxBk = id
+            sky.SkyboxDn = id
+            sky.SkyboxFt = id
+            sky.SkyboxLf = id
+            sky.SkyboxRt = id
+            sky.SkyboxUp = id
+            sky.SkyboxHidden = false
+            lighting.CelestialBrightnessOffset = 0
+        else
+            if SkyboxBackup.done then
+                local sky = lighting:FindFirstChildOfClass("Sky")
+                if sky and SkyboxBackup.Sky then
+                    for _, p in ipairs({"SkyboxBk","SkyboxDn","SkyboxFt","SkyboxLf","SkyboxRt","SkyboxUp"}) do
+                        sky[p] = SkyboxBackup.SkyProps[p] or ""
+                    end
+                end
+                lighting.CelestialBrightnessOffset = SkyboxBackup.CB or 0
+                SkyboxBackup = {}
+            end
+        end
+    end)
+end
+
+MT:CreateToggle({
+    Name = " Custom Skybox",
+    CurrentValue = false,
+    Callback = function(value)
+        getgenv().ELITE_HUB_SkyboxEnabled = value
+        ApplyCustomSkybox()
+    end
+})
+
+MT:CreateInput({
+    Name = " Skybox Texture ID",
+    PlaceholderText = "Enter Roblox Decal ID (e.g. 1234567890)",
+    RemoveTextAfterFocusLost = false,
+    Callback = function(value)
+        local id = tostring(value):gsub("%s+", ""):gsub("[^0-9]", "")
+        getgenv().ELITE_HUB_SkyboxId = id
+        if getgenv().ELITE_HUB_SkyboxEnabled then
+            ApplyCustomSkybox()
+        end
+    end
+})
 end)()
 ;(function()
 -- source: ELITE_HUB_14.0.lua VisualPlus (lines 9105-9244)
