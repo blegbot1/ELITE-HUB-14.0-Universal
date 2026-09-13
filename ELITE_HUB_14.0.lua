@@ -14476,11 +14476,8 @@ getgenv().ELITE_HUB_MusicCache = {}
 
 local function ELITE_HUB_MusicGetId(url)
     if url:sub(1, 13) == "rbxassetid://" then return url end
-    local hasReq = (type(request) == "function" or type(http_request) == "function")
     local canWrite = (type(writefile) == "function" and type(isfile) == "function")
-    if not (hasReq and canWrite and type(getcustomasset) == "function") then
-        return nil, "executor lacks request/getcustomasset"
-    end
+    if not canWrite then return nil, "executor lacks writefile" end
     local fn = url:match("/([^/]+)$") or "track.mp3"
     fn = fn:gsub("[^%w%.%-]", "_")
     local path = "elitehub_" .. fn .. ".mp3"
@@ -14491,8 +14488,10 @@ local function ELITE_HUB_MusicGetId(url)
         local res
         if type(request) == "function" then
             res = request({ Url = url, Method = "GET" })
-        else
+        elseif type(http_request) == "function" then
             res = http_request({ Url = url, Method = "GET" })
+        else
+            return nil, "no request function"
         end
         if not res or not res.Success then
             return nil, "download failed for " .. fn
@@ -14500,10 +14499,31 @@ local function ELITE_HUB_MusicGetId(url)
         writefile(path, res.Body)
         task.wait(0.3)
     end
-    local ok, asset = pcall(function() return getcustomasset(path) end)
-    if not ok or not asset then return nil, "getcustomasset failed for " .. fn end
-    getgenv().ELITE_HUB_MusicCache[path] = asset
-    return asset
+    if type(getsynasset) == "function" then
+        local ok, asset = pcall(function() return getsynasset(path) end)
+        if ok and asset and asset:sub(1, 13) == "rbxassetid://" then
+            getgenv().ELITE_HUB_MusicCache[path] = asset
+            return asset
+        end
+    end
+    if type(getcustomasset) == "function" then
+        local ok, asset = pcall(function() return getcustomasset(path) end)
+        if ok and asset then
+            if asset:sub(1, 12) == "rbxassetid://" then
+                getgenv().ELITE_HUB_MusicCache[path] = asset
+                return asset
+            end
+            local alt = asset:gsub("^rbxasset://", "")
+            if alt ~= asset and alt:match("^%d+$") then
+                local fixed = "rbxassetid://" .. alt
+                getgenv().ELITE_HUB_MusicCache[path] = fixed
+                return fixed
+            end
+            getgenv().ELITE_HUB_MusicCache[path] = asset
+            return asset
+        end
+    end
+    return nil, "no asset function available"
 end
 getgenv().ELITE_HUB_MusicGetId = ELITE_HUB_MusicGetId
 
