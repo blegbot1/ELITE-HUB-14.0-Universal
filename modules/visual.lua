@@ -134,6 +134,7 @@ local function ApplyVisualSky()
     end
     end)
 end
+getgenv().ELITE_HUB_ApplyVisualSky = ApplyVisualSky
 
 local function SetupParticles(char)
     if not char then return end
@@ -199,6 +200,7 @@ local function SetupParticles(char)
         end
     end)
 end
+getgenv().ELITE_HUB_SetupParticles = function() SetupParticles(player.Character) end
 
 VisualTab:CreateSection("✨ PARTICLES")
 

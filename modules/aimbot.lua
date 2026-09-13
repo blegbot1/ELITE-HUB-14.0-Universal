@@ -332,7 +332,7 @@ local function UpdateTargetIndicator()
         AimLine.Visible = false
     end
 
-    if false and AimbotConfig.ShowTargetArrow and onScreen then
+    if AimbotConfig.ShowTargetArrow and onScreen then
         local dir = (vp - indicatorPos)
         local len = dir.Magnitude
         if len > 0.001 then
@@ -861,6 +861,7 @@ CombatTab:CreateToggle({
         getgenv().ELITE_HUB_AimbotEnabled = value
         Log("AIMBOT", "Aimbot : " .. tostring(value))
         if value then
+            Running = true
             if FOVCircle then FOVCircle.Visible = true end
             Rayfield:Notify({
                 Title = "🎯 Aimbot",
@@ -986,7 +987,7 @@ CombatTab:CreateToggle({
 
 CombatTab:CreateDropdown({
     Name = " Target key",
-    Options = {"MouseButton2", "MouseButton1", "LeftControl", "X", "C", "F", "V", "Shift"},
+    Options = {"MouseButton2", "MouseButton1", "LeftControl", "X", "C", "F", "V", "LeftShift"},
     CurrentOption = AimbotConfig.TriggerKey,
     Callback = function(option)
         AimbotConfig.TriggerKey = option

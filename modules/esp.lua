@@ -1025,6 +1025,7 @@ local function RefreshESPOnRespawn()
         LK[tp] = nil
     end
 end
+getgenv().ELITE_HUB_UpdateESP = UpdateESP
 
 local espHandlerConns = {}
 
@@ -1091,12 +1092,6 @@ ESPTab:CreateToggle({
     Callback = function(value)
         ESPConfig.Enabled = value
         if value then
-            ESPConfig.Boxes = true
-            ESPConfig.Names = true
-            ESPConfig.Health = true
-            ESPConfig.Distance = true
-            ESPConfig.Tracers = true
-            
             UpdateESP()
             Rayfield:Notify({
                 Title = "👁 ESP",
