@@ -91,32 +91,34 @@ do
         end
     end)
 
-    MT:CreateSection("🛡 ANTI-FLING")
-    MT:CreateToggle({
-        Name = " Anti-Fling (auto ON)",
-        CurrentValue = true,
-        Callback = function(value)
-            AF_ENABLED = value
-            getgenv().ELITE_HUB_AntiFling = value
-            if value then
-                for _, p in ipairs(Players:GetPlayers()) do
-                    if p ~= player and p.Character then
-                        setupCharacterCollision(p.Character)
+    pcall(function()
+        MT:CreateSection("🛡 ANTI-FLING")
+        MT:CreateToggle({
+            Name = " Anti-Fling (auto ON)",
+            CurrentValue = true,
+            Callback = function(value)
+                AF_ENABLED = value
+                getgenv().ELITE_HUB_AntiFling = value
+                if value then
+                    for _, p in ipairs(Players:GetPlayers()) do
+                        if p ~= player and p.Character then
+                            setupCharacterCollision(p.Character)
+                        end
                     end
-                end
-                SafeNotify("ANTI-FLING", "ON", 1.5, "AntiFling")
-            else
-                for _, p in ipairs(Players:GetPlayers()) do
-                    if p ~= player and p.Character then
-                        for _, part in ipairs(p.Character:GetChildren()) do
-                            if part:IsA("BasePart") then
-                                part.CanCollide = true
+                    SafeNotify("ANTI-FLING", "ON", 1.5, "AntiFling")
+                else
+                    for _, p in ipairs(Players:GetPlayers()) do
+                        if p ~= player and p.Character then
+                            for _, part in ipairs(p.Character:GetChildren()) do
+                                if part:IsA("BasePart") then
+                                    part.CanCollide = true
+                                end
                             end
                         end
                     end
+                    SafeNotify("ANTI-FLING", "OFF", 1.5, "AntiFling")
                 end
-                SafeNotify("ANTI-FLING", "OFF", 1.5, "AntiFling")
             end
-        end
-    })
+        })
+    end)
 end

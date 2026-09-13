@@ -2966,7 +2966,7 @@ loadModuleChunk("modules/music.lua")()
 loadModuleChunk("modules/range.lua")()
 loadModuleChunk("modules/item_finder.lua")()
 loadModuleChunk("modules/settings.lua")()
-loadModuleChunk("modules/anti_fling.lua")()
+pcall(function() loadModuleChunk("modules/anti_fling.lua")() end)
 loadModuleChunk("modules/watchdog.lua")()
 getgenv().ELITE_HUB_HASKER_LOADED = true
 getgenv().ELITE_HUB_Log("UI", "ELITE HUB modules loaded")
