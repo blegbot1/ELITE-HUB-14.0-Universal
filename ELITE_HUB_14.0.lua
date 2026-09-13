@@ -16053,7 +16053,7 @@ local function showOverlay(entry)
         overlayImage.Image = frames[1]
         overlayImage.Parent = overlayFrame
 
-        _g().ELITE_HUB_OverlayFrameDelay = _g().ELITE_HUB_OverlayFrameDelay or 0.15
+        _g().ELITE_HUB_OverlayFrameDelay = _g().ELITE_HUB_OverlayFrameDelay or 0.17
         local elapsed = 0
         overlayAnimConn = game:GetService("RunService").Heartbeat:Connect(function(dt)
             if not overlayImage or not overlayFrame then return end
@@ -16182,7 +16182,7 @@ local function initOverlayUI()
             Name = " Frame Speed",
             Range = {0.03, 0.5},
             Increment = 0.01,
-            CurrentValue = 0.15,
+            CurrentValue = 0.17,
             Callback = function(value)
                 _g().ELITE_HUB_OverlayFrameDelay = value
             end
