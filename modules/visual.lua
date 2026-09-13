@@ -745,77 +745,44 @@ local SkyboxBackup = {}
 
 local SKYBOX_BASE = "https://raw.githubusercontent.com/blegbot1/ELITE-HUB-14.0-Universal/main/skybox/"
 
-local function DownloadSkyTexture(url)
-    local canWrite = (type(writefile) == "function" and type(isfile) == "function")
-    local canGetCustom = (type(getcustomasset) == "function")
-    if not canWrite or not canGetCustom then return nil end
-    local fn = url:match("/([^/]+)$") or "sky.jpg"
-    fn = fn:gsub("[^%w%.%-]", "_")
-    local path = "elitehub_sky_" .. fn
-    if getgenv().ELITE_HUB_SkyCache and getgenv().ELITE_HUB_SkyCache[path] and isfile(path) then
-        return getgenv().ELITE_HUB_SkyCache[path]
-    end
-    if not isfile(path) then
-        local ok, body = pcall(function() return game:HttpGet(url, true) end)
-        if not ok or not body then return nil end
-        writefile(path, body)
-        task.wait(0.5)
-    end
-    local ok, asset = pcall(function() return getcustomasset(path) end)
-    if not ok or not asset then return nil end
-    if not getgenv().ELITE_HUB_SkyCache then getgenv().ELITE_HUB_SkyCache = {} end
-    getgenv().ELITE_HUB_SkyCache[path] = asset
-    return asset
-end
-
-local function RemoveSkyDome()
-    local old = workspace:FindFirstChild("EliteHubSkyDome")
-    if old then pcall(function() old:Destroy() end) end
-end
-
-local function CreateSkyDome(assetId)
-    RemoveSkyDome()
-    local folder = Instance.new("Folder")
-    folder.Name = "EliteHubSkyDome"
-    folder.Parent = workspace
-    local cam = workspace.CurrentCamera
-    local pos = cam and cam.CFrame.Position or Vector3.new(0, 50, 0)
-    local S = 800
-    local faces = {
-        {Enum.NormalId.Front,  CFrame.new(pos) * CFrame.new(0, 0, -S/2)},
-        {Enum.NormalId.Back,   CFrame.new(pos) * CFrame.new(0, 0, S/2) * CFrame.Angles(0, math.pi, 0)},
-        {Enum.NormalId.Left,   CFrame.new(pos) * CFrame.new(-S/2, 0, 0) * CFrame.Angles(0, math.pi/2, 0)},
-        {Enum.NormalId.Right,  CFrame.new(pos) * CFrame.new(S/2, 0, 0) * CFrame.Angles(0, -math.pi/2, 0)},
-        {Enum.NormalId.Top,    CFrame.new(pos) * CFrame.new(0, S/2, 0) * CFrame.Angles(math.pi/2, 0, 0)},
-        {Enum.NormalId.Bottom, CFrame.new(pos) * CFrame.new(0, -S/2, 0) * CFrame.Angles(-math.pi/2, 0, 0)},
-    }
-    for _, data in ipairs(faces) do
-        local face, cf = data[1], data[2]
-        local p = Instance.new("Part")
-        p.Name = "SkyFace_" .. tostring(face)
-        p.Anchored = true
-        p.CanCollide = false
-        p.CanQuery = false
-        p.CastShadow = false
-        p.Size = Vector2.new(S, S)
-        p.Size = Vector3.new(S, S, 1)
-        p.CFrame = cf
-        p.Transparency = 0
-        p.Material = Enum.Material.SmoothPlastic
-        p.TopSurface = Enum.SurfaceType.Smooth
-        p.BottomSurface = Enum.SurfaceType.Smooth
-        p.Parent = folder
-        local gui = Instance.new("SurfaceGui")
-        gui.Face = face
-        gui.LightInfluence = 0
-        gui.Parent = p
-        local img = Instance.new("ImageLabel")
-        img.Size = UDim2.new(1, 0, 1, 0)
-        img.BackgroundTransparency = 1
-        img.ScaleType = Enum.ScaleType.Stretch
-        img.Image = assetId
-        img.Parent = gui
-    end
+local function DownloadAndSetSky(url)
+    pcall(function()
+        local lighting = game:GetService("Lighting")
+        local path = "elitehub_anime_sky.jpg"
+        if not isfile(path) then
+            local body = game:HttpGet(url, true)
+            writefile(path, body)
+            task.wait(0.5)
+        end
+        local asset = getcustomasset(path)
+        if not asset then
+            SafeNotify("SKYBOX", "getcustomasset failed", 3)
+            return
+        end
+        local sky = lighting:FindFirstChildOfClass("Sky")
+        if not sky then
+            sky = Instance.new("Sky")
+            sky.Parent = lighting
+        end
+        sky.SkyboxBk = asset
+        sky.SkyboxDn = asset
+        sky.SkyboxFt = asset
+        sky.SkyboxLf = asset
+        sky.SkyboxRt = asset
+        sky.SkyboxUp = asset
+        lighting.Brightness = 2
+        lighting.ClockTime = 14.5
+        local atmo = lighting:FindFirstChildOfClass("Atmosphere")
+        if not atmo then atmo = Instance.new("Atmosphere") atmo.Parent = lighting end
+        atmo.Density = 0.3
+        atmo.Color = Color3.fromRGB(180, 200, 255)
+        sky.StarCount = 500
+        local clouds = workspace:FindFirstChildOfClass("Clouds")
+        if not clouds then clouds = Instance.new("Clouds") clouds.Parent = workspace.Terrain end
+        clouds.Cover = 0.4
+        clouds.Density = 0.5
+        SafeNotify("SKYBOX", "Anime Sky applied!", 2)
+    end)
 end
 
 local function ApplyCustomSkybox()
@@ -849,9 +816,7 @@ local function ApplyCustomSkybox()
             sky.SkyboxRt = id
             sky.SkyboxUp = id
             lighting.CelestialBrightnessOffset = 0
-            pcall(function() CreateSkyDome(id) end)
         else
-            RemoveSkyDome()
             if SkyboxBackup.done then
                 local sky = lighting:FindFirstChildOfClass("Sky")
                 if sky and SkyboxBackup.Sky then
@@ -880,31 +845,7 @@ MT:CreateDropdown({
             return
         end
         if choice == "Anime Sky" then
-            local assetUrl = SKYBOX_BASE .. "anime_sky.jpg"
-            local assetId = DownloadSkyTexture(assetUrl)
-            if assetId then
-                getgenv().ELITE_HUB_SkyboxId = assetId
-                getgenv().ELITE_HUB_SkyboxEnabled = true
-                ApplyCustomSkybox()
-                pcall(function()
-                    local l = game:GetService("Lighting")
-                    l.Brightness = 2
-                    l.ClockTime = 14.5
-                    local atmo = l:FindFirstChildOfClass("Atmosphere")
-                    if not atmo then atmo = Instance.new("Atmosphere") atmo.Parent = l end
-                    atmo.Density = 0.3
-                    atmo.Color = Color3.fromRGB(180, 200, 255)
-                    local sky = l:FindFirstChildOfClass("Sky")
-                    if sky then sky.StarCount = 500 end
-                    local clouds = workspace:FindFirstChildOfClass("Clouds")
-                    if not clouds then clouds = Instance.new("Clouds") clouds.Parent = workspace.Terrain end
-                    clouds.Cover = 0.4
-                    clouds.Density = 0.5
-                end)
-                SafeNotify("SKYBOX", "Anime Sky applied!", 2)
-            else
-                SafeNotify("SKYBOX", "Failed to load sky texture", 3)
-            end
+            DownloadAndSetSky(SKYBOX_BASE .. "anime_sky.jpg")
         elseif choice == "Custom ID" then
             if getgenv().ELITE_HUB_SkyboxId ~= "" then
                 getgenv().ELITE_HUB_SkyboxEnabled = true
