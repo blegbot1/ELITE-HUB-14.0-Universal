@@ -13117,29 +13117,40 @@ end
 
 local function CreateSkyDome(assetId)
     RemoveSkyDome()
+    local folder = Instance.new("Folder")
+    folder.Name = "EliteHubSkyDome"
+    folder.Parent = workspace
     local cam = workspace.CurrentCamera
     local pos = cam and cam.CFrame.Position or Vector3.new(0, 50, 0)
-    local part = Instance.new("Part")
-    part.Name = "EliteHubSkyDome"
-    part.Anchored = true
-    part.CanCollide = false
-    part.CanQuery = false
-    part.CastShadow = false
-    part.Size = Vector3.new(4, 4, 4)
-    part.CFrame = CFrame.new(pos)
-    part.Transparency = 0
-    part.Material = Enum.Material.SmoothPlastic
-    part.TopSurface = Enum.SurfaceType.Smooth
-    part.BottomSurface = Enum.SurfaceType.Smooth
-    local mesh = Instance.new("SpecialMesh")
-    mesh.MeshType = Enum.MeshType.Sphere
-    mesh.Scale = Vector3.new(1000, 1000, 1000)
-    mesh.Parent = part
-    for _, face in ipairs({Enum.NormalId.Front, Enum.NormalId.Back, Enum.NormalId.Left, Enum.NormalId.Right, Enum.NormalId.Top, Enum.NormalId.Bottom}) do
+    local S = 800
+    local faces = {
+        {Enum.NormalId.Front,  CFrame.new(pos) * CFrame.new(0, 0, -S/2)},
+        {Enum.NormalId.Back,   CFrame.new(pos) * CFrame.new(0, 0, S/2) * CFrame.Angles(0, math.pi, 0)},
+        {Enum.NormalId.Left,   CFrame.new(pos) * CFrame.new(-S/2, 0, 0) * CFrame.Angles(0, math.pi/2, 0)},
+        {Enum.NormalId.Right,  CFrame.new(pos) * CFrame.new(S/2, 0, 0) * CFrame.Angles(0, -math.pi/2, 0)},
+        {Enum.NormalId.Top,    CFrame.new(pos) * CFrame.new(0, S/2, 0) * CFrame.Angles(math.pi/2, 0, 0)},
+        {Enum.NormalId.Bottom, CFrame.new(pos) * CFrame.new(0, -S/2, 0) * CFrame.Angles(-math.pi/2, 0, 0)},
+    }
+    for _, data in ipairs(faces) do
+        local face, cf = data[1], data[2]
+        local p = Instance.new("Part")
+        p.Name = "SkyFace_" .. tostring(face)
+        p.Anchored = true
+        p.CanCollide = false
+        p.CanQuery = false
+        p.CastShadow = false
+        p.Size = Vector2.new(S, S)
+        p.Size = Vector3.new(S, S, 1)
+        p.CFrame = cf
+        p.Transparency = 0
+        p.Material = Enum.Material.SmoothPlastic
+        p.TopSurface = Enum.SurfaceType.Smooth
+        p.BottomSurface = Enum.SurfaceType.Smooth
+        p.Parent = folder
         local gui = Instance.new("SurfaceGui")
         gui.Face = face
         gui.LightInfluence = 0
-        gui.Parent = part
+        gui.Parent = p
         local img = Instance.new("ImageLabel")
         img.Size = UDim2.new(1, 0, 1, 0)
         img.BackgroundTransparency = 1
@@ -13147,7 +13158,6 @@ local function CreateSkyDome(assetId)
         img.Image = assetId
         img.Parent = gui
     end
-    part.Parent = workspace
 end
 
 local function ApplyCustomSkybox()
