@@ -56,6 +56,7 @@ local ESPConfig = {
     TracerThickness = 3,
     Box3DThickness = 3,
     Box3DSize = 3.0,
+    CornerLength = 0.25,
     FriendCheck = false,
     FriendColor = Color3.fromRGB(0, 170, 255),
     HighlightTarget = false,
@@ -917,7 +918,7 @@ local function UpdateCornerBoxESP()
             local isDead = humanoid.Health <= 0
             local col = isDead and ESPConfig.DeadColor or ESPConfig.Box3DColor
             local thick = ESPConfig.Box3DThickness or 2
-            local cornerLen = math.max(size.X, size.Y, size.Z) * 0.25
+            local cornerLen = math.max(size.X, size.Y, size.Z) * ESPConfig.CornerLength
             local signs = {
                 {sx = -1, sy = -1, sz = -1},
                 {sx =  1, sy = -1, sz = -1},
@@ -1311,6 +1312,17 @@ ESPTab:CreateSlider({
     CurrentValue = ESPConfig.Box3DSize,
     Callback = function(value)
         ESPConfig.Box3DSize = value
+    end
+})
+
+ESPTab:CreateSlider({
+    Name = " Corner length",
+    Range = {0.05, 0.5},
+    Increment = 0.01,
+    Suffix = "x",
+    CurrentValue = ESPConfig.CornerLength,
+    Callback = function(value)
+        ESPConfig.CornerLength = value
     end
 })
 
