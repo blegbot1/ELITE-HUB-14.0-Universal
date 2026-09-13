@@ -746,6 +746,7 @@ local SkyboxBackup = {}
 local SKYBOX_BASE = "https://raw.githubusercontent.com/blegbot1/ELITE-HUB-14.0-Universal/main/skybox/"
 
 local function DownloadAndSetSky(url)
+    SafeNotify("SKYBOX", "DownloadAndSetSky called!", 3)
     pcall(function()
         local lighting = game:GetService("Lighting")
         if not SkyboxBackup.done then
