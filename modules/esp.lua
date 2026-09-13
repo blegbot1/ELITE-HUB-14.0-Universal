@@ -433,6 +433,15 @@ local function UpdateHealthBars()
     end
 end
 
+local function ClearCornerBox(targetPlayer)
+    if CornerBoxObjects[targetPlayer] then
+        for _, line in ipairs(CornerBoxObjects[targetPlayer]) do
+            if line then pcall(function() line:Remove() end) end
+        end
+        CornerBoxObjects[targetPlayer] = nil
+    end
+end
+
 local function ClearPlayerESP(targetPlayer)
     if ESPObjects[targetPlayer] then
         if ESPObjects[targetPlayer].Highlight then
@@ -862,14 +871,6 @@ local function UpdateBox3DESP()
     end
 end
 
-local function ClearCornerBox(targetPlayer)
-    if CornerBoxObjects[targetPlayer] then
-        for _, line in ipairs(CornerBoxObjects[targetPlayer]) do
-            if line then pcall(function() line:Remove() end) end
-        end
-        CornerBoxObjects[targetPlayer] = nil
-    end
-end
 
 local function UpdateCornerBoxESP()
     if not ESPConfig.Enabled or not ESPConfig.Boxes or ESPConfig.BoxStyle ~= "Corners" then return end
