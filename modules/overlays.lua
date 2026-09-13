@@ -68,8 +68,9 @@ local function createOverlayGui()
     overlayGui.Parent = _g().ELITE_HUB_Player:WaitForChild("PlayerGui")
 
     overlayFrame = Instance.new("Frame")
-    overlayFrame.Size = UDim2.new(0, 200, 0, 200)
-    overlayFrame.Position = UDim2.new(0.5, -100, 0.5, -100)
+    local sz = _g().ELITE_HUB_OverlaySize or 200
+    overlayFrame.Size = UDim2.new(0, sz, 0, sz)
+    overlayFrame.Position = UDim2.new(0.5, -sz/2, 0.5, -sz/2)
     overlayFrame.BackgroundTransparency = 1
     overlayFrame.Parent = overlayGui
 
@@ -174,6 +175,32 @@ MT:CreateSlider({
         _g().ELITE_HUB_OverlaySize = value
         if overlayFrame then
             overlayFrame.Size = UDim2.new(0, value, 0, value)
+        end
+    end
+})
+
+MT:CreateSlider({
+    Name = " Position X",
+    Range = {0, 100},
+    Increment = 1,
+    CurrentValue = 50,
+    Callback = function(value)
+        if overlayFrame then
+            local s = overlayFrame.Size
+            overlayFrame.Position = UDim2.new(value / 100, -s.X.Offset / 2, overlayFrame.Position.Y.Scale, overlayFrame.Position.Y.Offset)
+        end
+    end
+})
+
+MT:CreateSlider({
+    Name = " Position Y",
+    Range = {0, 100},
+    Increment = 1,
+    CurrentValue = 50,
+    Callback = function(value)
+        if overlayFrame then
+            local s = overlayFrame.Size
+            overlayFrame.Position = UDim2.new(overlayFrame.Position.X.Scale, overlayFrame.Position.X.Offset, value / 100, -s.Y.Offset / 2)
         end
     end
 })
